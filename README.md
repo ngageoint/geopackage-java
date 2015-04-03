@@ -2,7 +2,7 @@
 
 GeoPackage is a Java implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/).
 
-TODO
+The GeoPackage Java library provides the ability to read, create, and edit GeoPackage files.
 
 GeoPackage was developed at the National Geospatial-Intelligence Agency (NGA) in collaboration with [BIT Systems](https://www.bit-sys.com/index.jsp). The government has "unlimited rights" and is releasing this software to increase the impact of government investments by providing developers with the opportunity to take things in new directions. The software use, modification, and distribution rights are stipulated within the [MIT license](http://choosealicense.com/licenses/mit/).
 
@@ -13,7 +13,35 @@ Software source code previously released under an open source license and then m
 
 ### Usage ###
 
-    TODO
+    // File newGeoPackage = ...;
+    // File existingGeoPackage = ...;
+    
+    // Create a new GeoPackage
+    boolean created = GeoPackageManager.create(newGeoPackage)
+    
+    // Open a GeoPackage
+    GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage)
+    
+    // GeoPackage Table DAOs
+    SpatialReferenceSystemDao srsDao = getSpatialReferenceSystemDao();
+    ContentsDao contentsDao = geoPackage.getContentsDao();
+    GeometryColumnsDao geomColumnsDao = geoPackage.getGeometryColumnsDao();
+    TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
+    TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+    DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+    DataColumnConstraintsDao dataColumnConstraintsDao = geoPackage.getDataColumnConstraintsDao();
+    MetadataDao metadataDao = geoPackage.getMetadataDao();
+    MetadataReferenceDao metadataReferenceDao = geoPackage.getMetadataReferenceDao();
+    ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
+    
+    // Feature and tile tables
+    List<String> features = geoPackage.getFeatureTables();
+    List<String> tiles = geoPackage.getTileTables();
+    
+    // TODO Features and Tiles
+    
+    // Close database when done
+    geoPackage.close();
 
 ### License ###
 
