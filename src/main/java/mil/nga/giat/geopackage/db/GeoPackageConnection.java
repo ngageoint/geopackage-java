@@ -140,6 +140,15 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public int delete(String table, String whereClause, String[] whereArgs) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void close() {
 		connectionSource.closeQuietly();
 		try {
