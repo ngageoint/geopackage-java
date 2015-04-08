@@ -38,7 +38,32 @@ Software source code previously released under an open source license and then m
     List<String> features = geoPackage.getFeatureTables();
     List<String> tiles = geoPackage.getTileTables();
     
-    // TODO Features and Tiles
+    // Query Features
+    FeatureDao featureDao = geoPackage.getFeatureDao(features.get(0));
+    FeatureResultSet featureResultSet = featureDao.queryForAll();
+    try{
+        while(featureResultSet.moveToNext()){
+            FeatureRow featureRow = featureResultSet.getRow();
+            GeoPackageGeometryData geometryData = featureRow.getGeometry();
+            Geometry geometry = geometryData.getGeometry();
+            // ...
+        }
+    }finally{
+        featureResultSet.close();
+    }
+    
+    // Query Tiles
+    TileDao tileDao = geoPackage.getTileDao(tiles.get(0));
+    TileResultSet tileResultSet = tileDao.queryForAll();
+    try{
+        while(tileResultSet.moveToNext()){
+            TileRow tileRow = tileResultSet.getRow();
+            byte[] tileBytes = tileRow.getTileData();
+            // ...
+        }
+    }finally{
+        tileResultSet.close();
+    }
     
     // Close database when done
     geoPackage.close();
@@ -69,6 +94,12 @@ Software source code previously released under an open source license and then m
 
 ### Dependencies ###
 
+#### Remote ####
+
 * [GeoPackage Core](https://git.geointapps.org/geopackage/geopackage-core) (The MIT License (MIT)) - GeoPackage Library
 * [OrmLite](http://ormlite.com/) (Open Source License) - Object Relational Mapping (ORM) Library
 * [SQLite JDBC](https://bitbucket.org/xerial/sqlite-jdbc) (Apache License, Version 2.0) - SQLiteJDBC library
+
+#### Embedded ####
+
+* [The Android Open Source Project](https://source.android.com/) (Apache License, Version 2.0) - Slightly modified subset of SQLiteQueryBuilder
