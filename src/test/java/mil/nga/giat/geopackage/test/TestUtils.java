@@ -4,26 +4,36 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import junit.framework.TestCase;
 import mil.nga.giat.geopackage.GeoPackage;
 import mil.nga.giat.geopackage.GeoPackageException;
 import mil.nga.giat.geopackage.core.contents.Contents;
 import mil.nga.giat.geopackage.db.GeoPackageDataType;
+import mil.nga.giat.geopackage.features.columns.GeometryColumns;
 import mil.nga.giat.geopackage.features.user.FeatureColumn;
+import mil.nga.giat.geopackage.features.user.FeatureDao;
+import mil.nga.giat.geopackage.features.user.FeatureRow;
 import mil.nga.giat.geopackage.features.user.FeatureTable;
+import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.giat.geopackage.schema.columns.DataColumns;
 import mil.nga.giat.geopackage.schema.columns.DataColumnsDao;
 import mil.nga.giat.geopackage.schema.constraints.DataColumnConstraintType;
 import mil.nga.giat.geopackage.schema.constraints.DataColumnConstraints;
 import mil.nga.giat.geopackage.schema.constraints.DataColumnConstraintsDao;
+import mil.nga.giat.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.giat.geopackage.tiles.user.TileColumn;
+import mil.nga.giat.geopackage.tiles.user.TileDao;
+import mil.nga.giat.geopackage.tiles.user.TileRow;
 import mil.nga.giat.geopackage.tiles.user.TileTable;
+import mil.nga.giat.wkb.geom.Geometry;
 import mil.nga.giat.wkb.geom.GeometryType;
 import mil.nga.giat.wkb.geom.LineString;
 import mil.nga.giat.wkb.geom.Point;
@@ -149,149 +159,147 @@ public class TestUtils {
 		return table;
 	}
 
-	// TODO
-	// /**
-	// * Add rows to the feature table
-	// *
-	// * @param geoPackage
-	// * @param geometryColumns
-	// * @param table
-	// * @param numRows
-	// * @param hasZ
-	// * @param hasM
-	// * @throws SQLException
-	// */
-	// public static void addRowsToFeatureTable(GeoPackage geoPackage,
-	// GeometryColumns geometryColumns, FeatureTable table, int numRows,
-	// boolean hasZ, boolean hasM) throws SQLException {
-	//
-	// FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
-	//
-	// for (int i = 0; i < numRows; i++) {
-	//
-	// FeatureRow newRow = dao.newRow();
-	//
-	// for (FeatureColumn column : table.getColumns()) {
-	// if (!column.isPrimaryKey()) {
-	//
-	// // Leave nullable columns null 20% of the time
-	// if (!column.isNotNull()) {
-	// if (Math.random() < .2) {
-	// continue;
-	// }
-	// }
-	//
-	// if (column.isGeometry()) {
-	//
-	// Geometry geometry = null;
-	//
-	// switch (column.getGeometryType()) {
-	// case POINT:
-	// geometry = createPoint(hasZ, hasM);
-	// break;
-	// case LINESTRING:
-	// geometry = createLineString(hasZ, hasM, false);
-	// break;
-	// case POLYGON:
-	// geometry = createPolygon(hasZ, hasM);
-	// break;
-	// default:
-	// throw new UnsupportedOperationException(
-	// "Not implemented for geometry type: "
-	// + column.getGeometryType());
-	// }
-	//
-	// GeoPackageGeometryData geometryData = new GeoPackageGeometryData(
-	// geometryColumns.getSrsId());
-	// geometryData.setGeometry(geometry);
-	//
-	// newRow.setGeometry(geometryData);
-	//
-	// } else {
-	//
-	// Object value = null;
-	//
-	// switch (column.getDataType()) {
-	//
-	// case TEXT:
-	// String text = UUID.randomUUID().toString();
-	// if (column.getMax() != null
-	// && text.length() > column.getMax()) {
-	// text = text.substring(0, column.getMax()
-	// .intValue());
-	// }
-	// value = text;
-	// break;
-	// case REAL:
-	// case DOUBLE:
-	// value = Math.random() * 5000.0;
-	// break;
-	// case BOOLEAN:
-	// value = Math.random() < .5 ? false : true;
-	// break;
-	// case INTEGER:
-	// case INT:
-	// value = (int) (Math.random() * 500);
-	// break;
-	// case BLOB:
-	// byte[] blob = UUID.randomUUID().toString()
-	// .getBytes();
-	// if (column.getMax() != null
-	// && blob.length > column.getMax()) {
-	// byte[] blobLimited = new byte[column.getMax()
-	// .intValue()];
-	// ByteBuffer.wrap(blob, 0,
-	// column.getMax().intValue()).get(
-	// blobLimited);
-	// blob = blobLimited;
-	// }
-	// value = blob;
-	// break;
-	// default:
-	// throw new UnsupportedOperationException(
-	// "Not implemented for data type: "
-	// + column.getDataType());
-	// }
-	//
-	// newRow.setValue(column.getName(), value);
-	// }
-	//
-	// }
-	// }
-	// dao.create(newRow);
-	// }
-	// }
+	/**
+	 * Add rows to the feature table
+	 *
+	 * @param geoPackage
+	 * @param geometryColumns
+	 * @param table
+	 * @param numRows
+	 * @param hasZ
+	 * @param hasM
+	 * @throws SQLException
+	 */
+	public static void addRowsToFeatureTable(GeoPackage geoPackage,
+			GeometryColumns geometryColumns, FeatureTable table, int numRows,
+			boolean hasZ, boolean hasM) throws SQLException {
 
-	// TODO
-	// /**
-	// * Add rows to the tile table
-	// *
-	// * @param geoPackage
-	// * @param tileMatrix
-	// * @param tileData
-	// */
-	// public static void addRowsToTileTable(GeoPackage geoPackage,
-	// TileMatrix tileMatrix, byte[] tileData) {
-	//
-	// TileDao dao = geoPackage.getTileDao(tileMatrix.getTableName());
-	//
-	// for (int column = 0; column < tileMatrix.getMatrixWidth(); column++) {
-	//
-	// for (int row = 0; row < tileMatrix.getMatrixHeight(); row++) {
-	//
-	// TileRow newRow = dao.newRow();
-	//
-	// newRow.setZoomLevel(tileMatrix.getZoomLevel());
-	// newRow.setTileColumn(column);
-	// newRow.setTileRow(row);
-	// newRow.setTileData(tileData);
-	//
-	// dao.create(newRow);
-	// }
-	//
-	// }
-	//
-	// }
+		FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
+
+		for (int i = 0; i < numRows; i++) {
+
+			FeatureRow newRow = dao.newRow();
+
+			for (FeatureColumn column : table.getColumns()) {
+				if (!column.isPrimaryKey()) {
+
+					// Leave nullable columns null 20% of the time
+					if (!column.isNotNull()) {
+						if (Math.random() < .2) {
+							continue;
+						}
+					}
+
+					if (column.isGeometry()) {
+
+						Geometry geometry = null;
+
+						switch (column.getGeometryType()) {
+						case POINT:
+							geometry = createPoint(hasZ, hasM);
+							break;
+						case LINESTRING:
+							geometry = createLineString(hasZ, hasM, false);
+							break;
+						case POLYGON:
+							geometry = createPolygon(hasZ, hasM);
+							break;
+						default:
+							throw new UnsupportedOperationException(
+									"Not implemented for geometry type: "
+											+ column.getGeometryType());
+						}
+
+						GeoPackageGeometryData geometryData = new GeoPackageGeometryData(
+								geometryColumns.getSrsId());
+						geometryData.setGeometry(geometry);
+
+						newRow.setGeometry(geometryData);
+
+					} else {
+
+						Object value = null;
+
+						switch (column.getDataType()) {
+
+						case TEXT:
+							String text = UUID.randomUUID().toString();
+							if (column.getMax() != null
+									&& text.length() > column.getMax()) {
+								text = text.substring(0, column.getMax()
+										.intValue());
+							}
+							value = text;
+							break;
+						case REAL:
+						case DOUBLE:
+							value = Math.random() * 5000.0;
+							break;
+						case BOOLEAN:
+							value = Math.random() < .5 ? false : true;
+							break;
+						case INTEGER:
+						case INT:
+							value = (int) (Math.random() * 500);
+							break;
+						case BLOB:
+							byte[] blob = UUID.randomUUID().toString()
+									.getBytes();
+							if (column.getMax() != null
+									&& blob.length > column.getMax()) {
+								byte[] blobLimited = new byte[column.getMax()
+										.intValue()];
+								ByteBuffer.wrap(blob, 0,
+										column.getMax().intValue()).get(
+										blobLimited);
+								blob = blobLimited;
+							}
+							value = blob;
+							break;
+						default:
+							throw new UnsupportedOperationException(
+									"Not implemented for data type: "
+											+ column.getDataType());
+						}
+
+						newRow.setValue(column.getName(), value);
+					}
+
+				}
+			}
+			dao.create(newRow);
+		}
+	}
+
+	/**
+	 * Add rows to the tile table
+	 *
+	 * @param geoPackage
+	 * @param tileMatrix
+	 * @param tileData
+	 */
+	public static void addRowsToTileTable(GeoPackage geoPackage,
+			TileMatrix tileMatrix, byte[] tileData) {
+
+		TileDao dao = geoPackage.getTileDao(tileMatrix.getTableName());
+
+		for (int column = 0; column < tileMatrix.getMatrixWidth(); column++) {
+
+			for (int row = 0; row < tileMatrix.getMatrixHeight(); row++) {
+
+				TileRow newRow = dao.newRow();
+
+				newRow.setZoomLevel(tileMatrix.getZoomLevel());
+				newRow.setTileColumn(column);
+				newRow.setTileRow(row);
+				newRow.setTileData(tileData);
+
+				dao.create(newRow);
+			}
+
+		}
+
+	}
 
 	/**
 	 * Create a random point

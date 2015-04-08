@@ -1,7 +1,17 @@
 package mil.nga.giat.geopackage.test.geom;
 
+import java.io.IOException;
+import java.nio.ByteOrder;
+import java.sql.SQLException;
+import java.util.List;
+
 import junit.framework.TestCase;
+import mil.nga.giat.geopackage.GeoPackage;
 import mil.nga.giat.geopackage.GeoPackageException;
+import mil.nga.giat.geopackage.features.columns.GeometryColumns;
+import mil.nga.giat.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.giat.geopackage.features.user.FeatureDao;
+import mil.nga.giat.geopackage.features.user.FeatureResultSet;
 import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.giat.geopackage.geom.GeoPackageGeometryEnvelope;
 import mil.nga.giat.wkb.geom.CircularString;
@@ -26,102 +36,100 @@ import mil.nga.giat.wkb.geom.Triangle;
  * @author osbornb
  */
 public class GeoPackageGeometryDataUtils {
-	//TODO
-//	/**
-//	 * Test reading and writing (and comparing) geometry bytes
-//	 * 
-//	 * @param geoPackage
-//	 * @throws SQLException
-//	 * @throws IOException
-//	 */
-//	public static void testReadWriteBytes(GeoPackage geoPackage)
-//			throws SQLException, IOException {
-//
-//		GeometryColumnsDao geometryColumnsDao = geoPackage
-//				.getGeometryColumnsDao();
-//
-//		if (geometryColumnsDao.isTableExists()) {
-//			List<GeometryColumns> results = geometryColumnsDao.queryForAll();
-//
-//			for (GeometryColumns geometryColumns : results) {
-//
-//				FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
-//				TestCase.assertNotNull(dao);
-//
-//				FeatureCursor cursor = dao.queryForAll();
-//
-//				while (cursor.moveToNext()) {
-//
-//					GeoPackageGeometryData geometryData = cursor.getGeometry();
-//					if (geometryData != null) {
-//
-//						byte[] geometryDataToBytes = geometryData.toBytes();
-//						compareByteArrays(geometryDataToBytes,
-//								geometryData.getBytes());
-//
-//						GeoPackageGeometryData geometryDataAfterToBytes = geometryData;
-//
-//						// Re-retrieve the original geometry data
-//						geometryData = cursor.getGeometry();
-//
-//						// Compare the original with the toBytes geometry data
-//						compareGeometryData(geometryData,
-//								geometryDataAfterToBytes);
-//
-//						// Create a new geometry data from the bytes and compare
-//						// with original
-//						GeoPackageGeometryData geometryDataFromBytes = new GeoPackageGeometryData(
-//								geometryDataToBytes);
-//						compareGeometryData(geometryData, geometryDataFromBytes);
-//
-//						// Set the geometry empty flag and verify the geometry
-//						// was
-//						// not written / read
-//						geometryDataAfterToBytes = cursor.getGeometry();
-//						geometryDataAfterToBytes.setEmpty(true);
-//						geometryDataToBytes = geometryDataAfterToBytes
-//								.toBytes();
-//						geometryDataFromBytes = new GeoPackageGeometryData(
-//								geometryDataToBytes);
-//						TestCase.assertNull(geometryDataFromBytes.getGeometry());
-//						compareByteArrays(
-//								geometryDataAfterToBytes.getHeaderBytes(),
-//								geometryDataFromBytes.getHeaderBytes());
-//
-//						// Flip the byte order and verify the header and bytes
-//						// no
-//						// longer matches the original, but the geometries still
-//						// do
-//						geometryDataAfterToBytes = cursor.getGeometry();
-//						geometryDataAfterToBytes
-//								.setByteOrder(geometryDataAfterToBytes
-//										.getByteOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN
-//										: ByteOrder.BIG_ENDIAN);
-//						geometryDataToBytes = geometryDataAfterToBytes
-//								.toBytes();
-//						geometryDataFromBytes = new GeoPackageGeometryData(
-//								geometryDataToBytes);
-//						compareGeometryData(geometryDataAfterToBytes,
-//								geometryDataFromBytes);
-//						TestCase.assertFalse(equalByteArrays(
-//								geometryDataAfterToBytes.getHeaderBytes(),
-//								geometryData.getHeaderBytes()));
-//						TestCase.assertFalse(equalByteArrays(
-//								geometryDataAfterToBytes.getWkbBytes(),
-//								geometryData.getWkbBytes()));
-//						TestCase.assertFalse(equalByteArrays(
-//								geometryDataAfterToBytes.getBytes(),
-//								geometryData.getBytes()));
-//						compareGeometries(geometryData.getGeometry(),
-//								geometryDataAfterToBytes.getGeometry());
-//					}
-//
-//				}
-//				cursor.close();
-//			}
-//		}
-//
-//	}
+
+	/**
+	 * Test reading and writing (and comparing) geometry bytes
+	 * 
+	 * @param geoPackage
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	public static void testReadWriteBytes(GeoPackage geoPackage)
+			throws SQLException, IOException {
+
+		GeometryColumnsDao geometryColumnsDao = geoPackage
+				.getGeometryColumnsDao();
+
+		if (geometryColumnsDao.isTableExists()) {
+			List<GeometryColumns> results = geometryColumnsDao.queryForAll();
+
+			for (GeometryColumns geometryColumns : results) {
+
+				FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
+				TestCase.assertNotNull(dao);
+
+				FeatureResultSet cursor = dao.queryForAll();
+
+				while (cursor.moveToNext()) {
+
+					GeoPackageGeometryData geometryData = cursor.getGeometry();
+					if (geometryData != null) {
+
+						byte[] geometryDataToBytes = geometryData.toBytes();
+						compareByteArrays(geometryDataToBytes,
+								geometryData.getBytes());
+
+						GeoPackageGeometryData geometryDataAfterToBytes = geometryData;
+
+						// Re-retrieve the original geometry data
+						geometryData = cursor.getGeometry();
+
+						// Compare the original with the toBytes geometry data
+						compareGeometryData(geometryData,
+								geometryDataAfterToBytes);
+
+						// Create a new geometry data from the bytes and compare
+						// with original
+						GeoPackageGeometryData geometryDataFromBytes = new GeoPackageGeometryData(
+								geometryDataToBytes);
+						compareGeometryData(geometryData, geometryDataFromBytes);
+
+						// Set the geometry empty flag and verify the geometry
+						// was not written / read
+						geometryDataAfterToBytes = cursor.getGeometry();
+						geometryDataAfterToBytes.setEmpty(true);
+						geometryDataToBytes = geometryDataAfterToBytes
+								.toBytes();
+						geometryDataFromBytes = new GeoPackageGeometryData(
+								geometryDataToBytes);
+						TestCase.assertNull(geometryDataFromBytes.getGeometry());
+						compareByteArrays(
+								geometryDataAfterToBytes.getHeaderBytes(),
+								geometryDataFromBytes.getHeaderBytes());
+
+						// Flip the byte order and verify the header and bytes
+						// no longer matches the original, but the geometries
+						// still do
+						geometryDataAfterToBytes = cursor.getGeometry();
+						geometryDataAfterToBytes
+								.setByteOrder(geometryDataAfterToBytes
+										.getByteOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN
+										: ByteOrder.BIG_ENDIAN);
+						geometryDataToBytes = geometryDataAfterToBytes
+								.toBytes();
+						geometryDataFromBytes = new GeoPackageGeometryData(
+								geometryDataToBytes);
+						compareGeometryData(geometryDataAfterToBytes,
+								geometryDataFromBytes);
+						TestCase.assertFalse(equalByteArrays(
+								geometryDataAfterToBytes.getHeaderBytes(),
+								geometryData.getHeaderBytes()));
+						TestCase.assertFalse(equalByteArrays(
+								geometryDataAfterToBytes.getWkbBytes(),
+								geometryData.getWkbBytes()));
+						TestCase.assertFalse(equalByteArrays(
+								geometryDataAfterToBytes.getBytes(),
+								geometryData.getBytes()));
+						compareGeometries(geometryData.getGeometry(),
+								geometryDataAfterToBytes.getGeometry());
+					}
+
+				}
+				cursor.close();
+			}
+		}
+
+	}
 
 	/**
 	 * Compare two geometry datas and verify they are equal

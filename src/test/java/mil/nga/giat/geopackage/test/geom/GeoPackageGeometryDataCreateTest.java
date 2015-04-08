@@ -3,9 +3,9 @@ package mil.nga.giat.geopackage.test.geom;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import org.junit.Test;
-
 import mil.nga.giat.geopackage.test.CreateGeoPackageTestCase;
+
+import org.junit.Test;
 
 /**
  * Test GeoPackage Geometry Data from a created database
@@ -29,8 +29,8 @@ public class GeoPackageGeometryDataCreateTest extends CreateGeoPackageTestCase {
 	 */
 	@Test
 	public void testReadWriteBytes() throws SQLException, IOException {
-//TODO
-//		GeoPackageGeometryDataUtils.testReadWriteBytes(geoPackage);
+
+		GeoPackageGeometryDataUtils.testReadWriteBytes(geoPackage);
 
 	}
 

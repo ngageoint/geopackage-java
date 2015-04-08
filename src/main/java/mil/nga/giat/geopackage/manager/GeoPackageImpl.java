@@ -70,8 +70,34 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		FeatureTableReader tableReader = new FeatureTableReader(geometryColumns);
 		FeatureConnection userDb = new FeatureConnection(database);
 		final FeatureTable featureTable = tableReader.readTable(userDb);
+		userDb.setTable(featureTable);
 		FeatureDao dao = new FeatureDao(database, userDb, geometryColumns,
 				featureTable);
+
+		// TODO
+		// GeoPackages created with SQLite version 4.2.0+ with GeoPackage
+		// support are not supported in sqlite-jdbc (3.8.6 version from October
+		// 8, 2014 uses SQLite version 3.8.6). To edit features, drop the
+		// following triggers. May be able to define the missing functions
+		// instead of dropping them.
+		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
+				+ geometryColumns.getTableName() + "_"
+				+ geometryColumns.getColumnName() + "_insert");
+		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
+				+ geometryColumns.getTableName() + "_"
+				+ geometryColumns.getColumnName() + "_update1");
+		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
+				+ geometryColumns.getTableName() + "_"
+				+ geometryColumns.getColumnName() + "_update2");
+		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
+				+ geometryColumns.getTableName() + "_"
+				+ geometryColumns.getColumnName() + "_update3");
+		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
+				+ geometryColumns.getTableName() + "_"
+				+ geometryColumns.getColumnName() + "_update4");
+		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
+				+ geometryColumns.getTableName() + "_"
+				+ geometryColumns.getColumnName() + "_delete");
 
 		return dao;
 	}
@@ -89,7 +115,17 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 					+ FeatureDao.class.getSimpleName());
 		}
 
-		GeometryColumns geometryColumns = contents.getGeometryColumns();
+		GeometryColumns geometryColumns = null;
+		try {
+			geometryColumns = getGeometryColumnsDao().queryForTableName(
+					contents.getTableName());
+		} catch (SQLException e) {
+			throw new GeoPackageException("No "
+					+ GeometryColumns.class.getSimpleName()
+					+ " could be retrieved for "
+					+ Contents.class.getSimpleName() + " " + contents.getId());
+		}
+
 		if (geometryColumns == null) {
 			throw new GeoPackageException("No "
 					+ GeometryColumns.class.getSimpleName() + " exists for "
@@ -167,6 +203,7 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 				tileMatrixSet.getTableName());
 		TileConnection userDb = new TileConnection(database);
 		final TileTable tileTable = tableReader.readTable(userDb);
+		userDb.setTable(tileTable);
 		TileDao dao = new TileDao(database, userDb, tileMatrixSet,
 				tileMatrices, tileTable);
 
@@ -185,7 +222,17 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 					+ " is required to create " + TileDao.class.getSimpleName());
 		}
 
-		TileMatrixSet tileMatrixSet = contents.getTileMatrixSet();
+		TileMatrixSet tileMatrixSet = null;
+		try {
+			tileMatrixSet = getTileMatrixSetDao().queryForId(
+					contents.getTableName());
+		} catch (SQLException e) {
+			throw new GeoPackageException("No "
+					+ TileMatrixSet.class.getSimpleName()
+					+ " could be retrieved for "
+					+ Contents.class.getSimpleName() + " " + contents.getId());
+		}
+
 		if (tileMatrixSet == null) {
 			throw new GeoPackageException("No "
 					+ TileMatrixSet.class.getSimpleName() + " exists for "

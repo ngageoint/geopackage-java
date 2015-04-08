@@ -1,6 +1,11 @@
 package mil.nga.giat.geopackage.user;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+
 import mil.nga.giat.geopackage.db.GeoPackageConnection;
+import mil.nga.giat.geopackage.db.SQLUtils;
+import mil.nga.giat.geopackage.db.SQLiteQueryBuilder;
 
 /**
  * GeoPackage Connection used to define common functionality within different
@@ -17,9 +22,14 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 		extends UserCoreConnection<TColumn, TTable, TRow, TResult> {
 
 	/**
-	 * Database connection
+	 * Connection
 	 */
-	private final GeoPackageConnection database;
+	private final Connection connection;
+
+	/**
+	 * Table
+	 */
+	protected TTable table;
 
 	/**
 	 * Constructor
@@ -27,16 +37,46 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * @param database
 	 */
 	protected UserConnection(GeoPackageConnection database) {
-		this.database = database;
+		this.connection = database.getConnection();
 	}
+
+	/**
+	 * Get the table
+	 * 
+	 * @return
+	 */
+	public TTable getTable() {
+		return table;
+	}
+
+	/**
+	 * Set the table
+	 * 
+	 * @param table
+	 */
+	public void setTable(TTable table) {
+		this.table = table;
+	}
+
+	/**
+	 * Create a result by wrapping the ResultSet
+	 * 
+	 * @param resultSet
+	 * @param count
+	 * @return
+	 */
+	protected abstract TResult createResult(ResultSet resultSet, int count);
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public TResult rawQuery(String sql, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return null;
+
+		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
+		int count = SQLUtils.count(connection, sql, selectionArgs);
+
+		return createResult(resultSet, count);
 	}
 
 	/**
@@ -46,8 +86,14 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	public TResult query(String table, String[] columns, String selection,
 			String[] selectionArgs, String groupBy, String having,
 			String orderBy) {
-		// TODO Auto-generated method stub
-		return null;
+
+		String sql = SQLiteQueryBuilder.buildQueryString(false, table, columns,
+				selection, groupBy, having, orderBy, null);
+
+		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
+		int count = SQLUtils.count(connection, sql, selectionArgs);
+
+		return createResult(resultSet, count);
 	}
 
 	/**
@@ -57,8 +103,14 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	public TResult query(String table, String[] columns, String selection,
 			String[] selectionArgs, String groupBy, String having,
 			String orderBy, String limit) {
-		// TODO Auto-generated method stub
-		return null;
+
+		String sql = SQLiteQueryBuilder.buildQueryString(false, table, columns,
+				selection, groupBy, having, orderBy, limit);
+
+		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
+		int count = SQLUtils.count(connection, sql, selectionArgs);
+
+		return createResult(resultSet, count);
 	}
 
 }

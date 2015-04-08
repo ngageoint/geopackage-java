@@ -333,18 +333,17 @@ public class TestSetupTeardown {
 		lineString3dMGeometryColumns.setM((byte) 1);
 		geometryColumnsDao.create(lineString3dMGeometryColumns);
 
-		// TODO
-		// // Populate the feature tables with rows
-		// TestUtils.addRowsToFeatureTable(geoPackage, point2dGeometryColumns,
-		// point2dTable, 3, false, false);
-		// TestUtils.addRowsToFeatureTable(geoPackage, polygon2dGeometryColumns,
-		// polygon2dTable, 3, false, false);
-		// TestUtils.addRowsToFeatureTable(geoPackage, point3dGeometryColumns,
-		// point3dTable, 3, true, false);
-		// TestUtils
-		// .addRowsToFeatureTable(geoPackage,
-		// lineString3dMGeometryColumns, lineString3dMTable, 3,
-		// true, true);
+		// Populate the feature tables with rows
+		TestUtils.addRowsToFeatureTable(geoPackage, point2dGeometryColumns,
+				point2dTable, 3, false, false);
+		TestUtils.addRowsToFeatureTable(geoPackage, polygon2dGeometryColumns,
+				polygon2dTable, 3, false, false);
+		TestUtils.addRowsToFeatureTable(geoPackage, point3dGeometryColumns,
+				point3dTable, 3, true, false);
+		TestUtils
+				.addRowsToFeatureTable(geoPackage,
+						lineString3dMGeometryColumns, lineString3dMTable, 3,
+						true, true);
 
 	}
 
@@ -445,9 +444,8 @@ public class TestSetupTeardown {
 			pixelXSize /= 2.0;
 			pixelYSize /= 2.0;
 
-			// TODO
-			// // Populate the tile table with rows
-			// TestUtils.addRowsToTileTable(geoPackage, tileMatrix, tileData);
+			// Populate the tile table with rows
+			TestUtils.addRowsToTileTable(geoPackage, tileMatrix, tileData);
 		}
 
 	}

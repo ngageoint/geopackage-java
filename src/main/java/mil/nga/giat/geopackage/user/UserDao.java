@@ -1,6 +1,9 @@
 package mil.nga.giat.geopackage.user;
 
+import java.sql.Connection;
+
 import mil.nga.giat.geopackage.db.GeoPackageConnection;
+import mil.nga.giat.geopackage.db.SQLUtils;
 
 /**
  * Abstract User DAO for reading user tables
@@ -18,7 +21,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	/**
 	 * Connection
 	 */
-	private final GeoPackageConnection db;
+	private final Connection connection;
 
 	/**
 	 * Constructor
@@ -30,7 +33,16 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	protected UserDao(GeoPackageConnection db,
 			UserConnection<TColumn, TTable, TRow, TResult> userDb, TTable table) {
 		super(db, userDb, table);
-		this.db = db;
+		this.connection = db.getConnection();
+	}
+
+	/**
+	 * Get the database connection
+	 * 
+	 * @return
+	 */
+	public Connection getConnection() {
+		return connection;
 	}
 
 	/**
@@ -38,8 +50,28 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 */
 	@Override
 	public int update(TRow row) {
-		// TODO Auto-generated method stub
-		return 0;
+		ContentValues contentValues = row.toContentValues();
+		int updated = 0;
+		if (contentValues.size() > 0) {
+			updated = SQLUtils.update(connection, getTableName(),
+					contentValues, getPkWhere(row.getId()),
+					getPkWhereArgs(row.getId()));
+		}
+		return updated;
+	}
+
+	/**
+	 * Update all rows matching the where clause with the provided values
+	 * 
+	 * @param values
+	 * @param whereClause
+	 * @param whereArgs
+	 * @return
+	 */
+	public int update(ContentValues values, String whereClause,
+			String[] whereArgs) {
+		return SQLUtils.update(connection, getTableName(), values, whereClause,
+				whereArgs);
 	}
 
 	/**
@@ -47,17 +79,30 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 */
 	@Override
 	public long insert(TRow row) {
-		// TODO Auto-generated method stub
-		return 0;
+		long id = SQLUtils.insertOrThrow(connection, getTableName(),
+				row.toContentValues());
+		row.setId(id);
+		return id;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Inserts a new row
+	 * 
+	 * @param values
+	 * @return row id, -1 on error
 	 */
-	@Override
-	public int count(String where, String[] args) {
-		// TODO Auto-generated method stub
-		return 0;
+	public long insert(ContentValues values) {
+		return SQLUtils.insert(connection, getTableName(), values);
+	}
+
+	/**
+	 * Inserts a new row
+	 * 
+	 * @param values
+	 * @return row id
+	 */
+	public long insertOrThrow(ContentValues values) {
+		return SQLUtils.insertOrThrow(connection, getTableName(), values);
 	}
 
 }

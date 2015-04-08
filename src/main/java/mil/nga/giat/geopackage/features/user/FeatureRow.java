@@ -1,6 +1,10 @@
 package mil.nga.giat.geopackage.features.user;
 
+import java.io.IOException;
+
+import mil.nga.giat.geopackage.GeoPackageException;
 import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.giat.geopackage.user.ContentValues;
 import mil.nga.giat.geopackage.user.UserRow;
 
 /**
@@ -69,6 +73,42 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 */
 	public void setGeometry(GeoPackageGeometryData geometryData) {
 		setValue(getGeometryColumnIndex(), geometryData);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Handles geometry columns
+	 */
+	@Override
+	protected void columnToContentValue(ContentValues contentValues,
+			FeatureColumn column, Object value) {
+
+		if (column.isGeometry()) {
+
+			String columnName = column.getName();
+
+			if (value instanceof GeoPackageGeometryData) {
+				GeoPackageGeometryData geometryData = (GeoPackageGeometryData) value;
+				try {
+					contentValues.put(columnName, geometryData.toBytes());
+				} catch (IOException e) {
+					throw new GeoPackageException(
+							"Failed to write Geometry Data bytes. column: "
+									+ columnName, e);
+				}
+			} else if (value instanceof byte[]) {
+				contentValues.put(columnName, (byte[]) value);
+			} else {
+				throw new GeoPackageException(
+						"Unsupported update geometry column value type. column: "
+								+ columnName + ", value type: "
+								+ value.getClass().getName());
+			}
+		} else {
+			super.columnToContentValue(contentValues, column, value);
+		}
+
 	}
 
 }

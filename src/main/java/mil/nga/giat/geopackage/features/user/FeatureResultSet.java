@@ -18,9 +18,10 @@ public class FeatureResultSet extends
 	 * 
 	 * @param dao
 	 * @param resultSet
+	 * @param count
 	 */
-	public FeatureResultSet(FeatureTable table, ResultSet resultSet) {
-		super(table, resultSet);
+	public FeatureResultSet(FeatureTable table, ResultSet resultSet, int count) {
+		super(table, resultSet, count);
 	}
 
 	/**

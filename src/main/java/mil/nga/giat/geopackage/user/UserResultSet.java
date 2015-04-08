@@ -3,12 +3,14 @@ package mil.nga.giat.geopackage.user;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import mil.nga.giat.geopackage.GeoPackageException;
 import mil.nga.giat.geopackage.db.GeoPackageDataType;
 
 /**
- * Abstract User Result Set
+ * Abstract User Result Set. The column index of the GeoPackage core is 0
+ * indexed based and ResultSets are 1 indexed based.
  * 
  * @param <TColumn>
  * @param <TTable>
@@ -30,14 +32,20 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	private ResultSet resultSet;
 
 	/**
+	 * Result count
+	 */
+	private int count;
+
+	/**
 	 * Constructor
 	 * 
 	 * @param table
 	 * @param resultSet
 	 */
-	protected UserResultSet(TTable table, ResultSet resultSet) {
+	protected UserResultSet(TTable table, ResultSet resultSet, int count) {
 		this.table = table;
 		this.resultSet = resultSet;
+		this.count = count;
 	}
 
 	/**
@@ -72,28 +80,89 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	@Override
 	public TRow getRow() {
 
-		int[] columnTypes = new int[table.columnCount()];
-		Object[] values = new Object[table.columnCount()];
+		TRow row = null;
 
-		try {
+		if (table != null) {
 
-			ResultSetMetaData metaData = resultSet.getMetaData();
+			int[] columnTypes = new int[table.columnCount()];
+			Object[] values = new Object[table.columnCount()];
 
-			for (TColumn column : table.getColumns()) {
+			try {
 
-				int index = column.getIndex();
+				ResultSetMetaData metaData = resultSet.getMetaData();
 
-				columnTypes[index] = metaData.getColumnType(index);
+				for (TColumn column : table.getColumns()) {
 
-				values[index] = getValue(column);
+					int index = column.getIndex();
+
+					Object value = getValue(column);
+					values[index] = value;
+
+					int columnType;
+					if (value == null) {
+						columnType = UserCoreResultUtils.FIELD_TYPE_NULL;
+					} else {
+						int metadataColumnType = metaData
+								.getColumnType(coreIndexToResultSetIndex(index));
+						columnType = resultSetTypeToSqlLite(metadataColumnType);
+					}
+					columnTypes[index] = columnType;
+				}
+			} catch (SQLException e) {
+				throw new GeoPackageException("Failed to retrieve the row", e);
 			}
-		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to retrieve the row", e);
+
+			row = getRow(columnTypes, values);
+
 		}
 
-		TRow row = getRow(columnTypes, values);
-
 		return row;
+	}
+
+	/**
+	 * Get the SQLite type from the ResultSetMetaData column type
+	 * 
+	 * @param columnType
+	 * @return
+	 */
+	private int resultSetTypeToSqlLite(int columnType) {
+
+		int type;
+
+		switch (columnType) {
+		case Types.INTEGER:
+		case Types.BIGINT:
+		case Types.SMALLINT:
+		case Types.TINYINT:
+		case Types.BOOLEAN:
+			type = UserCoreResultUtils.FIELD_TYPE_INTEGER;
+			break;
+		case Types.VARCHAR:
+		case Types.DATE:
+			type = UserCoreResultUtils.FIELD_TYPE_STRING;
+			break;
+		case Types.REAL:
+		case Types.FLOAT:
+		case Types.DOUBLE:
+			type = UserCoreResultUtils.FIELD_TYPE_FLOAT;
+			break;
+		case Types.BLOB:
+			type = UserCoreResultUtils.FIELD_TYPE_BLOB;
+			break;
+		case Types.NULL:
+			type = UserCoreResultUtils.FIELD_TYPE_NULL;
+			break;
+		default:
+			throw new GeoPackageException(
+					"Unsupported ResultSet Metadata Column Type: " + columnType);
+		}
+
+		return type;
+	}
+
+	@Override
+	public int getCount() {
+		return count;
 	}
 
 	/**
@@ -123,12 +192,29 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 */
 	@Override
 	public boolean moveToFirst() {
+		// For SQLite forward only, best we can do is assume the result set
+		// is at the beginning
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean moveToPosition(int position) {
 		try {
-			return resultSet.first();
+			// For SQLite forward only, best we can do is assume the result set
+			// is at the beginning
+			for (int i = 0; i < position; i++) {
+				if (!resultSet.next()) {
+					return false;
+				}
+			}
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to move ResultSet cursor to first", e);
 		}
+		return true;
 	}
 
 	/**
@@ -138,7 +224,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public int getColumnIndex(String columnName) {
 		int index;
 		try {
-			index = resultSet.findColumn(columnName);
+			index = resultSetIndexToCoreIndex(resultSet.findColumn(columnName));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to find column index for column name: "
@@ -154,7 +240,9 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public int getType(int columnIndex) {
 		int type;
 		try {
-			type = resultSet.getMetaData().getColumnType(columnIndex);
+			int resultSetMetadataType = resultSet.getMetaData().getColumnType(
+					coreIndexToResultSetIndex(columnIndex));
+			type = resultSetTypeToSqlLite(resultSetMetadataType);
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get column type for column index: "
@@ -170,7 +258,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public String getString(int columnIndex) {
 		String value;
 		try {
-			value = resultSet.getString(columnIndex);
+			value = resultSet.getString(coreIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get String value for column index: "
@@ -186,7 +274,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public int getInt(int columnIndex) {
 		int value;
 		try {
-			value = resultSet.getInt(columnIndex);
+			value = resultSet.getInt(coreIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get int value for column index: " + columnIndex,
@@ -202,7 +290,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public byte[] getBlob(int columnIndex) {
 		byte[] value;
 		try {
-			value = resultSet.getBytes(columnIndex);
+			value = resultSet.getBytes(coreIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get blob bytes for column index: " + columnIndex,
@@ -218,7 +306,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public long getLong(int columnIndex) {
 		long value;
 		try {
-			value = resultSet.getLong(columnIndex);
+			value = resultSet.getLong(coreIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get long value for column index: " + columnIndex,
@@ -234,7 +322,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public short getShort(int columnIndex) {
 		short value;
 		try {
-			value = resultSet.getShort(columnIndex);
+			value = resultSet.getShort(coreIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get short value for column index: "
@@ -250,7 +338,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public double getDouble(int columnIndex) {
 		double value;
 		try {
-			value = resultSet.getDouble(columnIndex);
+			value = resultSet.getDouble(coreIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get double value for column index: "
@@ -266,7 +354,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public float getFloat(int columnIndex) {
 		float value;
 		try {
-			value = resultSet.getFloat(columnIndex);
+			value = resultSet.getFloat(coreIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get float value for column index: "
@@ -279,12 +367,52 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean wasNull() {
+		try {
+			return resultSet.wasNull();
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to determine if previous value retrieved was null",
+					e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void close() {
+		try {
+			resultSet.getStatement().close();
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to close ResultSet Statement", e);
+		}
 		try {
 			resultSet.close();
 		} catch (SQLException e) {
 			throw new GeoPackageException("Failed to close ResultSet", e);
 		}
+	}
+
+	/**
+	 * Get the ResultSet index for the provided core index
+	 * 
+	 * @param coreIndex
+	 * @return
+	 */
+	private int coreIndexToResultSetIndex(int coreIndex) {
+		return coreIndex + 1;
+	}
+
+	/**
+	 * Get the Core index for the provided ResultSet index
+	 * 
+	 * @param resultSetIndex
+	 * @return
+	 */
+	private int resultSetIndexToCoreIndex(int resultSetIndex) {
+		return resultSetIndex - 1;
 	}
 
 }

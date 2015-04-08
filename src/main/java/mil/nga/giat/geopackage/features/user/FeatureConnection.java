@@ -1,5 +1,7 @@
 package mil.nga.giat.geopackage.features.user;
 
+import java.sql.ResultSet;
+
 import mil.nga.giat.geopackage.db.GeoPackageConnection;
 import mil.nga.giat.geopackage.user.UserConnection;
 
@@ -19,6 +21,14 @@ public class FeatureConnection
 	 */
 	public FeatureConnection(GeoPackageConnection database) {
 		super(database);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected FeatureResultSet createResult(ResultSet resultSet, int count) {
+		return new FeatureResultSet(table, resultSet, count);
 	}
 
 }

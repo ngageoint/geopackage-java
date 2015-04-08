@@ -17,9 +17,10 @@ public class TileResultSet extends
 	 * 
 	 * @param table
 	 * @param resultSet
+	 * @param count
 	 */
-	public TileResultSet(TileTable table, ResultSet resultSet) {
-		super(table, resultSet);
+	public TileResultSet(TileTable table, ResultSet resultSet, int count) {
+		super(table, resultSet, count);
 	}
 
 	/**
