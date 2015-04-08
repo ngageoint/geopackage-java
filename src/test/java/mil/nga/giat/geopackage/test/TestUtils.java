@@ -1,6 +1,7 @@
 package mil.nga.giat.geopackage.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,6 +24,7 @@ import mil.nga.giat.geopackage.features.user.FeatureDao;
 import mil.nga.giat.geopackage.features.user.FeatureRow;
 import mil.nga.giat.geopackage.features.user.FeatureTable;
 import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.giat.geopackage.io.GeoPackageIOUtils;
 import mil.nga.giat.geopackage.schema.columns.DataColumns;
 import mil.nga.giat.geopackage.schema.columns.DataColumnsDao;
 import mil.nga.giat.geopackage.schema.constraints.DataColumnConstraintType;
@@ -498,7 +500,7 @@ public class TestUtils {
 	 * @return
 	 */
 	public static File getImportDbFile() {
-		return getDbFile(TestConstants.IMPORT_DB_FILE_NAME);
+		return getTestFile(TestConstants.IMPORT_DB_FILE_NAME);
 	}
 
 	/**
@@ -507,7 +509,29 @@ public class TestUtils {
 	 * @return
 	 */
 	public static File getImportDbCorruptFile() {
-		return getDbFile(TestConstants.IMPORT_CORRUPT_DB_FILE_NAME);
+		return getTestFile(TestConstants.IMPORT_CORRUPT_DB_FILE_NAME);
+	}
+
+	/**
+	 * Get the tile file
+	 * 
+	 * @return
+	 */
+	public static File getTileFile() {
+		return getTestFile(TestConstants.TILE_FILE_NAME);
+	}
+
+	/**
+	 * Get the tile file bytes
+	 * 
+	 * @return
+	 */
+	public static byte[] getTileBytes() {
+		try {
+			return GeoPackageIOUtils.fileBytes(getTileFile());
+		} catch (IOException e) {
+			throw new GeoPackageException("Failed to get tile bytes", e);
+		}
 	}
 
 	/**
@@ -515,8 +539,8 @@ public class TestUtils {
 	 * 
 	 * @return
 	 */
-	public static File getDbFile(String fileName) {
-		URL resourceUrl = TestSetupTeardown.class.getResource("/" + fileName);
+	public static File getTestFile(String fileName) {
+		URL resourceUrl = TestUtils.class.getResource("/" + fileName);
 		Path resourcePath;
 		try {
 			resourcePath = Paths.get(resourceUrl.toURI());

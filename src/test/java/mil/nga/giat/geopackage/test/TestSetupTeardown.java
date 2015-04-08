@@ -410,20 +410,7 @@ public class TestSetupTeardown {
 		double pixelXSize = 69237.2;
 		double pixelYSize = 68412.1;
 
-		// TODO
-		// // Read the asset tile to bytes and convert to bitmap
-		// byte[] assetTileData = TestUtils.getAssetFileBytes(testContext,
-		// TestConstants.TILE_FILE_NAME);
-		// Bitmap bitmap = BitmapConverter.toBitmap(assetTileData);
-		//
-		// // Get the width and height of the bitmap
-		// final int tileWidth = bitmap.getWidth();
-		// final int tileHeight = bitmap.getHeight();
-		//
-		// // Compress the bitmap back to bytes and use those for the test
-		// byte[] tileData = BitmapConverter.toBytes(bitmap, CompressFormat
-		// .valueOf(TestConstants.TILE_FILE_NAME_EXTENSION.toUpperCase()));
-		byte[] tileData = "BYTESTRING".getBytes();
+		byte[] tileData = TestUtils.getTileBytes();
 		final int tileWidth = 256;
 		final int tileHeight = 256;
 
