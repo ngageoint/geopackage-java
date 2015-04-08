@@ -43,6 +43,10 @@
 			<url>http://repo1.maven.org/maven2</url>
 		</repository>
 	</repositories>
+	<properties>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>mil.nga.giat.geopackage</groupId>
