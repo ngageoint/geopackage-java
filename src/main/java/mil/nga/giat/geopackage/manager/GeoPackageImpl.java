@@ -76,28 +76,9 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 
 		// TODO
 		// GeoPackages created with SQLite version 4.2.0+ with GeoPackage
-		// support are not supported in sqlite-jdbc (3.8.6 version from October
-		// 8, 2014 uses SQLite version 3.8.6). To edit features, drop the
-		// following triggers. May be able to define the missing functions
-		// instead of dropping them.
-		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
-				+ geometryColumns.getTableName() + "_"
-				+ geometryColumns.getColumnName() + "_insert");
-		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
-				+ geometryColumns.getTableName() + "_"
-				+ geometryColumns.getColumnName() + "_update1");
-		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
-				+ geometryColumns.getTableName() + "_"
-				+ geometryColumns.getColumnName() + "_update2");
-		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
-				+ geometryColumns.getTableName() + "_"
-				+ geometryColumns.getColumnName() + "_update3");
-		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
-				+ geometryColumns.getTableName() + "_"
-				+ geometryColumns.getColumnName() + "_update4");
-		database.execSQL("DROP TRIGGER IF EXISTS rtree_"
-				+ geometryColumns.getTableName() + "_"
-				+ geometryColumns.getColumnName() + "_delete");
+		// support are not supported in sqlite-jdbc (3.8.6 version from
+		// October8, 2014 uses SQLite version 3.8.6)
+		dropSQLiteTriggers(geometryColumns);
 
 		return dao;
 	}
