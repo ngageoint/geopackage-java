@@ -73,7 +73,7 @@ public class GeoPackageManager {
 				connection);
 
 		// Create a GeoPackage
-		GeoPackage geoPackage = new GeoPackageImpl(file.getName(), connection,
+		GeoPackage geoPackage = new GeoPackageImpl(file, connection,
 				tableCreator);
 
 		// Validate the GeoPackage has the minimum required tables

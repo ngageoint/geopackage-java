@@ -1,5 +1,6 @@
 package mil.nga.giat.geopackage.manager;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -43,13 +44,14 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	/**
 	 * Constructor
 	 *
-	 * @param name
+	 * @param file
 	 * @param database
 	 * @param tableCreator
 	 */
-	GeoPackageImpl(String name, GeoPackageConnection database,
+	GeoPackageImpl(File file, GeoPackageConnection database,
 			GeoPackageTableCreator tableCreator) {
-		super(name, database, tableCreator);
+		super(file.getName(), file.getAbsolutePath(), database, tableCreator,
+				true);
 		this.database = database;
 	}
 
