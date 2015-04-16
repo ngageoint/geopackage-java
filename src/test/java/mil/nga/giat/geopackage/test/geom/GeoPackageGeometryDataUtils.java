@@ -13,12 +13,12 @@ import mil.nga.giat.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.giat.geopackage.features.user.FeatureDao;
 import mil.nga.giat.geopackage.features.user.FeatureResultSet;
 import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.giat.geopackage.geom.GeoPackageGeometryEnvelope;
 import mil.nga.giat.wkb.geom.CircularString;
 import mil.nga.giat.wkb.geom.CompoundCurve;
 import mil.nga.giat.wkb.geom.CurvePolygon;
 import mil.nga.giat.wkb.geom.Geometry;
 import mil.nga.giat.wkb.geom.GeometryCollection;
+import mil.nga.giat.wkb.geom.GeometryEnvelope;
 import mil.nga.giat.wkb.geom.GeometryType;
 import mil.nga.giat.wkb.geom.LineString;
 import mil.nga.giat.wkb.geom.MultiLineString;
@@ -169,16 +169,17 @@ public class GeoPackageGeometryDataUtils {
 	 * @param expected
 	 * @param actual
 	 */
-	private static void compareEnvelopes(GeoPackageGeometryEnvelope expected,
-			GeoPackageGeometryEnvelope actual) {
+	private static void compareEnvelopes(GeometryEnvelope expected,
+			GeometryEnvelope actual) {
 
 		if (expected == null) {
 			TestCase.assertNull(actual);
 		} else {
 			TestCase.assertNotNull(actual);
 
-			TestCase.assertEquals(expected.getIndicator(),
-					actual.getIndicator());
+			TestCase.assertEquals(
+					GeoPackageGeometryData.getIndicator(expected),
+					GeoPackageGeometryData.getIndicator(actual));
 			TestCase.assertEquals(expected.getMinX(), actual.getMinX());
 			TestCase.assertEquals(expected.getMaxX(), actual.getMaxX());
 			TestCase.assertEquals(expected.getMinY(), actual.getMinY());

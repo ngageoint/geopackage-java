@@ -26,13 +26,14 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	/**
 	 * Constructor
 	 * 
+	 * @param database
 	 * @param db
 	 * @param userDb
 	 * @param table
 	 */
-	protected UserDao(GeoPackageConnection db,
+	protected UserDao(String database, GeoPackageConnection db,
 			UserConnection<TColumn, TTable, TRow, TResult> userDb, TTable table) {
-		super(db, userDb, table);
+		super(database, db, userDb, table);
 		this.connection = db.getConnection();
 	}
 

@@ -68,16 +68,17 @@ public class TileDao extends
 	/**
 	 * Constructor
 	 * 
+	 * @param database
 	 * @param db
 	 * @param tileDb
 	 * @param tileMatrixSet
 	 * @param tileMatrices
 	 * @param table
 	 */
-	public TileDao(GeoPackageConnection db, TileConnection tileDb,
-			TileMatrixSet tileMatrixSet, List<TileMatrix> tileMatrices,
-			TileTable table) {
-		super(db, tileDb, table);
+	public TileDao(String database, GeoPackageConnection db,
+			TileConnection tileDb, TileMatrixSet tileMatrixSet,
+			List<TileMatrix> tileMatrices, TileTable table) {
+		super(database, db, tileDb, table);
 
 		this.tileDb = tileDb;
 		this.tileMatrixSet = tileMatrixSet;
@@ -129,7 +130,7 @@ public class TileDao extends
 	 * into the tile matrix lengths
 	 */
 	public void adjustTileMatrixLengths() {
-        TileDaoUtils.adjustTileMatrixLengths(tileMatrixSet, tileMatrices);
+		TileDaoUtils.adjustTileMatrixLengths(tileMatrixSet, tileMatrices);
 	}
 
 	/**
@@ -286,8 +287,9 @@ public class TileDao extends
 	 */
 	public Long getZoomLevel(double length) {
 
-		Long zoomLevel = TileDaoUtils.getZoomLevel(widths, heights, tileMatrices, length);
-        return zoomLevel;
+		Long zoomLevel = TileDaoUtils.getZoomLevel(widths, heights,
+				tileMatrices, length);
+		return zoomLevel;
 	}
 
 	/**
