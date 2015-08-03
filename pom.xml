@@ -6,17 +6,17 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>GeoPackage</name>
-	<url>https://git.geointapps.org/geopackage/geopackage-java</url>
+	<url>https://github.com/ngageoint/geopackage-java</url>
 	<description>GeoPackage Java implementation</description>
 	<scm>
-		<url>https://git.geointapps.org/geopackage/geopackage-java</url>
-		<connection>scm:git:ssh://git@git.geointapps.org:geopackage/geopackage-java.git</connection>
-		<developerConnection>scm:git:ssh://git@git.geointapps.org:geopackage/geopackage-java.git</developerConnection>
+		<url>https://github.com/ngageoint/geopackage-java</url>
+		<connection>scm:git:ssh://git@github.com:ngageoint/geopackage-java.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:ngageoint/geopackage-java.git</developerConnection>
 	</scm>
 	<licenses>
 		<license>
 			<name>The MIT License (MIT)</name>
-			<url>https://git.geointapps.org/geopackage/geopackage-java/raw/master/LICENSE</url>
+			<url>https://github.com/ngageoint/geopackage-java/blob/master/LICENSE.txt</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
