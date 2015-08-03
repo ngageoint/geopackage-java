@@ -37,12 +37,6 @@
 			<timezone>UTC−07</timezone>
 		</developer>
 	</developers>
-	<repositories>
-		<repository>
-			<id>central</id>
-			<url>http://repo1.maven.org/maven2</url>
-		</repository>
-	</repositories>
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
