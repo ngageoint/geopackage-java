@@ -9,9 +9,9 @@
 	<url>https://github.com/ngageoint/geopackage-java</url>
 	<description>GeoPackage Java implementation</description>
 	<scm>
-		<url>https://github.com/ngageoint/geopackage-java</url>
-		<connection>scm:git:ssh://git@github.com:ngageoint/geopackage-java.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:ngageoint/geopackage-java.git</developerConnection>
+		<url>git@github.com:ngageoint/geopackage-java.git</url>
+		<connection>scm:git:git@github.com:ngageoint/geopackage-java.git</connection>
+		<developerConnection>scm:git:git@github.com:ngageoint/geopackage-java.git</developerConnection>
 	</scm>
 	<licenses>
 		<license>
