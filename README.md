@@ -78,7 +78,7 @@ The following repositories must be built first (Central Repository Artifacts Com
 * [GeoPackage WKB Java] (https://github.com/ngageoint/geopackage-wkb-java)
 * [GeoPackage Core Java] (https://github.com/ngageoint/geopackage-core-java)
 
-Build this repository using Maven:
+Build this repository using Eclipse and/or Maven:
 
     mvn clean install
 
