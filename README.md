@@ -72,6 +72,16 @@ The GeoPackage Java library provides the ability to read, create, and edit GeoPa
     // Close database when done
     geoPackage.close();
 
+### Build ###
+
+The following repositories must be built first (Central Repository Artifacts Coming Soon):
+* [GeoPackage WKB Java] (https://github.com/ngageoint/geopackage-wkb-java)
+* [GeoPackage Core Java] (https://github.com/ngageoint/geopackage-core-java)
+
+Build this repository using Maven:
+
+    mvn clean install
+
 ### Dependencies ###
 
 #### Remote ####
