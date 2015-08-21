@@ -82,6 +82,24 @@ Build this repository using Eclipse and/or Maven:
 
     mvn clean install
 
+### Tile Writer ###
+
+The tile writer can be used to write tiles from a GeoPackage tile table to the file system.  Images can be saved in a GeoPackage, Standard (Google), or TMS folder structure (z/x/y).  The mil.nga.geopackage.io.GeoPackageTileWriter functionality can be invoked through code or from command line.
+
+#### Command Line ####
+
+To build the jar into a standalone jar that includes all dependencies:
+
+    mvn clean install -Pstandalone
+
+To run against the jar:
+
+    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.GeoPackageTileWriter [-t tile_type] [-i image_format] geopackage_file tile_table output_directory
+
+Example:
+
+    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.GeoPackageTileWriter -t tms /path/geopackage.gpkg mytiletable /path/tiles/mytiles
+
 ### Dependencies ###
 
 #### Remote ####
