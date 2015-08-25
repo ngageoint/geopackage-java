@@ -1,5 +1,12 @@
 package mil.nga.geopackage.tiles.user;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import mil.nga.geopackage.user.UserRow;
 
 /**
@@ -171,6 +178,43 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 */
 	public void setTileData(byte[] tileData) {
 		setValue(getTileDataColumnIndex(), tileData);
+	}
+
+	/**
+	 * Get the tile data image
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public BufferedImage getTileDataImage() throws IOException {
+
+		BufferedImage image = null;
+
+		byte[] tileData = getTileData();
+		if (tileData != null) {
+			ByteArrayInputStream stream = new ByteArrayInputStream(tileData);
+			image = ImageIO.read(stream);
+			stream.close();
+		}
+
+		return image;
+	}
+
+	/**
+	 * Set the tile data from an image
+	 * 
+	 * @param image
+	 * @param imageFormat
+	 * @throws IOException
+	 */
+	public void setTileData(BufferedImage image, String imageFormat)
+			throws IOException {
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		ImageIO.write(image, imageFormat, stream);
+		stream.flush();
+		byte[] bytes = stream.toByteArray();
+		stream.close();
+		setTileData(bytes);
 	}
 
 }

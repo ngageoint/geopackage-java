@@ -2,8 +2,8 @@ package mil.nga.geopackage.io;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -18,12 +18,13 @@ import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.TileDraw;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
-import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 
 /**
@@ -33,35 +34,12 @@ import mil.nga.geopackage.tiles.user.TileRow;
  * 
  * mvn clean install -Pstandalone
  * 
- * java -classpath geopackage-*-standalone.jar
- * mil.nga.geopackage.io.GeoPackageTileWriter geopackage_file tile_table
- * output_directory tile_type [image_format]
+ * java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.TileWriter
+ * +usage_arguments
  * 
  * @author osbornb
  */
-public class GeoPackageTileWriter {
-
-	/**
-	 * Supported tile types
-	 */
-	public enum TileType {
-
-		/**
-		 * x and y coordinates created using tile matrix width and height
-		 * location
-		 */
-		GEOPACKAGE,
-
-		/**
-		 * 0,0 is upper left
-		 */
-		STANDARD,
-
-		/**
-		 * Tile Map Service specification, 0,0 is lower left
-		 */
-		TMS
-	}
+public class TileWriter {
 
 	/**
 	 * Argument prefix
@@ -81,18 +59,18 @@ public class GeoPackageTileWriter {
 	/**
 	 * Default tile type
 	 */
-	public static final TileType DEFAULT_TILE_TYPE = TileType.STANDARD;
+	public static final TileFormatType DEFAULT_TILE_TYPE = TileFormatType.STANDARD;
 
 	/**
 	 * Default image format
 	 */
-	public static final String DEFAULT_IMAGE_FORMAT = "png";
+	public static final String DEFAULT_IMAGE_FORMAT = ImageUtils.IMAGE_FORMAT_PNG;
 
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger
-			.getLogger(GeoPackageTileWriter.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(TileWriter.class
+			.getName());
 
 	/**
 	 * Main method to write tiles from a GeoPackage
@@ -104,7 +82,7 @@ public class GeoPackageTileWriter {
 		boolean valid = true;
 		boolean requiredArguments = false;
 
-		TileType tileType = null;
+		TileFormatType tileType = null;
 		String imageFormat = null;
 		File geoPackageFile = null;
 		String tileTable = null;
@@ -114,6 +92,7 @@ public class GeoPackageTileWriter {
 
 			String arg = args[i];
 
+			// Handle optional arguments
 			if (arg.startsWith(ARGUMENT_PREFIX)) {
 
 				String argument = arg.substring(ARGUMENT_PREFIX.length());
@@ -121,7 +100,8 @@ public class GeoPackageTileWriter {
 				switch (argument) {
 				case ARGUMENT_TILE_TYPE:
 					if (i < args.length) {
-						tileType = TileType.valueOf(args[++i].toUpperCase());
+						tileType = TileFormatType.valueOf(args[++i]
+								.toUpperCase());
 					} else {
 						valid = false;
 						System.out
@@ -146,6 +126,7 @@ public class GeoPackageTileWriter {
 				}
 
 			} else {
+				// Set required arguments in order
 				if (geoPackageFile == null) {
 					geoPackageFile = new File(arg);
 				} else if (tileTable == null) {
@@ -162,50 +143,9 @@ public class GeoPackageTileWriter {
 		}
 
 		if (!valid || !requiredArguments) {
-			System.out.println();
-			System.out.println("USAGE");
-			System.out.println();
-			System.out
-					.println("\t["
-							+ ARGUMENT_PREFIX
-							+ ARGUMENT_TILE_TYPE
-							+ " tile_type] ["
-							+ ARGUMENT_PREFIX
-							+ ARGUMENT_IMAGE_FORMAT
-							+ " image_format] geopackage_file tile_table output_directory");
-			System.out.println();
-			System.out.println("DESCRIPTION");
-			System.out.println();
-			System.out
-					.println("\tWrites a tile set from within a GeoPackage tile table to the file system in a z/x/y folder system according to the specified tile type");
-			System.out.println();
-			System.out.println("ARGUMENTS");
-			System.out.println();
-			System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_TYPE
-					+ " tile_type");
-			System.out
-					.println("\t\tType of tiles to output: geopackage, standard, tms. Default is "
-							+ DEFAULT_TILE_TYPE.toString().toLowerCase()
-							+ ". GeoPackage x and y represent width and height columns, Standard starts from top left (i.e. Google), Tile Map Service starts from bottom left");
-			System.out.println();
-			System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_FORMAT
-					+ " image_format");
-			System.out.println("\t\tOutput image format (default is '"
-					+ DEFAULT_IMAGE_FORMAT + "')");
-			System.out.println();
-			System.out.println("\tgeopackage_file");
-			System.out
-					.println("\t\tpath to the GeoPackage file containing the tiles");
-			System.out.println();
-			System.out.println("\ttile_table");
-			System.out
-					.println("\t\ttile table name within the GeoPackage file");
-			System.out.println();
-			System.out.println("\toutput_directory");
-			System.out
-					.println("\t\toutput directory to write the tile images to");
-			System.out.println();
+			printUsage();
 		} else {
+			// Write the tiles
 			writeTiles(geoPackageFile, tileTable, outputDirectory, imageFormat,
 					tileType);
 		}
@@ -230,7 +170,7 @@ public class GeoPackageTileWriter {
 	 * @throws IOException
 	 */
 	public static void writeTiles(File geoPackageFile, String tileTable,
-			File directory, String imageFormat, TileType tileType)
+			File directory, String imageFormat, TileFormatType tileType)
 			throws SQLException, IOException {
 
 		GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile);
@@ -259,7 +199,7 @@ public class GeoPackageTileWriter {
 	 * @throws IOException
 	 */
 	public static void writeTiles(GeoPackage geoPackage, String tileTable,
-			File directory, String imageFormat, TileType tileType)
+			File directory, String imageFormat, TileFormatType tileType)
 			throws SQLException, IOException {
 
 		// Get a tile data access object for the tile table
@@ -306,12 +246,23 @@ public class GeoPackageTileWriter {
 			File zDirectory = new File(directory, String.valueOf(zoomLevel));
 
 			int zoomCount = 0;
-			if (tileType == TileType.GEOPACKAGE) {
+			switch (tileType) {
+
+			case GEOPACKAGE:
+			case GEOPACKAGE_RAW:
 				zoomCount = writeGeoPackageFormatTiles(tileDao, zoomLevel,
-						tileMatrix, zDirectory, imageFormat);
-			} else {
+						tileMatrix, zDirectory, imageFormat, tileType);
+				break;
+
+			case STANDARD:
+			case TMS:
 				zoomCount = writeFormatTiles(tileDao, zoomLevel, tileMatrix,
 						zDirectory, imageFormat, tileType);
+				break;
+
+			default:
+				throw new UnsupportedOperationException(
+						"Tile Type Not Supported: " + tileType);
 			}
 
 			LOGGER.log(Level.INFO, "Zoom " + zoomLevel + " Tiles: " + zoomCount);
@@ -330,12 +281,13 @@ public class GeoPackageTileWriter {
 	 * @param tileMatrix
 	 * @param zDirectory
 	 * @param imageFormat
+	 * @param tileType
 	 * @return
 	 * @throws IOException
 	 */
 	private static int writeGeoPackageFormatTiles(TileDao tileDao,
 			long zoomLevel, TileMatrix tileMatrix, File zDirectory,
-			String imageFormat) throws IOException {
+			String imageFormat, TileFormatType tileType) throws IOException {
 
 		int tileCount = 0;
 
@@ -360,15 +312,47 @@ public class GeoPackageTileWriter {
 						// Make any needed directories for the image
 						xDirectory.mkdirs();
 
-						// Create the buffered image
-						BufferedImage image = ImageIO
-								.read(new ByteArrayInputStream(tileData));
-
 						File imageFile = new File(xDirectory, String.valueOf(y)
 								+ "." + imageFormat);
 
-						// Write the image to the file
-						ImageIO.write(image, imageFormat, imageFile);
+						switch (tileType) {
+
+						case GEOPACKAGE:
+
+							// Read the tile image
+							BufferedImage tileImage = tileRow
+									.getTileDataImage();
+
+							// Create the new image in the image format
+							BufferedImage image = ImageUtils
+									.createBufferedImage(tileImage.getWidth(),
+											tileImage.getHeight(), imageFormat);
+							Graphics graphics = image.getGraphics();
+
+							// Draw the image
+							graphics.drawImage(tileImage, 0, 0, null);
+
+							// Write the image to the file
+							ImageIO.write(image, imageFormat, imageFile);
+
+							break;
+
+						case GEOPACKAGE_RAW:
+
+							// Write the raw image bytes to the file
+							FileOutputStream fos = new FileOutputStream(
+									imageFile);
+							fos.write(tileData);
+							fos.close();
+
+							break;
+
+						default:
+							throw new UnsupportedOperationException(
+									"Tile Type Not Supported as GeoPackage type: "
+											+ tileType);
+						}
+
 						tileCount++;
 					}
 				}
@@ -392,44 +376,50 @@ public class GeoPackageTileWriter {
 	 */
 	private static int writeFormatTiles(TileDao tileDao, long zoomLevel,
 			TileMatrix tileMatrix, File zDirectory, String imageFormat,
-			TileType tileType) throws IOException {
+			TileFormatType tileType) throws IOException {
 
 		int tileCount = 0;
 
-		Projection webMercator = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-
+		// Get the projection of the tile matrix set
 		long epsg = tileDao.getTileMatrixSet().getSrs()
 				.getOrganizationCoordsysId();
 		Projection projection = ProjectionFactory.getProjection(epsg);
 
+		// Get the transformation to web mercator
+		Projection webMercator = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
 		ProjectionTransform projectionToWebMercator = projection
 				.getTransformation(webMercator);
 
+		// Get the tile matrix set and bounding box
 		TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
 		BoundingBox setProjectionBoundingBox = tileMatrixSet.getBoundingBox();
 		BoundingBox setWebMercatorBoundingBox = projectionToWebMercator
 				.transform(setProjectionBoundingBox);
 
+		// Determine the tile grid in the world the tiles cover
 		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
 				setWebMercatorBoundingBox, (int) zoomLevel);
 
 		// Go through each tile in the tile grid
 		for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
 
+			// Build the z/x directory
 			File xDirectory = new File(zDirectory, String.valueOf(x));
 
 			for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
 
+				// Get the y file name for the specified format
 				long yFileName = y;
-				if (tileType == TileType.TMS) {
+				if (tileType == TileFormatType.TMS) {
 					yFileName = TileBoundingBoxUtils.getYAsTMS((int) zoomLevel,
 							(int) y);
 				}
 
 				// Create the buffered image
-				BufferedImage image = drawTile(tileDao, tileMatrix,
-						setWebMercatorBoundingBox, x, y, zoomLevel);
+				BufferedImage image = TileDraw
+						.drawTile(tileDao, tileMatrix, imageFormat,
+								setWebMercatorBoundingBox, x, y, zoomLevel);
 
 				if (image != null) {
 
@@ -445,162 +435,74 @@ public class GeoPackageTileWriter {
 				}
 
 			}
-
 		}
 
 		return tileCount;
 	}
 
 	/**
-	 * Draw the tile for the x, y, and z
-	 * 
-	 * @param tileDao
-	 * @param tileMatrix
-	 * @param setWebMercatorBoundingBox
-	 * @param x
-	 * @param y
-	 * @param zoomLevel
-	 * @return
-	 * @throws IOException
+	 * Print usage for the main method
 	 */
-	private static BufferedImage drawTile(TileDao tileDao,
-			TileMatrix tileMatrix, BoundingBox setWebMercatorBoundingBox,
-			long x, long y, long zoomLevel) throws IOException {
-
-		BufferedImage image = null;
-
-		// Get the bounding box of the requested tile
-		BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
-				.getWebMercatorBoundingBox(x, y, (int) zoomLevel);
-
-		// Get the tile grid
-		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-				setWebMercatorBoundingBox, tileMatrix.getMatrixWidth(),
-				tileMatrix.getMatrixHeight(), webMercatorBoundingBox);
-
-		// Query for matching tiles in the tile grid
-		TileResultSet tileResultSet = tileDao.queryByTileGrid(tileGrid,
-				zoomLevel);
-		if (tileResultSet != null) {
-
-			try {
-
-				// Get the requested tile dimensions
-				int tileWidth = (int) tileMatrix.getTileWidth();
-				int tileHeight = (int) tileMatrix.getTileHeight();
-
-				// Draw the resulting bitmap with the matching tiles
-				Graphics graphics = null;
-				while (tileResultSet.moveToNext()) {
-
-					// Get the next tile
-					TileRow tileRow = tileResultSet.getRow();
-
-					if (tileRow != null) {
-
-						// Get the image bytes
-						byte[] tileData = tileRow.getTileData();
-
-						if (tileData != null) {
-
-							// Create the buffered image
-							BufferedImage tileImage = ImageIO
-									.read(new ByteArrayInputStream(tileData));
-
-							// Get the bounding box of the tile
-							BoundingBox tileWebMercatorBoundingBox = TileBoundingBoxUtils
-									.getWebMercatorBoundingBox(
-											setWebMercatorBoundingBox,
-											tileMatrix,
-											tileRow.getTileColumn(),
-											tileRow.getTileRow());
-
-							// Get the bounding box where the requested image
-							// and tile overlap
-							BoundingBox overlap = TileBoundingBoxUtils.overlap(
-									webMercatorBoundingBox,
-									tileWebMercatorBoundingBox);
-
-							// If the tile overlaps with the requested box
-							if (overlap != null) {
-
-								// Get the rectangle of the tile image to draw
-								ImageRectangleF src = getRectangle(
-										tileMatrix.getTileWidth(),
-										tileMatrix.getTileHeight(),
-										tileWebMercatorBoundingBox, overlap);
-
-								// Get the rectangle of where to draw the tile
-								// in the resulting image
-								ImageRectangleF dest = getRectangle(tileWidth,
-										tileHeight, webMercatorBoundingBox,
-										overlap);
-
-								// Round the rectangles and make sure the bounds
-								// are valid
-								ImageRectangle srcRounded = src.round();
-								ImageRectangle destRounded = dest.round();
-								if (srcRounded.isValid()
-										&& destRounded.isValid()) {
-
-									// Create the image first time through
-									if (image == null) {
-										image = new BufferedImage(tileWidth,
-												tileHeight,
-												BufferedImage.TYPE_INT_ARGB);
-										graphics = image.getGraphics();
-									}
-
-									// Draw the tile to the image
-									graphics.drawImage(tileImage,
-											destRounded.getLeft(),
-											destRounded.getTop(),
-											destRounded.getRight(),
-											destRounded.getBottom(),
-											srcRounded.getLeft(),
-											srcRounded.getTop(),
-											srcRounded.getRight(),
-											srcRounded.getBottom(), null);
-								}
-							}
-						}
-					}
-				}
-			} finally {
-				tileResultSet.close();
-			}
-
-		}
-
-		return image;
-	}
-
-	/**
-	 * Get a rectangle with floating point boundaries using the tile width,
-	 * height, bounding box, and the bounding box section within the outer box
-	 * to build the rectangle from
-	 * 
-	 * @param width
-	 * @param height
-	 * @param boundingBox
-	 * @param boundingBoxSection
-	 * @return
-	 */
-	public static ImageRectangleF getRectangle(long width, long height,
-			BoundingBox boundingBox, BoundingBox boundingBoxSection) {
-
-		float left = TileBoundingBoxUtils.getXPixel(width, boundingBox,
-				boundingBoxSection.getMinLongitude());
-		float right = TileBoundingBoxUtils.getXPixel(width, boundingBox,
-				boundingBoxSection.getMaxLongitude());
-		float top = TileBoundingBoxUtils.getYPixel(height, boundingBox,
-				boundingBoxSection.getMaxLatitude());
-		float bottom = TileBoundingBoxUtils.getYPixel(height, boundingBox,
-				boundingBoxSection.getMinLatitude());
-
-		ImageRectangleF rect = new ImageRectangleF(left, top, right, bottom);
-
-		return rect;
+	private static void printUsage() {
+		System.out.println();
+		System.out.println("USAGE");
+		System.out.println();
+		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_TILE_TYPE
+				+ " tile_type] [" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_FORMAT
+				+ " image_format] geopackage_file tile_table output_directory");
+		System.out.println();
+		System.out.println("DESCRIPTION");
+		System.out.println();
+		System.out
+				.println("\tWrites a tile set from within a GeoPackage tile table to the file system in a z/x/y folder system according to the specified tile type");
+		System.out.println();
+		System.out.println("ARGUMENTS");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_TYPE
+				+ " tile_type");
+		System.out
+				.println("\t\tTile output format specifying z/x/y folder organization: "
+						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
+						+ ", "
+						+ TileFormatType.GEOPACKAGE_RAW.name().toLowerCase()
+						+ ", "
+						+ TileFormatType.STANDARD.name().toLowerCase()
+						+ ", "
+						+ TileFormatType.TMS.name().toLowerCase()
+						+ " (Default is "
+						+ DEFAULT_TILE_TYPE.name().toLowerCase() + ")");
+		System.out
+				.println("\t\t\t"
+						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
+						+ " - x and y represent GeoPackage Tile Matrix width and height");
+		System.out
+				.println("\t\t\t"
+						+ TileFormatType.GEOPACKAGE_RAW.name().toLowerCase()
+						+ " - same as "
+						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
+						+ " but GeoPackage image raw bytes are written directly to files");
+		System.out.println("\t\t\t"
+				+ TileFormatType.STANDARD.name().toLowerCase()
+				+ " - x and y origin is top left (Google format)");
+		System.out.println("\t\t\t" + TileFormatType.TMS.name().toLowerCase()
+				+ " - (Tile Map Service) x and y origin is bottom left");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_FORMAT
+				+ " image_format");
+		System.out
+				.println("\t\tOutput image format: png, jpg, jpeg (default is '"
+						+ DEFAULT_IMAGE_FORMAT + "')");
+		System.out.println();
+		System.out.println("\tgeopackage_file");
+		System.out
+				.println("\t\tpath to the GeoPackage file containing the tiles");
+		System.out.println();
+		System.out.println("\ttile_table");
+		System.out.println("\t\ttile table name within the GeoPackage file");
+		System.out.println();
+		System.out.println("\toutput_directory");
+		System.out.println("\t\toutput directory to write the tile images to");
+		System.out.println();
 	}
 
 }
