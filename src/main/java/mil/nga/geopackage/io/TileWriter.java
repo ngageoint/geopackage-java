@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,6 +56,11 @@ public class TileWriter {
 	public static final String ARGUMENT_IMAGE_FORMAT = "i";
 
 	/**
+	 * Raw image argument
+	 */
+	public static final String ARGUMENT_RAW_IMAGE = "r";
+
+	/**
 	 * Default tile type
 	 */
 	public static final TileFormatType DEFAULT_TILE_TYPE = TileFormatType.STANDARD;
@@ -84,6 +88,7 @@ public class TileWriter {
 
 		TileFormatType tileType = null;
 		String imageFormat = null;
+		boolean rawImage = false;
 		File geoPackageFile = null;
 		String tileTable = null;
 		File outputDirectory = null;
@@ -120,6 +125,11 @@ public class TileWriter {
 								+ arg + "' must be followed by a image format");
 					}
 					break;
+
+				case ARGUMENT_RAW_IMAGE:
+					rawImage = true;
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -146,8 +156,13 @@ public class TileWriter {
 			printUsage();
 		} else {
 			// Write the tiles
-			writeTiles(geoPackageFile, tileTable, outputDirectory, imageFormat,
-					tileType);
+			try {
+				writeTiles(geoPackageFile, tileTable, outputDirectory,
+						imageFormat, tileType, rawImage);
+			} catch (Exception e) {
+				printUsage();
+				throw e;
+			}
 		}
 
 	}
@@ -166,16 +181,18 @@ public class TileWriter {
 	 *            image format
 	 * @param tileType
 	 *            tile type
-	 * @throws SQLException
+	 * @param rawImage
+	 *            use raw image flag
 	 * @throws IOException
 	 */
 	public static void writeTiles(File geoPackageFile, String tileTable,
-			File directory, String imageFormat, TileFormatType tileType)
-			throws SQLException, IOException {
+			File directory, String imageFormat, TileFormatType tileType,
+			boolean rawImage) throws IOException {
 
 		GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile);
 		try {
-			writeTiles(geoPackage, tileTable, directory, imageFormat, tileType);
+			writeTiles(geoPackage, tileTable, directory, imageFormat, tileType,
+					rawImage);
 		} finally {
 			geoPackage.close();
 		}
@@ -195,12 +212,13 @@ public class TileWriter {
 	 *            image format
 	 * @param tileType
 	 *            tile type
-	 * @throws SQLException
+	 * @param rawImage
+	 *            use raw image flag
 	 * @throws IOException
 	 */
 	public static void writeTiles(GeoPackage geoPackage, String tileTable,
-			File directory, String imageFormat, TileFormatType tileType)
-			throws SQLException, IOException {
+			File directory, String imageFormat, TileFormatType tileType,
+			boolean rawImage) throws IOException {
 
 		// Get a tile data access object for the tile table
 		TileDao tileDao = geoPackage.getTileDao(tileTable);
@@ -210,17 +228,17 @@ public class TileWriter {
 			imageFormat = DEFAULT_IMAGE_FORMAT;
 		}
 
-		// If not tiles type, use the default
+		// If no tiles type, use the default
 		if (tileType == null) {
 			tileType = DEFAULT_TILE_TYPE;
 		}
 
-		LOGGER.log(Level.INFO,
-				"GeoPackage: " + geoPackage.getName() + ", Tile Table: "
-						+ tileTable + ", Output Directory: " + directory
-						+ ", Image Format: " + imageFormat + ", Tiles Type: "
-						+ tileType + ", Zoom Range: " + tileDao.getMinZoom()
-						+ " - " + tileDao.getMaxZoom());
+		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName()
+				+ ", Tile Table: " + tileTable + ", Output Directory: "
+				+ directory + (rawImage ? ", Raw Images" : "")
+				+ ", Image Format: " + imageFormat + ", Tiles Type: "
+				+ tileType + ", Zoom Range: " + tileDao.getMinZoom() + " - "
+				+ tileDao.getMaxZoom());
 
 		int totalCount = 0;
 
@@ -249,15 +267,14 @@ public class TileWriter {
 			switch (tileType) {
 
 			case GEOPACKAGE:
-			case GEOPACKAGE_RAW:
 				zoomCount = writeGeoPackageFormatTiles(tileDao, zoomLevel,
-						tileMatrix, zDirectory, imageFormat, tileType);
+						tileMatrix, zDirectory, imageFormat, rawImage);
 				break;
 
 			case STANDARD:
 			case TMS:
 				zoomCount = writeFormatTiles(tileDao, zoomLevel, tileMatrix,
-						zDirectory, imageFormat, tileType);
+						zDirectory, imageFormat, tileType, rawImage);
 				break;
 
 			default:
@@ -281,13 +298,13 @@ public class TileWriter {
 	 * @param tileMatrix
 	 * @param zDirectory
 	 * @param imageFormat
-	 * @param tileType
+	 * @param rawImage
 	 * @return
 	 * @throws IOException
 	 */
 	private static int writeGeoPackageFormatTiles(TileDao tileDao,
 			long zoomLevel, TileMatrix tileMatrix, File zDirectory,
-			String imageFormat, TileFormatType tileType) throws IOException {
+			String imageFormat, boolean rawImage) throws IOException {
 
 		int tileCount = 0;
 
@@ -315,9 +332,15 @@ public class TileWriter {
 						File imageFile = new File(xDirectory, String.valueOf(y)
 								+ "." + imageFormat);
 
-						switch (tileType) {
+						if (rawImage) {
 
-						case GEOPACKAGE:
+							// Write the raw image bytes to the file
+							FileOutputStream fos = new FileOutputStream(
+									imageFile);
+							fos.write(tileData);
+							fos.close();
+
+						} else {
 
 							// Read the tile image
 							BufferedImage tileImage = tileRow
@@ -334,23 +357,6 @@ public class TileWriter {
 
 							// Write the image to the file
 							ImageIO.write(image, imageFormat, imageFile);
-
-							break;
-
-						case GEOPACKAGE_RAW:
-
-							// Write the raw image bytes to the file
-							FileOutputStream fos = new FileOutputStream(
-									imageFile);
-							fos.write(tileData);
-							fos.close();
-
-							break;
-
-						default:
-							throw new UnsupportedOperationException(
-									"Tile Type Not Supported as GeoPackage type: "
-											+ tileType);
 						}
 
 						tileCount++;
@@ -371,12 +377,13 @@ public class TileWriter {
 	 * @param zDirectory
 	 * @param imageFormat
 	 * @param tileType
+	 * @param rawImage
 	 * @return
 	 * @throws IOException
 	 */
 	private static int writeFormatTiles(TileDao tileDao, long zoomLevel,
 			TileMatrix tileMatrix, File zDirectory, String imageFormat,
-			TileFormatType tileType) throws IOException {
+			TileFormatType tileType, boolean rawImage) throws IOException {
 
 		int tileCount = 0;
 
@@ -412,25 +419,39 @@ public class TileWriter {
 				// Get the y file name for the specified format
 				long yFileName = y;
 				if (tileType == TileFormatType.TMS) {
-					yFileName = TileBoundingBoxUtils.getYAsTMS((int) zoomLevel,
-							(int) y);
+					yFileName = TileBoundingBoxUtils.getYAsOppositeTileFormat(
+							(int) zoomLevel, (int) y);
 				}
 
-				// Create the buffered image
-				BufferedImage image = TileDraw
-						.drawTile(tileDao, tileMatrix, imageFormat,
-								setWebMercatorBoundingBox, x, y, zoomLevel);
+				File imageFile = new File(xDirectory, String.valueOf(yFileName)
+						+ "." + imageFormat);
 
-				if (image != null) {
+				TileRow tileRow = null;
+				BufferedImage image = null;
+				if (rawImage) {
+					tileRow = TileDraw.getRawTileRow(tileDao, tileMatrix,
+							setWebMercatorBoundingBox, x, y, zoomLevel);
+				} else {
+					// Create the buffered image
+					image = TileDraw.drawTile(tileDao, tileMatrix, imageFormat,
+							setWebMercatorBoundingBox, x, y, zoomLevel);
+				}
+
+				if (tileRow != null || image != null) {
 
 					// Make any needed directories for the image
 					xDirectory.mkdirs();
 
-					File imageFile = new File(xDirectory,
-							String.valueOf(yFileName) + "." + imageFormat);
+					if (rawImage) {
+						// Write the raw image bytes to the file
+						FileOutputStream fos = new FileOutputStream(imageFile);
+						fos.write(tileRow.getTileData());
+						fos.close();
+					} else {
+						// Write the image to the file
+						ImageIO.write(image, imageFormat, imageFile);
+					}
 
-					// Write the image to the file
-					ImageIO.write(image, imageFormat, imageFile);
 					tileCount++;
 				}
 
@@ -449,7 +470,8 @@ public class TileWriter {
 		System.out.println();
 		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_TILE_TYPE
 				+ " tile_type] [" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_FORMAT
-				+ " image_format] geopackage_file tile_table output_directory");
+				+ " image_format] [" + ARGUMENT_PREFIX + ARGUMENT_RAW_IMAGE
+				+ "] geopackage_file tile_table output_directory");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -464,8 +486,6 @@ public class TileWriter {
 				.println("\t\tTile output format specifying z/x/y folder organization: "
 						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
 						+ ", "
-						+ TileFormatType.GEOPACKAGE_RAW.name().toLowerCase()
-						+ ", "
 						+ TileFormatType.STANDARD.name().toLowerCase()
 						+ ", "
 						+ TileFormatType.TMS.name().toLowerCase()
@@ -475,12 +495,6 @@ public class TileWriter {
 				.println("\t\t\t"
 						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
 						+ " - x and y represent GeoPackage Tile Matrix width and height");
-		System.out
-				.println("\t\t\t"
-						+ TileFormatType.GEOPACKAGE_RAW.name().toLowerCase()
-						+ " - same as "
-						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
-						+ " but GeoPackage image raw bytes are written directly to files");
 		System.out.println("\t\t\t"
 				+ TileFormatType.STANDARD.name().toLowerCase()
 				+ " - x and y origin is top left (Google format)");
@@ -492,6 +506,10 @@ public class TileWriter {
 		System.out
 				.println("\t\tOutput image format: png, jpg, jpeg (default is '"
 						+ DEFAULT_IMAGE_FORMAT + "')");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_RAW_IMAGE);
+		System.out
+				.println("\t\tUse the raw image bytes, only works when combining and cropping is not required");
 		System.out.println();
 		System.out.println("\tgeopackage_file");
 		System.out

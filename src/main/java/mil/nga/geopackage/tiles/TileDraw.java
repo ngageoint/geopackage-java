@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
@@ -243,9 +244,121 @@ public class TileDraw {
 				tileResultSet.close();
 			}
 
+			// Check if the entire image is transparent
+			if (image != null && ImageUtils.isFullyTransparent(image)) {
+				image = null;
+			}
+
 		}
 
 		return image;
 	}
 
+	/**
+	 * Attempt to get a single raw tile that aligns with the x, y, z location
+	 * 
+	 * @param tileDao
+	 * @param tileMatrix
+	 * @param setWebMercatorBoundingBox
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public static TileRow getRawTileRow(TileDao tileDao, TileMatrix tileMatrix,
+			BoundingBox setWebMercatorBoundingBox, long x, long y, long z) {
+
+		TileRow rawTileRow = null;
+
+		// Get the bounding box of the requested tile
+		BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
+				.getWebMercatorBoundingBox(x, y, (int) z);
+
+		// Get the tile grid
+		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
+				setWebMercatorBoundingBox, tileMatrix.getMatrixWidth(),
+				tileMatrix.getMatrixHeight(), webMercatorBoundingBox);
+
+		// Query for matching tiles in the tile grid
+		TileResultSet tileResultSet = tileDao.queryByTileGrid(tileGrid, z);
+		if (tileResultSet != null) {
+
+			try {
+
+				// Get the requested tile dimensions
+				int tileWidth = (int) tileMatrix.getTileWidth();
+				int tileHeight = (int) tileMatrix.getTileHeight();
+
+				while (tileResultSet.moveToNext()) {
+
+					// Get the next tile
+					TileRow tileRow = tileResultSet.getRow();
+
+					if (tileRow != null) {
+
+						// Get the image bytes
+						byte[] tileData = tileRow.getTileData();
+
+						if (tileData != null) {
+
+							// Get the bounding box of the tile
+							BoundingBox tileWebMercatorBoundingBox = TileBoundingBoxUtils
+									.getWebMercatorBoundingBox(
+											setWebMercatorBoundingBox,
+											tileMatrix,
+											tileRow.getTileColumn(),
+											tileRow.getTileRow());
+
+							// Get the bounding box where the requested image
+							// and tile overlap
+							BoundingBox overlap = TileBoundingBoxUtils.overlap(
+									webMercatorBoundingBox,
+									tileWebMercatorBoundingBox);
+
+							// If the tile overlaps with the requested box
+							if (overlap != null) {
+
+								// Get the rectangle of the tile image to draw
+								ImageRectangleF src = TileBoundingBoxJavaUtils
+										.getRectangle(
+												tileMatrix.getTileWidth(),
+												tileMatrix.getTileHeight(),
+												tileWebMercatorBoundingBox,
+												overlap);
+
+								// Get the rectangle of where to draw the tile
+								// in the resulting image
+								ImageRectangleF dest = TileBoundingBoxJavaUtils
+										.getRectangle(tileWidth, tileHeight,
+												webMercatorBoundingBox, overlap);
+
+								// Round the rectangles and make sure the bounds
+								// are valid
+								ImageRectangle srcRounded = src.round();
+								ImageRectangle destRounded = dest.round();
+								if (srcRounded.isValid()
+										&& destRounded.isValid()) {
+
+									// Verify only one image was found and
+									// it lines up perfectly
+									if (rawTileRow != null
+											|| !srcRounded.equals(destRounded)) {
+										throw new GeoPackageException(
+												"Raw image only supported when the images are aligned with the tile format requiring no combining and cropping");
+									}
+
+									rawTileRow = tileRow;
+								}
+							}
+						}
+					}
+				}
+			} finally {
+				tileResultSet.close();
+			}
+
+		}
+
+		return rawTileRow;
+	}
 }

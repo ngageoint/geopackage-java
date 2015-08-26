@@ -51,4 +51,41 @@ public class ImageUtils {
 		return image;
 	}
 
+	/**
+	 * Check if the image is fully transparent, meaning it contains only
+	 * transparent pixels as an empty image
+	 * 
+	 * @param image
+	 * @return
+	 */
+	public static boolean isFullyTransparent(BufferedImage image) {
+		boolean transparent = true;
+		for (int x = 0; x < image.getWidth(); x++) {
+			for (int y = 0; y < image.getHeight(); y++) {
+				transparent = isTransparent(image, x, y);
+				if (!transparent) {
+					break;
+				}
+			}
+			if (!transparent) {
+				break;
+			}
+		}
+		return transparent;
+	}
+
+	/**
+	 * Check if the pixel in the image at the x and y is transparent
+	 * 
+	 * @param image
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static boolean isTransparent(BufferedImage image, int x, int y) {
+		int pixel = image.getRGB(x, y);
+		boolean transparent = (pixel >> 24) == 0x00;
+		return transparent;
+	}
+
 }

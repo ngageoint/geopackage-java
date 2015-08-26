@@ -97,4 +97,41 @@ public class ImageRectangleF {
 		return left < right && top < bottom;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(bottom);
+		result = prime * result + Float.floatToIntBits(left);
+		result = prime * result + Float.floatToIntBits(right);
+		result = prime * result + Float.floatToIntBits(top);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ImageRectangleF other = (ImageRectangleF) obj;
+		if (Float.floatToIntBits(bottom) != Float.floatToIntBits(other.bottom))
+			return false;
+		if (Float.floatToIntBits(left) != Float.floatToIntBits(other.left))
+			return false;
+		if (Float.floatToIntBits(right) != Float.floatToIntBits(other.right))
+			return false;
+		if (Float.floatToIntBits(top) != Float.floatToIntBits(other.top))
+			return false;
+		return true;
+	}
+
 }

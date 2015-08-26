@@ -13,11 +13,6 @@ public enum TileFormatType {
 	GEOPACKAGE,
 
 	/**
-	 * Same as GEOPACKGE but with raw image bytes saved to files
-	 */
-	GEOPACKAGE_RAW,
-
-	/**
 	 * origin is upper left
 	 */
 	STANDARD,
