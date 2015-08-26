@@ -82,23 +82,37 @@ Build this repository using Eclipse and/or Maven:
 
     mvn clean install
 
-### Tile Writer ###
+### Stand Alone Utilities ###
 
-The tile writer can be used to write tiles from a GeoPackage tile table to the file system.  Images can be saved in a GeoPackage, Standard (Google), or TMS folder structure (z/x/y).  The mil.nga.geopackage.io.GeoPackageTileWriter functionality can be invoked through code or from command line.
-
-#### Command Line ####
+The jar can be built as standalone (or combined with required dependency jars) to run utilities from the command line.
 
 To build the jar into a standalone jar that includes all dependencies:
 
     mvn clean install -Pstandalone
 
+#### Tile Writer ####
+
+The tile writer writes tiles from a GeoPackage tile table to the file system.  Images are saved in a z/x/y.ext folder & file structure formatted as GeoPackage, Standard (Google), or TMS (Tile Map Service).  The mil.nga.geopackage.io.TileWriter functionality is invokable through code or command line.
+
 To run against the jar:
 
-    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.GeoPackageTileWriter [-t tile_type] [-i image_format] geopackage_file tile_table output_directory
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileWriter [-t tile_type] [-i image_format] [-r] geopackage_file tile_table output_directory
 
 Example:
 
-    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.GeoPackageTileWriter -t tms /path/geopackage.gpkg mytiletable /path/tiles/mytiles
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileWriter -t tms /path/geopackage.gpkg mytiletable /path/tiles/mytiles
+
+#### Tile Reader ####
+
+The tile reader reads tile images from the file system and saves them into a new or existing GeoPackage in a new tile table. Images structured in a z/x/y.ext folder & file structure formatted as Standard (Google) or TMS (Tile Map Service) are supported.  The mil.nga.geopackage.io.TileReader functionality is invokable through code or command line.
+
+To run against the jar:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReader [-i image_format] [-r] input_directory tile_type geopackage_file tile_table
+
+Example:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReader -i png /path/tiles/mytiles standard /path/geopackage.gpkg mytiletable
 
 ### Dependencies ###
 

@@ -244,7 +244,7 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		}
 		if (tileMatrixSetList.isEmpty()) {
 			throw new GeoPackageException(
-					"No Tile Table exists for table name: " + tableName);
+					"No Tile Table exists for table name: " + tableName + ", Tile Tables: " + getTileTables());
 		} else if (tileMatrixSetList.size() > 1) {
 			// This shouldn't happen with the table name primary key on tile
 			// matrix set table
