@@ -96,11 +96,11 @@ The tile writer writes tiles from a GeoPackage tile table to the file system.  I
 
 To run against the jar:
 
-    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.TileWriter [-t tile_type] [-i image_format] [-r] geopackage_file tile_table output_directory
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileWriter [-t tile_type] [-i image_format] [-r] geopackage_file tile_table output_directory
 
 Example:
 
-    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.TileWriter -t tms /path/geopackage.gpkg mytiletable /path/tiles/mytiles
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileWriter -t tms /path/geopackage.gpkg mytiletable /path/tiles/mytiles
 
 #### Tile Reader ####
 
@@ -108,11 +108,11 @@ The tile reader reads tile images from the file system and saves them into a new
 
 To run against the jar:
 
-    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.TileReader [-i image_format] [-r] input_directory tile_type geopackage_file tile_table
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReader [-i image_format] [-r] input_directory tile_type geopackage_file tile_table
 
 Example:
 
-    java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.TileReader -i png /path/tiles/mytiles standard /path/geopackage.gpkg mytiletable
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReader -i png /path/tiles/mytiles standard /path/geopackage.gpkg mytiletable
 
 ### Dependencies ###
 
