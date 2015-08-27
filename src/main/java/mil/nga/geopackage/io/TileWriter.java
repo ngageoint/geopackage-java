@@ -77,6 +77,11 @@ public class TileWriter {
 			.getName());
 
 	/**
+	 * Progress log frequency within a zoom level
+	 */
+	private static final int ZOOM_PROGRESS_FREQUENCY = 100;
+
+	/**
 	 * Main method to write tiles from a GeoPackage
 	 * 
 	 * @param args
@@ -287,6 +292,13 @@ public class TileWriter {
 			totalCount += zoomCount;
 		}
 
+		// If GeoPackage format, write a properties file
+		if (tileType == TileFormatType.GEOPACKAGE) {
+			tileDao = geoPackage.getTileDao(tileTable);
+			TileProperties tileProperties = new TileProperties(directory);
+			tileProperties.writeFile(tileDao);
+		}
+
 		LOGGER.log(Level.INFO, "Total Tiles: " + totalCount);
 	}
 
@@ -360,6 +372,11 @@ public class TileWriter {
 						}
 
 						tileCount++;
+
+						if (tileCount % ZOOM_PROGRESS_FREQUENCY == 0) {
+							LOGGER.log(Level.INFO, "Zoom " + zoomLevel
+									+ " Tile Progress... " + tileCount);
+						}
 					}
 				}
 			}
@@ -453,6 +470,11 @@ public class TileWriter {
 					}
 
 					tileCount++;
+
+					if (tileCount % ZOOM_PROGRESS_FREQUENCY == 0) {
+						LOGGER.log(Level.INFO, "Zoom " + zoomLevel
+								+ " Tile Progress... " + tileCount);
+					}
 				}
 
 			}
