@@ -92,7 +92,7 @@ To build the jar into a standalone jar that includes all dependencies:
 
 #### Tile Writer ####
 
-The tile writer writes tiles from a GeoPackage tile table to the file system.  Images are saved in a z/x/y.ext folder & file structure formatted as GeoPackage, Standard (Google), or TMS (Tile Map Service).  The mil.nga.geopackage.io.TileWriter functionality is invokable through code or command line.
+The tile writer writes tiles from a GeoPackage tile table to the file system.  Images are saved as raw bytes or as a specified format in a z/x/y.ext folder & file structure formatted as GeoPackage, Standard (Google), or TMS (Tile Map Service).  The GeoPackage format writes a tiles.properties file in the base imagery directory.  The mil.nga.geopackage.io.TileWriter functionality is invokable through code or command line.
 
 To run against the jar:
 
@@ -104,7 +104,7 @@ Example:
 
 #### Tile Reader ####
 
-The tile reader reads tile images from the file system and saves them into a new or existing GeoPackage in a new tile table. Images structured in a z/x/y.ext folder & file structure formatted as Standard (Google) or TMS (Tile Map Service) are supported.  The mil.nga.geopackage.io.TileReader functionality is invokable through code or command line.
+The tile reader reads tile images from the file system and saves them into a new or existing GeoPackage in a new tile table. Images structured in a z/x/y.ext folder & file structure formatted as GeoPackage, Standard (Google), or TMS (Tile Map Service) are saved as raw bytes or as a specified format in a GeoPackage.  The GeoPackage format requires a tiles.properties file in the base imagery directory.  The mil.nga.geopackage.io.TileReader functionality is invokable through code or command line.
 
 To run against the jar:
 
@@ -113,6 +113,19 @@ To run against the jar:
 Example:
 
     java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReader -i png /path/tiles/mytiles standard /path/geopackage.gpkg mytiletable
+
+GeoPackage Format tiles.properties:
+
+    epsg=
+    min_x=
+    max_x=
+    min_y=
+    max_y=
+    # Zoom Level Properties:
+    # If the file strucThe GeoPackage format requires a tiles.properties file in the base imagery directory.ture is fully populated and represents the matrix width and height, the properties can be omitted
+    # If a non top zoom level matrix width and height increase by a factor of 2 with each zoom level, the properties can be omitted for those zoom levels
+    zoom_level.{zoom}.matrix_width=
+    zoom_level.{zoom}.matrix_height=
 
 ### Dependencies ###
 

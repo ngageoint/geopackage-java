@@ -265,10 +265,9 @@ public class TileReader {
 		switch (tileType) {
 
 		case GEOPACKAGE:
-			// TODO
-			throw new UnsupportedOperationException(
-					"GeoPackage file format not supported");
-			// break;
+			totalCount = readGeoPackageFormatTiles(geoPackage, tileTable,
+					imageFormat, rawImage, tileDirectory);
+			break;
 
 		case STANDARD:
 		case TMS:
@@ -283,6 +282,239 @@ public class TileReader {
 
 		LOGGER.log(Level.INFO, "Total Tiles: " + totalCount);
 
+	}
+
+	/**
+	 * Read GeoPackage formatted tiles into a GeoPackage
+	 * 
+	 * @param geoPackage
+	 * @param tileTable
+	 * @param imageFormat
+	 * @param rawImage
+	 * @param tileDirectory
+	 * @return
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	private static int readGeoPackageFormatTiles(GeoPackage geoPackage,
+			String tileTable, String imageFormat, boolean rawImage,
+			TileDirectory tileDirectory) throws SQLException, IOException {
+
+		int created = 0;
+
+		TileProperties properties = new TileProperties(tileDirectory.directory);
+		properties.load();
+
+		int epsg = properties.getIntegerProperty(
+				TileProperties.GEOPACKAGE_PROPERTIES_EPSG, true);
+		double minX = properties.getDoubleProperty(
+				TileProperties.GEOPACKAGE_PROPERTIES_MIN_X, true);
+		double maxX = properties.getDoubleProperty(
+				TileProperties.GEOPACKAGE_PROPERTIES_MAX_X, true);
+		double minY = properties.getDoubleProperty(
+				TileProperties.GEOPACKAGE_PROPERTIES_MIN_Y, true);
+		double maxY = properties.getDoubleProperty(
+				TileProperties.GEOPACKAGE_PROPERTIES_MAX_Y, true);
+
+		// Create the user tile table
+		List<TileColumn> columns = TileTable.createRequiredColumns();
+		TileTable table = new TileTable(tileTable, columns);
+		geoPackage.createTileTable(table);
+
+		// Get SRS values
+		SpatialReferenceSystemDao srsDao = geoPackage
+				.getSpatialReferenceSystemDao();
+		SpatialReferenceSystem srsWgs84 = srsDao
+				.getOrCreate(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		SpatialReferenceSystem srsWebMercator = srsDao
+				.getOrCreate(ProjectionConstants.EPSG_WEB_MERCATOR);
+
+		// Get the transformation from the property projection to web mercator
+		Projection projection = ProjectionFactory.getProjection(epsg);
+		Projection webMercator = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+		ProjectionTransform projectionToWebMercator = projection
+				.getTransformation(webMercator);
+
+		// Get the transformation from web mercator to wgs84
+		Projection wgs84Projection = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		ProjectionTransform webMercatorToWgs84 = webMercator
+				.getTransformation(wgs84Projection);
+
+		// Get the Projection, Web Mercator , WGS 84 bounding boxes
+		BoundingBox projectionBoundingBox = new BoundingBox(minX, maxX, minY,
+				maxY);
+		BoundingBox webMercatorBoundingBox = projectionToWebMercator
+				.transform(projectionBoundingBox);
+		BoundingBox wgs84BoundingBox = webMercatorToWgs84
+				.transform(webMercatorBoundingBox);
+
+		// Create the Tile Matrix Set and Tile Matrix tables
+		geoPackage.createTileMatrixSetTable();
+		geoPackage.createTileMatrixTable();
+
+		// Create new Contents
+		ContentsDao contentsDao = geoPackage.getContentsDao();
+
+		Contents contents = new Contents();
+		contents.setTableName(tileTable);
+		contents.setDataType(ContentsDataType.TILES);
+		contents.setIdentifier(tileTable);
+		// contents.setDescription("");
+		contents.setLastChange(new Date());
+		contents.setMinX(wgs84BoundingBox.getMinLongitude());
+		contents.setMinY(wgs84BoundingBox.getMinLatitude());
+		contents.setMaxX(wgs84BoundingBox.getMaxLongitude());
+		contents.setMaxY(wgs84BoundingBox.getMaxLatitude());
+		contents.setSrs(srsWgs84);
+
+		// Create the contents
+		contentsDao.create(contents);
+
+		// Create new Tile Matrix Set
+		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
+
+		TileMatrixSet tileMatrixSet = new TileMatrixSet();
+		tileMatrixSet.setContents(contents);
+		tileMatrixSet.setSrs(srsWebMercator);
+		tileMatrixSet.setMinX(webMercatorBoundingBox.getMinLongitude());
+		tileMatrixSet.setMinY(webMercatorBoundingBox.getMinLatitude());
+		tileMatrixSet.setMaxX(webMercatorBoundingBox.getMaxLongitude());
+		tileMatrixSet.setMaxY(webMercatorBoundingBox.getMaxLatitude());
+		tileMatrixSetDao.create(tileMatrixSet);
+
+		// Create new Tile Matrix and tile table rows by going through each zoom
+		// level
+		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
+
+		Integer lastZoom = null;
+		Integer lastMatrixWidth = null;
+		Integer lastMatrixHeight = null;
+
+		for (ZoomDirectory zoomDirectory : tileDirectory.zooms.values()) {
+
+			int zoomCount = 0;
+
+			Integer tileWidth = null;
+			Integer tileHeight = null;
+
+			// Determine the matrix width and height
+			Integer matrixWidth = properties.getIntegerProperty(
+					TileProperties.getMatrixWidthProperty(zoomDirectory.zoom),
+					false);
+			Integer matrixHeight = properties.getIntegerProperty(
+					TileProperties.getMatrixHeightProperty(zoomDirectory.zoom),
+					false);
+
+			// If the matrix width is not configured as a property, try to
+			// determine it
+			if (matrixWidth == null) {
+				if (lastZoom != null) {
+					// Determine the width by a factor of 2 for each zoom level
+					matrixWidth = lastMatrixWidth;
+					for (int i = lastZoom; i < zoomDirectory.zoom; i++) {
+						matrixWidth *= 2;
+					}
+				} else {
+					// Assume the max x is the width
+					matrixWidth = zoomDirectory.maxX + 1;
+				}
+			}
+
+			// If the matrix height is not configured as a property, try to
+			// determine it
+			if (matrixHeight == null) {
+				if (lastZoom != null) {
+					// Determine the height by a factor of 2 for each zoom level
+					matrixHeight = lastMatrixHeight;
+					for (int i = lastZoom; i < zoomDirectory.zoom; i++) {
+						matrixHeight *= 2;
+					}
+				} else {
+					// Assume the max y is the height
+					matrixHeight = zoomDirectory.maxY + 1;
+				}
+			}
+
+			// Set values for the next zoom level
+			lastZoom = zoomDirectory.zoom;
+			lastMatrixWidth = matrixWidth;
+			lastMatrixHeight = matrixHeight;
+
+			LOGGER.log(Level.INFO, "Zoom Level: " + zoomDirectory.zoom
+					+ ", Width: " + matrixWidth + ", Height: " + matrixHeight
+					+ ", Max Tiles: " + (matrixWidth * matrixHeight));
+
+			for (XDirectory xDirectory : zoomDirectory.xValues.values()) {
+
+				for (YFile yFile : xDirectory.yValues.values()) {
+
+					BufferedImage image = null;
+
+					// Set the tile width and height
+					if (tileWidth == null || tileHeight == null) {
+						image = ImageIO.read(yFile.file);
+						tileWidth = image.getWidth();
+						tileHeight = image.getHeight();
+					}
+
+					TileRow newRow = tileDao.newRow();
+
+					newRow.setZoomLevel(zoomDirectory.zoom);
+					newRow.setTileColumn(xDirectory.x);
+					newRow.setTileRow(yFile.y);
+					if (rawImage) {
+						byte[] rawImageBytes = GeoPackageIOUtils
+								.fileBytes(yFile.file);
+						newRow.setTileData(rawImageBytes);
+					} else {
+						if (image == null) {
+							image = ImageIO.read(yFile.file);
+						}
+						newRow.setTileData(image, imageFormat);
+					}
+
+					tileDao.create(newRow);
+
+					zoomCount++;
+
+					if (zoomCount % ZOOM_PROGRESS_FREQUENCY == 0) {
+						LOGGER.log(Level.INFO, "Zoom " + zoomDirectory.zoom
+								+ " Tile Progress... " + zoomCount);
+					}
+				}
+			}
+
+			LOGGER.log(Level.INFO, "Zoom " + zoomDirectory.zoom + " Tiles: "
+					+ zoomCount);
+
+			// If tiles were saved for the zoom level, create the tile matrix
+			// row
+			if (zoomCount > 0) {
+				double pixelXSize = TileBoundingBoxUtils.getPixelXSize(
+						webMercatorBoundingBox, matrixWidth, tileWidth);
+				double pixelYSize = TileBoundingBoxUtils.getPixelYSize(
+						webMercatorBoundingBox, matrixHeight, tileHeight);
+
+				TileMatrix tileMatrix = new TileMatrix();
+				tileMatrix.setContents(contents);
+				tileMatrix.setZoomLevel(zoomDirectory.zoom);
+				tileMatrix.setMatrixWidth(matrixWidth);
+				tileMatrix.setMatrixHeight(matrixHeight);
+				tileMatrix.setTileWidth(tileWidth);
+				tileMatrix.setTileHeight(tileHeight);
+				tileMatrix.setPixelXSize(pixelXSize);
+				tileMatrix.setPixelYSize(pixelYSize);
+				tileMatrixDao.create(tileMatrix);
+
+				created += zoomCount;
+			}
+
+		}
+
+		return created;
 	}
 
 	/**
@@ -778,7 +1010,8 @@ public class TileReader {
 		System.out
 				.println("\t\t\t"
 						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
-						+ " - x and y represent GeoPackage Tile Matrix width and height");
+						+ " - x and y represent GeoPackage Tile Matrix width and height. Requires a input_directory/"
+						+ TileProperties.GEOPACKAGE_PROPERTIES_FILE + " file");
 		System.out.println("\t\t\t"
 				+ TileFormatType.STANDARD.name().toLowerCase()
 				+ " - x and y origin is top left (Google format)");
@@ -793,6 +1026,37 @@ public class TileReader {
 		System.out
 				.println("\t\tnew tile table name to create within the GeoPackage file");
 		System.out.println();
-	}
+		System.out.println("GEOPACKAGE PROPERTIES");
+		System.out.println();
+		System.out
+				.println("\tReading tiles with a tile_type of geopackage requires a properties file located at: input_directory/"
+						+ TileProperties.GEOPACKAGE_PROPERTIES_FILE);
+		System.out.println();
+		System.out.println("\tRequired Properties:");
+		System.out.println();
+		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_EPSG
+				+ "=");
+		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MIN_X
+				+ "=");
+		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MAX_X
+				+ "=");
+		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MIN_Y
+				+ "=");
+		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MAX_Y
+				+ "=");
+		System.out.println();
+		System.out.println("\tOptional Properties:");
+		System.out.println();
+		System.out
+				.println("\t\tIf the file structure is fully populated and represents the matrix width and height, the properties can be omitted.");
+		System.out
+				.println("\t\tIf a non top zoom level matrix width and height increase by a factor of 2 with each zoom level, the properties can be omitted for those zoom levels.");
+		System.out.println();
+		System.out.println("\t\t"
+				+ TileProperties.getMatrixWidthProperty("{zoom}") + "=");
+		System.out.println("\t\t"
+				+ TileProperties.getMatrixHeightProperty("{zoom}") + "=");
+		System.out.println();
 
+	}
 }

@@ -292,6 +292,13 @@ public class TileWriter {
 			totalCount += zoomCount;
 		}
 
+		// If GeoPackage format, write a properties file
+		if (tileType == TileFormatType.GEOPACKAGE) {
+			tileDao = geoPackage.getTileDao(tileTable);
+			TileProperties tileProperties = new TileProperties(directory);
+			tileProperties.writeFile(tileDao);
+		}
+
 		LOGGER.log(Level.INFO, "Total Tiles: " + totalCount);
 	}
 
