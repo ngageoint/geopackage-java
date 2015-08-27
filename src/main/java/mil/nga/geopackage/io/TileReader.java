@@ -89,6 +89,11 @@ public class TileReader {
 			.getName());
 
 	/**
+	 * Progress log frequency within a zoom level
+	 */
+	private static final int ZOOM_PROGRESS_FREQUENCY = 100;
+
+	/**
 	 * Main method to read tiles from the file system into a GeoPackage
 	 * 
 	 * @param args
@@ -588,6 +593,11 @@ public class TileReader {
 						tileDao.create(newRow);
 
 						zoomCount++;
+
+						if (zoomCount % ZOOM_PROGRESS_FREQUENCY == 0) {
+							LOGGER.log(Level.INFO, "Zoom " + zoomDirectory.zoom
+									+ " Tile Progress... " + zoomCount);
+						}
 					}
 				}
 
