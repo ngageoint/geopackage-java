@@ -11,9 +11,9 @@ Software source code previously released under an open source license and then m
 
 ### About ###
 
-GeoPackage is a Java implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/).
+GeoPackage is a Java implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/).  It is listed as an [OGC GeoPackage Implementation](http://www.geopackage.org/#implementations) by the National Geospatial-Intelligence Agency.
 
-The GeoPackage Java library provides the ability to read, create, and edit GeoPackage files.
+The GeoPackage Java library provides the ability to read, create, and edit GeoPackage files. GeoPackage tiles can be imported from or exported to a file system folder structure.
 
 ### Usage ###
 
@@ -72,11 +72,17 @@ The GeoPackage Java library provides the ability to read, create, and edit GeoPa
     // Close database when done
     geoPackage.close();
 
-### Build ###
+### Installation ###
 
-The following repositories must be built first (Central Repository Artifacts Coming Soon):
-* [GeoPackage WKB Java] (https://github.com/ngageoint/geopackage-wkb-java)
-* [GeoPackage Core Java] (https://github.com/ngageoint/geopackage-core-java)
+Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.0.0|jar)
+
+    <dependency>
+        <groupId>mil.nga.geopackage</groupId>
+        <artifactId>geopackage</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+
+### Build ###
 
 Build this repository using Eclipse and/or Maven:
 
@@ -132,6 +138,7 @@ GeoPackage Format tiles.properties:
 #### Remote ####
 
 * [GeoPackage Core Java](https://github.com/ngageoint/geopackage-core-java) (The MIT License (MIT)) - GeoPackage Library
+* [WKB](https://github.com/ngageoint/geopackage-wkb-java) (The MIT License (MIT)) - GeoPackage Well Known Binary Lib
 * [OrmLite](http://ormlite.com/) (Open Source License) - Object Relational Mapping (ORM) Library
 * [SQLite JDBC](https://bitbucket.org/xerial/sqlite-jdbc) (Apache License, Version 2.0) - SQLiteJDBC library
 
