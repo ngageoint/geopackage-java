@@ -13,7 +13,7 @@ Software source code previously released under an open source license and then m
 
 GeoPackage is a Java implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/).  It is listed as an [OGC GeoPackage Implementation](http://www.geopackage.org/#implementations) by the National Geospatial-Intelligence Agency.
 
-The GeoPackage Java library provides the ability to read, create, and edit GeoPackage files.
+The GeoPackage Java library provides the ability to read, create, and edit GeoPackage files. GeoPackage tiles can be imported from or exported to a file system folder structure.
 
 ### Usage ###
 
