@@ -74,7 +74,7 @@ The GeoPackage Java library provides the ability to read, create, and edit GeoPa
 
 ### Installation ###
 
-Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.0.0|jar)
+Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.0.0|jar) (JAR, POM, Source, Javadoc)
 
     <dependency>
         <groupId>mil.nga.geopackage</groupId>
