@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.GeoPackageCore;
+import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
@@ -39,7 +39,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param geoPackage
 	 * @param featureDao
 	 */
-	public FeatureTableIndex(GeoPackageCore geoPackage, FeatureDao featureDao) {
+	public FeatureTableIndex(GeoPackage geoPackage, FeatureDao featureDao) {
 		super(geoPackage, featureDao.getTableName(), featureDao
 				.getGeometryColumnName());
 		this.featureDao = featureDao;
