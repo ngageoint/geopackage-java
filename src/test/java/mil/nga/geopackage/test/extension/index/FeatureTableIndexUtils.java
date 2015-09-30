@@ -7,6 +7,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.NGAExtensions;
@@ -36,7 +37,6 @@ public class FeatureTableIndexUtils {
 	 * Test read
 	 * 
 	 * @param geoPackage
-	 * @param expectedResults
 	 * @throws SQLException
 	 */
 	public static void testIndex(GeoPackage geoPackage) throws SQLException {
@@ -209,6 +209,19 @@ public class FeatureTableIndexUtils {
 					FeatureTableIndex.EXTENSION_NAME, featureTable,
 					featureDao.getGeometryColumnName());
 			TestCase.assertNotNull(extensions);
+			TestCase.assertEquals(extensions.getTableName(), featureTable);
+			TestCase.assertEquals(extensions.getColumnName(),
+					featureDao.getGeometryColumnName());
+			TestCase.assertEquals(extensions.getExtensionName(),
+					FeatureTableIndex.EXTENSION_NAME);
+			TestCase.assertEquals(extensions.getAuthor(),
+					FeatureTableIndex.EXTENSION_AUTHOR);
+			TestCase.assertEquals(extensions.getExtensionNameNoAuthor(),
+					FeatureTableIndex.EXTENSION_NAME_NO_AUTHOR);
+			TestCase.assertEquals(extensions.getDefinition(),
+					FeatureTableIndex.EXTENSION_DEFINITION);
+			TestCase.assertEquals(extensions.getScope(),
+					ExtensionScopeType.READ_WRITE);
 			FeatureTableIndex featureTableIndex = new FeatureTableIndex(
 					geoPackage, featureDao);
 			TestCase.assertTrue(featureTableIndex.isIndexed());
