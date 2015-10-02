@@ -114,6 +114,18 @@ public class FeatureTableIndexUtils {
 				envelope = GeometryEnvelopeBuilder.buildEnvelope(geometryData
 						.getGeometry());
 			}
+			envelope.setMinX(envelope.getMinX() - .000001);
+			envelope.setMaxX(envelope.getMaxX() + .000001);
+			envelope.setMinY(envelope.getMinY() - .000001);
+			envelope.setMaxY(envelope.getMaxY() + .000001);
+			if (envelope.hasZ()) {
+				envelope.setMinZ(envelope.getMinZ() - .000001);
+				envelope.setMaxZ(envelope.getMaxZ() + .000001);
+			}
+			if (envelope.hasM()) {
+				envelope.setMinM(envelope.getMinM() - .000001);
+				envelope.setMaxM(envelope.getMaxM() + .000001);
+			}
 			resultCount = 0;
 			boolean featureFound = false;
 			TestCase.assertTrue(featureTableIndex.count(envelope) >= 1);
@@ -229,27 +241,30 @@ public class FeatureTableIndexUtils {
 					geoPackage, featureDao);
 			TestCase.assertTrue(featureTableIndex.isIndexed());
 			TestCase.assertEquals(geometryCount, featureTableIndex.count());
-			
+
 			// Test deleting a single geometry index
-			if(everyOther){
+			if (everyOther) {
 				FeatureResultSet featureResultSet = featureDao.queryForAll();
 				while (featureResultSet.moveToNext()) {
 					FeatureRow featureRow = featureResultSet.getRow();
-					GeoPackageGeometryData geometryData = featureRow.getGeometry();
+					GeoPackageGeometryData geometryData = featureRow
+							.getGeometry();
 					if (geometryData != null
 							&& (geometryData.getEnvelope() != null || geometryData
 									.getGeometry() != null)) {
 						featureResultSet.close();
-						TestCase.assertEquals(1, featureTableIndex.deleteIndex(featureRow));
-						TestCase.assertEquals(geometryCount-1, featureTableIndex.count());
+						TestCase.assertEquals(1,
+								featureTableIndex.deleteIndex(featureRow));
+						TestCase.assertEquals(geometryCount - 1,
+								featureTableIndex.count());
 						break;
 					}
 				}
 				featureResultSet.close();
 			}
-			
+
 			NGAExtensions.deleteTableExtensions(geoPackage, featureTable);
-			
+
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 			TestCase.assertEquals(0,
 					geometryIndexDao.queryForTableName(featureTable).size());
