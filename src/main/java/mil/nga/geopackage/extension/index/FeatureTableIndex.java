@@ -57,8 +57,9 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * completed and maintained as the last indexed time is updated.
 	 *
 	 * @param row
+	 * @return true if indexed
 	 */
-	public void index(FeatureRow row) {
+	public boolean index(FeatureRow row) {
 		TableIndex tableIndex = getTableIndex();
 		if (tableIndex == null) {
 			throw new GeoPackageException(
@@ -66,7 +67,12 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 							+ getGeoPackage().getName() + ", Table: "
 							+ getTableName());
 		}
-		index(tableIndex, row.getId(), row.getGeometry());
+		boolean indexed = index(tableIndex, row.getId(), row.getGeometry());
+
+		// Update the last indexed time
+		updateLastIndexed();
+
+		return indexed;
 	}
 
 	/**

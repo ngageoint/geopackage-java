@@ -186,7 +186,10 @@ public class FeatureTableIndexUtils {
 			geometryData.setGeometry(point);
 			testFeatureRow.setGeometry(geometryData);
 			TestCase.assertEquals(1, featureDao.update(testFeatureRow));
-			featureTableIndex.index(testFeatureRow);
+			Date lastIndexedBefore = featureTableIndex.getLastIndexed();
+			TestCase.assertTrue(featureTableIndex.index(testFeatureRow));
+			Date lastIndexedAfter = featureTableIndex.getLastIndexed();
+			TestCase.assertTrue(lastIndexedAfter.after(lastIndexedBefore));
 
 			// Verify the index was updated for the feature row
 			envelope = GeometryEnvelopeBuilder.buildEnvelope(point);
