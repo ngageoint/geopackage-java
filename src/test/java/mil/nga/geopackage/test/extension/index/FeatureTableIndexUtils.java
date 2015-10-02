@@ -70,6 +70,7 @@ public class FeatureTableIndexUtils {
 					}
 				}
 			}
+			featureResultSet.close();
 
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 			TestCase.assertNull(featureTableIndex.getLastIndexed());
@@ -199,11 +200,13 @@ public class FeatureTableIndexUtils {
 		TableIndexDao tableIndexDao = geoPackage.getTableIndexDao();
 
 		// Delete the extensions for the first half of the feature tables
+		boolean everyOther = false;
 		for (String featureTable : featureTables.subList(0,
 				(int) Math.ceil(featureTables.size() * .5))) {
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
-			TestCase.assertTrue(geometryIndexDao
-					.queryForTableName(featureTable).size() > 0);
+			int geometryCount = geometryIndexDao
+					.queryForTableName(featureTable).size();
+			TestCase.assertTrue(geometryCount > 0);
 			TestCase.assertNotNull(tableIndexDao.queryForId(featureTable));
 			Extensions extensions = extensionsDao.queryByExtension(
 					FeatureTableIndex.EXTENSION_NAME, featureTable,
@@ -225,7 +228,28 @@ public class FeatureTableIndexUtils {
 			FeatureTableIndex featureTableIndex = new FeatureTableIndex(
 					geoPackage, featureDao);
 			TestCase.assertTrue(featureTableIndex.isIndexed());
+			TestCase.assertEquals(geometryCount, featureTableIndex.count());
+			
+			// Test deleting a single geometry index
+			if(everyOther){
+				FeatureResultSet featureResultSet = featureDao.queryForAll();
+				while (featureResultSet.moveToNext()) {
+					FeatureRow featureRow = featureResultSet.getRow();
+					GeoPackageGeometryData geometryData = featureRow.getGeometry();
+					if (geometryData != null
+							&& (geometryData.getEnvelope() != null || geometryData
+									.getGeometry() != null)) {
+						featureResultSet.close();
+						TestCase.assertEquals(1, featureTableIndex.deleteIndex(featureRow));
+						TestCase.assertEquals(geometryCount-1, featureTableIndex.count());
+						break;
+					}
+				}
+				featureResultSet.close();
+			}
+			
 			NGAExtensions.deleteTableExtensions(geoPackage, featureTable);
+			
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 			TestCase.assertEquals(0,
 					geometryIndexDao.queryForTableName(featureTable).size());
@@ -234,6 +258,7 @@ public class FeatureTableIndexUtils {
 					FeatureTableIndex.EXTENSION_NAME, featureTable,
 					featureDao.getGeometryColumnName());
 			TestCase.assertNull(extensions);
+			everyOther = !everyOther;
 		}
 
 		TestCase.assertTrue(geometryIndexDao.isTableExists());
