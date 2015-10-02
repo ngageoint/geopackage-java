@@ -46,6 +46,13 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Close the table index
+	 */
+	public void close() {
+		// Don't close anything, leave the GeoPackage connection open
+	}
+
+	/**
 	 * Index the feature row. This method assumes that indexing has been
 	 * completed and maintained as the last indexed time is updated.
 	 *
@@ -111,6 +118,16 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 		}
 
 		return count;
+	}
+
+	/**
+	 * Delete the index for the feature row
+	 *
+	 * @param row
+	 * @return deleted rows, should be 0 or 1
+	 */
+	public int deleteIndex(FeatureRow row) {
+		return deleteIndex(row.getId());
 	}
 
 	/**
