@@ -4,9 +4,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.0.2 (TBD)
+## [1.1.0](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.0) (10-08-2015)
 
-* TBD
+* NGA Table Index Extension implementation - http://ngageoint.github.io/GeoPackage/docs/extensions/geometry-index.html
+* Feature and Tile DAO get bounding box method
 
 ## [1.0.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.0.1) (09-23-2015)
 
