@@ -71,6 +71,10 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
         tileResultSet.close();
     }
     
+    // Index Features
+    FeatureTableIndex indexer = new FeatureTableIndex(geoPackage, featureDao);
+    int indexedCount = indexer.index();
+    
     // Close database when done
     geoPackage.close();
 
