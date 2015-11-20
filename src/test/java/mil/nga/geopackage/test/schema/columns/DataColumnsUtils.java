@@ -92,6 +92,13 @@ public class DataColumnsUtils {
 				TestCase.assertEquals(dataColumns.getId(),
 						queryDataColumns.getId());
 
+				// Query by id shortcut method
+                DataColumns queryDataColumns2 = dao.getDataColumn(dataColumns.getTableName(),
+                        dataColumns.getColumnName());
+                TestCase.assertNotNull(queryDataColumns2);
+                TestCase.assertEquals(dataColumns.getId(),
+                        queryDataColumns2.getId());
+				
 				// Query for equal
 				List<DataColumns> queryDataColumnsList = dao.queryForEq(
 						DataColumns.COLUMN_COLUMN_NAME,
