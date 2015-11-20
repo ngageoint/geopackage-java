@@ -23,7 +23,8 @@ public abstract class CreateGeoPackageTestCase extends GeoPackageTestCase {
 	@Override
 	protected GeoPackage getGeoPackage() throws Exception {
 		File testFolder = folder.newFolder();
-		return TestSetupTeardown.setUpCreate(testFolder, true, true);
+		return TestSetupTeardown.setUpCreate(testFolder, true,
+				allowEmptyFeatures(), true);
 	}
 
 	@After
@@ -31,6 +32,16 @@ public abstract class CreateGeoPackageTestCase extends GeoPackageTestCase {
 
 		// Tear down the create database
 		TestSetupTeardown.tearDownCreate(geoPackage);
+	}
+
+	/**
+	 * Return true to allow a chance that a feature will be created with an
+	 * empty geometry
+	 * 
+	 * @return
+	 */
+	public boolean allowEmptyFeatures() {
+		return true;
 	}
 
 }

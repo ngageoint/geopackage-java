@@ -170,11 +170,12 @@ public class TestUtils {
 	 * @param numRows
 	 * @param hasZ
 	 * @param hasM
+	 * @param allowEmptyFeatures
 	 * @throws SQLException
 	 */
 	public static void addRowsToFeatureTable(GeoPackage geoPackage,
 			GeometryColumns geometryColumns, FeatureTable table, int numRows,
-			boolean hasZ, boolean hasM) throws SQLException {
+			boolean hasZ, boolean hasM, boolean allowEmptyFeatures) throws SQLException {
 
 		FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 
@@ -187,7 +188,7 @@ public class TestUtils {
 
 					// Leave nullable columns null 20% of the time
 					if (!column.isNotNull()) {
-						if (Math.random() < .2) {
+						if (allowEmptyFeatures && Math.random() < 0.2) {
 							continue;
 						}
 					}

@@ -93,21 +93,7 @@ public class SQLUtils {
 			sql = "select count(*)" + sql.substring(index);
 		}
 
-		ResultSet resultSet = query(connection, sql, selectionArgs);
-
-		int count = 0;
-		try {
-			if (resultSet.next()) {
-				count = resultSet.getInt(1);
-			} else {
-				throw new GeoPackageException("Failed to get count. SQL: "
-						+ sql);
-			}
-		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to get count. SQL: " + sql, e);
-		} finally {
-			closeResultSetStatement(resultSet, sql);
-		}
+		int count = singleResultQuery(connection, sql, selectionArgs);
 
 		return count;
 	}
@@ -119,7 +105,7 @@ public class SQLUtils {
 	 * @param table
 	 * @param where
 	 * @param args
-	 * @return
+	 * @return count
 	 */
 	public static int count(Connection connection, String table, String where,
 			String[] args) {
@@ -130,23 +116,100 @@ public class SQLUtils {
 		}
 		String sql = countQuery.toString();
 
+		int count = singleResultQuery(connection, sql, args);
+
+		return count;
+	}
+
+	/**
+	 * Get the min query result
+	 * 
+	 * @param connection
+	 * @param table
+	 * @param column
+	 * @param where
+	 * @param args
+	 * @return min or null
+	 * @since 1.1.1
+	 */
+	public static Integer min(Connection connection, String table,
+			String column, String where, String[] args) {
+
+		Integer min = null;
+		if (count(connection, table, where, args) > 0) {
+			StringBuilder minQuery = new StringBuilder();
+			minQuery.append("select min(").append(column).append(") from ")
+					.append(table);
+			if (where != null) {
+				minQuery.append(" where ").append(where);
+			}
+			String sql = minQuery.toString();
+
+			min = singleResultQuery(connection, sql, args);
+		}
+
+		return min;
+	}
+
+	/**
+	 * Get the max query result
+	 * 
+	 * @param connection
+	 * @param table
+	 * @param column
+	 * @param where
+	 * @param args
+	 * @return max or null
+	 * @since 1.1.1
+	 */
+	public static Integer max(Connection connection, String table,
+			String column, String where, String[] args) {
+
+		Integer max = null;
+		if (count(connection, table, where, args) > 0) {
+			StringBuilder maxQuery = new StringBuilder();
+			maxQuery.append("select max(").append(column).append(") from ")
+					.append(table);
+			if (where != null) {
+				maxQuery.append(" where ").append(where);
+			}
+			String sql = maxQuery.toString();
+
+			max = singleResultQuery(connection, sql, args);
+		}
+
+		return max;
+	}
+
+	/**
+	 * Query the SQL for a single integer result
+	 * 
+	 * @param connection
+	 * @param sql
+	 * @param args
+	 * @return Integer result, null if no result
+	 */
+	private static int singleResultQuery(Connection connection, String sql,
+			String[] args) {
+
 		ResultSet resultSet = query(connection, sql, args);
 
-		int count = 0;
+		int result = 0;
 		try {
 			if (resultSet.next()) {
-				count = resultSet.getInt(1);
+				result = resultSet.getInt(1);
 			} else {
-				throw new GeoPackageException("Failed to get count. SQL: "
-						+ sql);
+				throw new GeoPackageException(
+						"Failed to query for single result. SQL: " + sql);
 			}
 		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to get count. SQL: " + sql, e);
+			throw new GeoPackageException(
+					"Failed to query for single result. SQL: " + sql, e);
 		} finally {
 			closeResultSetStatement(resultSet, sql);
 		}
 
-		return count;
+		return result;
 	}
 
 	/**

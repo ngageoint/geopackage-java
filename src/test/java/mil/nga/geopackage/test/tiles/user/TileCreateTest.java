@@ -3,9 +3,9 @@ package mil.nga.geopackage.test.tiles.user;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import org.junit.Test;
-
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
+
+import org.junit.Test;
 
 /**
  * Test Tiles from a created database
@@ -91,6 +91,18 @@ public class TileCreateTest extends CreateGeoPackageTestCase {
 	public void testQueryByRange() throws SQLException {
 
 		TileUtils.testQueryByRange(geoPackage);
+
+	}
+
+	/**
+	 * Test tileMatrixBoundingBox
+	 * 
+	 * @throws SQLException
+	 */
+	@Test
+	public void testTileMatrixBoundingBox() throws SQLException {
+
+		TileUtils.testTileMatrixBoundingBox(geoPackage);
 
 	}
 

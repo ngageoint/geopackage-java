@@ -93,6 +93,22 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Integer min(String table, String column, String where, String[] args) {
+		return SQLUtils.min(connection, table, column, where, args);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Integer max(String table, String column, String where, String[] args) {
+		return SQLUtils.max(connection, table, column, where, args);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void close() {
 		connectionSource.closeQuietly();
 		try {

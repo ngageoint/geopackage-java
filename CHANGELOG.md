@@ -8,6 +8,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * Javadoc project links to geopackage-core and wkb
 * Project Feature DAO bounding box when not in the same projection
+* geopackage-core version updated to 1.1.1 - [Issue #11](https://github.com/ngageoint/geopackage-java/issues/11)
+* min and max column query methods - [Issue #9](https://github.com/ngageoint/geopackage-java/issues/9)
+* TileDao methods, query for tile grid or bounding box at zoom level - [Issue #10](https://github.com/ngageoint/geopackage-java/issues/10)
 * TBD
 
 ## [1.1.0](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.0) (10-08-2015)
