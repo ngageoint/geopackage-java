@@ -2,11 +2,8 @@ package mil.nga.geopackage.tiles;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -176,8 +173,7 @@ public class TileDraw {
 						if (tileData != null) {
 
 							// Create the buffered image
-							BufferedImage tileImage = ImageIO
-									.read(new ByteArrayInputStream(tileData));
+							BufferedImage tileImage = ImageUtils.getImage(tileData);
 
 							// Get the bounding box of the tile
 							BoundingBox tileWebMercatorBoundingBox = TileBoundingBoxUtils
