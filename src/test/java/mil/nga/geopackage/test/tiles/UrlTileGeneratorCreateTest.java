@@ -72,4 +72,13 @@ public class UrlTileGeneratorCreateTest extends CreateGeoPackageTestCase {
 
 	}
 
+	@Test
+	public void testGenerateTilesUnsupportedCompressQuality()
+			throws SQLException, IOException {
+
+		UrlTileGeneratorUtils
+				.testGenerateTilesUnsupportedCompressQuality(geoPackage);
+
+	}
+
 }

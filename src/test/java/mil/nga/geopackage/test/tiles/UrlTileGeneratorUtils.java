@@ -162,6 +162,25 @@ public class UrlTileGeneratorUtils {
 	}
 
 	/**
+	 * Test generating tiles with unsupported png compression and quality
+	 * 
+	 * @param geoPackage
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	public static void testGenerateTilesUnsupportedCompressQuality(
+			GeoPackage geoPackage) throws SQLException, IOException {
+
+		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
+				TABLE_NAME, URL, 0, 1);
+		tileGenerator.setCompressFormat("png");
+		tileGenerator.setCompressQuality(.7f);
+
+		int count = tileGenerator.generateTiles();
+		TestCase.assertEquals(0, count);
+	}
+
+	/**
 	 * Test generating tiles
 	 * 
 	 * @param tileGenerator

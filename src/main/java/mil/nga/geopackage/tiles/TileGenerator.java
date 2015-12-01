@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -35,6 +37,12 @@ import mil.nga.geopackage.tiles.user.TileTable;
  * @since 1.1.2
  */
 public abstract class TileGenerator {
+
+	/**
+	 * Logger
+	 */
+	private static final Logger LOGGER = Logger.getLogger(TileGenerator.class
+			.getName());
 
 	/**
 	 * Projection transformation from WGS84 to Web Mercator
@@ -801,6 +809,8 @@ public abstract class TileGenerator {
 						}
 					}
 				} catch (Exception e) {
+					LOGGER.log(Level.WARNING, "Failed to create tile. Zoom: "
+							+ zoomLevel + ", x: " + x + ", y: " + y, e);
 					// Skip this tile, don't increase count
 				}
 
