@@ -223,9 +223,15 @@ public abstract class TileGenerator {
 	 */
 	public void setTileBoundingBox(BoundingBox boundingBox,
 			Projection projection) {
-		ProjectionTransform transform = projection
-				.getTransformation(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		setTileBoundingBox(transform.transform(boundingBox));
+		BoundingBox bbox = null;
+		if (projection != null) {
+			ProjectionTransform transform = projection
+					.getTransformation(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+			bbox = transform.transform(boundingBox);
+		} else {
+			bbox = boundingBox;
+		}
+		setTileBoundingBox(bbox);
 	}
 
 	/**
