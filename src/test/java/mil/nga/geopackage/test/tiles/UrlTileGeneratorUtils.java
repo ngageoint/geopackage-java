@@ -10,6 +10,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.test.TestUtils;
+import mil.nga.geopackage.test.io.TestGeoPackageProgress;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.TileGrid;
@@ -198,10 +199,14 @@ public class UrlTileGeneratorUtils {
 				.getTileBoundingBox(ProjectionFactory
 						.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR));
 
+		TestGeoPackageProgress progress = new TestGeoPackageProgress();
+		tileGenerator.setProgress(progress);
+		
 		int count = tileGenerator.generateTiles();
 
 		long expected = expectedTiles(webMercatorBoundingBox, minZoom, maxZoom);
 		TestCase.assertEquals(expected, count);
+		TestCase.assertEquals(expected, progress.getProgress());
 
 		TileDao tileDao = geoPackage.getTileDao(tableName);
 		TestCase.assertEquals(expected, tileDao.count());
