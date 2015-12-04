@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.1.2 (TBD)
 
-* TBD
+* geopackage-core version updated to 1.1.2 - [Core Issue #14](https://github.com/ngageoint/geopackage-core-java/issues/14)
+* GeoPackage methods: execute SQL, query, foreign key check, integrity check, quick integrity check 
+* Tile Generator and URL Tile Generator implementation - [Issue #13](https://github.com/ngageoint/geopackage-java/issues/13)
+* URL Tile Generator command line implementation
 
 ## [1.1.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.1) (11-20-2015)
 
