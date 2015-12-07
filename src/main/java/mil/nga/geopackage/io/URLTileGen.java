@@ -12,7 +12,6 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 
 /**
@@ -69,6 +68,11 @@ public class URLTileGen {
 	 * EPSG argument
 	 */
 	public static final String ARGUMENT_EPSG = "epsg";
+
+	/**
+	 * TMS argument
+	 */
+	public static final String ARGUMENT_TMS = "tms";
 
 	/**
 	 * Tile progress
@@ -129,6 +133,11 @@ public class URLTileGen {
 	 * Bounding Box EPSG
 	 */
 	private static Long epsg = null;
+
+	/**
+	 * TMS URL flag
+	 */
+	private static boolean tms = false;
 
 	/**
 	 * Main method to generate tiles in a GeoPackage
@@ -223,6 +232,10 @@ public class URLTileGen {
 					}
 					break;
 
+				case ARGUMENT_TMS:
+					tms = true;
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -288,7 +301,7 @@ public class URLTileGen {
 		// Open the GeoPackage
 		geoPackage = GeoPackageManager.open(geoPackageFile);
 
-		TileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
+		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
 				tileTable, url, minZoom, maxZoom);
 
 		if (compressFormat != null) {
@@ -308,6 +321,10 @@ public class URLTileGen {
 				projection = ProjectionFactory.getProjection(epsg);
 			}
 			tileGenerator.setTileBoundingBox(boundingBox, projection);
+		}
+
+		if (tms) {
+			tileGenerator.setTileFormat(TileFormatType.TMS);
 		}
 
 		int count = tileGenerator.getTileCount();

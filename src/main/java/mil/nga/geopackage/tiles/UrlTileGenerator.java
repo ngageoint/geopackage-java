@@ -14,6 +14,7 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
+import mil.nga.geopackage.io.TileFormatType;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.property.GeoPackageJavaProperties;
@@ -37,23 +38,23 @@ public class UrlTileGenerator extends TileGenerator {
 	/**
 	 * URL Z Variable
 	 */
-	private static final String Z_VARIABLE = GeoPackageJavaProperties.getProperty(
-			JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
-			JavaPropertyConstants.TILE_GENERATOR_VARIABLE_Z);
+	private static final String Z_VARIABLE = GeoPackageJavaProperties
+			.getProperty(JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+					JavaPropertyConstants.TILE_GENERATOR_VARIABLE_Z);
 
 	/**
 	 * URL X Variable
 	 */
-	private static final String X_VARIABLE = GeoPackageJavaProperties.getProperty(
-			JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
-			JavaPropertyConstants.TILE_GENERATOR_VARIABLE_X);
+	private static final String X_VARIABLE = GeoPackageJavaProperties
+			.getProperty(JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+					JavaPropertyConstants.TILE_GENERATOR_VARIABLE_X);
 
 	/**
 	 * URL Y Variable
 	 */
-	private static final String Y_VARIABLE = GeoPackageJavaProperties.getProperty(
-			JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
-			JavaPropertyConstants.TILE_GENERATOR_VARIABLE_Y);
+	private static final String Y_VARIABLE = GeoPackageJavaProperties
+			.getProperty(JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+					JavaPropertyConstants.TILE_GENERATOR_VARIABLE_Y);
 
 	/**
 	 * URL Min Lat Variable
@@ -101,7 +102,12 @@ public class UrlTileGenerator extends TileGenerator {
 	/**
 	 * Projection
 	 */
-	private Projection urlProjection;
+	private final Projection urlProjection;
+
+	/**
+	 * Tile Format when downloading tiles with x, y, and z values
+	 */
+	private TileFormatType tileFormat = TileFormatType.STANDARD;
 
 	/**
 	 * Constructor
@@ -125,19 +131,53 @@ public class UrlTileGenerator extends TileGenerator {
 
 		this.urlHasXYZ = hasXYZ(tileUrl);
 		this.urlHasBoundingBox = hasBoundingBox(tileUrl);
+		Projection projection = null;
 		if (urlHasBoundingBox) {
 			Matcher matcher = URL_EPSG_PATTERN.matcher(tileUrl);
 			if (matcher.find()) {
 				String epsgString = matcher.group(1);
 				long epsg = Long.valueOf(epsgString);
-				urlProjection = ProjectionFactory.getProjection(epsg);
+				projection = ProjectionFactory.getProjection(epsg);
 			}
 		}
+		urlProjection = projection;
 
 		if (!this.urlHasXYZ && !this.urlHasBoundingBox) {
 			throw new GeoPackageException(
 					"URL does not contain x,y,z or bounding box variables: "
 							+ tileUrl);
+		}
+	}
+
+	/**
+	 * Get the tile format
+	 * 
+	 * @return tile format
+	 */
+	public TileFormatType getTileFormat() {
+		return tileFormat;
+	}
+
+	/**
+	 * Set the tile format
+	 * 
+	 * @param tileFormat
+	 *            tile format
+	 */
+	public void setTileFormat(TileFormatType tileFormat) {
+		if (tileFormat == null) {
+			tileFormat = TileFormatType.STANDARD;
+		} else {
+			switch (tileFormat) {
+			case STANDARD:
+			case TMS:
+				this.tileFormat = tileFormat;
+				break;
+			default:
+				throw new GeoPackageException(
+						"Unsupported Tile Format Type for URL Tile Generation: "
+								+ tileFormat);
+			}
 		}
 	}
 
@@ -238,7 +278,15 @@ public class UrlTileGenerator extends TileGenerator {
 
 		// Replace x, y, and z
 		if (urlHasXYZ) {
-			zoomUrl = replaceXYZ(zoomUrl, z, x, y);
+			long yRequest = y;
+
+			// If TMS, flip the y value
+			if (tileFormat == TileFormatType.TMS) {
+				yRequest = TileBoundingBoxUtils.getYAsOppositeTileFormat(z,
+						(int) y);
+			}
+
+			zoomUrl = replaceXYZ(zoomUrl, z, x, yRequest);
 		}
 
 		// Replace bounding box
