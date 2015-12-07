@@ -16,8 +16,8 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.property.GeoPackageProperties;
-import mil.nga.geopackage.property.PropertyConstants;
+import mil.nga.geopackage.property.GeoPackageJavaProperties;
+import mil.nga.geopackage.property.JavaPropertyConstants;
 
 /**
  * Creates a set of tiles within a GeoPackage by downloading the tiles from a
@@ -37,51 +37,51 @@ public class UrlTileGenerator extends TileGenerator {
 	/**
 	 * URL Z Variable
 	 */
-	private static final String Z_VARIABLE = GeoPackageProperties.getProperty(
-			PropertyConstants.TILE_GENERATOR_VARIABLE,
-			PropertyConstants.TILE_GENERATOR_VARIABLE_Z);
+	private static final String Z_VARIABLE = GeoPackageJavaProperties.getProperty(
+			JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+			JavaPropertyConstants.TILE_GENERATOR_VARIABLE_Z);
 
 	/**
 	 * URL X Variable
 	 */
-	private static final String X_VARIABLE = GeoPackageProperties.getProperty(
-			PropertyConstants.TILE_GENERATOR_VARIABLE,
-			PropertyConstants.TILE_GENERATOR_VARIABLE_X);
+	private static final String X_VARIABLE = GeoPackageJavaProperties.getProperty(
+			JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+			JavaPropertyConstants.TILE_GENERATOR_VARIABLE_X);
 
 	/**
 	 * URL Y Variable
 	 */
-	private static final String Y_VARIABLE = GeoPackageProperties.getProperty(
-			PropertyConstants.TILE_GENERATOR_VARIABLE,
-			PropertyConstants.TILE_GENERATOR_VARIABLE_Y);
+	private static final String Y_VARIABLE = GeoPackageJavaProperties.getProperty(
+			JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+			JavaPropertyConstants.TILE_GENERATOR_VARIABLE_Y);
 
 	/**
 	 * URL Min Lat Variable
 	 */
-	private static final String MIN_LAT_VARIABLE = GeoPackageProperties
-			.getProperty(PropertyConstants.TILE_GENERATOR_VARIABLE,
-					PropertyConstants.TILE_GENERATOR_VARIABLE_MIN_LAT);
+	private static final String MIN_LAT_VARIABLE = GeoPackageJavaProperties
+			.getProperty(JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+					JavaPropertyConstants.TILE_GENERATOR_VARIABLE_MIN_LAT);
 
 	/**
 	 * URL Max Lat Variable
 	 */
-	private static final String MAX_LAT_VARIABLE = GeoPackageProperties
-			.getProperty(PropertyConstants.TILE_GENERATOR_VARIABLE,
-					PropertyConstants.TILE_GENERATOR_VARIABLE_MAX_LAT);
+	private static final String MAX_LAT_VARIABLE = GeoPackageJavaProperties
+			.getProperty(JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+					JavaPropertyConstants.TILE_GENERATOR_VARIABLE_MAX_LAT);
 
 	/**
 	 * URL Min Lon Variable
 	 */
-	private static final String MIN_LON_VARIABLE = GeoPackageProperties
-			.getProperty(PropertyConstants.TILE_GENERATOR_VARIABLE,
-					PropertyConstants.TILE_GENERATOR_VARIABLE_MIN_LON);
+	private static final String MIN_LON_VARIABLE = GeoPackageJavaProperties
+			.getProperty(JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+					JavaPropertyConstants.TILE_GENERATOR_VARIABLE_MIN_LON);
 
 	/**
 	 * URL Max Lon Variable
 	 */
-	private static final String MAX_LON_VARIABLE = GeoPackageProperties
-			.getProperty(PropertyConstants.TILE_GENERATOR_VARIABLE,
-					PropertyConstants.TILE_GENERATOR_VARIABLE_MAX_LON);
+	private static final String MAX_LON_VARIABLE = GeoPackageJavaProperties
+			.getProperty(JavaPropertyConstants.TILE_GENERATOR_VARIABLE,
+					JavaPropertyConstants.TILE_GENERATOR_VARIABLE_MAX_LON);
 
 	/**
 	 * Tile URL
