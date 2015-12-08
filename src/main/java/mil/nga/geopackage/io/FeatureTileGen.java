@@ -9,35 +9,51 @@ import java.util.logging.Logger;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.extension.index.FeatureTableIndex;
+import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.tiles.UrlTileGenerator;
+import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
+import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 
 /**
- * URL Tile Generator main method for command line tile generation
+ * Feature Tile Generator main method for command line feature to tile
+ * generation. Generate tiles from a feature table.
  * 
  * To run from command line, build with the standalone profile:
  * 
  * mvn clean install -Pstandalone
  * 
- * java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.URLTileGen
- * +usage_arguments
+ * java -classpath geopackage-*-standalone.jar
+ * mil.nga.geopackage.io.FeatureTileGen +usage_arguments
  * 
  * @author osbornb
  */
-public class URLTileGen {
+public class FeatureTileGen {
 
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(URLTileGen.class
+	private static final Logger LOGGER = Logger.getLogger(FeatureTileGen.class
 			.getName());
+
+	/**
+	 * Log index frequency for how often to log indexed features
+	 */
+	private static final int LOG_INDEX_FREQUENCY = 1000;
+
+	/**
+	 * Log index frequency in seconds for how often to log indexed features
+	 */
+	private static final int LOG_INDEX_TIME_FREQUENCY = 10;
 
 	/**
 	 * Log tile frequency for how often to log tile generation progress
 	 */
-	private static final int LOG_TILE_FREQUENCY = 100;
+	private static final int LOG_TILE_FREQUENCY = 1000;
 
 	/**
 	 * Log tile frequency in seconds for how often to log tile generation
@@ -46,9 +62,19 @@ public class URLTileGen {
 	private static final int LOG_TILE_TIME_FREQUENCY = 60;
 
 	/**
+	 * Default max features per tile value
+	 */
+	private static final int DEFAULT_MAX_FEATURES_PER_TILE = 1000;
+
+	/**
 	 * Argument prefix
 	 */
 	public static final String ARGUMENT_PREFIX = "-";
+
+	/**
+	 * Max features per tile argument
+	 */
+	public static final String ARGUMENT_MAX_FEATURES_PER_TILE = "m";
 
 	/**
 	 * Compress format argument
@@ -76,35 +102,40 @@ public class URLTileGen {
 	public static final String ARGUMENT_EPSG = "epsg";
 
 	/**
-	 * TMS argument
-	 */
-	public static final String ARGUMENT_TMS = "tms";
-
-	/**
 	 * Tile progress
 	 */
-	private static Progress progress = new Progress("URL Tile Generation",
+	private static Progress progress = new Progress("Feature Tile Generation",
 			LOG_TILE_FREQUENCY, LOG_TILE_TIME_FREQUENCY);
 
 	/**
-	 * GeoPackage file
+	 * Feature GeoPackage file
 	 */
-	private static File geoPackageFile = null;
+	private static File featureGeoPackageFile = null;
 
 	/**
-	 * GeoPackage
+	 * Feature GeoPackage
 	 */
-	private static GeoPackage geoPackage = null;
+	private static GeoPackage featureGeoPackage = null;
+
+	/**
+	 * Feature Table name
+	 */
+	private static String featureTable = null;
+
+	/**
+	 * Tile GeoPackage file
+	 */
+	private static File tileGeoPackageFile = null;
+
+	/**
+	 * Tile GeoPackage
+	 */
+	private static GeoPackage tileGeoPackage = null;
 
 	/**
 	 * Tile Table name
 	 */
 	private static String tileTable = null;
-
-	/**
-	 * URL
-	 */
-	private static String url = null;
 
 	/**
 	 * Min Zoom
@@ -115,6 +146,11 @@ public class URLTileGen {
 	 * Max Zoom
 	 */
 	private static Integer maxZoom = null;
+
+	/**
+	 * Max features per tile
+	 */
+	private static Integer maxFeaturesPerTile = DEFAULT_MAX_FEATURES_PER_TILE;
 
 	/**
 	 * Compress Format
@@ -140,11 +176,6 @@ public class URLTileGen {
 	 * Bounding Box EPSG
 	 */
 	private static Long epsg = null;
-
-	/**
-	 * TMS URL flag
-	 */
-	private static boolean tms = false;
 
 	/**
 	 * Main method to generate tiles in a GeoPackage
@@ -173,6 +204,22 @@ public class URLTileGen {
 				String argument = arg.substring(ARGUMENT_PREFIX.length());
 
 				switch (argument) {
+
+				case ARGUMENT_MAX_FEATURES_PER_TILE:
+					if (i < args.length) {
+						int max = Integer.valueOf(args[++i]);
+						if (max >= 0) {
+							maxFeaturesPerTile = max;
+						} else {
+							maxFeaturesPerTile = null;
+						}
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Max Features Per Tile argument '"
+										+ arg + "' must be followed by a value");
+					}
+					break;
 
 				case ARGUMENT_COMPRESS_FORMAT:
 					if (i < args.length) {
@@ -239,10 +286,6 @@ public class URLTileGen {
 					}
 					break;
 
-				case ARGUMENT_TMS:
-					tms = true;
-					break;
-
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -250,12 +293,14 @@ public class URLTileGen {
 
 			} else {
 				// Set required arguments in order
-				if (geoPackageFile == null) {
-					geoPackageFile = new File(arg);
+				if (featureGeoPackageFile == null) {
+					featureGeoPackageFile = new File(arg);
+				} else if (featureTable == null) {
+					featureTable = arg;
+				} else if (tileGeoPackageFile == null) {
+					tileGeoPackageFile = new File(arg);
 				} else if (tileTable == null) {
 					tileTable = arg;
-				} else if (url == null) {
-					url = arg;
 				} else if (minZoom == null) {
 					minZoom = Integer.valueOf(arg);
 				} else if (maxZoom == null) {
@@ -296,20 +341,60 @@ public class URLTileGen {
 	 */
 	public static void generate() {
 
-		// If the GeoPackage does not exist create it
-		if (!geoPackageFile.exists()) {
-			if (!GeoPackageManager.create(geoPackageFile)) {
-				throw new GeoPackageException(
-						"Failed to create GeoPackage file: "
-								+ geoPackageFile.getAbsolutePath());
+		// Open the GeoPackage with the feature table
+		featureGeoPackage = GeoPackageManager.open(featureGeoPackageFile);
+
+		// Check if the tile table is to be created in the same GeoPackage file
+		if (featureGeoPackageFile.equals(tileGeoPackageFile)) {
+			tileGeoPackage = featureGeoPackage;
+		} else {
+
+			// If the GeoPackage does not exist create it
+			if (!tileGeoPackageFile.exists()) {
+				if (!GeoPackageManager.create(tileGeoPackageFile)) {
+					throw new GeoPackageException(
+							"Failed to create GeoPackage file: "
+									+ tileGeoPackageFile.getAbsolutePath());
+				}
 			}
+
+			// Open the GeoPackage
+			tileGeoPackage = GeoPackageManager.open(tileGeoPackageFile);
 		}
 
-		// Open the GeoPackage
-		geoPackage = GeoPackageManager.open(geoPackageFile);
+		FeatureDao featureDao = featureGeoPackage.getFeatureDao(featureTable);
 
-		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				tileTable, url, minZoom, maxZoom);
+		// Index the feature table if needed
+		FeatureTableIndex featureIndex = new FeatureTableIndex(
+				featureGeoPackage, featureDao);
+		if (!featureIndex.isIndexed()) {
+			int numFeatures = featureDao.count();
+			LOGGER.log(Level.INFO,
+					"Indexing GeoPackage '" + featureGeoPackage.getName()
+							+ "' feature table '" + featureTable + "' with "
+							+ numFeatures + " features");
+			Progress indexProgress = new Progress("Feature Indexer",
+					LOG_INDEX_FREQUENCY, LOG_INDEX_TIME_FREQUENCY);
+			indexProgress.setMax(numFeatures);
+			featureIndex.setProgress(indexProgress);
+			int indexed = featureIndex.index();
+			LOGGER.log(Level.INFO,
+					"Indexed GeoPackage '" + featureGeoPackage.getName()
+							+ "' feature table '" + featureTable + "', "
+							+ indexed + " features");
+		}
+
+		// Create the feature tiles
+		FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
+		featureTiles.setFeatureIndex(featureIndex);
+		if (maxFeaturesPerTile != null) {
+			featureTiles.setMaxFeaturesPerTile(maxFeaturesPerTile);
+			featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile());
+		}
+
+		// Create the tile generator
+		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(
+				tileGeoPackage, tileTable, featureTiles, minZoom, maxZoom);
 
 		if (compressFormat != null) {
 			tileGenerator.setCompressFormat(compressFormat);
@@ -330,24 +415,25 @@ public class URLTileGen {
 			tileGenerator.setTileBoundingBox(boundingBox, projection);
 		}
 
-		if (tms) {
-			tileGenerator.setTileFormat(TileFormatType.TMS);
-		}
-
 		int count = tileGenerator.getTileCount();
 
 		LOGGER.log(
 				Level.INFO,
-				"GeoPackage: "
-						+ geoPackage.getName()
+				"Feature GeoPackage: "
+						+ featureGeoPackage.getName()
+						+ ", Feature Table: "
+						+ featureTable
+						+ ", Tile GeoPackage: "
+						+ tileGeoPackage.getName()
 						+ ", Tile Table: "
 						+ tileTable
-						+ ", URL: "
-						+ url
 						+ ", Min Zoom: "
 						+ minZoom
 						+ ", Max Zoom: "
 						+ maxZoom
+						+ (maxFeaturesPerTile != null ? ", Max Features Per Tile: "
+								+ maxFeaturesPerTile
+								: "")
 						+ (compressFormat != null ? ", Compress Format: "
 								+ compressFormat : "")
 						+ (compressQuality != null ? ", Compress Quality: "
@@ -384,18 +470,22 @@ public class URLTileGen {
 			output.append("\nTile Generation: ").append(progress.getProgress())
 					.append(" of ").append(progress.getMax());
 
-			if (geoPackage != null) {
+			if (tileGeoPackage != null) {
 				try {
 					GeoPackageTextOutput textOutput = new GeoPackageTextOutput(
-							geoPackage);
+							tileGeoPackage);
 					output.append("\n\n");
 					output.append(textOutput.header());
 					output.append("\n\n");
 					output.append(textOutput.tileTable(tileTable));
 
 				} finally {
-					geoPackage.close();
+					tileGeoPackage.close();
 				}
+			}
+
+			if (featureGeoPackage != null) {
+				featureGeoPackage.close();
 			}
 
 			System.out.println(output.toString());
@@ -409,21 +499,40 @@ public class URLTileGen {
 		System.out.println();
 		System.out.println("USAGE");
 		System.out.println();
-		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_COMPRESS_FORMAT
-				+ " compress_format] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_COMPRESS_QUALITY + " compress_quality] ["
-				+ ARGUMENT_PREFIX + ARGUMENT_GOOGLE_TILES + "] ["
-				+ ARGUMENT_PREFIX + ARGUMENT_BOUNDING_BOX
-				+ " minLon,minLat,maxLon,maxLat] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX + ARGUMENT_TMS
-				+ "] geopackage_file tile_table url min_zoom max_zoom");
+		System.out
+				.println("\t["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_MAX_FEATURES_PER_TILE
+						+ " max_features_per_tile] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_COMPRESS_FORMAT
+						+ " compress_format] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_COMPRESS_QUALITY
+						+ " compress_quality] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_GOOGLE_TILES
+						+ "] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_BOUNDING_BOX
+						+ " minLon,minLat,maxLon,maxLat] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_EPSG
+						+ " epsg] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
 		System.out
-				.println("\tGenerates tiles into a GeoPackage tile table by requesting them from a URL");
+				.println("\tGenerates tiles from a GeoPackage feature table into a tile table");
 		System.out.println();
 		System.out.println("ARGUMENTS");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX
+				+ ARGUMENT_MAX_FEATURES_PER_TILE + " max_features_per_tile");
+		System.out
+				.println("\t\tMax features to generate into a tile before generating a numbered feature count tile (default is "
+						+ DEFAULT_MAX_FEATURES_PER_TILE
+						+ ", use -1 for no max)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_COMPRESS_FORMAT
 				+ " compress_format");
@@ -448,42 +557,21 @@ public class URLTileGen {
 		System.out
 				.println("\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TMS);
+		System.out.println("\tfeature_geopackage_file");
 		System.out
-				.println("\t\tRequest URL for x,y,z coordinates is in TMS format (default is standard XYZ)");
+				.println("\t\tpath to the GeoPackage file containing the feature table to generate tiles from");
 		System.out.println();
-		System.out.println("\tgeopackage_file");
+		System.out.println("\tfeature_table");
 		System.out
-				.println("\t\tpath to the GeoPackage file to create, or existing file to update");
+				.println("\t\tfeature table name within the GeoPackage file to generate tiles from");
+		System.out.println();
+		System.out.println("\ttile_geopackage_file");
+		System.out
+				.println("\t\tpath to the GeoPackage file to create with tiles, or existing file to update");
 		System.out.println();
 		System.out.println("\ttile_table");
 		System.out
 				.println("\t\ttile table name within the GeoPackage file to create or update");
-		System.out.println();
-		System.out.println("\turl");
-		System.out
-				.println("\t\tURL with substitution variables for requesting tiles");
-		System.out.println();
-		System.out.println("\t\t{z}");
-		System.out.println("\t\t\tz URL substitution variable for zoom level");
-		System.out.println();
-		System.out.println("\t\t{x}");
-		System.out.println("\t\t\tx URL substitution variable");
-		System.out.println();
-		System.out.println("\t\t{y}");
-		System.out.println("\t\t\ty URL substitution variable");
-		System.out.println();
-		System.out.println("\t\t{minLon}");
-		System.out.println("\t\t\tMinimum longitude URL substitution variable");
-		System.out.println();
-		System.out.println("\t\t{minLat}");
-		System.out.println("\t\t\tMinimum latitude URL substitution variable");
-		System.out.println();
-		System.out.println("\t\t{maxLon}");
-		System.out.println("\t\t\tMaximum longitude URL substitution variable");
-		System.out.println();
-		System.out.println("\t\t{maxLat}");
-		System.out.println("\t\t\tMaximum latitude URL substitution variable");
 		System.out.println();
 		System.out.println("\tmin_zoom");
 		System.out.println("\t\tMinimum zoom level to request tiles for");

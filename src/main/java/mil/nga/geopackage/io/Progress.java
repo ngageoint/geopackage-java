@@ -1,20 +1,21 @@
 package mil.nga.geopackage.io;
 
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Tile Progress logger
+ * Progress logger
  * 
  * @author osbornb
  * @since 1.1.2
  */
-public class TileProgress implements GeoPackageProgress {
+public class Progress implements GeoPackageProgress {
 
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(TileProgress.class
+	private static final Logger LOGGER = Logger.getLogger(Progress.class
 			.getName());
 
 	/**
@@ -33,9 +34,19 @@ public class TileProgress implements GeoPackageProgress {
 	private boolean active = true;
 
 	/**
-	 * Log frequency
+	 * Log Title
 	 */
-	private final int frequency;
+	private final String title;
+
+	/**
+	 * Log count frequency
+	 */
+	private final int countFrequency;
+
+	/**
+	 * Log time frequency
+	 */
+	private final int timeFrequency;
 
 	/**
 	 * Local count between logs
@@ -43,12 +54,21 @@ public class TileProgress implements GeoPackageProgress {
 	private int localCount = 0;
 
 	/**
+	 * Local time between logs
+	 */
+	private Date localTime = new Date();
+
+	/**
 	 * Constructor
 	 * 
-	 * @param frequency
+	 * @param title
+	 * @param countFrequency
+	 * @param timeFrequency
 	 */
-	public TileProgress(int frequency) {
-		this.frequency = frequency;
+	public Progress(String title, int countFrequency, int timeFrequency) {
+		this.title = title;
+		this.countFrequency = countFrequency;
+		this.timeFrequency = timeFrequency * 1000;
 	}
 
 	/**
@@ -66,9 +86,12 @@ public class TileProgress implements GeoPackageProgress {
 	public void addProgress(int progress) {
 		this.progress += progress;
 		localCount += progress;
-		if (localCount >= frequency) {
-			LOGGER.log(Level.INFO, this.progress + " of " + max);
+		if (localCount >= countFrequency
+				|| localTime.getTime() + timeFrequency <= (new Date())
+						.getTime()) {
+			LOGGER.log(Level.INFO, title + " - " + this.progress + " of " + max);
 			localCount = 0;
+			localTime = new Date();
 		}
 	}
 
@@ -77,7 +100,7 @@ public class TileProgress implements GeoPackageProgress {
 	 */
 	@Override
 	public boolean isActive() {
-		return active && (max == null || progress < max);
+		return active;
 	}
 
 	/**

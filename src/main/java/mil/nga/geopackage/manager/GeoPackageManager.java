@@ -12,6 +12,7 @@ import mil.nga.geopackage.db.GeoPackageTableCreator;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
@@ -20,6 +21,11 @@ import com.j256.ormlite.support.ConnectionSource;
  * @author osbornb
  */
 public class GeoPackageManager {
+
+	static {
+		// Change the ORMLite log level
+		System.setProperty(LocalLog.LOCAL_LOG_LEVEL_PROPERTY, "INFO");
+	}
 
 	/**
 	 * Create a GeoPackage

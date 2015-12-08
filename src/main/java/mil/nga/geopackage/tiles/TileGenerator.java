@@ -759,11 +759,6 @@ public abstract class TileGenerator {
 
 				try {
 
-					// If an update, delete an existing row
-					if (update) {
-						tileDao.deleteTile(x, y, zoomLevel);
-					}
-
 					// Create the tile
 					byte[] tileBytes = createTile(zoomLevel, x, y);
 
@@ -794,6 +789,11 @@ public abstract class TileGenerator {
 									+ localTileGrid.getMinX();
 							tileRow = (y - tileGrid.getMinY())
 									+ localTileGrid.getMinY();
+						}
+
+						// If an update, delete an existing row
+						if (update) {
+							tileDao.deleteTile(tileColumn, tileRow, zoomLevel);
 						}
 
 						newRow.setTileColumn(tileColumn);
