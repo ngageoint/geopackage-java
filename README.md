@@ -21,13 +21,13 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
 
     // File newGeoPackage = ...;
     // File existingGeoPackage = ...;
-    
+
     // Create a new GeoPackage
     boolean created = GeoPackageManager.create(newGeoPackage)
-    
+
     // Open a GeoPackage
     GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage)
-    
+
     // GeoPackage Table DAOs
     SpatialReferenceSystemDao srsDao = getSpatialReferenceSystemDao();
     ContentsDao contentsDao = geoPackage.getContentsDao();
@@ -39,11 +39,11 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
     MetadataDao metadataDao = geoPackage.getMetadataDao();
     MetadataReferenceDao metadataReferenceDao = geoPackage.getMetadataReferenceDao();
     ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
-    
+
     // Feature and tile tables
     List<String> features = geoPackage.getFeatureTables();
     List<String> tiles = geoPackage.getTileTables();
-    
+
     // Query Features
     FeatureDao featureDao = geoPackage.getFeatureDao(features.get(0));
     FeatureResultSet featureResultSet = featureDao.queryForAll();
@@ -57,7 +57,7 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
     }finally{
         featureResultSet.close();
     }
-    
+
     // Query Tiles
     TileDao tileDao = geoPackage.getTileDao(tiles.get(0));
     TileResultSet tileResultSet = tileDao.queryForAll();
@@ -70,11 +70,11 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
     }finally{
         tileResultSet.close();
     }
-    
+
     // Index Features
     FeatureTableIndex indexer = new FeatureTableIndex(geoPackage, featureDao);
     int indexedCount = indexer.index();
-    
+
     // Close database when done
     geoPackage.close();
 
@@ -138,6 +138,18 @@ GeoPackage Format tiles.properties:
     # If a non top zoom level matrix width and height increase by a factor of 2 with each zoom level, the properties can be omitted for those zoom levels
     zoom_level.{zoom}.matrix_width=
     zoom_level.{zoom}.matrix_height=
+
+#### URL Tile Generator ####
+
+The URL tile generator creates a set of tiles within a GeoPackage by downloading tiles from a tile server using a URL pattern. The URL can contain XYZ, TMS, or WMS substitution variables. Tiles are downloaded from the specified zoom range and the optional bounding box location. Tiles can be compressed into a specified format and quality.
+
+To run against the jar:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen [-f compress_format] [-q compress_quality] [-g] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-tms] geopackage_file tile_table url min_zoom max_zoom
+
+Example:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen -bbox -105.0,39.0,-104.0,40.0 /path/geopackage.gpkg mytiletable http://url/{z}/{x}/{y} 2 18
 
 ### Dependencies ###
 

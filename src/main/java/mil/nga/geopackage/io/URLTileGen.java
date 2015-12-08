@@ -15,7 +15,7 @@ import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 
 /**
- * Tile Generator main method for command line tile generation
+ * URL Tile Generator main method for command line tile generation
  * 
  * To run from command line, build with the standalone profile:
  * 
@@ -406,8 +406,8 @@ public class URLTileGen {
 				+ ARGUMENT_PREFIX + ARGUMENT_GOOGLE_TILES + "] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_BOUNDING_BOX
 				+ " minLon,minLat,maxLon,maxLat] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_EPSG
-				+ " epsg] geopackage_file tile_table url min_zoom max_zoom");
+				+ ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX + ARGUMENT_TMS
+				+ "] geopackage_file tile_table url min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -438,6 +438,10 @@ public class URLTileGen {
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_EPSG + " epsg");
 		System.out
 				.println("\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TMS);
+		System.out
+				.println("\t\tRequest URL for x,y,z coordinates is in TMS format (default is standard XYZ)");
 		System.out.println();
 		System.out.println("\tgeopackage_file");
 		System.out
