@@ -25,6 +25,7 @@ import mil.nga.geopackage.tiles.UrlTileGenerator;
  * +usage_arguments
  * 
  * @author osbornb
+ * @since 1.1.2
  */
 public class URLTileGen {
 

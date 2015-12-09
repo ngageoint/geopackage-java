@@ -7,6 +7,7 @@ import mil.nga.geopackage.tiles.TileGenerator;
  * Creates a set of tiles within a GeoPackage by generating tiles from features
  *
  * @author osbornb
+ * @since 1.1.2
  */
 public class FeatureTileGenerator extends TileGenerator {
 

@@ -37,6 +37,7 @@ import com.j256.ormlite.dao.CloseableIterator;
  * Default Feature Tiles implementation using Java AWT to draw
  * 
  * @author osbornb
+ * @since 1.1.2
  */
 public class DefaultFeatureTiles extends FeatureTiles {
 

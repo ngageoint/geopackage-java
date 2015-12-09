@@ -29,6 +29,7 @@ import com.j256.ormlite.dao.CloseableIterator;
  * Tiles generated from features
  *
  * @author osbornb
+ * @since 1.1.2
  */
 public abstract class FeatureTiles {
 

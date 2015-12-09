@@ -11,6 +11,7 @@ import java.util.logging.Logger;
  * GeoPackage Java property loader
  * 
  * @author osbornb
+ * @since 1.1.2
  */
 public class GeoPackageJavaProperties {
 
