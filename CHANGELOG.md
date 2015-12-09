@@ -9,7 +9,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-core version updated to 1.1.2 - [Core Issue #14](https://github.com/ngageoint/geopackage-core-java/issues/14)
 * GeoPackage methods: execute SQL, query, foreign key check, integrity check, quick integrity check
 * Tile Generator with URL and Feature Tile Generator implementations - [Issue #13](https://github.com/ngageoint/geopackage-java/issues/13)
-* URL Tile Generator command line implementation
+* URL and Feature Tile Generator command line implementations
+* ORMLite log level changed from debug to info
 
 ## [1.1.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.1) (11-20-2015)
 
