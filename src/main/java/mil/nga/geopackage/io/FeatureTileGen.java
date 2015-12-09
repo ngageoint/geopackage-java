@@ -812,7 +812,7 @@ public class FeatureTileGen {
 			tileStyle.append(", Point Radius: ").append(pointRadius);
 		}
 		if (pointColor != null) {
-			tileStyle.append(", Point Color: ").append(pointColor);
+			tileStyle.append(", Point Color: ").append(colorString(pointColor));
 		}
 		if (icon != null) {
 			tileStyle.append(", Point Icon (height=").append(icon.getHeight())
@@ -824,20 +824,22 @@ public class FeatureTileGen {
 			tileStyle.append(", Line Stroke Width: ").append(lineStrokeWidth);
 		}
 		if (lineColor != null) {
-			tileStyle.append(", Line Color: ").append(lineColor);
+			tileStyle.append(", Line Color: ").append(colorString(lineColor));
 		}
 		if (polygonStrokeWidth != null) {
 			tileStyle.append(", Polygon Stroke Width: ").append(
 					polygonStrokeWidth);
 		}
 		if (polygonColor != null) {
-			tileStyle.append(", Polygon Color: ").append(polygonColor);
+			tileStyle.append(", Polygon Color: ").append(
+					colorString(polygonColor));
 		}
 		if (fillPolygon != null) {
 			tileStyle.append(", Fill Polygon");
 		}
 		if (polygonFillColor != null) {
-			tileStyle.append(", Polygon Fill Color: ").append(polygonFillColor);
+			tileStyle.append(", Polygon Fill Color: ").append(
+					colorString(polygonFillColor));
 		}
 		if (tileStyle.length() == 0) {
 			tileStyle.append(", Default Settings");
