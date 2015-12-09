@@ -1,10 +1,15 @@
 package mil.nga.geopackage.io;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -16,6 +21,7 @@ import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
+import mil.nga.geopackage.tiles.features.FeatureTilePointIcon;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 
@@ -102,6 +108,66 @@ public class FeatureTileGen {
 	public static final String ARGUMENT_EPSG = "epsg";
 
 	/**
+	 * Tile draw width argument
+	 */
+	public static final String ARGUMENT_TILE_WIDTH = "tileWidth";
+
+	/**
+	 * Tile draw height argument
+	 */
+	public static final String ARGUMENT_TILE_HEIGHT = "tileHeight";
+
+	/**
+	 * Point radius argument
+	 */
+	public static final String ARGUMENT_POINT_RADIUS = "pointRadius";
+
+	/**
+	 * Point color argument
+	 */
+	public static final String ARGUMENT_POINT_COLOR = "pointColor";
+
+	/**
+	 * Point icon argument
+	 */
+	public static final String ARGUMENT_POINT_ICON = "pointIcon";
+
+	/**
+	 * Center icon argument
+	 */
+	public static final String ARGUMENT_POINT_CENTER_ICON = "centerIcon";
+
+	/**
+	 * Line stroke width argument
+	 */
+	public static final String ARGUMENT_LINE_STROKE_WIDTH = "lineStrokeWidth";
+
+	/**
+	 * Line color argument
+	 */
+	public static final String ARGUMENT_LINE_COLOR = "lineColor";
+
+	/**
+	 * Polygon stroke width argument
+	 */
+	public static final String ARGUMENT_POLYGON_STROKE_WIDTH = "polygonStrokeWidth";
+
+	/**
+	 * Polygon color argument
+	 */
+	public static final String ARGUMENT_POLYGON_COLOR = "polygonColor";
+
+	/**
+	 * Fill polygon argument
+	 */
+	public static final String ARGUMENT_FILL_POLYGON = "fillPolygon";
+
+	/**
+	 * Polygon fill color argument
+	 */
+	public static final String ARGUMENT_POLYGON_FILL_COLOR = "polygonFillColor";
+
+	/**
 	 * Tile progress
 	 */
 	private static Progress progress = new Progress("Feature Tile Generation",
@@ -176,6 +242,66 @@ public class FeatureTileGen {
 	 * Bounding Box EPSG
 	 */
 	private static Long epsg = null;
+
+	/**
+	 * Tile draw width
+	 */
+	private static Integer tileWidth = null;
+
+	/**
+	 * Tile draw height
+	 */
+	private static Integer tileHeight = null;
+
+	/**
+	 * Point radius
+	 */
+	private static Float pointRadius = null;
+
+	/**
+	 * Point color
+	 */
+	private static Color pointColor = null;
+
+	/**
+	 * Feature tile point icon
+	 */
+	private static FeatureTilePointIcon icon = null;
+
+	/**
+	 * Center icon flag
+	 */
+	private static boolean centerIcon = false;
+
+	/**
+	 * Line stroke width
+	 */
+	private static Float lineStrokeWidth = null;
+
+	/**
+	 * Line color
+	 */
+	private static Color lineColor = null;
+
+	/**
+	 * Polygon stroke width
+	 */
+	private static Float polygonStrokeWidth = null;
+
+	/**
+	 * Polygon color
+	 */
+	private static Color polygonColor = null;
+
+	/**
+	 * Fill polygon
+	 */
+	private static Boolean fillPolygon = null;
+
+	/**
+	 * Polygon fill color
+	 */
+	private static Color polygonFillColor = null;
 
 	/**
 	 * Main method to generate tiles in a GeoPackage
@@ -286,6 +412,127 @@ public class FeatureTileGen {
 					}
 					break;
 
+				case ARGUMENT_TILE_WIDTH:
+					if (i < args.length) {
+						tileWidth = Integer.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Tile Width argument '" + arg
+								+ "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_TILE_HEIGHT:
+					if (i < args.length) {
+						tileHeight = Integer.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Tile Height argument '"
+								+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_POINT_RADIUS:
+					if (i < args.length) {
+						pointRadius = Float.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Point Radius argument '"
+								+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_POINT_COLOR:
+					if (i < args.length) {
+						pointColor = getColor(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Point Color argument '"
+								+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_POINT_ICON:
+					if (i < args.length) {
+						File pointIconFile = new File(args[++i]);
+						try {
+							BufferedImage iconImage = ImageIO
+									.read(pointIconFile);
+							icon = new FeatureTilePointIcon(iconImage);
+						} catch (IOException e) {
+							throw new GeoPackageException(
+									"Failed to create point icon from image file: "
+											+ pointIconFile.getAbsolutePath(),
+									e);
+						}
+					} else {
+						valid = false;
+						System.out.println("Error: Point Icon argument '" + arg
+								+ "' must be followed by a point image file");
+					}
+					break;
+
+				case ARGUMENT_POINT_CENTER_ICON:
+					centerIcon = true;
+					break;
+
+				case ARGUMENT_LINE_STROKE_WIDTH:
+					if (i < args.length) {
+						lineStrokeWidth = Float.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Line Stroke Width argument '"
+										+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_LINE_COLOR:
+					if (i < args.length) {
+						lineColor = getColor(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Line Color argument '" + arg
+								+ "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_POLYGON_STROKE_WIDTH:
+					if (i < args.length) {
+						polygonStrokeWidth = Float.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Polygon Stroke Width argument '"
+										+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_POLYGON_COLOR:
+					if (i < args.length) {
+						polygonColor = getColor(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Polygon Color argument '"
+								+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_FILL_POLYGON:
+					fillPolygon = true;
+					break;
+
+				case ARGUMENT_POLYGON_FILL_COLOR:
+					if (i < args.length) {
+						polygonFillColor = getColor(args[++i]);
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Polygon Fill Color argument '"
+										+ arg + "' must be followed by a value");
+					}
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -323,6 +570,28 @@ public class FeatureTileGen {
 			valid = false;
 		}
 
+		if ((pointRadius != null || pointColor != null) && icon != null) {
+			System.out
+					.println("Error: Point radius and/or color can not be specified together with a point icon");
+			valid = false;
+		}
+
+		if (centerIcon) {
+			if (icon == null) {
+				System.out
+						.println("Error: Point icon file must be specified when attempting to center it");
+				valid = false;
+			} else {
+				icon.centerIcon();
+			}
+		}
+
+		if ((fillPolygon == null || !fillPolygon) && polygonFillColor != null) {
+			System.out
+					.println("Error: Polygon Fill Color can only be specified when Fill Polygon is enabled");
+			valid = false;
+		}
+
 		if (!valid || !requiredArguments) {
 			printUsage();
 		} else {
@@ -334,6 +603,53 @@ public class FeatureTileGen {
 				throw e;
 			}
 		}
+	}
+
+	/**
+	 * Get the color from the string
+	 * 
+	 * @param colorString
+	 * @return
+	 */
+	private static Color getColor(String colorString) {
+
+		Color color = null;
+
+		String[] colorParts = colorString.split(",");
+
+		try {
+
+			switch (colorParts.length) {
+
+			case 1:
+				Field field = Color.class.getField(colorString);
+				color = (Color) field.get(null);
+				break;
+
+			case 3:
+				color = new Color(Integer.parseInt(colorParts[0]),
+						Integer.parseInt(colorParts[1]),
+						Integer.parseInt(colorParts[2]));
+				break;
+
+			case 4:
+				color = new Color(Integer.parseInt(colorParts[0]),
+						Integer.parseInt(colorParts[1]),
+						Integer.parseInt(colorParts[2]),
+						Integer.parseInt(colorParts[3]));
+				break;
+
+			default:
+				throw new GeoPackageException("Unexpected color arguments: "
+						+ colorParts.length + ", color: " + colorString);
+			}
+
+		} catch (Exception e) {
+			throw new GeoPackageException("Invalid color: " + colorString
+					+ ", Allowable Formats: colorName | r,g,b | r,g,b,a", e);
+		}
+
+		return color;
 	}
 
 	/**
@@ -392,6 +708,44 @@ public class FeatureTileGen {
 			featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile());
 		}
 
+		// Set the tile styles
+		if (tileWidth != null) {
+			featureTiles.setTileWidth(tileWidth);
+		}
+		if (tileHeight != null) {
+			featureTiles.setTileHeight(tileHeight);
+		}
+		if (pointRadius != null) {
+			featureTiles.setPointRadius(pointRadius);
+		}
+		if (pointColor != null) {
+			featureTiles.setPointColor(pointColor);
+		}
+		if (icon != null) {
+			featureTiles.setPointIcon(icon);
+		}
+		if (lineStrokeWidth != null) {
+			featureTiles.setLineStrokeWidth(lineStrokeWidth);
+		}
+		if (lineColor != null) {
+			featureTiles.setLineColor(lineColor);
+		}
+		if (polygonStrokeWidth != null) {
+			featureTiles.setPolygonStrokeWidth(polygonStrokeWidth);
+		}
+		if (polygonColor != null) {
+			featureTiles.setPolygonColor(polygonColor);
+		}
+		if (fillPolygon != null) {
+			featureTiles.setFillPolygon(fillPolygon);
+		}
+		if (polygonFillColor != null) {
+			featureTiles.setPolygonFillColor(polygonFillColor);
+		}
+
+		// Calculate the tile overlap with the new settings
+		featureTiles.calculateDrawOverlap();
+
 		// Create the tile generator
 		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(
 				tileGeoPackage, tileTable, featureTiles, minZoom, maxZoom);
@@ -438,8 +792,7 @@ public class FeatureTileGen {
 								+ compressFormat : "")
 						+ (compressQuality != null ? ", Compress Quality: "
 								+ compressQuality : "")
-						+ ", "
-						+ (googleTiles ? "Google Tiles" : "")
+						+ (googleTiles ? ", Google Tiles" : "")
 						+ (boundingBox != null ? ", Min Lon: "
 								+ boundingBox.getMinLongitude() + ", Min Lat: "
 								+ boundingBox.getMinLatitude() + ", Max Lon: "
@@ -447,6 +800,49 @@ public class FeatureTileGen {
 								+ boundingBox.getMaxLatitude() : "")
 						+ (epsg != null ? ", EPSG: " + epsg : "")
 						+ ", Expected Tile Count: " + count);
+
+		StringBuilder tileStyle = new StringBuilder();
+		if (tileWidth != null) {
+			tileStyle.append(", Width: ").append(tileWidth);
+		}
+		if (tileHeight != null) {
+			tileStyle.append(", Height: ").append(tileHeight);
+		}
+		if (pointRadius != null) {
+			tileStyle.append(", Point Radius: ").append(pointRadius);
+		}
+		if (pointColor != null) {
+			tileStyle.append(", Point Color: ").append(pointColor);
+		}
+		if (icon != null) {
+			tileStyle.append(", Point Icon (height=").append(icon.getHeight())
+					.append(", width=").append(icon.getWidth())
+					.append("xoffset=").append(icon.getXOffset())
+					.append("yoffset=").append(icon.getYOffset()).append(")");
+		}
+		if (lineStrokeWidth != null) {
+			tileStyle.append(", Line Stroke Width: ").append(lineStrokeWidth);
+		}
+		if (lineColor != null) {
+			tileStyle.append(", Line Color: ").append(lineColor);
+		}
+		if (polygonStrokeWidth != null) {
+			tileStyle.append(", Polygon Stroke Width: ").append(
+					polygonStrokeWidth);
+		}
+		if (polygonColor != null) {
+			tileStyle.append(", Polygon Color: ").append(polygonColor);
+		}
+		if (fillPolygon != null) {
+			tileStyle.append(", Fill Polygon");
+		}
+		if (polygonFillColor != null) {
+			tileStyle.append(", Polygon Fill Color: ").append(polygonFillColor);
+		}
+		if (tileStyle.length() == 0) {
+			tileStyle.append(", Default Settings");
+		}
+		LOGGER.log(Level.INFO, "Tile Attributes" + tileStyle);
 
 		tileGenerator.setProgress(progress);
 
@@ -496,6 +892,7 @@ public class FeatureTileGen {
 	 * Print usage for the main method
 	 */
 	private static void printUsage() {
+		FeatureTiles featureTiles = new DefaultFeatureTiles(null);
 		System.out.println();
 		System.out.println("USAGE");
 		System.out.println();
@@ -518,7 +915,43 @@ public class FeatureTileGen {
 						+ " minLon,minLat,maxLon,maxLat] ["
 						+ ARGUMENT_PREFIX
 						+ ARGUMENT_EPSG
-						+ " epsg] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
+						+ " epsg] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_TILE_WIDTH
+						+ " width] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_TILE_HEIGHT
+						+ " height] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_POINT_RADIUS
+						+ " radius] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_POINT_COLOR
+						+ " color] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_POINT_ICON
+						+ " image_file] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_POINT_CENTER_ICON
+						+ "] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_LINE_STROKE_WIDTH
+						+ " stroke_width] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_LINE_COLOR
+						+ " color] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_POLYGON_STROKE_WIDTH
+						+ " stroke_width] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_POLYGON_COLOR
+						+ " color] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_FILL_POLYGON
+						+ "] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_POLYGON_FILL_COLOR
+						+ " color] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -557,6 +990,73 @@ public class FeatureTileGen {
 		System.out
 				.println("\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
 		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_WIDTH
+				+ " width");
+		System.out
+				.println("\t\tWidth used when creating each tile (default is "
+						+ featureTiles.getTileWidth() + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_HEIGHT
+				+ " height");
+		System.out
+				.println("\t\tHeight used when creating each tile (default is "
+						+ featureTiles.getTileHeight() + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_RADIUS
+				+ " radius");
+		System.out
+				.println("\t\tFloating point circle radius used when drawing points (default is "
+						+ featureTiles.getPointRadius() + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_COLOR
+				+ " color");
+		System.out
+				.println("\t\tColor used when drawing points formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+						+ colorString(featureTiles.getPointColor()) + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_ICON
+				+ " image_file");
+		System.out
+				.println("\t\tImage file containing image to use when drawing points in place of a drawn circle");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_CENTER_ICON);
+		System.out
+				.println("\t\tDraw point icons by centering the icon image to the location (default is pinning to bottom center)");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_LINE_STROKE_WIDTH
+				+ " stroke_width");
+		System.out
+				.println("\t\tFloating point stroke width when drawing lines (default is "
+						+ featureTiles.getLineStrokeWidth() + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_LINE_COLOR
+				+ " color");
+		System.out
+				.println("\t\tColor used when drawing lines formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+						+ colorString(featureTiles.getLineColor()) + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX
+				+ ARGUMENT_POLYGON_STROKE_WIDTH + " stroke_width");
+		System.out
+				.println("\t\tFloating point stroke width when drawing polygons (default is "
+						+ featureTiles.getPolygonStrokeWidth() + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POLYGON_COLOR
+				+ " color");
+		System.out
+				.println("\t\tColor used when drawing polygons formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+						+ colorString(featureTiles.getPolygonColor()) + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_FILL_POLYGON);
+		System.out.println("\t\tFill polygons with color (default is "
+				+ featureTiles.isFillPolygon() + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POLYGON_FILL_COLOR
+				+ " color");
+		System.out
+				.println("\t\tColor used when filling polygons formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+						+ colorString(featureTiles.getPolygonFillColor()) + ")");
+		System.out.println();
 		System.out.println("\tfeature_geopackage_file");
 		System.out
 				.println("\t\tpath to the GeoPackage file containing the feature table to generate tiles from");
@@ -579,6 +1079,17 @@ public class FeatureTileGen {
 		System.out.println("\tmax_zoom");
 		System.out.println("\t\tMaximum zoom level to request tiles for");
 		System.out.println();
+	}
+
+	/**
+	 * Get a r,g,b,a color string from the color
+	 * 
+	 * @param color
+	 * @return color string
+	 */
+	private static String colorString(Color color) {
+		return color.getRed() + "," + color.getGreen() + "," + color.getBlue()
+				+ "," + color.getAlpha();
 	}
 
 }

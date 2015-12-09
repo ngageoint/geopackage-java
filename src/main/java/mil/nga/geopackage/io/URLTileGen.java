@@ -352,8 +352,7 @@ public class URLTileGen {
 								+ compressFormat : "")
 						+ (compressQuality != null ? ", Compress Quality: "
 								+ compressQuality : "")
-						+ ", "
-						+ (googleTiles ? "Google Tiles" : "")
+						+ (googleTiles ? ", Google Tiles" : "")
 						+ (boundingBox != null ? ", Min Lon: "
 								+ boundingBox.getMinLongitude() + ", Min Lat: "
 								+ boundingBox.getMinLatitude() + ", Max Lon: "
