@@ -817,8 +817,8 @@ public class FeatureTileGen {
 		if (icon != null) {
 			tileStyle.append(", Point Icon (height=").append(icon.getHeight())
 					.append(", width=").append(icon.getWidth())
-					.append("xoffset=").append(icon.getXOffset())
-					.append("yoffset=").append(icon.getYOffset()).append(")");
+					.append(", xoffset=").append(icon.getXOffset())
+					.append(", yoffset=").append(icon.getYOffset()).append(")");
 		}
 		if (lineStrokeWidth != null) {
 			tileStyle.append(", Line Stroke Width: ").append(lineStrokeWidth);

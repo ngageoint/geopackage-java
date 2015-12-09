@@ -11,6 +11,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Tile Generator with URL and Feature Tile Generator implementations - [Issue #13](https://github.com/ngageoint/geopackage-java/issues/13)
 * URL and Feature Tile Generator command line implementations
 * ORMLite log level changed from debug to info
+* Tile Writer performance improvements when writing sparse GeoPackage tile tables
 
 ## [1.1.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.1) (11-20-2015)
 

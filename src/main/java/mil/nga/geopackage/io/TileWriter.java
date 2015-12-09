@@ -24,6 +24,7 @@ import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 
 /**
@@ -320,67 +321,64 @@ public class TileWriter {
 
 		int tileCount = 0;
 
-		// Go through each x in the width
-		for (int x = 0; x < tileMatrix.getMatrixWidth(); x++) {
+		// Query for all tiles at the zoom level
+		TileResultSet tileResultSet = tileDao.queryForTile(zoomLevel);
 
-			File xDirectory = new File(zDirectory, String.valueOf(x));
+		while (tileResultSet.moveToNext()) {
 
-			// Go through each y in the height
-			for (int y = 0; y < tileMatrix.getMatrixHeight(); y++) {
+			TileRow tileRow = tileResultSet.getRow();
 
-				// Query for a tile at the x, y, z
-				TileRow tileRow = tileDao.queryForTile(x, y, zoomLevel);
+			if (tileRow != null) {
 
-				if (tileRow != null) {
+				// Get the image bytes
+				byte[] tileData = tileRow.getTileData();
 
-					// Get the image bytes
-					byte[] tileData = tileRow.getTileData();
+				if (tileData != null) {
 
-					if (tileData != null) {
+					// Make any needed directories for the image
+					File xDirectory = new File(zDirectory,
+							String.valueOf(tileRow.getTileColumn()));
+					xDirectory.mkdirs();
 
-						// Make any needed directories for the image
-						xDirectory.mkdirs();
+					File imageFile = new File(xDirectory,
+							String.valueOf(tileRow.getTileRow()) + "."
+									+ imageFormat);
 
-						File imageFile = new File(xDirectory, String.valueOf(y)
-								+ "." + imageFormat);
+					if (rawImage) {
 
-						if (rawImage) {
+						// Write the raw image bytes to the file
+						FileOutputStream fos = new FileOutputStream(imageFile);
+						fos.write(tileData);
+						fos.close();
 
-							// Write the raw image bytes to the file
-							FileOutputStream fos = new FileOutputStream(
-									imageFile);
-							fos.write(tileData);
-							fos.close();
+					} else {
 
-						} else {
+						// Read the tile image
+						BufferedImage tileImage = tileRow.getTileDataImage();
 
-							// Read the tile image
-							BufferedImage tileImage = tileRow
-									.getTileDataImage();
+						// Create the new image in the image format
+						BufferedImage image = ImageUtils.createBufferedImage(
+								tileImage.getWidth(), tileImage.getHeight(),
+								imageFormat);
+						Graphics graphics = image.getGraphics();
 
-							// Create the new image in the image format
-							BufferedImage image = ImageUtils
-									.createBufferedImage(tileImage.getWidth(),
-											tileImage.getHeight(), imageFormat);
-							Graphics graphics = image.getGraphics();
+						// Draw the image
+						graphics.drawImage(tileImage, 0, 0, null);
 
-							// Draw the image
-							graphics.drawImage(tileImage, 0, 0, null);
+						// Write the image to the file
+						ImageIO.write(image, imageFormat, imageFile);
+					}
 
-							// Write the image to the file
-							ImageIO.write(image, imageFormat, imageFile);
-						}
+					tileCount++;
 
-						tileCount++;
-
-						if (tileCount % ZOOM_PROGRESS_FREQUENCY == 0) {
-							LOGGER.log(Level.INFO, "Zoom " + zoomLevel
-									+ " Tile Progress... " + tileCount);
-						}
+					if (tileCount % ZOOM_PROGRESS_FREQUENCY == 0) {
+						LOGGER.log(Level.INFO, "Zoom " + zoomLevel
+								+ " Tile Progress... " + tileCount);
 					}
 				}
 			}
 		}
+		tileResultSet.close();
 
 		return tileCount;
 	}
@@ -421,9 +419,14 @@ public class TileWriter {
 		BoundingBox setWebMercatorBoundingBox = projectionToWebMercator
 				.transform(setProjectionBoundingBox);
 
+		// Get the bounding box of actual tiles at the zoom level
+		BoundingBox zoomBoundingBox = tileDao.getBoundingBox(zoomLevel);
+		BoundingBox zoomWebMercatorBoundingBox = projectionToWebMercator
+				.transform(zoomBoundingBox);
+
 		// Determine the tile grid in the world the tiles cover
 		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-				setWebMercatorBoundingBox, (int) zoomLevel);
+				zoomWebMercatorBoundingBox, (int) zoomLevel);
 
 		// Go through each tile in the tile grid
 		for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
