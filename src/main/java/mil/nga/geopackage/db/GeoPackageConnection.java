@@ -2,6 +2,7 @@ package mil.nga.geopackage.db;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,7 +97,7 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	public Integer min(String table, String column, String where, String[] args) {
 		return SQLUtils.min(connection, table, column, where, args);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -104,7 +105,7 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	public Integer max(String table, String column, String where, String[] args) {
 		return SQLUtils.max(connection, table, column, where, args);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -117,6 +118,18 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 			log.log(Level.WARNING, "Failed to close GeoPackage connection to: "
 					+ file.getAbsolutePath(), e);
 		}
+	}
+
+	/**
+	 * Perform a database query
+	 * 
+	 * @param sql
+	 * @param args
+	 * @return result set
+	 * @since 1.1.2
+	 */
+	public ResultSet query(String sql, String[] args) {
+		return SQLUtils.query(connection, sql, args);
 	}
 
 }

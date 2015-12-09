@@ -1,6 +1,7 @@
 package mil.nga.geopackage.manager;
 
 import java.io.File;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -244,7 +245,8 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		}
 		if (tileMatrixSetList.isEmpty()) {
 			throw new GeoPackageException(
-					"No Tile Table exists for table name: " + tableName + ", Tile Tables: " + getTileTables());
+					"No Tile Table exists for table name: " + tableName
+							+ ", Tile Tables: " + getTileTables());
 		} else if (tileMatrixSetList.size() > 1) {
 			// This shouldn't happen with the table name primary key on tile
 			// matrix set table
@@ -254,6 +256,79 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 					+ tileMatrixSetList.size());
 		}
 		return getTileDao(tileMatrixSetList.get(0));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void execSQL(String sql) {
+		database.execSQL(sql);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ResultSet query(String sql, String[] args) {
+		return database.query(sql, args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ResultSet foreignKeyCheck() {
+		ResultSet resultSet = query("PRAGMA foreign_key_check", null);
+		try {
+			if (!resultSet.next()) {
+				resultSet.close();
+				resultSet = null;
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Foreign key check failed on database: " + getName(), e);
+		}
+		return resultSet;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ResultSet integrityCheck() {
+		return integrityCheck(query("PRAGMA integrity_check", null));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ResultSet quickCheck() {
+		return integrityCheck(query("PRAGMA quick_check", null));
+	}
+
+	/**
+	 * Check the result set returned from the integrity check to see if things
+	 * are "ok"
+	 *
+	 * @param resultSet
+	 * @return null if ok, else the open cursor
+	 */
+	private ResultSet integrityCheck(ResultSet resultSet) {
+		try {
+			if (resultSet.next()) {
+				String value = resultSet.getString(1);
+				if (value.equals("ok")) {
+					resultSet.close();
+					resultSet = null;
+				}
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Integrity check failed on database: " + getName(), e);
+		}
+		return resultSet;
 	}
 
 }

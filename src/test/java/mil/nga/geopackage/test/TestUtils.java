@@ -175,7 +175,8 @@ public class TestUtils {
 	 */
 	public static void addRowsToFeatureTable(GeoPackage geoPackage,
 			GeometryColumns geometryColumns, FeatureTable table, int numRows,
-			boolean hasZ, boolean hasM, boolean allowEmptyFeatures) throws SQLException {
+			boolean hasZ, boolean hasM, boolean allowEmptyFeatures)
+			throws SQLException {
 
 		FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 
@@ -551,6 +552,17 @@ public class TestUtils {
 		}
 		File file = resourcePath.toFile();
 		return file;
+	}
+
+	/**
+	 * Validate the integrity and keys of the GeoPackage
+	 * 
+	 * @param geoPackage
+	 */
+	public static void validateGeoPackage(GeoPackage geoPackage) {
+		TestCase.assertNull(geoPackage.foreignKeyCheck());
+		TestCase.assertNull(geoPackage.integrityCheck());
+		TestCase.assertNull(geoPackage.quickCheck());
 	}
 
 }
