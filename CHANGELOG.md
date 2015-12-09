@@ -12,6 +12,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * URL and Feature Tile Generator command line implementations
 * ORMLite log level changed from debug to info
 * Tile Writer performance improvements when writing sparse GeoPackage tile tables
+* Added org.xerial.thirdparty nestedvm dependency which was removed in 3.8 versions of xerial sqlite-jdbc to suppress invalid warning logs
 
 ## [1.1.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.1) (11-20-2015)
 
