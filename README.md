@@ -153,7 +153,7 @@ Example:
 
 #### Feature Tile Generator ####
 
-The Feature tile generator creates a set of tiles within a GeoPackage by drawing the tiles from a feature table in the same or different GeoPackage. Tiles are drawn from the specified zoom range and the optional bounding box location. Tiles can be compressed into a specified format and quality. The tile size and style can be specified including point (radius, color, icon), line (stroke width, color), and polygon (stroke width, color, fill, fill color) attributes.
+The Feature tile generator creates a set of tiles within a GeoPackage by drawing the tiles from a feature table in the same or different GeoPackage. The input feature table is [indexed](http://ngageoint.github.io/GeoPackage/docs/extensions/geometry-index.html) if not already done or current. Tiles are drawn from the specified zoom range and the optional bounding box location. Tiles can be compressed into a specified format and quality. The tile size and style can be specified including point (radius, color, icon), line (stroke width, color), and polygon (stroke width, color, fill, fill color) attributes.
 
 To run against the jar:
 
