@@ -26,6 +26,7 @@ import com.j256.ormlite.dao.CloseableIterator;
  * for the text paint object).
  * 
  * @author osbornb
+ * @since 1.1.2
  */
 public class NumberFeaturesTile implements CustomFeaturesTile {
 

@@ -4,6 +4,7 @@ package mil.nga.geopackage.property;
  * GeoPackage Java property constants
  * 
  * @author osbornb
+ * @since 1.1.2
  */
 public class JavaPropertyConstants {
 

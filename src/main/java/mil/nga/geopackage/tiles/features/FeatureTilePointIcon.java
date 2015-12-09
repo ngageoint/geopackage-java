@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
  * Point icon in place of a drawn circle
  *
  * @author osbornb
+ * @since 1.1.2
  */
 public class FeatureTilePointIcon {
 

@@ -12,6 +12,7 @@ import com.j256.ormlite.dao.CloseableIterator;
  * instead of drawing all of the features.
  * 
  * @author osbornb
+ * @since 1.1.2
  */
 public interface CustomFeaturesTile {
 

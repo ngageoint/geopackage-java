@@ -37,6 +37,7 @@ import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
  * mil.nga.geopackage.io.FeatureTileGen +usage_arguments
  * 
  * @author osbornb
+ * @since 1.1.2
  */
 public class FeatureTileGen {
 
