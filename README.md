@@ -151,6 +151,18 @@ Example:
 
     java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen -bbox -105.0,39.0,-104.0,40.0 /path/geopackage.gpkg mytiletable http://url/{z}/{x}/{y} 2 18
 
+#### Feature Tile Generator ####
+
+The Feature tile generator creates a set of tiles within a GeoPackage by drawing the tiles from a feature table in the same or different GeoPackage. Tiles are drawn from the specified zoom range and the optional bounding box location. Tiles can be compressed into a specified format and quality. The tile size and style can be specified including point (radius, color, icon), line (stroke width, color), and polygon (stroke width, color, fill, fill color) attributes.
+
+To run against the jar:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen [-m max_features_per_tile] [-f compress_format] [-q compress_quality] [-g] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-tileWidth width] [-tileHeight height] [-pointRadius radius] [-pointColor color] [-pointIcon image_file] [-centerIcon] [-lineStrokeWidth stroke_width] [-lineColor color] [-polygonStrokeWidth stroke_width] [-polygonColor color] [-fillPolygon] [-polygonFillColor color] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom
+
+Example:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen -bbox -105.0,39.0,-104.0,40.0 -pointRadius 3.0 -pointColor magenta -lineStrokeWidth 2.5 -lineColor red -polygonStrokeWidth 1.5 -polygonColor 0,0,255 -fillPolygon -polygonFillColor 0,255,0,80 /path/geopackage1.gpkg myfeaturetable /path/geopackage2.gpkg mytiletable 2 18
+
 ### Dependencies ###
 
 #### Remote ####
