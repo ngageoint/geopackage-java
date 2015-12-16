@@ -34,4 +34,18 @@ public class GeoPackageGeometryDataImportTest extends ImportGeoPackageTestCase {
 
 	}
 
+	/**
+	 * Test geometry projection transform
+	 * 
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	@Test
+	public void testGeometryProjectionTransform() throws SQLException,
+			IOException {
+
+		GeoPackageGeometryDataUtils.testGeometryProjectionTransform(geoPackage);
+
+	}
+
 }

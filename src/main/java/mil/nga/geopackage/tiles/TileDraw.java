@@ -27,6 +27,29 @@ import mil.nga.geopackage.tiles.user.TileRow;
 public class TileDraw {
 
 	/**
+	 * Draw the tile bytes for the x, y, and z
+	 * 
+	 * @param geoPackageFile
+	 * @param tileTable
+	 * @param imageFormat
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return image bytes
+	 * @throws IOException
+	 * @since 1.1.3
+	 */
+	public static byte[] drawTileBytes(File geoPackageFile, String tileTable,
+			String imageFormat, long x, long y, long z) throws IOException {
+
+		BufferedImage image = drawTile(geoPackageFile, tileTable, imageFormat,
+				x, y, z);
+		byte[] bytes = ImageUtils.writeImageToBytes(image, imageFormat);
+
+		return bytes;
+	}
+
+	/**
 	 * Draw the tile for the x, y, and z
 	 * 
 	 * @param geoPackageFile
@@ -37,6 +60,7 @@ public class TileDraw {
 	 * @param z
 	 * @return
 	 * @throws IOException
+	 * @since 1.1.3 error in previous versions
 	 */
 	public static BufferedImage drawTile(File geoPackageFile, String tileTable,
 			String imageFormat, long x, long y, long z) throws IOException {
@@ -45,12 +69,35 @@ public class TileDraw {
 
 		GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile);
 		try {
-			drawTile(geoPackage, tileTable, imageFormat, x, y, z);
+			image = drawTile(geoPackage, tileTable, imageFormat, x, y, z);
 		} finally {
 			geoPackage.close();
 		}
 
 		return image;
+	}
+
+	/**
+	 * Draw the tile bytes for the x, y, and z
+	 * 
+	 * @param geoPackage
+	 * @param tileTable
+	 * @param imageFormat
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return image bytes
+	 * @throws IOException
+	 * @since 1.1.3
+	 */
+	public static byte[] drawTileBytes(GeoPackage geoPackage, String tileTable,
+			String imageFormat, long x, long y, long z) throws IOException {
+
+		BufferedImage image = drawTile(geoPackage, tileTable, imageFormat, x,
+				y, z);
+		byte[] bytes = ImageUtils.writeImageToBytes(image, imageFormat);
+
+		return bytes;
 	}
 
 	/**
@@ -75,6 +122,28 @@ public class TileDraw {
 		BufferedImage image = drawTile(tileDao, imageFormat, x, y, z);
 
 		return image;
+	}
+
+	/**
+	 * Draw the tile as bytes for the x, y, and z
+	 * 
+	 * @param tileDao
+	 * @param tileMatrix
+	 * @param imageFormat
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return image bytes
+	 * @throws IOException
+	 * @since 1.1.3
+	 */
+	public static byte[] drawTileBytes(TileDao tileDao, String imageFormat,
+			long x, long y, long z) throws IOException {
+
+		BufferedImage image = drawTile(tileDao, imageFormat, x, y, z);
+		byte[] bytes = ImageUtils.writeImageToBytes(image, imageFormat);
+
+		return bytes;
 	}
 
 	/**
@@ -117,6 +186,31 @@ public class TileDraw {
 				imageFormat, setWebMercatorBoundingBox, x, y, z);
 
 		return image;
+	}
+
+	/**
+	 * Draw the tile as bytes for the x, y, and z
+	 * 
+	 * @param tileDao
+	 * @param tileMatrix
+	 * @param imageFormat
+	 * @param setWebMercatorBoundingBox
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return image bytes
+	 * @throws IOException
+	 * @since 1.1.3
+	 */
+	public static byte[] drawTileBytes(TileDao tileDao, TileMatrix tileMatrix,
+			String imageFormat, BoundingBox setWebMercatorBoundingBox, long x,
+			long y, long z) throws IOException {
+
+		BufferedImage image = drawTile(tileDao, tileMatrix, imageFormat,
+				setWebMercatorBoundingBox, x, y, z);
+		byte[] bytes = ImageUtils.writeImageToBytes(image, imageFormat);
+
+		return bytes;
 	}
 
 	/**
@@ -173,7 +267,8 @@ public class TileDraw {
 						if (tileData != null) {
 
 							// Create the buffered image
-							BufferedImage tileImage = ImageUtils.getImage(tileData);
+							BufferedImage tileImage = ImageUtils
+									.getImage(tileData);
 
 							// Get the bounding box of the tile
 							BoundingBox tileWebMercatorBoundingBox = TileBoundingBoxUtils
