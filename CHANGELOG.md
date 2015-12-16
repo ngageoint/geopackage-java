@@ -6,7 +6,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.1.3](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.3) (12-16-2015)
 
-* geopackage-core version updated to 1.1.3 for Geometry projection tranformations
+* geopackage-core version updated to 1.1.3 for Geometry projection transformations
 * Tile Draw image bytes shortcut methods
 
 ## [1.1.2](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.2) (12-14-2015)
