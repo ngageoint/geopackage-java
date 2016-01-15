@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## [1.1.4](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.4) (TBD)
+## [1.1.4](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.4) (01-15-2016)
 
 * geopackage-core version updated to 1.1.4 for proj4j dependency location change
 
