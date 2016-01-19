@@ -1,8 +1,8 @@
 package mil.nga.geopackage.test.io;
 
-import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.geopackage.io.GeoPackageZoomLevelProgress;
 
-public class TestGeoPackageProgress implements GeoPackageProgress {
+public class TestGeoPackageProgress implements GeoPackageZoomLevelProgress {
 
 	private Integer max = null;
 	private int progress = 0;
@@ -26,6 +26,16 @@ public class TestGeoPackageProgress implements GeoPackageProgress {
 	@Override
 	public boolean cleanupOnCancel() {
 		return false;
+	}
+
+	@Override
+	public void setZoomLevelMax(int zoomLevel, int max) {
+
+	}
+
+	@Override
+	public void addZoomLevelProgress(int zoomLevel, int progress) {
+
 	}
 
 	public void cancel() {

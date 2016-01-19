@@ -312,9 +312,16 @@ public class FeatureTileGen {
 	public static void main(String[] args) {
 
 		// Add a shutdown hook
+		final Thread mainThread = Thread.currentThread();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				finish();
+				progress.cancel();
+				try {
+					mainThread.join();
+				} catch (InterruptedException e) {
+					LOGGER.log(Level.WARNING,
+							"Failed to wait for the main thread to finish", e);
+				}
 			}
 		});
 
@@ -856,6 +863,8 @@ public class FeatureTileGen {
 		} catch (IOException | SQLException e) {
 			throw new GeoPackageException("Exception while generating tiles", e);
 		}
+		
+		finish();
 	}
 
 	/**

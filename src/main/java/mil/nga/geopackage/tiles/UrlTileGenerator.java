@@ -7,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +30,12 @@ import mil.nga.geopackage.property.JavaPropertyConstants;
  * @since 1.1.2
  */
 public class UrlTileGenerator extends TileGenerator {
+
+	/**
+	 * Logger
+	 */
+	private static final Logger LOGGER = Logger
+			.getLogger(UrlTileGenerator.class.getName());
 
 	/**
 	 * URL EPSG pattern for finding the EPSG code in a url
@@ -110,6 +118,13 @@ public class UrlTileGenerator extends TileGenerator {
 	private TileFormatType tileFormat = TileFormatType.STANDARD;
 
 	/**
+	 * Download attempts per tile
+	 */
+	private int downloadAttempts = GeoPackageJavaProperties.getIntegerProperty(
+			JavaPropertyConstants.TILE_GENERATOR,
+			JavaPropertyConstants.TILE_GENERATOR_DOWNLOAD_ATTEMPTS);
+
+	/**
 	 * Constructor
 	 * 
 	 * @param geoPackage
@@ -179,6 +194,24 @@ public class UrlTileGenerator extends TileGenerator {
 								+ tileFormat);
 			}
 		}
+	}
+
+	/**
+	 * Get the number of download attempts per tile
+	 * 
+	 * @return
+	 */
+	public int getDownloadAttempts() {
+		return downloadAttempts;
+	}
+
+	/**
+	 * Set the number of download attempts per tile
+	 * 
+	 * @param downloadAttempts
+	 */
+	public void setDownloadAttempts(int downloadAttempts) {
+		this.downloadAttempts = downloadAttempts;
 	}
 
 	/**
@@ -302,6 +335,42 @@ public class UrlTileGenerator extends TileGenerator {
 					+ zoomUrl + ", z=" + z + ", x=" + x + ", y=" + y, e);
 		}
 
+		int attempt = 1;
+		while (true) {
+			try {
+				bytes = downloadTile(zoomUrl, url, z, x, y);
+				break;
+			} catch (Exception e) {
+				if (attempt < downloadAttempts) {
+					LOGGER.log(Level.WARNING,
+							"Failed to download tile after attempt " + attempt
+									+ " of " + downloadAttempts, e);
+					attempt++;
+				} else {
+					throw new GeoPackageException(
+							"Failed to download tile after " + downloadAttempts
+									+ " attempts", e);
+				}
+			}
+		}
+
+		return bytes;
+	}
+
+	/**
+	 * Download the tile from the URL
+	 * 
+	 * @param zoomUrl
+	 * @param url
+	 * @param z
+	 * @param x
+	 * @param y
+	 * @return tile bytes
+	 */
+	private byte[] downloadTile(String zoomUrl, URL url, int z, long x, long y) {
+
+		byte[] bytes = null;
+
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) url.openConnection();
@@ -309,7 +378,10 @@ public class UrlTileGenerator extends TileGenerator {
 
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				throw new GeoPackageException("Failed to download tile. URL: "
-						+ zoomUrl + ", z=" + z + ", x=" + x + ", y=" + y);
+						+ zoomUrl + ", z=" + z + ", x=" + x + ", y=" + y
+						+ ", Response Code: " + connection.getResponseCode()
+						+ ", Response Message: "
+						+ connection.getResponseMessage());
 			}
 
 			InputStream geoPackageStream = connection.getInputStream();

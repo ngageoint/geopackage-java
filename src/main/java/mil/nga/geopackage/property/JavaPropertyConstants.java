@@ -40,6 +40,8 @@ public class JavaPropertyConstants {
 
 	public static final String TILE_GENERATOR_VARIABLE_MAX_LON = "max_lon";
 
+	public static final String TILE_GENERATOR_DOWNLOAD_ATTEMPTS = "downloadAttempts";
+	
 	public static final String COLOR_RED = "red";
 
 	public static final String COLOR_GREEN = "green";
