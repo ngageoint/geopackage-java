@@ -344,12 +344,15 @@ public class UrlTileGenerator extends TileGenerator {
 				if (attempt < downloadAttempts) {
 					LOGGER.log(Level.WARNING,
 							"Failed to download tile after attempt " + attempt
-									+ " of " + downloadAttempts, e);
+									+ " of " + downloadAttempts + ". URL: "
+									+ zoomUrl + ", z=" + z + ", x=" + x
+									+ ", y=" + y, e);
 					attempt++;
 				} else {
 					throw new GeoPackageException(
 							"Failed to download tile after " + downloadAttempts
-									+ " attempts", e);
+									+ " attempts. URL: " + zoomUrl + ", z=" + z
+									+ ", x=" + x + ", y=" + y, e);
 				}
 			}
 		}
