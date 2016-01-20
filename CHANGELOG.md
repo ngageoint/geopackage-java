@@ -4,9 +4,11 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.1.5 (TBD)
+## [1.1.5](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.5) (01-20-2016)
 
-* TBD
+* Standalone tile generator fix to save tile progress from current zoom level when canceled
+* Standalone tile generator zoom level specific progress logging
+* URL Tile Generator multiple tile download attempts upon failure
 
 ## [1.1.4](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.4) (01-15-2016)
 

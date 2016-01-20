@@ -15,7 +15,7 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.geopackage.io.GeoPackageZoomLevelProgress;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
@@ -111,9 +111,9 @@ public abstract class TileGenerator {
 	private Float compressQuality = null;
 
 	/**
-	 * GeoPackage progress
+	 * GeoPackage zoom level progress
 	 */
-	private GeoPackageProgress progress;
+	private GeoPackageZoomLevelProgress progress;
 
 	/**
 	 * True when generating tiles in Google tile format, false when generating
@@ -296,7 +296,7 @@ public abstract class TileGenerator {
 	 *
 	 * @param progress
 	 */
-	public void setProgress(GeoPackageProgress progress) {
+	public void setProgress(GeoPackageZoomLevelProgress progress) {
 		this.progress = progress;
 	}
 
@@ -305,7 +305,7 @@ public abstract class TileGenerator {
 	 * 
 	 * @return progress
 	 */
-	public GeoPackageProgress getProgress() {
+	public GeoPackageZoomLevelProgress getProgress() {
 		return progress;
 	}
 
@@ -365,6 +365,9 @@ public abstract class TileGenerator {
 		// Set the max progress count
 		if (progress != null) {
 			progress.setMax(totalCount);
+			for(Map.Entry<Integer, TileGrid> zoomGrid: tileGrids.entrySet()){
+				progress.setZoomLevelMax(zoomGrid.getKey(), (int)zoomGrid.getValue().count());
+			}
 		}
 
 		int count = 0;
@@ -822,6 +825,7 @@ public abstract class TileGenerator {
 
 				// Update the progress count, even on failures
 				if (progress != null) {
+					progress.addZoomLevelProgress(zoomLevel, 1);
 					progress.addProgress(1);
 				}
 
