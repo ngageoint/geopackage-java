@@ -32,4 +32,16 @@ public class FeatureTableIndexImportTest extends ImportGeoPackageTestCase {
 
 	}
 
+	/**
+	 * Test delete all table indices
+	 * 
+	 * @throws SQLException
+	 */
+	@Test
+	public void testDeleteAll() throws SQLException {
+
+		FeatureTableIndexUtils.testDeleteAll(geoPackage);
+
+	}
+	
 }
