@@ -303,6 +303,14 @@ public class UrlTileGenerator extends TileGenerator {
 	 * {@inheritDoc}
 	 */
 	@Override
+	protected void preTileGeneration() {
+
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected byte[] createTile(int z, long x, long y) {
 
 		byte[] bytes = null;

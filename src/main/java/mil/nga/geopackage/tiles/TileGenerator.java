@@ -365,8 +365,9 @@ public abstract class TileGenerator {
 		// Set the max progress count
 		if (progress != null) {
 			progress.setMax(totalCount);
-			for(Map.Entry<Integer, TileGrid> zoomGrid: tileGrids.entrySet()){
-				progress.setZoomLevelMax(zoomGrid.getKey(), (int)zoomGrid.getValue().count());
+			for (Map.Entry<Integer, TileGrid> zoomGrid : tileGrids.entrySet()) {
+				progress.setZoomLevelMax(zoomGrid.getKey(), (int) zoomGrid
+						.getValue().count());
 			}
 		}
 
@@ -404,7 +405,9 @@ public abstract class TileGenerator {
 			updateTileBounds(tileMatrixSet);
 		}
 
-		// Download and create the tiles
+		preTileGeneration();
+
+		// Create the tiles
 		try {
 			Contents contents = tileMatrixSet.getContents();
 			TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
@@ -899,6 +902,12 @@ public abstract class TileGenerator {
 
 		return count;
 	}
+
+	/**
+	 * Called after set up and right before tile generation starts for the first
+	 * zoom level
+	 */
+	protected abstract void preTileGeneration();
 
 	/**
 	 * Create the tile
