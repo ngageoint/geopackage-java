@@ -15,6 +15,11 @@ import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.schema.TableColumnKey;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.wkb.geom.GeometryType;
 
 /**
@@ -213,6 +218,53 @@ public class GeoPackageTestUtils {
 					featureRow.getColumnName(7));
 			TestCase.assertEquals("test_blob_limited",
 					featureRow.getColumnName(8));
+		}
+	}
+
+	/**
+	 * Test deleting tables by name
+	 * 
+	 * @param geoPackage
+	 * @throws SQLException
+	 */
+	public static void testDeleteTables(GeoPackage geoPackage)
+			throws SQLException {
+
+		GeometryColumnsDao geometryColumnsDao = geoPackage
+				.getGeometryColumnsDao();
+		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
+
+		TestCase.assertTrue(geometryColumnsDao.isTableExists()
+				|| tileMatrixSetDao.isTableExists());
+
+		if (geometryColumnsDao.isTableExists()) {
+
+			for (String featureTable : geoPackage.getFeatureTables()) {
+				FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+				featureDao.dropTable();
+			}
+
+			geoPackage.dropTable(GeometryColumns.TABLE_NAME);
+
+			TestCase.assertFalse(geometryColumnsDao.isTableExists());
+		}
+
+		if (tileMatrixSetDao.isTableExists()) {
+			TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+
+			TestCase.assertTrue(tileMatrixSetDao.isTableExists());
+			TestCase.assertTrue(tileMatrixDao.isTableExists());
+
+			for (String tileTable : geoPackage.getTileTables()) {
+				TileDao tileDao = geoPackage.getTileDao(tileTable);
+				tileDao.dropTable();
+			}
+
+			geoPackage.dropTable(TileMatrix.TABLE_NAME);
+			geoPackage.dropTable(TileMatrixSet.TABLE_NAME);
+
+			TestCase.assertFalse(tileMatrixSetDao.isTableExists());
+			TestCase.assertFalse(tileMatrixDao.isTableExists());
 		}
 	}
 
