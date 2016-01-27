@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>mil.nga.geopackage</groupId>
 			<artifactId>geopackage-core</artifactId>
-			<version>1.1.4</version>
+			<version>1.1.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.j256.ormlite</groupId>
