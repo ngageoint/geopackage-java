@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.1.6 (TBD)
+## [1.1.6](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.6) (02-02-2016)
 
 * geopackage-core version updated to 1.1.5
 * Feature Tile Generator linking between feature and tile tables
