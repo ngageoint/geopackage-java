@@ -35,7 +35,7 @@ import com.j256.ormlite.dao.CloseableIterator;
 public class FeatureTableIndexUtils {
 
 	/**
-	 * Test read
+	 * Test index
 	 * 
 	 * @param geoPackage
 	 * @throws SQLException
@@ -301,6 +301,54 @@ public class FeatureTableIndexUtils {
 
 	}
 
+	/**
+	 * Test table index delete all
+	 * 
+	 * @param geoPackage
+	 * @throws SQLException
+	 */
+	public static void testDeleteAll(GeoPackage geoPackage) throws SQLException {
+
+		// Test indexing each feature table
+		List<String> featureTables = geoPackage.getFeatureTables();
+		for (String featureTable : featureTables) {
+
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+			FeatureTableIndex featureTableIndex = new FeatureTableIndex(
+					geoPackage, featureDao);
+
+			TestCase.assertFalse(featureTableIndex.isIndexed());
+
+			TestUtils.validateGeoPackage(geoPackage);
+
+			// Test indexing
+			featureTableIndex.index();
+			TestUtils.validateGeoPackage(geoPackage);
+
+			TestCase.assertTrue(featureTableIndex.isIndexed());
+
+		}
+
+		ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
+		GeometryIndexDao geometryIndexDao = geoPackage.getGeometryIndexDao();
+		TableIndexDao tableIndexDao = geoPackage.getTableIndexDao();
+		
+		TestCase.assertTrue(geometryIndexDao.isTableExists());
+		TestCase.assertTrue(tableIndexDao.isTableExists());
+		TestCase.assertTrue(extensionsDao.queryByExtension(
+				FeatureTableIndex.EXTENSION_NAME).size() > 0);
+		
+		TestCase.assertTrue(geometryIndexDao.countOf() > 0);
+		long count = tableIndexDao.countOf();
+		TestCase.assertTrue(count > 0);
+		
+		int deleteCount = tableIndexDao.deleteAllCascade();
+		TestCase.assertEquals(count, deleteCount);
+		
+		TestCase.assertTrue(geometryIndexDao.countOf() == 0);
+		TestCase.assertTrue(tableIndexDao.countOf() == 0);
+	}
+	
 	/**
 	 * Validate a Geometry Index result
 	 * 

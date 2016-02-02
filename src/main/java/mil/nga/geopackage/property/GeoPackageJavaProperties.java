@@ -305,8 +305,8 @@ public class GeoPackageJavaProperties {
 	private static Properties initializeConfigurationProperties() {
 		Properties properties = new Properties();
 
-		InputStream in = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream(JavaPropertyConstants.PROPERTIES_FILE);
+		InputStream in = GeoPackageJavaProperties.class.getResourceAsStream("/"
+				+ JavaPropertyConstants.PROPERTIES_FILE);
 		if (in != null) {
 			try {
 				properties.load(in);

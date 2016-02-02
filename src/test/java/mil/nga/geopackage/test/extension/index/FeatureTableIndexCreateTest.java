@@ -32,6 +32,18 @@ public class FeatureTableIndexCreateTest extends CreateGeoPackageTestCase {
 
 	}
 
+	/**
+	 * Test delete all table indices
+	 * 
+	 * @throws SQLException
+	 */
+	@Test
+	public void testDeleteAll() throws SQLException {
+
+		FeatureTableIndexUtils.testDeleteAll(geoPackage);
+
+	}
+	
 	@Override
 	public boolean allowEmptyFeatures() {
 		return false;
