@@ -134,7 +134,7 @@ GeoPackage Format tiles.properties:
     min_y=
     max_y=
     # Zoom Level Properties:
-    # If the file strucThe GeoPackage format requires a tiles.properties file in the base imagery directory.ture is fully populated and represents the matrix width and height, the properties can be omitted
+    # If the file structure is fully populated and represents the matrix width and height, the properties can be omitted
     # If a non top zoom level matrix width and height increase by a factor of 2 with each zoom level, the properties can be omitted for those zoom levels
     zoom_level.{zoom}.matrix_width=
     zoom_level.{zoom}.matrix_height=
