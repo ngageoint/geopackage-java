@@ -10,7 +10,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.ExtensionsDao;
-import mil.nga.geopackage.extension.NGAExtensions;
+import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.extension.index.GeometryIndex;
 import mil.nga.geopackage.extension.index.GeometryIndexDao;
@@ -271,7 +271,7 @@ public class FeatureTableIndexUtils {
 				featureResultSet.close();
 			}
 
-			NGAExtensions.deleteTableExtensions(geoPackage, featureTable);
+			GeoPackageExtensions.deleteTableExtensions(geoPackage, featureTable);
 
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 			TestCase.assertEquals(0,
@@ -290,7 +290,7 @@ public class FeatureTableIndexUtils {
 				FeatureTableIndex.EXTENSION_NAME).size() > 0);
 
 		// Test deleting all NGA extensions
-		NGAExtensions.deleteExtensions(geoPackage);
+		GeoPackageExtensions.deleteExtensions(geoPackage);
 
 		TestCase.assertFalse(geometryIndexDao.isTableExists());
 		TestCase.assertFalse(tableIndexDao.isTableExists());

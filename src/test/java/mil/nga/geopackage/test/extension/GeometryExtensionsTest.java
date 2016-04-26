@@ -2,22 +2,24 @@ package mil.nga.geopackage.test.extension;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.extension.Extensions;
+import mil.nga.geopackage.extension.ExtensionsDao;
+import mil.nga.geopackage.extension.GeometryExtensions;
+import mil.nga.geopackage.test.CreateGeoPackageTestCase;
+import mil.nga.wkb.geom.GeometryType;
 
 import org.junit.Test;
-
-import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.GeometryExtensions;
-import mil.nga.geopackage.test.BaseTestCase;
-import mil.nga.wkb.geom.GeometryType;
 
 /**
  * Geometry Extensions Tests
  * 
  * @author osbornb
  */
-public class GeometryExtensionsTest extends BaseTestCase {
+public class GeometryExtensionsTest extends CreateGeoPackageTestCase {
 
 	/**
 	 * Test the is extension check
@@ -292,6 +294,102 @@ public class GeometryExtensionsTest extends BaseTestCase {
 				expectedUserDefinedExtensionName(author, GeometryType.TRIANGLE),
 				GeometryExtensions.getExtensionName(author,
 						GeometryType.TRIANGLE));
+
+	}
+
+	/**
+	 * Test the Geometry Extension creation
+	 */
+	@Test
+	public void testGeometryExtension() throws Exception {
+
+		GeometryExtensions extensions = new GeometryExtensions(geoPackage);
+		ExtensionsDao extensionsDao = extensions.getExtensionsDao();
+
+		// Test non extension geometries
+		for (int i = GeometryType.GEOMETRY.getCode(); i <= GeometryType.GEOMETRYCOLLECTION
+				.getCode(); i++) {
+
+			GeometryType geometryType = GeometryType.fromCode(i);
+			try {
+				extensions.getOrCreate("table_name", "column_name",
+						geometryType);
+				fail("Geometry Extension was created for " + geometryType);
+			} catch (GeoPackageException e) {
+				// Expected
+			}
+		}
+
+		// Test user created extension geometries
+		for (int i = GeometryType.POLYHEDRALSURFACE.getCode(); i <= GeometryType.TRIANGLE
+				.getCode(); i++) {
+
+			GeometryType geometryType = GeometryType.fromCode(i);
+			try {
+				extensions.getOrCreate("table_name", "column_name",
+						geometryType);
+				fail("Geometry Extension was created for " + geometryType);
+			} catch (GeoPackageException e) {
+				// Expected
+			}
+		}
+
+		// Test geometry extensions
+		long count = extensionsDao.countOf();
+		for (int i = GeometryType.CIRCULARSTRING.getCode(); i <= GeometryType.SURFACE
+				.getCode(); i++) {
+
+			GeometryType geometryType = GeometryType.fromCode(i);
+			String tableName = "table_" + geometryType.name();
+			String columnName = "geom";
+			Extensions extension = extensions.getOrCreate(tableName,
+					columnName, geometryType);
+			assertNotNull(extension);
+			assertTrue(extensions.has(tableName, columnName, geometryType));
+			assertEquals(++count, extensionsDao.countOf());
+		}
+	}
+
+	/**
+	 * Test the User Geometry Extension creation
+	 */
+	@Test
+	public void testUserGeometryExtension() throws Exception {
+
+		GeometryExtensions extensions = new GeometryExtensions(geoPackage);
+		ExtensionsDao extensionsDao = extensions.getExtensionsDao();
+
+		String author = "NGA";
+
+		// Test non extension geometries
+		for (int i = GeometryType.GEOMETRY.getCode(); i <= GeometryType.GEOMETRYCOLLECTION
+				.getCode(); i++) {
+
+			GeometryType geometryType = GeometryType.fromCode(i);
+			try {
+				extensions.getOrCreate("table_name", "column_name", author,
+						geometryType);
+				fail("Geometry Extension was created for " + geometryType);
+			} catch (GeoPackageException e) {
+				// Expected
+			}
+		}
+
+		// Test geometry extensions and user created extensions with author
+		long count = extensionsDao.countOf();
+		for (int i = GeometryType.CIRCULARSTRING.getCode(); i <= GeometryType.TRIANGLE
+				.getCode(); i++) {
+
+			GeometryType geometryType = GeometryType.fromCode(i);
+			String tableName = "table_" + geometryType.name();
+			String columnName = "geom";
+			Extensions extension = extensions.getOrCreate(tableName,
+					columnName, author, geometryType);
+			assertNotNull(extension);
+			assertTrue(extensions.has(tableName, columnName, author,
+					geometryType));
+			assertEquals(++count, extensionsDao.countOf());
+		}
 
 	}
 
