@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.GeometryExtensions;
@@ -347,6 +348,18 @@ public class GeometryExtensionsTest extends CreateGeoPackageTestCase {
 			assertNotNull(extension);
 			assertTrue(extensions.has(tableName, columnName, geometryType));
 			assertEquals(++count, extensionsDao.countOf());
+
+			assertEquals(extension.getExtensionName(),
+					expectedGeoPackageExtensionName(geometryType));
+			assertEquals(extension.getAuthor(),
+					expectedGeoPackageExtensionAuthor());
+			assertEquals(extension.getExtensionNameNoAuthor(),
+					expectedGeoPackageExtensionNameNoAuthor(geometryType));
+			assertEquals(extension.getTableName(), tableName);
+			assertEquals(extension.getColumnName(), columnName);
+			assertEquals(extension.getScope(), ExtensionScopeType.READ_WRITE);
+			assertEquals(extension.getDefinition(),
+					GeometryExtensions.GEOMETRY_TYPES_EXTENSION_DEFINITION);
 		}
 	}
 
@@ -359,7 +372,7 @@ public class GeometryExtensionsTest extends CreateGeoPackageTestCase {
 		GeometryExtensions extensions = new GeometryExtensions(geoPackage);
 		ExtensionsDao extensionsDao = extensions.getExtensionsDao();
 
-		String author = "NGA";
+		String author = "nga";
 
 		// Test non extension geometries
 		for (int i = GeometryType.GEOMETRY.getCode(); i <= GeometryType.GEOMETRYCOLLECTION
@@ -389,6 +402,28 @@ public class GeometryExtensionsTest extends CreateGeoPackageTestCase {
 			assertTrue(extensions.has(tableName, columnName, author,
 					geometryType));
 			assertEquals(++count, extensionsDao.countOf());
+
+			assertEquals(extension.getExtensionNameNoAuthor(),
+					expectedGeoPackageExtensionNameNoAuthor(geometryType));
+			assertEquals(extension.getTableName(), tableName);
+			assertEquals(extension.getColumnName(), columnName);
+			assertEquals(extension.getScope(), ExtensionScopeType.READ_WRITE);
+
+			if (i <= GeometryType.SURFACE.getCode()) {
+				assertEquals(extension.getExtensionName(),
+						expectedGeoPackageExtensionName(geometryType));
+				assertEquals(extension.getAuthor(),
+						expectedGeoPackageExtensionAuthor());
+				assertEquals(extension.getDefinition(),
+						GeometryExtensions.GEOMETRY_TYPES_EXTENSION_DEFINITION);
+			} else {
+				assertEquals(extension.getExtensionName(),
+						expectedUserDefinedExtensionName(author, geometryType));
+				assertEquals(extension.getAuthor(), author);
+				assertEquals(
+						extension.getDefinition(),
+						GeometryExtensions.USER_GEOMETRY_TYPES_EXTENSION_DEFINITION);
+			}
 		}
 
 	}
@@ -400,7 +435,27 @@ public class GeometryExtensionsTest extends CreateGeoPackageTestCase {
 	 * @return
 	 */
 	private String expectedGeoPackageExtensionName(GeometryType type) {
-		return "gpkg_geom_" + type.getName();
+		return expectedGeoPackageExtensionAuthor() + "_"
+				+ expectedGeoPackageExtensionNameNoAuthor(type);
+	}
+
+	/**
+	 * Get the expected GeoPackage extension author
+	 * 
+	 * @return
+	 */
+	private String expectedGeoPackageExtensionAuthor() {
+		return "gpkg";
+	}
+
+	/**
+	 * Get the expected GeoPackage extension name with no author
+	 * 
+	 * @param type
+	 * @return
+	 */
+	private String expectedGeoPackageExtensionNameNoAuthor(GeometryType type) {
+		return "geom_" + type.getName();
 	}
 
 	/**
