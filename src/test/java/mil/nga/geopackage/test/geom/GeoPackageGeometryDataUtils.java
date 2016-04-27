@@ -177,7 +177,7 @@ public class GeoPackageGeometryDataUtils {
 
 							long epsg = srs.getOrganizationCoordsysId();
 							Projection projection = ProjectionFactory
-									.getProjection(epsg);
+									.getProjection(srs);
 							long toEpsg = -1;
 							if (epsg == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
 								toEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
@@ -187,7 +187,7 @@ public class GeoPackageGeometryDataUtils {
 							ProjectionTransform transformTo = projection
 									.getTransformation(toEpsg);
 							ProjectionTransform transformFrom = transformTo
-									.getToProjection().getTransformation(epsg);
+									.getToProjection().getTransformation(srs);
 
 							byte[] bytes = geometryData.getWkbBytes();
 
