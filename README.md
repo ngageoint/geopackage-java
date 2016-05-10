@@ -80,12 +80,12 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
 
 ### Installation ###
 
-Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.1.8|jar) (JAR, POM, Source, Javadoc)
+Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.1.9|jar) (JAR, POM, Source, Javadoc)
 
     <dependency>
         <groupId>mil.nga.geopackage</groupId>
         <artifactId>geopackage</artifactId>
-        <version>1.1.8</version>
+        <version>1.1.9</version>
     </dependency>
 
 ### Build ###
