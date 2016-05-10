@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.1.9 (TBD)
 
-* TBD
+* GeoPackage 1.1.0 spec updates
+* geopackage-core version updated to 1.1.8
+* GeoPackage Connection column exists and query single result method implementations
+* Use updated projection calls by passing Spatial Reference Systems
 
 ## [1.1.8](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.8) (04-18-2016)
 

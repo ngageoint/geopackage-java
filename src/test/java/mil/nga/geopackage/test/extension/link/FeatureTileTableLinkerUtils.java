@@ -8,7 +8,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.Extensions;
-import mil.nga.geopackage.extension.NGAExtensions;
+import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.link.FeatureTileLink;
 import mil.nga.geopackage.extension.link.FeatureTileLinkDao;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
@@ -137,7 +137,7 @@ public class FeatureTileTableLinkerUtils {
 			TestCase.assertNotNull(linker.getExtension());
 
 			// Test deleting all NGA extensions
-			NGAExtensions.deleteExtensions(geoPackage);
+			GeoPackageExtensions.deleteExtensions(geoPackage);
 
 			TestCase.assertFalse(dao.isTableExists());
 			TestCase.assertNull(linker.getExtension());

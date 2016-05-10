@@ -8,6 +8,7 @@ import java.io.IOException;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
@@ -165,9 +166,8 @@ public class TileDraw {
 		TileMatrix tileMatrix = tileDao.getTileMatrix(z);
 
 		// Get the projection of the tile matrix set
-		long epsg = tileDao.getTileMatrixSet().getSrs()
-				.getOrganizationCoordsysId();
-		Projection projection = ProjectionFactory.getProjection(epsg);
+		SpatialReferenceSystem srs = tileDao.getTileMatrixSet().getSrs();
+		Projection projection = ProjectionFactory.getProjection(srs);
 
 		// Get the transformation to web mercator
 		Projection webMercator = ProjectionFactory

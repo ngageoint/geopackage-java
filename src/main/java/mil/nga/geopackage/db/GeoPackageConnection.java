@@ -23,6 +23,11 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 			.getLogger(GeoPackageConnection.class.getName());
 
 	/**
+	 * Name column
+	 */
+	private static final String NAME_COLUMN = "name";
+
+	/**
 	 * GeoPackage file
 	 */
 	private final File file;
@@ -118,6 +123,47 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 			log.log(Level.WARNING, "Failed to close GeoPackage connection to: "
 					+ file.getAbsolutePath(), e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean columnExists(String tableName, String columnName) {
+
+		boolean exists = false;
+
+		ResultSet result = query("PRAGMA table_info(" + tableName + ")", null);
+		try {
+			while (result.next()) {
+				String name = result.getString(NAME_COLUMN);
+				if (columnName.equals(name)) {
+					exists = true;
+					break;
+				}
+			}
+		} catch (SQLException e) {
+			log.log(Level.WARNING, "Failed to search table info: " + tableName
+					+ ", looking for column: " + columnName, e);
+		} finally {
+			try {
+				result.close();
+			} catch (SQLException e) {
+				log.log(Level.WARNING,
+						"Failed to close result set to table info: "
+								+ tableName, e);
+			}
+		}
+
+		return exists;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String querySingleStringResult(String sql, String[] args) {
+		return SQLUtils.querySingleStringResult(connection, sql, args);
 	}
 
 	/**

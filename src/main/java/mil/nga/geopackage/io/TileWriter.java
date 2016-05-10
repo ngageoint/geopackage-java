@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
@@ -403,9 +404,8 @@ public class TileWriter {
 		int tileCount = 0;
 
 		// Get the projection of the tile matrix set
-		long epsg = tileDao.getTileMatrixSet().getSrs()
-				.getOrganizationCoordsysId();
-		Projection projection = ProjectionFactory.getProjection(epsg);
+		SpatialReferenceSystem srs = tileDao.getTileMatrixSet().getSrs();
+		Projection projection = ProjectionFactory.getProjection(srs);
 
 		// Get the transformation to web mercator
 		Projection webMercator = ProjectionFactory
