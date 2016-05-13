@@ -272,8 +272,7 @@ public class TileDraw {
 
 							// Get the bounding box of the tile
 							BoundingBox tileWebMercatorBoundingBox = TileBoundingBoxUtils
-									.getWebMercatorBoundingBox(
-											setWebMercatorBoundingBox,
+									.getBoundingBox(setWebMercatorBoundingBox,
 											tileMatrix,
 											tileRow.getTileColumn(),
 											tileRow.getTileRow());
@@ -394,8 +393,7 @@ public class TileDraw {
 
 							// Get the bounding box of the tile
 							BoundingBox tileWebMercatorBoundingBox = TileBoundingBoxUtils
-									.getWebMercatorBoundingBox(
-											setWebMercatorBoundingBox,
+									.getBoundingBox(setWebMercatorBoundingBox,
 											tileMatrix,
 											tileRow.getTileColumn(),
 											tileRow.getTileRow());

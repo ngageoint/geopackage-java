@@ -146,7 +146,7 @@ public class TileDao extends
 			TileGrid tileGrid = queryForTileGrid(zoomLevel);
 			if (tileGrid != null) {
 				BoundingBox matrixSetBoundingBox = getBoundingBox();
-				boundingBox = TileBoundingBoxUtils.getWebMercatorBoundingBox(
+				boundingBox = TileBoundingBoxUtils.getBoundingBox(
 						matrixSetBoundingBox, tileMatrix, tileGrid);
 			}
 
@@ -166,8 +166,8 @@ public class TileDao extends
 		TileGrid tileGrid = null;
 		TileMatrix tileMatrix = getTileMatrix(zoomLevel);
 		if (tileMatrix != null) {
-			tileGrid = new TileGrid(0, tileMatrix.getMatrixWidth()-1, 0,
-					tileMatrix.getMatrixHeight()-1);
+			tileGrid = new TileGrid(0, tileMatrix.getMatrixWidth() - 1, 0,
+					tileMatrix.getMatrixHeight() - 1);
 		}
 		return tileGrid;
 	}
@@ -395,14 +395,14 @@ public class TileDao extends
 
 		String where = buildWhere(TileTable.COLUMN_ZOOM_LEVEL, zoomLevel);
 		String[] whereArgs = buildWhereArgs(new Object[] { zoomLevel });
-		
+
 		Integer minX = min(TileTable.COLUMN_TILE_COLUMN, where, whereArgs);
 		Integer maxX = max(TileTable.COLUMN_TILE_COLUMN, where, whereArgs);
 		Integer minY = min(TileTable.COLUMN_TILE_ROW, where, whereArgs);
 		Integer maxY = max(TileTable.COLUMN_TILE_ROW, where, whereArgs);
 
 		TileGrid tileGrid = null;
-		if(minX != null && maxX != null && minY != null && maxY != null){
+		if (minX != null && maxX != null && minY != null && maxY != null) {
 			tileGrid = new TileGrid(minX, maxX, minY, maxY);
 		}
 

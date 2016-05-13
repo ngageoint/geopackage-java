@@ -550,8 +550,7 @@ public abstract class TileGenerator {
 		Contents contents = tileMatrixSet.getContents();
 
 		ProjectionTransform transformContentsToWgs84 = ProjectionFactory
-				.getProjection(contents.getSrs())
-				.getTransformation(
+				.getProjection(contents.getSrs()).getTransformation(
 						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
 		// Combine the existing content and request bounding boxes
@@ -565,8 +564,7 @@ public abstract class TileGenerator {
 			ProjectionTransform transformContentsToProjection = ProjectionFactory
 					.getProjection(
 							ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-					.getTransformation(
-							contents.getSrs());
+					.getTransformation(contents.getSrs());
 			contents.setBoundingBox(transformContentsToProjection
 					.transform(boundingBox));
 			ContentsDao contentsDao = geoPackage.getContentsDao();
@@ -578,9 +576,7 @@ public abstract class TileGenerator {
 		if (!googleTiles) {
 
 			ProjectionTransform transformTileMatrixSetToWgs84 = ProjectionFactory
-					.getProjection(
-							tileMatrixSet.getSrs())
-					.getTransformation(
+					.getProjection(tileMatrixSet.getSrs()).getTransformation(
 							ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 			BoundingBox previousTileMatrixSetBoundingBox = transformTileMatrixSetToWgs84
 					.transform(tileMatrixSet.getBoundingBox());
@@ -598,8 +594,7 @@ public abstract class TileGenerator {
 				ProjectionTransform transformTileMatrixSetToProjection = ProjectionFactory
 						.getProjection(
 								ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-						.getTransformation(
-								tileMatrixSet.getSrs());
+						.getTransformation(tileMatrixSet.getSrs());
 				tileMatrixSet.setBoundingBox(transformTileMatrixSetToProjection
 						.transform(tileMatrixSetBoundingBox));
 				TileMatrixSetDao tileMatrixSetDao = geoPackage
@@ -644,7 +639,7 @@ public abstract class TileGenerator {
 
 							// Get the bounding box of the existing tile
 							BoundingBox tileBoundingBox = TileBoundingBoxUtils
-									.getWebMercatorBoundingBox(
+									.getBoundingBox(
 											previousTileMatrixSetWebMercatorBoundingBox,
 											tileMatrix,
 											tileRow.getTileColumn(),

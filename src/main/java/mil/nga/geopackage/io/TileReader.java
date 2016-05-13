@@ -669,9 +669,8 @@ public class TileReader {
 
 					// Determine the bounding box of this column and row
 					BoundingBox tileMatrixBoundingBox = TileBoundingBoxUtils
-							.getWebMercatorBoundingBox(
-									totalWebMercatorBoundingBox, matrixWidth,
-									matrixHeight, column, row);
+							.getBoundingBox(totalWebMercatorBoundingBox,
+									matrixWidth, matrixHeight, column, row);
 
 					// Get the x and y tile grid of the bounding box at the zoom
 					// level
