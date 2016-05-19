@@ -43,6 +43,17 @@ public class ImageRectangle {
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param rectangle
+	 * @since 1.2.0
+	 */
+	public ImageRectangle(ImageRectangle rectangle) {
+		this(rectangle.getLeft(), rectangle.getTop(), rectangle.getRight(),
+				rectangle.getBottom());
+	}
+
+	/**
 	 * Get the left
 	 * 
 	 * @return

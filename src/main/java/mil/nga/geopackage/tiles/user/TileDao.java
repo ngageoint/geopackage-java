@@ -56,12 +56,12 @@ public class TileDao extends
 	private final long maxZoom;
 
 	/**
-	 * Array of widths of the tiles at each zoom level in meters
+	 * Array of widths of the tiles at each zoom level in default units
 	 */
 	private final double[] widths;
 
 	/**
-	 * Array of heights of the tiles at each zoom level in meters
+	 * Array of heights of the tiles at each zoom level in default units
 	 */
 	private final double[] heights;
 
@@ -102,12 +102,10 @@ public class TileDao extends
 		for (int i = 0; i < tileMatrices.size(); i++) {
 			TileMatrix tileMatrix = tileMatrices.get(i);
 			zoomLevelToTileMatrix.put(tileMatrix.getZoomLevel(), tileMatrix);
-			widths[tileMatrices.size() - i - 1] = projection
-					.toMeters(tileMatrix.getPixelXSize()
-							* tileMatrix.getTileWidth());
-			heights[tileMatrices.size() - i - 1] = projection
-					.toMeters(tileMatrix.getPixelYSize()
-							* tileMatrix.getTileHeight());
+			widths[tileMatrices.size() - i - 1] = tileMatrix.getPixelXSize()
+					* tileMatrix.getTileWidth();
+			heights[tileMatrices.size() - i - 1] = tileMatrix.getPixelYSize()
+					* tileMatrix.getTileHeight();
 		}
 
 		if (tileMatrixSet.getContents() == null) {
@@ -330,7 +328,7 @@ public class TileDao extends
 	 * Get the zoom level for the provided width and height in the default units
 	 * 
 	 * @param length
-	 *            in meters
+	 *            in default units
 	 * @return
 	 */
 	public Long getZoomLevel(double length) {
@@ -338,6 +336,26 @@ public class TileDao extends
 		Long zoomLevel = TileDaoUtils.getZoomLevel(widths, heights,
 				tileMatrices, length);
 		return zoomLevel;
+	}
+
+	/**
+	 * Get the max length in default units that contains tiles
+	 * 
+	 * @return max distance length with tiles
+	 * @since 1.2.0
+	 */
+	public double getMaxLength() {
+		return TileDaoUtils.getMaxLength(widths, heights);
+	}
+
+	/**
+	 * Get the min length in default units that contains tiles
+	 * 
+	 * @return min distance length with tiles
+	 * @since 1.2.0
+	 */
+	public double getMinLength() {
+		return TileDaoUtils.getMinLength(widths, heights);
 	}
 
 	/**

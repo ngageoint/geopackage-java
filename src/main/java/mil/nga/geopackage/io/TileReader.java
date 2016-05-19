@@ -29,7 +29,6 @@ import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.ImageRectangle;
-import mil.nga.geopackage.tiles.ImageRectangleF;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxJavaUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
@@ -728,7 +727,7 @@ public class TileReader {
 										}
 
 										// Get the rectangle of the source image
-										ImageRectangleF src = TileBoundingBoxJavaUtils
+										ImageRectangle src = TileBoundingBoxJavaUtils
 												.getRectangle(tileWidth,
 														tileHeight,
 														imageBoundingBox,
@@ -736,7 +735,7 @@ public class TileReader {
 
 										// Get the rectangle of where to draw
 										// the tile in the resulting image
-										ImageRectangleF dest = TileBoundingBoxJavaUtils
+										ImageRectangle dest = TileBoundingBoxJavaUtils
 												.getRectangle(tileWidth,
 														tileHeight,
 														tileMatrixBoundingBox,
@@ -744,11 +743,7 @@ public class TileReader {
 
 										// Round the rectangles and make sure
 										// the bounds are valid
-										ImageRectangle srcRounded = src.round();
-										ImageRectangle destRounded = dest
-												.round();
-										if (srcRounded.isValid()
-												&& destRounded.isValid()) {
+										if (src.isValid() && dest.isValid()) {
 
 											// Save off raw bytes
 											if (rawImage) {
@@ -757,8 +752,7 @@ public class TileReader {
 												// found and it lines up
 												// perfectly
 												if (rawImageBytes != null
-														|| !srcRounded
-																.equals(destRounded)) {
+														|| !src.equals(dest)) {
 													throw new GeoPackageException(
 															"Raw image only supported when the images are aligned with the tile format requiring no combining and cropping");
 												}
@@ -786,17 +780,15 @@ public class TileReader {
 												}
 
 												// Draw the tile to the image
-												graphics.drawImage(
-														zxyImage,
-														destRounded.getLeft(),
-														destRounded.getTop(),
-														destRounded.getRight(),
-														destRounded.getBottom(),
-														srcRounded.getLeft(),
-														srcRounded.getTop(),
-														srcRounded.getRight(),
-														srcRounded.getBottom(),
-														null);
+												graphics.drawImage(zxyImage,
+														dest.getLeft(),
+														dest.getTop(),
+														dest.getRight(),
+														dest.getBottom(),
+														src.getLeft(),
+														src.getTop(),
+														src.getRight(),
+														src.getBottom(), null);
 											}
 
 										}
