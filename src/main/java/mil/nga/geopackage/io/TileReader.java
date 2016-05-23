@@ -320,34 +320,10 @@ public class TileReader {
 		TileTable table = new TileTable(tileTable, columns);
 		geoPackage.createTileTable(table);
 
-		// Get SRS values
+		// Get SRS value
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
-		SpatialReferenceSystem srsWgs84 = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		SpatialReferenceSystem srsWebMercator = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WEB_MERCATOR);
-
-		// Get the transformation from the property projection to web mercator
-		Projection projection = ProjectionFactory.getProjection(epsg);
-		Projection webMercator = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-		ProjectionTransform projectionToWebMercator = projection
-				.getTransformation(webMercator);
-
-		// Get the transformation from web mercator to wgs84
-		Projection wgs84Projection = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		ProjectionTransform webMercatorToWgs84 = webMercator
-				.getTransformation(wgs84Projection);
-
-		// Get the Projection, Web Mercator , WGS 84 bounding boxes
-		BoundingBox projectionBoundingBox = new BoundingBox(minX, maxX, minY,
-				maxY);
-		BoundingBox webMercatorBoundingBox = projectionToWebMercator
-				.transform(projectionBoundingBox);
-		BoundingBox wgs84BoundingBox = webMercatorToWgs84
-				.transform(webMercatorBoundingBox);
+		SpatialReferenceSystem srs = srsDao.getOrCreateFromEpsg(epsg);
 
 		// Create the Tile Matrix Set and Tile Matrix tables
 		geoPackage.createTileMatrixSetTable();
@@ -362,11 +338,11 @@ public class TileReader {
 		contents.setIdentifier(tileTable);
 		// contents.setDescription("");
 		contents.setLastChange(new Date());
-		contents.setMinX(wgs84BoundingBox.getMinLongitude());
-		contents.setMinY(wgs84BoundingBox.getMinLatitude());
-		contents.setMaxX(wgs84BoundingBox.getMaxLongitude());
-		contents.setMaxY(wgs84BoundingBox.getMaxLatitude());
-		contents.setSrs(srsWgs84);
+		contents.setMinX(minX);
+		contents.setMinY(minY);
+		contents.setMaxX(maxX);
+		contents.setMaxY(maxY);
+		contents.setSrs(srs);
 
 		// Create the contents
 		contentsDao.create(contents);
@@ -376,11 +352,11 @@ public class TileReader {
 
 		TileMatrixSet tileMatrixSet = new TileMatrixSet();
 		tileMatrixSet.setContents(contents);
-		tileMatrixSet.setSrs(srsWebMercator);
-		tileMatrixSet.setMinX(webMercatorBoundingBox.getMinLongitude());
-		tileMatrixSet.setMinY(webMercatorBoundingBox.getMinLatitude());
-		tileMatrixSet.setMaxX(webMercatorBoundingBox.getMaxLongitude());
-		tileMatrixSet.setMaxY(webMercatorBoundingBox.getMaxLatitude());
+		tileMatrixSet.setSrs(srs);
+		tileMatrixSet.setMinX(minX);
+		tileMatrixSet.setMinY(minY);
+		tileMatrixSet.setMaxX(maxX);
+		tileMatrixSet.setMaxY(maxY);
 		tileMatrixSetDao.create(tileMatrixSet);
 
 		// Create new Tile Matrix and tile table rows by going through each zoom
@@ -492,10 +468,9 @@ public class TileReader {
 			// If tiles were saved for the zoom level, create the tile matrix
 			// row
 			if (zoomCount > 0) {
-				double pixelXSize = TileBoundingBoxUtils.getPixelXSize(
-						webMercatorBoundingBox, matrixWidth, tileWidth);
-				double pixelYSize = TileBoundingBoxUtils.getPixelYSize(
-						webMercatorBoundingBox, matrixHeight, tileHeight);
+
+				double pixelXSize = (maxX - minX) / matrixWidth / tileWidth;
+				double pixelYSize = (maxY - minY) / matrixHeight / tileHeight;
 
 				TileMatrix tileMatrix = new TileMatrix();
 				tileMatrix.setContents(contents);
@@ -583,9 +558,9 @@ public class TileReader {
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
 		SpatialReferenceSystem srsWgs84 = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		SpatialReferenceSystem srsWebMercator = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WEB_MERCATOR);
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WEB_MERCATOR);
 
 		// Get the transformation from web mercator to wgs84
 		Projection wgs84Projection = ProjectionFactory
