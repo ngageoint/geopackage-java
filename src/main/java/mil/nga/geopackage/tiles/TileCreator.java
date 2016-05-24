@@ -100,10 +100,26 @@ public class TileCreator {
 		// Check if the projections have the same from meters value
 		sameProjection = (requestProjection.getUnit().name
 				.equals(tilesProjection.getUnit().name));
+
+		if (imageFormat == null && !sameProjection) {
+			throw new GeoPackageException(
+					"The requested projection must be the same as the stored tiles when requesting raw tiles (no image format specified)");
+		}
 	}
 
 	/**
 	 * Constructor, use the tile tables image width and height as request size
+	 *
+	 * @param tileDao
+	 * @param imageFormat
+	 */
+	public TileCreator(TileDao tileDao, String imageFormat) {
+		this(tileDao, null, null, tileDao.getProjection(), imageFormat);
+	}
+
+	/**
+	 * Constructor, use the tile tables image width and height as request size
+	 * and request as the specified projection
 	 *
 	 * @param tileDao
 	 * @param requestProjection
@@ -119,11 +135,9 @@ public class TileCreator {
 	 * their original size
 	 *
 	 * @param tileDao
-	 * @param requestProjection
-	 * @param imageFormat
 	 */
-	public TileCreator(TileDao tileDao, Projection requestProjection) {
-		this(tileDao, null, null, requestProjection, null);
+	public TileCreator(TileDao tileDao) {
+		this(tileDao, null, null, tileDao.getProjection(), null);
 	}
 
 	/**
@@ -228,7 +242,9 @@ public class TileCreator {
 									requestedTileWidth, requestedTileHeight,
 									requestBoundingBox,
 									transformRequestToTiles, tilesBoundingBox);
-							geoPackageTile.setImage(reprojectTile);
+							geoPackageTile = new GeoPackageTile(
+									requestedTileWidth, requestedTileHeight,
+									reprojectTile);
 						}
 
 						tile = geoPackageTile;
@@ -423,8 +439,8 @@ public class TileCreator {
 		// Draw the new image
 		BufferedImage projectedTileImage = new BufferedImage(
 				requestedTileWidth, requestedTileHeight, tile.getType());
-		projectedTileImage.setRGB(0, 0, requestedTileWidth, requestedTileHeight, projectedPixels, 0,
-				requestedTileWidth);
+		projectedTileImage.setRGB(0, 0, requestedTileWidth,
+				requestedTileHeight, projectedPixels, 0, requestedTileWidth);
 
 		return projectedTileImage;
 	}
