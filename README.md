@@ -19,74 +19,82 @@ The GeoPackage Java library provides the ability to read, create, and edit GeoPa
 
 View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
 
-    // File newGeoPackage = ...;
-    // File existingGeoPackage = ...;
+```java
 
-    // Create a new GeoPackage
-    boolean created = GeoPackageManager.create(newGeoPackage)
+// File newGeoPackage = ...;
+// File existingGeoPackage = ...;
 
-    // Open a GeoPackage
-    GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage)
+// Create a new GeoPackage
+boolean created = GeoPackageManager.create(newGeoPackage)
 
-    // GeoPackage Table DAOs
-    SpatialReferenceSystemDao srsDao = getSpatialReferenceSystemDao();
-    ContentsDao contentsDao = geoPackage.getContentsDao();
-    GeometryColumnsDao geomColumnsDao = geoPackage.getGeometryColumnsDao();
-    TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
-    TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
-    DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
-    DataColumnConstraintsDao dataColumnConstraintsDao = geoPackage.getDataColumnConstraintsDao();
-    MetadataDao metadataDao = geoPackage.getMetadataDao();
-    MetadataReferenceDao metadataReferenceDao = geoPackage.getMetadataReferenceDao();
-    ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
+// Open a GeoPackage
+GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage)
 
-    // Feature and tile tables
-    List<String> features = geoPackage.getFeatureTables();
-    List<String> tiles = geoPackage.getTileTables();
+// GeoPackage Table DAOs
+SpatialReferenceSystemDao srsDao = getSpatialReferenceSystemDao();
+ContentsDao contentsDao = geoPackage.getContentsDao();
+GeometryColumnsDao geomColumnsDao = geoPackage.getGeometryColumnsDao();
+TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
+TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+DataColumnConstraintsDao dataColumnConstraintsDao = geoPackage.getDataColumnConstraintsDao();
+MetadataDao metadataDao = geoPackage.getMetadataDao();
+MetadataReferenceDao metadataReferenceDao = geoPackage.getMetadataReferenceDao();
+ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
 
-    // Query Features
-    FeatureDao featureDao = geoPackage.getFeatureDao(features.get(0));
-    FeatureResultSet featureResultSet = featureDao.queryForAll();
-    try{
-        while(featureResultSet.moveToNext()){
-            FeatureRow featureRow = featureResultSet.getRow();
-            GeoPackageGeometryData geometryData = featureRow.getGeometry();
-            Geometry geometry = geometryData.getGeometry();
-            // ...
-        }
-    }finally{
-        featureResultSet.close();
+// Feature and tile tables
+List<String> features = geoPackage.getFeatureTables();
+List<String> tiles = geoPackage.getTileTables();
+
+// Query Features
+FeatureDao featureDao = geoPackage.getFeatureDao(features.get(0));
+FeatureResultSet featureResultSet = featureDao.queryForAll();
+try{
+    while(featureResultSet.moveToNext()){
+        FeatureRow featureRow = featureResultSet.getRow();
+        GeoPackageGeometryData geometryData = featureRow.getGeometry();
+        Geometry geometry = geometryData.getGeometry();
+        // ...
     }
+}finally{
+    featureResultSet.close();
+}
 
-    // Query Tiles
-    TileDao tileDao = geoPackage.getTileDao(tiles.get(0));
-    TileResultSet tileResultSet = tileDao.queryForAll();
-    try{
-        while(tileResultSet.moveToNext()){
-            TileRow tileRow = tileResultSet.getRow();
-            byte[] tileBytes = tileRow.getTileData();
-            // ...
-        }
-    }finally{
-        tileResultSet.close();
+// Query Tiles
+TileDao tileDao = geoPackage.getTileDao(tiles.get(0));
+TileResultSet tileResultSet = tileDao.queryForAll();
+try{
+    while(tileResultSet.moveToNext()){
+        TileRow tileRow = tileResultSet.getRow();
+        byte[] tileBytes = tileRow.getTileData();
+        // ...
     }
+}finally{
+    tileResultSet.close();
+}
 
-    // Index Features
-    FeatureTableIndex indexer = new FeatureTableIndex(geoPackage, featureDao);
-    int indexedCount = indexer.index();
+// Index Features
+FeatureTableIndex indexer = new FeatureTableIndex(geoPackage, featureDao);
+int indexedCount = indexer.index();
 
-    // Close database when done
-    geoPackage.close();
+// Close database when done
+geoPackage.close();
+
+```
 
 ### Installation ###
 
 Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.1.9|jar) (JAR, POM, Source, Javadoc)
 
-    <dependency>
-        <groupId>mil.nga.geopackage</groupId>
-        <artifactId>geopackage</artifactId>
-        <version>1.1.9</version>
-    </dependency>
+```xml
+
+<dependency>
+    <groupId>mil.nga.geopackage</groupId>
+    <artifactId>geopackage</artifactId>
+    <version>1.1.9</version>
+</dependency>
+
+```
 
 ### Build ###
 
