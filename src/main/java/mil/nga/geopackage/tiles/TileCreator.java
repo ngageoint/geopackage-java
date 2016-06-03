@@ -28,47 +28,47 @@ public class TileCreator {
 	/**
 	 * Tile DAO
 	 */
-	public final TileDao tileDao;
+	private final TileDao tileDao;
 
 	/**
 	 * Tile width
 	 */
-	public final Integer width;
+	private final Integer width;
 
 	/**
 	 * Tile height
 	 */
-	public final Integer height;
+	private final Integer height;
 
 	/**
 	 * Tile Matrix Set
 	 */
-	public final TileMatrixSet tileMatrixSet;
+	private final TileMatrixSet tileMatrixSet;
 
 	/**
 	 * Projection of the requests
 	 */
-	public final Projection requestProjection;
+	private final Projection requestProjection;
 
 	/**
 	 * Projection of the tiles
 	 */
-	public final Projection tilesProjection;
+	private final Projection tilesProjection;
 
 	/**
 	 * Tile Set bounding box
 	 */
-	public final BoundingBox tileSetBoundingBox;
+	private final BoundingBox tileSetBoundingBox;
 
 	/**
-	 * Flag indicating
+	 * Flag indicating the the tile and request projections are the same
 	 */
-	public final boolean sameProjection;
+	private final boolean sameProjection;
 
 	/**
 	 * Image format
 	 */
-	public final String imageFormat;
+	private final String imageFormat;
 
 	/**
 	 * Constructor
@@ -97,7 +97,7 @@ public class TileCreator {
 				.getTileMatrixSet().getSrs());
 		tileSetBoundingBox = tileMatrixSet.getBoundingBox();
 
-		// Check if the projections have the same from meters value
+		// Check if the projections have the same units
 		sameProjection = (requestProjection.getUnit().name
 				.equals(tilesProjection.getUnit().name));
 
@@ -138,6 +138,87 @@ public class TileCreator {
 	 */
 	public TileCreator(TileDao tileDao) {
 		this(tileDao, null, null, tileDao.getProjection(), null);
+	}
+
+	/**
+	 * Get the tile dao
+	 * 
+	 * @return tile dao
+	 */
+	public TileDao getTileDao() {
+		return tileDao;
+	}
+
+	/**
+	 * Get the requested tile width
+	 * 
+	 * @return width
+	 */
+	public Integer getWidth() {
+		return width;
+	}
+
+	/**
+	 * Get the requested tile height
+	 * 
+	 * @return height
+	 */
+	public Integer getHeight() {
+		return height;
+	}
+
+	/**
+	 * Get the tile matrix set
+	 * 
+	 * @return tile matrix set
+	 */
+	public TileMatrixSet getTileMatrixSet() {
+		return tileMatrixSet;
+	}
+
+	/**
+	 * Get the request projection
+	 * 
+	 * @return request projection
+	 */
+	public Projection getRequestProjection() {
+		return requestProjection;
+	}
+
+	/**
+	 * Get the tiles projection
+	 * 
+	 * @return tiles projection
+	 */
+	public Projection getTilesProjection() {
+		return tilesProjection;
+	}
+
+	/**
+	 * Get the tile set bounding box
+	 * 
+	 * @return tile set bounding box
+	 */
+	public BoundingBox getTileSetBoundingBox() {
+		return tileSetBoundingBox;
+	}
+
+	/**
+	 * Is the request and tile projection the same
+	 * 
+	 * @return true if the same
+	 */
+	public boolean isSameProjection() {
+		return sameProjection;
+	}
+
+	/**
+	 * Get the requested image format
+	 * 
+	 * @return image format
+	 */
+	public String getImageFormat() {
+		return imageFormat;
 	}
 
 	/**
