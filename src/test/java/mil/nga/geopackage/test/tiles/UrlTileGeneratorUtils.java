@@ -29,7 +29,7 @@ import mil.nga.wkb.geom.Point;
 public class UrlTileGeneratorUtils {
 
 	private static final String TABLE_NAME = "generate_test";
-	private static final String URL = "http://osm.geointapps.org/osm/{z}/{x}/{y}.png";
+	private static final String URL = "http://osm.geointservices.io/osm_tiles/{z}/{x}/{y}.png";
 
 	/**
 	 * Test generating tiles
