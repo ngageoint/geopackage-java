@@ -18,7 +18,10 @@ import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.Projection;
+import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
+import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTilePointIcon;
@@ -754,9 +757,38 @@ public class FeatureTileGen {
 		// Calculate the tile overlap with the new settings
 		featureTiles.calculateDrawOverlap();
 
+		// Default the EPSG
+		if (epsg == null) {
+			epsg = new Long(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		}
+
+		// Set the projection and default bounding box as needed
+		Projection projection = null;
+		if (boundingBox != null) {
+			projection = ProjectionFactory.getProjection(epsg);
+		} else {
+			boundingBox = new BoundingBox();
+			projection = ProjectionFactory
+					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		}
+
+		// Bound WGS84 tiles to Web Mercator limits
+		if (projection.getEpsg() == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+			boundingBox = TileBoundingBoxUtils
+					.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+		}
+
+		// Transform to a Web Mercator bounding box
+		Projection webMercatorProjection = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+		ProjectionTransform transform = projection
+				.getTransformation(webMercatorProjection);
+		BoundingBox webMercatorBoundingBox = transform.transform(boundingBox);
+
 		// Create the tile generator
 		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(
-				tileGeoPackage, tileTable, featureTiles, minZoom, maxZoom);
+				tileGeoPackage, tileTable, featureTiles, minZoom, maxZoom,
+				webMercatorBoundingBox, webMercatorProjection);
 
 		if (compressFormat != null) {
 			tileGenerator.setCompressFormat(compressFormat);
@@ -767,14 +799,6 @@ public class FeatureTileGen {
 
 		if (googleTiles) {
 			tileGenerator.setGoogleTiles(true);
-		}
-
-		if (boundingBox != null) {
-			Projection projection = null;
-			if (epsg != null) {
-				projection = ProjectionFactory.getProjection(epsg);
-			}
-			tileGenerator.setTileBoundingBox(boundingBox, projection);
 		}
 
 		int count = tileGenerator.getTileCount();
@@ -863,7 +887,7 @@ public class FeatureTileGen {
 		} catch (IOException | SQLException e) {
 			throw new GeoPackageException("Exception while generating tiles", e);
 		}
-		
+
 		finish();
 	}
 

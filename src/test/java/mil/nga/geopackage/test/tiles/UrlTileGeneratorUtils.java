@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.test.TestUtils;
@@ -42,7 +43,7 @@ public class UrlTileGeneratorUtils {
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				TABLE_NAME, URL, 1, 2);
+				TABLE_NAME, URL, 1, 2, getBoundingBox(), getProjection());
 
 		testGenerateTiles(tileGenerator);
 	}
@@ -58,7 +59,7 @@ public class UrlTileGeneratorUtils {
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				TABLE_NAME, URL, 2, 3);
+				TABLE_NAME, URL, 2, 3, getBoundingBox(), getProjection());
 		tileGenerator.setCompressFormat("jpeg");
 
 		testGenerateTiles(tileGenerator);
@@ -75,7 +76,7 @@ public class UrlTileGeneratorUtils {
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				TABLE_NAME, URL, 0, 1);
+				TABLE_NAME, URL, 0, 1, getBoundingBox(), getProjection());
 		tileGenerator.setCompressFormat("jpeg");
 		tileGenerator.setCompressQuality(.7f);
 
@@ -93,7 +94,7 @@ public class UrlTileGeneratorUtils {
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				TABLE_NAME, URL, 1, 3);
+				TABLE_NAME, URL, 1, 3, getBoundingBox(), getProjection());
 		tileGenerator.setGoogleTiles(true);
 
 		testGenerateTiles(tileGenerator);
@@ -110,8 +111,8 @@ public class UrlTileGeneratorUtils {
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				TABLE_NAME, URL, 1, 2);
-		tileGenerator.setTileBoundingBox(new BoundingBox(-10, 10, -10, 10));
+				TABLE_NAME, URL, 1, 2, new BoundingBox(-10, 10, -10, 10),
+				getProjection());
 
 		testGenerateTiles(tileGenerator);
 	}
@@ -127,9 +128,9 @@ public class UrlTileGeneratorUtils {
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				TABLE_NAME, URL, 1, 2);
+				TABLE_NAME, URL, 1, 2, new BoundingBox(-10, 10, -10, 10),
+				getProjection());
 		tileGenerator.setGoogleTiles(true);
-		tileGenerator.setTileBoundingBox(new BoundingBox(-10, 10, -10, 10));
 
 		testGenerateTiles(tileGenerator);
 	}
@@ -148,15 +149,15 @@ public class UrlTileGeneratorUtils {
 
 			int minZoom = (int) (Math.random() * 3.0);
 			int maxZoom = minZoom + ((int) (Math.random() * 3.0));
-			UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-					TABLE_NAME + i, URL, minZoom, maxZoom);
 			Point point1 = TestUtils.createPoint(false, false);
 			Point point2 = TestUtils.createPoint(false, false);
 			BoundingBox boundingBox = new BoundingBox(Math.min(point1.getX(),
 					point2.getX()), Math.max(point1.getX(), point2.getX()),
 					Math.min(point1.getY(), point2.getY()), Math.max(
 							point1.getY(), point2.getY()));
-			tileGenerator.setTileBoundingBox(boundingBox);
+			UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
+					TABLE_NAME + i, URL, minZoom, maxZoom, boundingBox,
+					getProjection());
 
 			testGenerateTiles(tileGenerator);
 		}
@@ -173,12 +174,33 @@ public class UrlTileGeneratorUtils {
 			GeoPackage geoPackage) throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				TABLE_NAME, URL, 0, 1);
+				TABLE_NAME, URL, 0, 1, getBoundingBox(), getProjection());
 		tileGenerator.setCompressFormat("png");
 		tileGenerator.setCompressQuality(.7f);
 
 		int count = tileGenerator.generateTiles();
 		TestCase.assertEquals(0, count);
+	}
+
+	private static BoundingBox getBoundingBox() {
+		BoundingBox boundingBox = new BoundingBox();
+		boundingBox = getBoundingBox(boundingBox);
+		return boundingBox;
+	}
+
+	private static BoundingBox getBoundingBox(BoundingBox boundingBox) {
+		boundingBox = TileBoundingBoxUtils
+				.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+		boundingBox = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR)
+				.transform(boundingBox);
+		return boundingBox;
+	}
+
+	private static Projection getProjection() {
+		return ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
 	}
 
 	/**
@@ -195,13 +217,11 @@ public class UrlTileGeneratorUtils {
 		String tableName = tileGenerator.getTableName();
 		int minZoom = tileGenerator.getMinZoom();
 		int maxZoom = tileGenerator.getMaxZoom();
-		BoundingBox webMercatorBoundingBox = tileGenerator
-				.getTileBoundingBox(ProjectionFactory
-						.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR));
+		BoundingBox webMercatorBoundingBox = tileGenerator.getBoundingBox();
 
 		TestGeoPackageProgress progress = new TestGeoPackageProgress();
 		tileGenerator.setProgress(progress);
-		
+
 		int count = tileGenerator.generateTiles();
 
 		long expected = expectedTiles(webMercatorBoundingBox, minZoom, maxZoom);
