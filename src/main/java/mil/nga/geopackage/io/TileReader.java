@@ -29,7 +29,6 @@ import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.ImageRectangle;
-import mil.nga.geopackage.tiles.ImageRectangleF;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxJavaUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
@@ -321,34 +320,10 @@ public class TileReader {
 		TileTable table = new TileTable(tileTable, columns);
 		geoPackage.createTileTable(table);
 
-		// Get SRS values
+		// Get SRS value
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
-		SpatialReferenceSystem srsWgs84 = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		SpatialReferenceSystem srsWebMercator = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WEB_MERCATOR);
-
-		// Get the transformation from the property projection to web mercator
-		Projection projection = ProjectionFactory.getProjection(epsg);
-		Projection webMercator = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-		ProjectionTransform projectionToWebMercator = projection
-				.getTransformation(webMercator);
-
-		// Get the transformation from web mercator to wgs84
-		Projection wgs84Projection = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		ProjectionTransform webMercatorToWgs84 = webMercator
-				.getTransformation(wgs84Projection);
-
-		// Get the Projection, Web Mercator , WGS 84 bounding boxes
-		BoundingBox projectionBoundingBox = new BoundingBox(minX, maxX, minY,
-				maxY);
-		BoundingBox webMercatorBoundingBox = projectionToWebMercator
-				.transform(projectionBoundingBox);
-		BoundingBox wgs84BoundingBox = webMercatorToWgs84
-				.transform(webMercatorBoundingBox);
+		SpatialReferenceSystem srs = srsDao.getOrCreateFromEpsg(epsg);
 
 		// Create the Tile Matrix Set and Tile Matrix tables
 		geoPackage.createTileMatrixSetTable();
@@ -363,11 +338,11 @@ public class TileReader {
 		contents.setIdentifier(tileTable);
 		// contents.setDescription("");
 		contents.setLastChange(new Date());
-		contents.setMinX(wgs84BoundingBox.getMinLongitude());
-		contents.setMinY(wgs84BoundingBox.getMinLatitude());
-		contents.setMaxX(wgs84BoundingBox.getMaxLongitude());
-		contents.setMaxY(wgs84BoundingBox.getMaxLatitude());
-		contents.setSrs(srsWgs84);
+		contents.setMinX(minX);
+		contents.setMinY(minY);
+		contents.setMaxX(maxX);
+		contents.setMaxY(maxY);
+		contents.setSrs(srs);
 
 		// Create the contents
 		contentsDao.create(contents);
@@ -377,11 +352,11 @@ public class TileReader {
 
 		TileMatrixSet tileMatrixSet = new TileMatrixSet();
 		tileMatrixSet.setContents(contents);
-		tileMatrixSet.setSrs(srsWebMercator);
-		tileMatrixSet.setMinX(webMercatorBoundingBox.getMinLongitude());
-		tileMatrixSet.setMinY(webMercatorBoundingBox.getMinLatitude());
-		tileMatrixSet.setMaxX(webMercatorBoundingBox.getMaxLongitude());
-		tileMatrixSet.setMaxY(webMercatorBoundingBox.getMaxLatitude());
+		tileMatrixSet.setSrs(srs);
+		tileMatrixSet.setMinX(minX);
+		tileMatrixSet.setMinY(minY);
+		tileMatrixSet.setMaxX(maxX);
+		tileMatrixSet.setMaxY(maxY);
 		tileMatrixSetDao.create(tileMatrixSet);
 
 		// Create new Tile Matrix and tile table rows by going through each zoom
@@ -493,10 +468,9 @@ public class TileReader {
 			// If tiles were saved for the zoom level, create the tile matrix
 			// row
 			if (zoomCount > 0) {
-				double pixelXSize = TileBoundingBoxUtils.getPixelXSize(
-						webMercatorBoundingBox, matrixWidth, tileWidth);
-				double pixelYSize = TileBoundingBoxUtils.getPixelYSize(
-						webMercatorBoundingBox, matrixHeight, tileHeight);
+
+				double pixelXSize = (maxX - minX) / matrixWidth / tileWidth;
+				double pixelYSize = (maxY - minY) / matrixHeight / tileHeight;
 
 				TileMatrix tileMatrix = new TileMatrix();
 				tileMatrix.setContents(contents);
@@ -584,9 +558,9 @@ public class TileReader {
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
 		SpatialReferenceSystem srsWgs84 = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		SpatialReferenceSystem srsWebMercator = srsDao
-				.getOrCreate(ProjectionConstants.EPSG_WEB_MERCATOR);
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WEB_MERCATOR);
 
 		// Get the transformation from web mercator to wgs84
 		Projection wgs84Projection = ProjectionFactory
@@ -669,9 +643,8 @@ public class TileReader {
 
 					// Determine the bounding box of this column and row
 					BoundingBox tileMatrixBoundingBox = TileBoundingBoxUtils
-							.getWebMercatorBoundingBox(
-									totalWebMercatorBoundingBox, matrixWidth,
-									matrixHeight, column, row);
+							.getBoundingBox(totalWebMercatorBoundingBox,
+									matrixWidth, matrixHeight, column, row);
 
 					// Get the x and y tile grid of the bounding box at the zoom
 					// level
@@ -729,7 +702,7 @@ public class TileReader {
 										}
 
 										// Get the rectangle of the source image
-										ImageRectangleF src = TileBoundingBoxJavaUtils
+										ImageRectangle src = TileBoundingBoxJavaUtils
 												.getRectangle(tileWidth,
 														tileHeight,
 														imageBoundingBox,
@@ -737,7 +710,7 @@ public class TileReader {
 
 										// Get the rectangle of where to draw
 										// the tile in the resulting image
-										ImageRectangleF dest = TileBoundingBoxJavaUtils
+										ImageRectangle dest = TileBoundingBoxJavaUtils
 												.getRectangle(tileWidth,
 														tileHeight,
 														tileMatrixBoundingBox,
@@ -745,11 +718,7 @@ public class TileReader {
 
 										// Round the rectangles and make sure
 										// the bounds are valid
-										ImageRectangle srcRounded = src.round();
-										ImageRectangle destRounded = dest
-												.round();
-										if (srcRounded.isValid()
-												&& destRounded.isValid()) {
+										if (src.isValid() && dest.isValid()) {
 
 											// Save off raw bytes
 											if (rawImage) {
@@ -758,8 +727,7 @@ public class TileReader {
 												// found and it lines up
 												// perfectly
 												if (rawImageBytes != null
-														|| !srcRounded
-																.equals(destRounded)) {
+														|| !src.equals(dest)) {
 													throw new GeoPackageException(
 															"Raw image only supported when the images are aligned with the tile format requiring no combining and cropping");
 												}
@@ -787,17 +755,15 @@ public class TileReader {
 												}
 
 												// Draw the tile to the image
-												graphics.drawImage(
-														zxyImage,
-														destRounded.getLeft(),
-														destRounded.getTop(),
-														destRounded.getRight(),
-														destRounded.getBottom(),
-														srcRounded.getLeft(),
-														srcRounded.getTop(),
-														srcRounded.getRight(),
-														srcRounded.getBottom(),
-														null);
+												graphics.drawImage(zxyImage,
+														dest.getLeft(),
+														dest.getTop(),
+														dest.getRight(),
+														dest.getBottom(),
+														src.getLeft(),
+														src.getTop(),
+														src.getRight(),
+														src.getBottom(), null);
 											}
 
 										}

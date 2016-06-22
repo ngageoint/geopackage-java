@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.projection.ProjectionConstants;
+import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
@@ -134,9 +137,18 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 			featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile());
 		}
 
+		BoundingBox boundingBox = new BoundingBox();
+		boundingBox = TileBoundingBoxUtils
+				.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+		boundingBox = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR)
+				.transform(boundingBox);
 		TileGenerator tileGenerator = new FeatureTileGenerator(geoPackage,
-				"gen_feature_tiles", featureTiles, minZoom, maxZoom);
-		// tileGenerator.setTileBoundingBox(boundingBox);
+				"gen_feature_tiles", featureTiles, minZoom, maxZoom,
+				boundingBox,
+				ProjectionFactory
+						.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR));
 		tileGenerator.setGoogleTiles(false);
 
 		int tiles = tileGenerator.generateTiles();
@@ -149,8 +161,8 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 
 		TestCase.assertEquals(expectedTiles, tiles);
 
-		//TileWriter.writeTiles(geoPackage, "gen_feature_tiles", new File(
-		//		"/Users/osbornb/Documents/generator/tiles"), null, null, true);
+		// TileWriter.writeTiles(geoPackage, "gen_feature_tiles", new File(
+		// "/Users/osbornb/Documents/generator/tiles"), null, null, true);
 
 	}
 

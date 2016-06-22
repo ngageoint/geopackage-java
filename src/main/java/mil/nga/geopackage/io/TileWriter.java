@@ -1,6 +1,7 @@
 package mil.nga.geopackage.io;
 
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,12 +19,12 @@ import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.tiles.GeoPackageTile;
+import mil.nga.geopackage.tiles.GeoPackageTileRetriever;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
-import mil.nga.geopackage.tiles.TileDraw;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
-import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
@@ -63,6 +64,16 @@ public class TileWriter {
 	public static final String ARGUMENT_RAW_IMAGE = "r";
 
 	/**
+	 * Image width argument
+	 */
+	public static final String ARGUMENT_IMAGE_WIDTH = "w";
+
+	/**
+	 * Image height argument
+	 */
+	public static final String ARGUMENT_IMAGE_HEIGHT = "h";
+
+	/**
 	 * Default tile type
 	 */
 	public static final TileFormatType DEFAULT_TILE_TYPE = TileFormatType.STANDARD;
@@ -99,6 +110,8 @@ public class TileWriter {
 		File geoPackageFile = null;
 		String tileTable = null;
 		File outputDirectory = null;
+		Integer width = null;
+		Integer height = null;
 
 		for (int i = 0; valid && i < args.length; i++) {
 
@@ -112,8 +125,17 @@ public class TileWriter {
 				switch (argument) {
 				case ARGUMENT_TILE_TYPE:
 					if (i < args.length) {
-						tileType = TileFormatType.valueOf(args[++i]
-								.toUpperCase());
+						String tiletypeString = args[++i].toUpperCase();
+						try {
+							tileType = TileFormatType.valueOf(tiletypeString);
+						} catch (IllegalArgumentException e) {
+							valid = false;
+							System.out
+									.println("Error: Image Tile Type argument '"
+											+ arg
+											+ "' must be followed by a valid tile format type. Invalid: "
+											+ tiletypeString);
+						}
 					} else {
 						valid = false;
 						System.out
@@ -135,6 +157,50 @@ public class TileWriter {
 
 				case ARGUMENT_RAW_IMAGE:
 					rawImage = true;
+					break;
+
+				case ARGUMENT_IMAGE_WIDTH:
+					if (i < args.length) {
+						String widthString = args[++i];
+						try {
+							width = Integer.valueOf(widthString);
+						} catch (NumberFormatException e) {
+							valid = false;
+							System.out
+									.println("Error: Image Width argument '"
+											+ arg
+											+ "' must be followed by a valid width in pixels. Invalid: "
+											+ widthString);
+						}
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Image Width argument '"
+										+ arg
+										+ "' must be followed by a image width in pixels");
+					}
+					break;
+
+				case ARGUMENT_IMAGE_HEIGHT:
+					if (i < args.length) {
+						String heightString = args[++i];
+						try {
+							height = Integer.valueOf(heightString);
+						} catch (NumberFormatException e) {
+							valid = false;
+							System.out
+									.println("Error: Image Height argument '"
+											+ arg
+											+ "' must be followed by a valid height in pixels. Invalid: "
+											+ heightString);
+						}
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Image Height argument '"
+										+ arg
+										+ "' must be followed by a height width in pixels");
+					}
 					break;
 
 				default:
@@ -165,7 +231,7 @@ public class TileWriter {
 			// Write the tiles
 			try {
 				writeTiles(geoPackageFile, tileTable, outputDirectory,
-						imageFormat, tileType, rawImage);
+						imageFormat, width, height, tileType, rawImage);
 			} catch (Exception e) {
 				printUsage();
 				throw e;
@@ -186,20 +252,25 @@ public class TileWriter {
 	 *            output directory
 	 * @param imageFormat
 	 *            image format
+	 * @param width
+	 *            optional image width
+	 * @param height
+	 *            optional image height
 	 * @param tileType
 	 *            tile type
 	 * @param rawImage
 	 *            use raw image flag
 	 * @throws IOException
+	 * @since 1.2.0
 	 */
 	public static void writeTiles(File geoPackageFile, String tileTable,
-			File directory, String imageFormat, TileFormatType tileType,
-			boolean rawImage) throws IOException {
+			File directory, String imageFormat, Integer width, Integer height,
+			TileFormatType tileType, boolean rawImage) throws IOException {
 
 		GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile);
 		try {
-			writeTiles(geoPackage, tileTable, directory, imageFormat, tileType,
-					rawImage);
+			writeTiles(geoPackage, tileTable, directory, imageFormat, width,
+					height, tileType, rawImage);
 		} finally {
 			geoPackage.close();
 		}
@@ -209,7 +280,7 @@ public class TileWriter {
 	 * Write the tile table tile image set within the GeoPackage file to the
 	 * provided directory
 	 * 
-	 * @param geoPackageFile
+	 * @param geoPackage
 	 *            open GeoPackage
 	 * @param tileTable
 	 *            tile table
@@ -217,15 +288,20 @@ public class TileWriter {
 	 *            output directory
 	 * @param imageFormat
 	 *            image format
+	 * @param width
+	 *            optional image width
+	 * @param height
+	 *            optional image height
 	 * @param tileType
 	 *            tile type
 	 * @param rawImage
 	 *            use raw image flag
 	 * @throws IOException
+	 * @since 1.2.0
 	 */
 	public static void writeTiles(GeoPackage geoPackage, String tileTable,
-			File directory, String imageFormat, TileFormatType tileType,
-			boolean rawImage) throws IOException {
+			File directory, String imageFormat, Integer width, Integer height,
+			TileFormatType tileType, boolean rawImage) throws IOException {
 
 		// Get a tile data access object for the tile table
 		TileDao tileDao = geoPackage.getTileDao(tileTable);
@@ -243,11 +319,61 @@ public class TileWriter {
 		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName()
 				+ ", Tile Table: " + tileTable + ", Output Directory: "
 				+ directory + (rawImage ? ", Raw Images" : "")
-				+ ", Image Format: " + imageFormat + ", Tiles Type: "
-				+ tileType + ", Zoom Range: " + tileDao.getMinZoom() + " - "
+				+ ", Image Format: " + imageFormat + ", Image Width: " + width
+				+ ", Image Height: " + height + ", Tiles Type: " + tileType
+				+ ", Tile Zoom Range: " + tileDao.getMinZoom() + " - "
 				+ tileDao.getMaxZoom());
 
 		int totalCount = 0;
+
+		switch (tileType) {
+
+		case GEOPACKAGE:
+			totalCount = writeGeoPackageFormatTiles(tileDao, directory,
+					imageFormat, width, height, rawImage);
+			break;
+
+		case STANDARD:
+		case TMS:
+			totalCount = writeFormatTiles(tileDao, directory, imageFormat,
+					width, height, tileType, rawImage);
+			break;
+
+		default:
+			throw new UnsupportedOperationException("Tile Type Not Supported: "
+					+ tileType);
+
+		}
+
+		// If GeoPackage format, write a properties file
+		if (tileType == TileFormatType.GEOPACKAGE) {
+			tileDao = geoPackage.getTileDao(tileTable);
+			TileProperties tileProperties = new TileProperties(directory);
+			tileProperties.writeFile(tileDao);
+		}
+
+		LOGGER.log(Level.INFO, "Total Tiles: " + totalCount);
+	}
+
+	/**
+	 * Write GeoPackage formatted tiles
+	 * 
+	 * @param tileDao
+	 * @param zoomLevel
+	 * @param tileMatrix
+	 * @param zDirectory
+	 * @param imageFormat
+	 * @param width
+	 * @param height
+	 * @param rawImage
+	 * @return
+	 * @throws IOException
+	 */
+	private static int writeGeoPackageFormatTiles(TileDao tileDao,
+			File directory, String imageFormat, Integer width, Integer height,
+			boolean rawImage) throws IOException {
+
+		int tileCount = 0;
 
 		// Go through each zoom level
 		for (long zoomLevel = tileDao.getMinZoom(); zoomLevel <= tileDao
@@ -271,116 +397,88 @@ public class TileWriter {
 			File zDirectory = new File(directory, String.valueOf(zoomLevel));
 
 			int zoomCount = 0;
-			switch (tileType) {
 
-			case GEOPACKAGE:
-				zoomCount = writeGeoPackageFormatTiles(tileDao, zoomLevel,
-						tileMatrix, zDirectory, imageFormat, rawImage);
-				break;
+			// Query for all tiles at the zoom level
+			TileResultSet tileResultSet = tileDao.queryForTile(zoomLevel);
 
-			case STANDARD:
-			case TMS:
-				zoomCount = writeFormatTiles(tileDao, zoomLevel, tileMatrix,
-						zDirectory, imageFormat, tileType, rawImage);
-				break;
+			while (tileResultSet.moveToNext()) {
 
-			default:
-				throw new UnsupportedOperationException(
-						"Tile Type Not Supported: " + tileType);
-			}
+				TileRow tileRow = tileResultSet.getRow();
 
-			LOGGER.log(Level.INFO, "Zoom " + zoomLevel + " Tiles: " + zoomCount);
+				if (tileRow != null) {
 
-			totalCount += zoomCount;
-		}
+					// Get the image bytes
+					byte[] tileData = tileRow.getTileData();
 
-		// If GeoPackage format, write a properties file
-		if (tileType == TileFormatType.GEOPACKAGE) {
-			tileDao = geoPackage.getTileDao(tileTable);
-			TileProperties tileProperties = new TileProperties(directory);
-			tileProperties.writeFile(tileDao);
-		}
+					if (tileData != null) {
 
-		LOGGER.log(Level.INFO, "Total Tiles: " + totalCount);
-	}
+						// Make any needed directories for the image
+						File xDirectory = new File(zDirectory,
+								String.valueOf(tileRow.getTileColumn()));
+						xDirectory.mkdirs();
 
-	/**
-	 * Write GeoPackage formatted tiles
-	 * 
-	 * @param tileDao
-	 * @param zoomLevel
-	 * @param tileMatrix
-	 * @param zDirectory
-	 * @param imageFormat
-	 * @param rawImage
-	 * @return
-	 * @throws IOException
-	 */
-	private static int writeGeoPackageFormatTiles(TileDao tileDao,
-			long zoomLevel, TileMatrix tileMatrix, File zDirectory,
-			String imageFormat, boolean rawImage) throws IOException {
+						File imageFile = new File(xDirectory,
+								String.valueOf(tileRow.getTileRow()) + "."
+										+ imageFormat);
 
-		int tileCount = 0;
+						if (rawImage) {
 
-		// Query for all tiles at the zoom level
-		TileResultSet tileResultSet = tileDao.queryForTile(zoomLevel);
+							// Write the raw image bytes to the file
+							FileOutputStream fos = new FileOutputStream(
+									imageFile);
+							fos.write(tileData);
+							fos.close();
 
-		while (tileResultSet.moveToNext()) {
+						} else {
 
-			TileRow tileRow = tileResultSet.getRow();
+							// Read the tile image
+							BufferedImage tileImage = tileRow
+									.getTileDataImage();
 
-			if (tileRow != null) {
+							int tileWidth = width != null ? width : tileImage
+									.getWidth();
+							int tileHeight = height != null ? height
+									: tileImage.getHeight();
 
-				// Get the image bytes
-				byte[] tileData = tileRow.getTileData();
+							Image drawImage = null;
+							if (tileImage.getWidth() != tileWidth
+									|| tileImage.getHeight() != tileHeight) {
+								drawImage = tileImage.getScaledInstance(
+										tileWidth, tileHeight,
+										Image.SCALE_SMOOTH);
+							} else {
+								drawImage = tileImage;
+							}
 
-				if (tileData != null) {
+							// Create the new image in the image format
+							BufferedImage image = ImageUtils
+									.createBufferedImage(tileWidth, tileHeight,
+											imageFormat);
+							Graphics graphics = image.getGraphics();
 
-					// Make any needed directories for the image
-					File xDirectory = new File(zDirectory,
-							String.valueOf(tileRow.getTileColumn()));
-					xDirectory.mkdirs();
+							// Draw the image
+							graphics.drawImage(drawImage, 0, 0, null);
 
-					File imageFile = new File(xDirectory,
-							String.valueOf(tileRow.getTileRow()) + "."
-									+ imageFormat);
+							// Write the image to the file
+							ImageIO.write(image, imageFormat, imageFile);
+						}
 
-					if (rawImage) {
+						zoomCount++;
 
-						// Write the raw image bytes to the file
-						FileOutputStream fos = new FileOutputStream(imageFile);
-						fos.write(tileData);
-						fos.close();
-
-					} else {
-
-						// Read the tile image
-						BufferedImage tileImage = tileRow.getTileDataImage();
-
-						// Create the new image in the image format
-						BufferedImage image = ImageUtils.createBufferedImage(
-								tileImage.getWidth(), tileImage.getHeight(),
-								imageFormat);
-						Graphics graphics = image.getGraphics();
-
-						// Draw the image
-						graphics.drawImage(tileImage, 0, 0, null);
-
-						// Write the image to the file
-						ImageIO.write(image, imageFormat, imageFile);
-					}
-
-					tileCount++;
-
-					if (tileCount % ZOOM_PROGRESS_FREQUENCY == 0) {
-						LOGGER.log(Level.INFO, "Zoom " + zoomLevel
-								+ " Tile Progress... " + tileCount);
+						if (zoomCount % ZOOM_PROGRESS_FREQUENCY == 0) {
+							LOGGER.log(Level.INFO, "Zoom " + zoomLevel
+									+ " Tile Progress... " + zoomCount);
+						}
 					}
 				}
 			}
-		}
-		tileResultSet.close();
+			tileResultSet.close();
 
+			LOGGER.log(Level.INFO, "Zoom " + zoomLevel + " Tiles: " + zoomCount);
+
+			tileCount += zoomCount;
+
+		}
 		return tileCount;
 	}
 
@@ -388,17 +486,17 @@ public class TileWriter {
 	 * Write formatted tiles
 	 * 
 	 * @param tileDao
-	 * @param zoomLevel
-	 * @param tileMatrix
-	 * @param zDirectory
+	 * @param directory
 	 * @param imageFormat
+	 * @param width
+	 * @param height
 	 * @param tileType
 	 * @param rawImage
 	 * @return
 	 * @throws IOException
 	 */
-	private static int writeFormatTiles(TileDao tileDao, long zoomLevel,
-			TileMatrix tileMatrix, File zDirectory, String imageFormat,
+	private static int writeFormatTiles(TileDao tileDao, File directory,
+			String imageFormat, Integer width, Integer height,
 			TileFormatType tileType, boolean rawImage) throws IOException {
 
 		int tileCount = 0;
@@ -413,77 +511,169 @@ public class TileWriter {
 		ProjectionTransform projectionToWebMercator = projection
 				.getTransformation(webMercator);
 
-		// Get the tile matrix set and bounding box
-		TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
-		BoundingBox setProjectionBoundingBox = tileMatrixSet.getBoundingBox();
-		BoundingBox setWebMercatorBoundingBox = projectionToWebMercator
-				.transform(setProjectionBoundingBox);
-
-		// Get the bounding box of actual tiles at the zoom level
-		BoundingBox zoomBoundingBox = tileDao.getBoundingBox(zoomLevel);
+		// Get the bounding box of actual tiles
+		BoundingBox zoomBoundingBox = tileDao.getBoundingBox();
+		if (projection.getEpsg() == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+			zoomBoundingBox = TileBoundingBoxUtils
+					.boundWgs84BoundingBoxWithWebMercatorLimits(zoomBoundingBox);
+		}
 		BoundingBox zoomWebMercatorBoundingBox = projectionToWebMercator
 				.transform(zoomBoundingBox);
 
-		// Determine the tile grid in the world the tiles cover
-		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-				zoomWebMercatorBoundingBox, (int) zoomLevel);
+		GeoPackageTileRetriever retriever = null;
+		if (rawImage) {
+			retriever = new GeoPackageTileRetriever(tileDao);
+		} else {
+			retriever = new GeoPackageTileRetriever(tileDao, width, height,
+					imageFormat);
+		}
 
-		// Go through each tile in the tile grid
-		for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
+		double maxLength = tileDao.getMaxLength();
+		double minLength = tileDao.getMinLength();
 
-			// Build the z/x directory
-			File xDirectory = new File(zDirectory, String.valueOf(x));
+		double upperMax = getLength(
+				new BoundingBox(zoomBoundingBox.getMinLongitude(),
+						zoomBoundingBox.getMinLongitude() + maxLength,
+						zoomBoundingBox.getMaxLatitude() - maxLength,
+						zoomBoundingBox.getMaxLatitude()),
+				projectionToWebMercator);
+		double upperMin = getLength(
+				new BoundingBox(zoomBoundingBox.getMinLongitude(),
+						zoomBoundingBox.getMinLongitude() + minLength,
+						zoomBoundingBox.getMaxLatitude() - minLength,
+						zoomBoundingBox.getMaxLatitude()),
+				projectionToWebMercator);
 
-			for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
+		double lowerMax = getLength(
+				new BoundingBox(zoomBoundingBox.getMinLongitude(),
+						zoomBoundingBox.getMinLongitude() + maxLength,
+						zoomBoundingBox.getMinLatitude(),
+						zoomBoundingBox.getMinLatitude() + maxLength),
+				projectionToWebMercator);
+		double lowerMin = getLength(
+				new BoundingBox(zoomBoundingBox.getMinLongitude(),
+						zoomBoundingBox.getMinLongitude() + minLength,
+						zoomBoundingBox.getMinLatitude(),
+						zoomBoundingBox.getMinLatitude() + minLength),
+				projectionToWebMercator);
 
-				// Get the y file name for the specified format
-				long yFileName = y;
-				if (tileType == TileFormatType.TMS) {
-					yFileName = TileBoundingBoxUtils.getYAsOppositeTileFormat(
-							(int) zoomLevel, (int) y);
-				}
+		double maxWebMercatorLength = Math.max(upperMax, lowerMax);
+		double minWebMercatorLength = Math.min(upperMin, lowerMin);
 
-				File imageFile = new File(xDirectory, String.valueOf(yFileName)
-						+ "." + imageFormat);
+		double minZoom = TileBoundingBoxUtils
+				.zoomLevelOfTileSize(maxWebMercatorLength);
+		double maxZoom = TileBoundingBoxUtils
+				.zoomLevelOfTileSize(minWebMercatorLength);
 
-				TileRow tileRow = null;
-				BufferedImage image = null;
-				if (rawImage) {
-					tileRow = TileDraw.getRawTileRow(tileDao, tileMatrix,
-							setWebMercatorBoundingBox, x, y, zoomLevel);
-				} else {
-					// Create the buffered image
-					image = TileDraw.drawTile(tileDao, tileMatrix, imageFormat,
-							setWebMercatorBoundingBox, x, y, zoomLevel);
-				}
+		int minZoomCeiling = (int) Math.ceil(minZoom);
+		int maxZoomFloor = (int) Math.floor(maxZoom);
 
-				if (tileRow != null || image != null) {
+		LOGGER.log(Level.INFO, tileType + " Zoom Range: " + minZoomCeiling
+				+ " - " + maxZoomFloor);
 
-					// Make any needed directories for the image
-					xDirectory.mkdirs();
+		for (int zoomLevel = minZoomCeiling; zoomLevel <= maxZoomFloor; zoomLevel++) {
 
-					if (rawImage) {
-						// Write the raw image bytes to the file
-						FileOutputStream fos = new FileOutputStream(imageFile);
-						fos.write(tileRow.getTileData());
-						fos.close();
-					} else {
-						// Write the image to the file
-						ImageIO.write(image, imageFormat, imageFile);
+			File zDirectory = new File(directory, String.valueOf(zoomLevel));
+			TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
+					zoomWebMercatorBoundingBox, zoomLevel);
+
+			int zoomCount = 0;
+
+			LOGGER.log(
+					Level.INFO,
+					"Zoom Level: " + zoomLevel + ", Min X: "
+							+ tileGrid.getMinX() + ", Max X: "
+							+ tileGrid.getMaxX() + ", Min Y: "
+							+ tileGrid.getMinY() + ", Max Y: "
+							+ tileGrid.getMaxY() + ", Max Tiles: "
+							+ tileGrid.count());
+
+			for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
+
+				// Build the z/x directory
+				File xDirectory = new File(zDirectory, String.valueOf(x));
+
+				for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
+
+					GeoPackageTile geoPackageTile = retriever.getTile((int) x,
+							(int) y, zoomLevel);
+
+					if (geoPackageTile != null) {
+
+						// Get the y file name for the specified format
+						long yFileName = y;
+						if (tileType == TileFormatType.TMS) {
+							yFileName = TileBoundingBoxUtils
+									.getYAsOppositeTileFormat(zoomLevel,
+											(int) y);
+						}
+
+						File imageFile = new File(xDirectory,
+								String.valueOf(yFileName) + "." + imageFormat);
+
+						// Make any needed directories for the image
+						xDirectory.mkdirs();
+
+						if (geoPackageTile.getImage() != null) {
+							// Write the image to the file
+							ImageIO.write(geoPackageTile.getImage(),
+									imageFormat, imageFile);
+						} else {
+							// Write the raw image bytes to the file
+							FileOutputStream fos = new FileOutputStream(
+									imageFile);
+							fos.write(geoPackageTile.getData());
+							fos.close();
+						}
+
+						zoomCount++;
+
+						if (zoomCount % ZOOM_PROGRESS_FREQUENCY == 0) {
+							LOGGER.log(Level.INFO, "Zoom " + zoomLevel
+									+ " Tile Progress... " + zoomCount);
+						}
 					}
 
-					tileCount++;
-
-					if (tileCount % ZOOM_PROGRESS_FREQUENCY == 0) {
-						LOGGER.log(Level.INFO, "Zoom " + zoomLevel
-								+ " Tile Progress... " + tileCount);
-					}
 				}
-
 			}
+
+			LOGGER.log(Level.INFO, "Zoom " + zoomLevel + " Tiles: " + zoomCount);
+
+			tileCount += zoomCount;
 		}
 
 		return tileCount;
+	}
+
+	/**
+	 * Get the length of the bounding box projected using the transformation
+	 * 
+	 * @param boundingBox
+	 * @param toWebMercatorTransform
+	 * @return length
+	 */
+	private static double getLength(BoundingBox boundingBox,
+			ProjectionTransform toWebMercatorTransform) {
+		BoundingBox transformedBoundingBox = toWebMercatorTransform
+				.transform(boundingBox);
+		return getLength(transformedBoundingBox);
+	}
+
+	/**
+	 * Get the length of the bounding box
+	 * 
+	 * @param boundingBox
+	 * @return length
+	 */
+	private static double getLength(BoundingBox boundingBox) {
+
+		double width = boundingBox.getMaxLongitude()
+				- boundingBox.getMinLongitude();
+		double height = boundingBox.getMaxLatitude()
+				- boundingBox.getMinLatitude();
+		double length = Math.min(width, height);
+
+		return length;
 	}
 
 	/**
@@ -531,6 +721,16 @@ public class TileWriter {
 		System.out
 				.println("\t\tOutput image format: png, jpg, jpeg (default is '"
 						+ DEFAULT_IMAGE_FORMAT + "')");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_WIDTH
+				+ " image_width");
+		System.out
+				.println("\t\tOutput image width in pixels (default is GeoPackage tile width)");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_HEIGHT
+				+ " image_height");
+		System.out
+				.println("\t\tOutput image height in pixels (default is GeoPackage tile height)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_RAW_IMAGE);
 		System.out

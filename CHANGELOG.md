@@ -4,9 +4,17 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.1.10 (TBD)
+## 1.2.0 (TBD)
 
-* TBD
+* Tile Reader (creates a GeoPackage from tile image files) updated to support image reprojections
+* Tile Writer (writes tile image files from a GeoPackage) updated to support image reprojections
+* Tile Writer user specified tile width and height arguments
+* Tile Retriever providing common XYZ tile retrieval functionality
+* Tile Creator providing common tile generation functionality
+* Removal of TileDraw, replaced by Tile Retriever and Tile Creator
+* Tile DAO changed to work with any projection units
+* Tile Generator support for multiple projections, such as WGS84 in addition to Web Mercator
+* URL Tile Generator changed to use provided projection in place of parsing URL
 
 ## [1.1.9](https://github.com/ngageoint/geopackage-java/releases/tag/1.1.9) (05-10-2016)
 

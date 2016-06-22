@@ -11,7 +11,10 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.Projection;
+import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
+import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 
 /**
@@ -75,6 +78,11 @@ public class URLTileGen {
 	 * EPSG argument
 	 */
 	public static final String ARGUMENT_EPSG = "epsg";
+
+	/**
+	 * URL EPSG argument
+	 */
+	public static final String ARGUMENT_URL_EPSG = "uepsg";
 
 	/**
 	 * TMS argument
@@ -141,6 +149,11 @@ public class URLTileGen {
 	 * Bounding Box EPSG
 	 */
 	private static Long epsg = null;
+
+	/**
+	 * URL EPSG
+	 */
+	private static long urlEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
 
 	/**
 	 * TMS URL flag
@@ -247,6 +260,16 @@ public class URLTileGen {
 					}
 					break;
 
+				case ARGUMENT_URL_EPSG:
+					if (i < args.length) {
+						urlEpsg = Long.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: URL EPSG argument '" + arg
+								+ "' must be followed by a value");
+					}
+					break;
+
 				case ARGUMENT_TMS:
 					tms = true;
 					break;
@@ -316,8 +339,35 @@ public class URLTileGen {
 		// Open the GeoPackage
 		geoPackage = GeoPackageManager.open(geoPackageFile);
 
+		// Default the EPSG
+		if (epsg == null) {
+			epsg = new Long(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		}
+
+		// Set the projection and default bounding box as needed
+		Projection bboxProjection = null;
+		if (boundingBox != null) {
+			bboxProjection = ProjectionFactory.getProjection(epsg);
+		} else {
+			boundingBox = new BoundingBox();
+			bboxProjection = ProjectionFactory
+					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		}
+
+		// Bound WGS84 tiles to Web Mercator limits
+		if (bboxProjection.getEpsg() == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+			boundingBox = TileBoundingBoxUtils
+					.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+		}
+
+		// Transform to the URL projection bounding box
+		Projection urlProjection = ProjectionFactory.getProjection(urlEpsg);
+		ProjectionTransform transform = bboxProjection
+				.getTransformation(urlProjection);
+		BoundingBox urlBoundingBox = transform.transform(boundingBox);
+
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				tileTable, url, minZoom, maxZoom);
+				tileTable, url, minZoom, maxZoom, urlBoundingBox, urlProjection);
 
 		if (compressFormat != null) {
 			tileGenerator.setCompressFormat(compressFormat);
@@ -328,14 +378,6 @@ public class URLTileGen {
 
 		if (googleTiles) {
 			tileGenerator.setGoogleTiles(true);
-		}
-
-		if (boundingBox != null) {
-			Projection projection = null;
-			if (epsg != null) {
-				projection = ProjectionFactory.getProjection(epsg);
-			}
-			tileGenerator.setTileBoundingBox(boundingBox, projection);
 		}
 
 		if (tms) {
@@ -367,7 +409,8 @@ public class URLTileGen {
 								+ boundingBox.getMaxLongitude() + ", Max Lat: "
 								+ boundingBox.getMaxLatitude() : "")
 						+ (epsg != null ? ", EPSG: " + epsg : "")
-						+ ", Expected Tile Count: " + count);
+						+ ", URL EPSG: " + urlEpsg + ", Expected Tile Count: "
+						+ count);
 
 		tileGenerator.setProgress(progress);
 
@@ -424,7 +467,9 @@ public class URLTileGen {
 				+ ARGUMENT_PREFIX + ARGUMENT_GOOGLE_TILES + "] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_BOUNDING_BOX
 				+ " minLon,minLat,maxLon,maxLat] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX + ARGUMENT_TMS
+				+ ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_URL_EPSG + " url_epsg] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_TMS
 				+ "] geopackage_file tile_table url min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
@@ -456,6 +501,11 @@ public class URLTileGen {
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_EPSG + " epsg");
 		System.out
 				.println("\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_URL_EPSG
+				+ " url_epsg");
+		System.out
+				.println("\t\tEPSG number of the tiles provided by the URL (default is 3857, Web Mercator");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TMS);
 		System.out
