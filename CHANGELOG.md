@@ -4,6 +4,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## 1.2.1 (TBD)
+
+* TBD
+
 ## [1.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/1.2.0) (06-22-2016)
 
 * Tile Reader (creates a GeoPackage from tile image files) updated to support image reprojections
