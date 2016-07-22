@@ -329,11 +329,26 @@ public class TileDao extends
 	 * 
 	 * @param length
 	 *            in default units
-	 * @return
+	 * @return zoom level
 	 */
 	public Long getZoomLevel(double length) {
 
 		Long zoomLevel = TileDaoUtils.getZoomLevel(widths, heights,
+				tileMatrices, length);
+		return zoomLevel;
+	}
+
+	/**
+	 * Get the closest zoom level for the provided width and height in the
+	 * default units
+	 * 
+	 * @param length
+	 *            in default units
+	 * @return zoom level
+	 */
+	public Long getClosestZoomLevel(double length) {
+
+		Long zoomLevel = TileDaoUtils.getClosestZoomLevel(widths, heights,
 				tileMatrices, length);
 		return zoomLevel;
 	}

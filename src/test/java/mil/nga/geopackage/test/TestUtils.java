@@ -515,6 +515,15 @@ public class TestUtils {
 	}
 
 	/**
+	 * Get the import db elevation tiles file
+	 * 
+	 * @return
+	 */
+	public static File getImportDbElevationTilesFile() {
+		return getTestFile(TestConstants.IMPORT_ELEVATION_TILES_DB_FILE_NAME);
+	}
+
+	/**
 	 * Get the tile file
 	 * 
 	 * @return

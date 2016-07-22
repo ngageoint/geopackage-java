@@ -68,6 +68,17 @@ public class TestConstants {
 			+ "." + TestConstants.GEO_PACKAGE_EXTENSION;
 
 	/**
+	 * Import elevation tiles database name
+	 */
+	public static final String IMPORT_ELEVATION_TILES_DB_NAME = "elevation_tiles2";
+
+	/**
+	 * Import elevation tiles database file name, located in the test assets
+	 */
+	public static final String IMPORT_ELEVATION_TILES_DB_FILE_NAME = IMPORT_ELEVATION_TILES_DB_NAME
+			+ "." + TestConstants.GEO_PACKAGE_EXTENSION;
+
+	/**
 	 * Tile file name extension
 	 */
 	public static final String TILE_FILE_NAME_EXTENSION = "png";
