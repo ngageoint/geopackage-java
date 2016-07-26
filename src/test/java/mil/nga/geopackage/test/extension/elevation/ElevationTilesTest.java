@@ -233,7 +233,7 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 				TestCase.assertEquals(pixelValue, pixelValue2);
 
 				// Test getting the elevation value
-				float elevationValue = elevationTiles.getElevationValue(
+				double elevationValue = elevationTiles.getElevationValue(
 						griddedTile, pixelValue);
 				GriddedCoverage griddedCoverage = elevationTiles
 						.getGriddedCoverage().get(0);
@@ -253,8 +253,8 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 					pixelValues[i]);
 		}
 
+		// Determine an alternate projection
 		BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
-
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
 		long srsId = tileMatrixSet.getSrsId();
@@ -272,19 +272,64 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 				.getProjection(requestEpsg);
 		ProjectionTransform elevationToRequest = projection
 				.getTransformation(requestProjection);
-
 		BoundingBox projectedBoundingBox = elevationToRequest
 				.transform(boundingBox);
 
-		double latitude = (projectedBoundingBox.getMaxLatitude() + projectedBoundingBox
-				.getMinLatitude()) / 2.0;
-		double longitude = (projectedBoundingBox.getMaxLongitude() + projectedBoundingBox
-				.getMinLongitude()) / 2.0;
+		// Get a random coordinate
+		double latitude = (projectedBoundingBox.getMaxLatitude() - projectedBoundingBox
+				.getMinLatitude())
+				* Math.random()
+				+ projectedBoundingBox.getMinLatitude();
+		double longitude = (projectedBoundingBox.getMaxLongitude() - projectedBoundingBox
+				.getMinLongitude())
+				* Math.random()
+				+ projectedBoundingBox.getMinLongitude();
 
+		// Test getting the elevation of a single coordinate
 		ElevationTiles elevationTiles2 = new ElevationTiles(geoPackage,
 				elevationTiles.getTileDao(), requestProjection);
-		Float elevation = elevationTiles2.getElevation(latitude, longitude);
+		Double elevation = elevationTiles2.getElevation(latitude, longitude);
 		TestCase.assertNotNull(elevation);
+
+		// Build a random bounding box
+		double minLatitude = (projectedBoundingBox.getMaxLatitude() - projectedBoundingBox
+				.getMinLatitude())
+				* Math.random()
+				+ projectedBoundingBox.getMinLatitude();
+		double minLongitude = (projectedBoundingBox.getMaxLongitude() - projectedBoundingBox
+				.getMinLongitude())
+				* Math.random()
+				+ projectedBoundingBox.getMinLongitude();
+		double maxLatitude = (projectedBoundingBox.getMaxLatitude() - minLatitude)
+				* Math.random() + minLatitude;
+		double maxLongitude = (projectedBoundingBox.getMaxLongitude() - minLongitude)
+				* Math.random() + minLongitude;
+
+		BoundingBox requestBoundingBox = new BoundingBox(minLongitude,
+				maxLongitude, minLatitude, maxLatitude);
+		Double[][] elevations = elevationTiles2
+				.getElevation(requestBoundingBox);
+		TestCase.assertNotNull(elevations);
+		for (int y = 0; y < elevations.length; y++) {
+			for (int x = 0; x < elevations[y].length; x++) {
+				TestCase.assertNotNull(elevations[y][x]);
+			}
+		}
+
+		int specifiedWidth = 50;
+		int specifiedHeight = 100;
+		elevationTiles2.setWidth(specifiedWidth);
+		elevationTiles2.setHeight(specifiedHeight);
+
+		elevations = elevationTiles2.getElevation(requestBoundingBox);
+		TestCase.assertNotNull(elevations);
+		TestCase.assertEquals(specifiedHeight, elevations.length);
+		TestCase.assertEquals(specifiedWidth, elevations[0].length);
+		for (int y = 0; y < specifiedHeight; y++) {
+			for (int x = 0; x < specifiedWidth; x++) {
+				TestCase.assertNotNull(elevations[y][x]);
+			}
+		}
 
 	}
 

@@ -1,6 +1,7 @@
 package mil.nga.geopackage.extension.elevation;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 
 import mil.nga.geopackage.BoundingBox;
@@ -17,6 +18,8 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
+
+import org.osgeo.proj4j.ProjCoordinate;
 
 /**
  * Tiled Gridded Elevation Data Extension
@@ -60,6 +63,12 @@ public class ElevationTiles extends ElevationTilesCore {
 	 * Flag indicating the elevation and request projections are the same
 	 */
 	private final boolean sameProjection;
+
+	private boolean zoomIn = true;
+
+	private boolean zoomOut = true;
+
+	private boolean zoomInBeforeOut = true;
 
 	/**
 	 * Constructor
@@ -203,6 +212,30 @@ public class ElevationTiles extends ElevationTilesCore {
 		return sameProjection;
 	}
 
+	public boolean isZoomIn() {
+		return zoomIn;
+	}
+
+	public void setZoomIn(boolean zoomIn) {
+		this.zoomIn = zoomIn;
+	}
+
+	public boolean isZoomOut() {
+		return zoomOut;
+	}
+
+	public void setZoomOut(boolean zoomOut) {
+		this.zoomOut = zoomOut;
+	}
+
+	public boolean isZoomInBeforeOut() {
+		return zoomInBeforeOut;
+	}
+
+	public void setZoomInBeforeOut(boolean zoomInBeforeOut) {
+		this.zoomInBeforeOut = zoomInBeforeOut;
+	}
+
 	/**
 	 * Get the elevation at the coordinate
 	 * 
@@ -212,11 +245,10 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            longitude
 	 * @return elevation value
 	 */
-	public Float getElevation(double latitude, double longitude) {
-		BoundingBox requestBoundingBox = new BoundingBox(longitude, longitude,
-				latitude, latitude);
-		Float[][] elevations = getElevation(requestBoundingBox, 1, 1);
-		Float elevation = null;
+	public Double getElevation(double latitude, double longitude) {
+		ElevationRequest request = new ElevationRequest(latitude, longitude);
+		Double[][] elevations = getElevation(request, 1, 1);
+		Double elevation = null;
 		if (elevations != null) {
 			elevation = elevations[0][0];
 		}
@@ -230,9 +262,9 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            request bounding box
 	 * @return elevations
 	 */
-	public Float[][] getElevation(BoundingBox requestBoundingBox) {
-		Float[][] elevations = getElevation(requestBoundingBox, width, height);
-		return elevations;
+	public Double[][] getElevation(BoundingBox requestBoundingBox) {
+		ElevationRequest request = new ElevationRequest(requestBoundingBox);
+		return getElevation(request);
 	}
 
 	/**
@@ -247,67 +279,110 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            elevation request height
 	 * @return elevations
 	 */
-	public Float[][] getElevation(BoundingBox requestBoundingBox,
+	public Double[][] getElevation(BoundingBox requestBoundingBox,
 			Integer width, Integer height) {
+		ElevationRequest request = new ElevationRequest(requestBoundingBox);
+		return getElevation(request, width, height);
+	}
 
-		Float[][] elevations = null;
+	/**
+	 * Get the elevation values within the request
+	 * 
+	 * @param request
+	 *            elevation request
+	 * @return elevations
+	 */
+	public Double[][] getElevation(ElevationRequest request) {
+		Double[][] elevations = getElevation(request, width, height);
+		return elevations;
+	}
+
+	/**
+	 * Get the elevation values within the request with the requested width and
+	 * height
+	 * 
+	 * @param request
+	 *            elevation request
+	 * @param width
+	 *            elevation request width
+	 * @param height
+	 *            elevation request height
+	 * @return elevations
+	 */
+	public Double[][] getElevation(ElevationRequest request, Integer width,
+			Integer height) {
+
+		Double[][] elevations = null;
 
 		// Transform to the projection of the tiles
 		ProjectionTransform transformRequestToElevation = requestProjection
 				.getTransformation(elevationProjection);
-		BoundingBox elevationBoundingBox = transformRequestToElevation
-				.transform(requestBoundingBox);
+		BoundingBox requestProjectedBoundingBox = transformRequestToElevation
+				.transform(request.getBoundingBox());
+		request.setProjectedBoundingBox(requestProjectedBoundingBox);
 
-		TileMatrix tileMatrix = getTileMatrix(elevationBoundingBox);
+		// Try to get the elevation from the current zoom level
+		TileMatrix tileMatrix = getTileMatrix(request);
+		TileMatrixResults results = null;
+		if (tileMatrix != null) {
+			results = getResults(requestProjectedBoundingBox, tileMatrix);
 
-		TileResultSet tileResults = retrieveTileResults(elevationBoundingBox,
-				tileMatrix);
-		if (tileResults != null) {
+			// Try to zoom in or out to find a matching elevation
+			if (results == null) {
+				results = getResultsZoom(requestProjectedBoundingBox,
+						tileMatrix);
+			}
+		}
+
+		if (results != null) {
+
+			tileMatrix = results.tileMatrix;
+			TileResultSet tileResults = results.tileResults;
 
 			try {
 
-				if (tileResults.getCount() > 0) {
+				// Determine the requested tile dimensions, or use the
+				// dimensions of a single tile matrix tile
+				int requestedTileWidth = width != null ? width
+						: (int) tileMatrix.getTileWidth();
+				int requestedTileHeight = height != null ? height
+						: (int) tileMatrix.getTileHeight();
 
-					BoundingBox requestProjectedBoundingBox = transformRequestToElevation
-							.transform(requestBoundingBox);
-
-					// Determine the requested tile dimensions, or use the
-					// dimensions of a single tile matrix tile
-					int requestedTileWidth = width != null ? width
-							: (int) tileMatrix.getTileWidth();
-					int requestedTileHeight = height != null ? height
-							: (int) tileMatrix.getTileHeight();
-
-					// Determine the size of the tile to initially draw
-					int tileWidth = requestedTileWidth;
-					int tileHeight = requestedTileHeight;
-					if (!sameProjection) {
-						tileWidth = (int) Math
-								.round((requestProjectedBoundingBox
-										.getMaxLongitude() - requestProjectedBoundingBox
-										.getMinLongitude())
-										/ tileMatrix.getPixelXSize());
-						tileHeight = (int) Math
-								.round((requestProjectedBoundingBox
-										.getMaxLatitude() - requestProjectedBoundingBox
-										.getMinLatitude())
-										/ tileMatrix.getPixelYSize());
+				// Determine the size of the tile to initially draw
+				int tileWidth = requestedTileWidth;
+				int tileHeight = requestedTileHeight;
+				if (!sameProjection) {
+					int projectedWidth = (int) Math
+							.round((requestProjectedBoundingBox
+									.getMaxLongitude() - requestProjectedBoundingBox
+									.getMinLongitude())
+									/ tileMatrix.getPixelXSize());
+					if (projectedWidth > 0) {
+						tileWidth = projectedWidth;
 					}
-
-					// Draw the resulting bitmap with the matching tiles
-					elevations = getElevation(tileMatrix, tileResults,
-							requestProjectedBoundingBox, tileWidth, tileHeight);
-
-					if (elevations != null) {
-
-						// Project the elevations if needed
-						if (!sameProjection) {
-							// TODO reproject the elevations
-						}
-
+					int projectedHeight = (int) Math
+							.round((requestProjectedBoundingBox
+									.getMaxLatitude() - requestProjectedBoundingBox
+									.getMinLatitude())
+									/ tileMatrix.getPixelYSize());
+					if (projectedHeight > 0) {
+						tileHeight = projectedHeight;
 					}
-
 				}
+
+				// Draw the resulting bitmap with the matching tiles
+				elevations = getElevation(tileMatrix, tileResults, request,
+						tileWidth, tileHeight);
+
+				// Project the elevations if needed
+				if (elevations != null && !sameProjection && !request.isPoint()) {
+					elevations = reprojectElevations(elevations,
+							requestedTileWidth, requestedTileHeight,
+							request.getBoundingBox(),
+							transformRequestToElevation,
+							requestProjectedBoundingBox);
+				}
+
 			} finally {
 				tileResults.close();
 			}
@@ -316,26 +391,104 @@ public class ElevationTiles extends ElevationTilesCore {
 		return elevations;
 	}
 
-	private Float[][] getElevation(TileMatrix tileMatrix,
-			TileResultSet tileResults, BoundingBox requestProjectedBoundingBox,
-			int tileWidth, int tileHeight) {
+	private class TileMatrixResults {
+		TileMatrix tileMatrix;
+		TileResultSet tileResults;
 
-		Float[][] elevations = null;
+		TileMatrixResults(TileMatrix tileMatrix, TileResultSet tileResults) {
+			this.tileMatrix = tileMatrix;
+			this.tileResults = tileResults;
+		}
+	}
+
+	private TileMatrixResults getResults(
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+		TileMatrixResults results = null;
+		TileResultSet tileResults = retrieveTileResults(
+				requestProjectedBoundingBox, tileMatrix);
+		if (tileResults != null) {
+			if (tileResults.getCount() > 0) {
+				results = new TileMatrixResults(tileMatrix, tileResults);
+			} else {
+				tileResults.close();
+			}
+		}
+		return results;
+	}
+
+	private TileMatrixResults getResultsZoom(
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+
+		TileMatrixResults results = null;
+
+		if (zoomIn && zoomInBeforeOut) {
+			results = getResultsZoomIn(requestProjectedBoundingBox, tileMatrix);
+		}
+		if (results == null && zoomOut) {
+			results = getResultsZoomOut(requestProjectedBoundingBox, tileMatrix);
+		}
+		if (results == null && zoomIn && !zoomInBeforeOut) {
+			results = getResultsZoomIn(requestProjectedBoundingBox, tileMatrix);
+		}
+
+		return results;
+	}
+
+	private TileMatrixResults getResultsZoomIn(
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+
+		TileMatrixResults results = null;
+		for (long zoomLevel = tileMatrix.getZoomLevel() + 1; zoomLevel <= tileDao
+				.getMaxZoom(); zoomLevel++) {
+			TileMatrix zoomTileMatrix = tileDao.getTileMatrix(zoomLevel);
+			if (zoomTileMatrix != null) {
+				results = getResults(requestProjectedBoundingBox,
+						zoomTileMatrix);
+				if (results != null) {
+					break;
+				}
+			}
+		}
+		return results;
+	}
+
+	private TileMatrixResults getResultsZoomOut(
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+
+		TileMatrixResults results = null;
+		for (long zoomLevel = tileMatrix.getZoomLevel() - 1; zoomLevel >= tileDao
+				.getMinZoom(); zoomLevel--) {
+			TileMatrix zoomTileMatrix = tileDao.getTileMatrix(zoomLevel);
+			if (zoomTileMatrix != null) {
+				results = getResults(requestProjectedBoundingBox,
+						zoomTileMatrix);
+				if (results != null) {
+					break;
+				}
+			}
+		}
+		return results;
+	}
+
+	private Double[][] getElevation(TileMatrix tileMatrix,
+			TileResultSet tileResults, ElevationRequest request, int tileWidth,
+			int tileHeight) {
+
+		Double[][] elevations = null;
 
 		while (tileResults.moveToNext()) {
 
 			// Get the next tile
 			TileRow tileRow = tileResults.getRow();
 
-			// Get the bounding box of the tile
+			// Get the bounding box of the elevation
 			BoundingBox tileBoundingBox = TileBoundingBoxUtils.getBoundingBox(
 					elevationBoundingBox, tileMatrix, tileRow.getTileColumn(),
 					tileRow.getTileRow());
 
 			// Get the bounding box where the requested image and
 			// tile overlap
-			BoundingBox overlap = TileBoundingBoxUtils.overlap(
-					requestProjectedBoundingBox, tileBoundingBox);
+			BoundingBox overlap = request.overlap(tileBoundingBox);
 
 			// If the tile overlaps with the requested box
 			if (overlap != null) {
@@ -348,28 +501,32 @@ public class ElevationTiles extends ElevationTilesCore {
 				// Get the rectangle of where to draw the tile in
 				// the resulting image
 				ImageRectangle dest = TileBoundingBoxJavaUtils.getRectangle(
-						tileWidth, tileHeight, requestProjectedBoundingBox,
-						overlap);
+						tileWidth, tileHeight,
+						request.getProjectedBoundingBox(), overlap);
 
-				if (src.isValid() && dest.isValid()) {
+				if (src.isValidAllowEmpty() && dest.isValidAllowEmpty()) {
 
 					// Create the elevations array first time through
 					if (elevations == null) {
-						elevations = new Float[tileHeight][tileWidth];
+						elevations = new Double[tileHeight][tileWidth];
 					}
 
-					int destTop = dest.getTop();
-					int destBottom = dest.getBottom();
-					int destLeft = dest.getLeft();
-					int destRight = dest.getRight();
+					int destTop = Math.min(dest.getTop(), tileHeight - 1);
+					int destBottom = Math.min(dest.getBottom(), tileHeight - 1);
+					int destLeft = Math.min(dest.getLeft(), tileWidth - 1);
+					int destRight = Math.min(dest.getRight(), tileWidth - 1);
 
 					int destWidth = destRight - destLeft + 1;
 					int destHeight = destBottom - destTop + 1;
 
-					int srcTop = src.getTop();
-					int srcBottom = src.getBottom();
-					int srcLeft = src.getLeft();
-					int srcRight = src.getRight();
+					int srcTop = Math.min(src.getTop(),
+							(int) tileMatrix.getTileHeight() - 1);
+					int srcBottom = Math.min(src.getBottom(),
+							(int) tileMatrix.getTileHeight() - 1);
+					int srcLeft = Math.min(src.getLeft(),
+							(int) tileMatrix.getTileWidth() - 1);
+					int srcRight = Math.min(src.getRight(),
+							(int) tileMatrix.getTileWidth() - 1);
 
 					int srcWidth = srcRight - srcLeft + 1;
 					int srcHeight = srcBottom - srcTop + 1;
@@ -378,6 +535,15 @@ public class ElevationTiles extends ElevationTilesCore {
 					float heightRatio = srcHeight / destHeight;
 
 					GriddedTile griddedTile = getGriddedTile(tileRow.getId());
+
+					BufferedImage image = null;
+					try {
+						image = tileRow.getTileDataImage();
+					} catch (IOException e) {
+						throw new GeoPackageException(
+								"Failed to get the Tile Row Data Image", e);
+					}
+					WritableRaster raster = image.getRaster();
 
 					for (int y = destTop; y <= destBottom; y++) {
 						for (int x = destLeft; x <= destRight; x++) {
@@ -394,9 +560,8 @@ public class ElevationTiles extends ElevationTilesCore {
 							int ySource = srcTop
 									+ (int) Math.floor(ySourcePixel);
 
-							float elevation = getElevationValue(griddedTile,
-									tileRow, xSource, ySource);
-
+							double elevation = getElevationValue(griddedTile,
+									raster, xSource, ySource);
 							elevations[y][x] = elevation;
 						}
 					}
@@ -409,6 +574,83 @@ public class ElevationTiles extends ElevationTilesCore {
 	}
 
 	/**
+	 * Reproject the elevations to the requested projection
+	 *
+	 * @param elevations
+	 *            elevations
+	 * @param requestedTileWidth
+	 *            requested tile width
+	 * @param requestedTileHeight
+	 *            requested tile height
+	 * @param requestBoundingBox
+	 *            request bounding box in the request projection
+	 * @param transformRequestToElevation
+	 *            transformation from request to elevations
+	 * @param elevationBoundingBox
+	 *            elevations bounding box
+	 * @return projected elevations
+	 */
+	private Double[][] reprojectElevations(Double[][] elevations,
+			int requestedTileWidth, int requestedTileHeight,
+			BoundingBox requestBoundingBox,
+			ProjectionTransform transformRequestToElevation,
+			BoundingBox elevationBoundingBox) {
+
+		final double requestedWidthUnitsPerPixel = (requestBoundingBox
+				.getMaxLongitude() - requestBoundingBox.getMinLongitude())
+				/ requestedTileWidth;
+		final double requestedHeightUnitsPerPixel = (requestBoundingBox
+				.getMaxLatitude() - requestBoundingBox.getMinLatitude())
+				/ requestedTileHeight;
+
+		final double tilesDistanceWidth = elevationBoundingBox
+				.getMaxLongitude() - elevationBoundingBox.getMinLongitude();
+		final double tilesDistanceHeight = elevationBoundingBox
+				.getMaxLatitude() - elevationBoundingBox.getMinLatitude();
+
+		final int width = elevations[0].length;
+		final int height = elevations.length;
+
+		Double[][] projectedElevations = new Double[requestedTileHeight][requestedTileWidth];
+
+		// Retrieve each elevation in the unprojected elevations
+		for (int y = 0; y < requestedTileHeight; y++) {
+			for (int x = 0; x < requestedTileWidth; x++) {
+
+				double longitude = requestBoundingBox.getMinLongitude()
+						+ (x * requestedWidthUnitsPerPixel);
+				double latitude = requestBoundingBox.getMaxLatitude()
+						- (y * requestedHeightUnitsPerPixel);
+				ProjCoordinate fromCoord = new ProjCoordinate(longitude,
+						latitude);
+				ProjCoordinate toCoord = transformRequestToElevation
+						.transform(fromCoord);
+				double projectedLongitude = toCoord.x;
+				double projectedLatitude = toCoord.y;
+
+				int xPixel = (int) Math
+						.round(((projectedLongitude - elevationBoundingBox
+								.getMinLongitude()) / tilesDistanceWidth)
+								* width);
+				int yPixel = (int) Math
+						.round(((elevationBoundingBox.getMaxLatitude() - projectedLatitude) / tilesDistanceHeight)
+								* height);
+
+				xPixel = Math.max(0, xPixel);
+				xPixel = Math.min(width - 1, xPixel);
+
+				yPixel = Math.max(0, yPixel);
+				yPixel = Math.min(height - 1, yPixel);
+
+				Double elevation = elevations[yPixel][xPixel];
+				projectedElevations[y][x] = elevation;
+			}
+		}
+
+		return projectedElevations;
+	}
+
+	/**
 	 * Get the tile matrix that contains the tiles for the bounding box, matches
 	 * against the bounding box and zoom level
 	 *
@@ -416,17 +658,18 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            bounding box projected to the tiles
 	 * @return tile matrix or null
 	 */
-	private TileMatrix getTileMatrix(BoundingBox projectedRequestBoundingBox) {
+	private TileMatrix getTileMatrix(ElevationRequest request) {
 
 		TileMatrix tileMatrix = null;
 
 		// Check if the request overlaps the tile matrix set
-		if (TileBoundingBoxUtils.overlap(projectedRequestBoundingBox,
-				elevationBoundingBox) != null) {
+		if (request.overlap(elevationBoundingBox) != null) {
 
 			// Get the tile distance
-			double distance = projectedRequestBoundingBox.getMaxLongitude()
-					- projectedRequestBoundingBox.getMinLongitude();
+			BoundingBox projectedBoundingBox = request
+					.getProjectedBoundingBox();
+			double distance = projectedBoundingBox.getMaxLongitude()
+					- projectedBoundingBox.getMinLongitude();
 
 			// Get the zoom level to request based upon the tile size
 			Long zoomLevel = tileDao.getClosestZoomLevel(distance);
@@ -483,7 +726,7 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            y coordinate
 	 * @return elevation value
 	 */
-	public float getElevationValue(GriddedTile griddedTile, TileRow tileRow,
+	public double getElevationValue(GriddedTile griddedTile, TileRow tileRow,
 			int x, int y) {
 		BufferedImage image = null;
 		try {
@@ -492,7 +735,7 @@ public class ElevationTiles extends ElevationTilesCore {
 			throw new GeoPackageException(
 					"Failed to get the Tile Row Data Image", e);
 		}
-		float elevation = getElevationValue(griddedTile, image, x, y);
+		double elevation = getElevationValue(griddedTile, image, x, y);
 		return elevation;
 	}
 
@@ -507,9 +750,9 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            y coordinate
 	 * @return elevation value
 	 */
-	public float getElevationValue(TileRow tileRow, int x, int y) {
+	public double getElevationValue(TileRow tileRow, int x, int y) {
 		GriddedTile griddedTile = getGriddedTile(tileRow.getId());
-		float elevation = getElevationValue(griddedTile, tileRow, x, y);
+		double elevation = getElevationValue(griddedTile, tileRow, x, y);
 		return elevation;
 	}
 

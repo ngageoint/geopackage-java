@@ -99,6 +99,15 @@ public class ImageRectangle {
 	}
 
 	/**
+	 * Check if the rectangle is valid allowing empty ranges
+	 * 
+	 * @return valid
+	 */
+	public boolean isValidAllowEmpty() {
+		return left <= right && top <= bottom;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
