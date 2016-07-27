@@ -47,14 +47,23 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 	@Test
 	public void testExtension() throws Exception {
 
+		// Verify the elevation shows up as an elevation table and not a tile
+		// table
+		List<String> tilesTables = geoPackage.getTileTables();
+		List<String> elevationTables = ElevationTiles.getTables(geoPackage);
+		TestCase.assertFalse(elevationTables.isEmpty());
+		for (String tilesTable : tilesTables) {
+			TestCase.assertFalse(elevationTables.contains(tilesTable));
+		}
+
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 		TestCase.assertTrue(dao.isTableExists());
 
-		List<TileMatrixSet> results = dao.queryForAll();
-		TestCase.assertFalse(results.isEmpty());
-
 		// Verify non nulls
-		for (TileMatrixSet tileMatrixSet : results) {
+		for (String elevationTable : elevationTables) {
+
+			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+			TestCase.assertNotNull(tileMatrixSet);
 
 			// Test the tile matrix set
 			TestCase.assertNotNull(tileMatrixSet.getTableName());
@@ -190,9 +199,20 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 
 	}
 
+	/**
+	 * Perform tests on the tile row
+	 * 
+	 * @param elevationTiles
+	 * @param tileMatrixSet
+	 * @param griddedTile
+	 * @param tileRow
+	 * @throws IOException
+	 * @throws SQLException
+	 */
 	private void testTileRow(ElevationTiles elevationTiles,
 			TileMatrixSet tileMatrixSet, GriddedTile griddedTile,
 			TileRow tileRow) throws IOException, SQLException {
+
 		TestCase.assertNotNull(griddedTile);
 		TestCase.assertTrue(griddedTile.getId() >= 0);
 		TestCase.assertNotNull(griddedTile.getContents());
