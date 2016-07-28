@@ -15,6 +15,7 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.ExtensionsDao;
+import mil.nga.geopackage.extension.elevation.ElevationTileResults;
 import mil.nga.geopackage.extension.elevation.ElevationTiles;
 import mil.nga.geopackage.extension.elevation.ElevationTilesCore;
 import mil.nga.geopackage.extension.elevation.GriddedCoverage;
@@ -327,12 +328,23 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 
 		BoundingBox requestBoundingBox = new BoundingBox(minLongitude,
 				maxLongitude, minLatitude, maxLatitude);
-		Double[][] elevations = elevationTiles2
-				.getElevation(requestBoundingBox);
+		ElevationTileResults elevations = elevationTiles2
+				.getElevations(requestBoundingBox);
 		TestCase.assertNotNull(elevations);
-		for (int y = 0; y < elevations.length; y++) {
-			for (int x = 0; x < elevations[y].length; x++) {
-				TestCase.assertNotNull(elevations[y][x]);
+		TestCase.assertNotNull(elevations.getElevations());
+		TestCase.assertEquals(elevations.getElevations()[0].length,
+				elevations.getWidth());
+		TestCase.assertEquals(elevations.getElevations().length,
+				elevations.getHeight());
+		TestCase.assertNotNull(elevations.getTileMatrix());
+		TestCase.assertTrue(elevations.getZoomLevel() >= 0);
+		TestCase.assertTrue(elevations.getElevations().length > 0);
+		TestCase.assertTrue(elevations.getElevations()[0].length > 0);
+		for (int y = 0; y < elevations.getElevations().length; y++) {
+			for (int x = 0; x < elevations.getElevations()[y].length; x++) {
+				TestCase.assertNotNull(elevations.getElevations()[y][x]);
+				TestCase.assertEquals(elevations.getElevations()[y][x],
+						elevations.getElevation(y, x));
 			}
 		}
 
@@ -341,13 +353,46 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 		elevationTiles2.setWidth(specifiedWidth);
 		elevationTiles2.setHeight(specifiedHeight);
 
-		elevations = elevationTiles2.getElevation(requestBoundingBox);
+		elevations = elevationTiles2.getElevations(requestBoundingBox);
 		TestCase.assertNotNull(elevations);
-		TestCase.assertEquals(specifiedHeight, elevations.length);
-		TestCase.assertEquals(specifiedWidth, elevations[0].length);
+		TestCase.assertNotNull(elevations.getElevations());
+		TestCase.assertEquals(elevations.getElevations()[0].length,
+				elevations.getWidth());
+		TestCase.assertEquals(elevations.getElevations().length,
+				elevations.getHeight());
+		TestCase.assertNotNull(elevations.getTileMatrix());
+		TestCase.assertTrue(elevations.getZoomLevel() >= 0);
+		TestCase.assertTrue(elevations.getElevations().length > 0);
+		TestCase.assertTrue(elevations.getElevations()[0].length > 0);
+		TestCase.assertEquals(specifiedHeight, elevations.getHeight());
+		TestCase.assertEquals(specifiedWidth, elevations.getWidth());
 		for (int y = 0; y < specifiedHeight; y++) {
 			for (int x = 0; x < specifiedWidth; x++) {
-				TestCase.assertNotNull(elevations[y][x]);
+				TestCase.assertNotNull(elevations.getElevations()[y][x]);
+				TestCase.assertEquals(elevations.getElevations()[y][x],
+						elevations.getElevation(y, x));
+			}
+		}
+
+		elevations = elevationTiles2.getElevationsUnbounded(requestBoundingBox);
+		TestCase.assertNotNull(elevations);
+		TestCase.assertNotNull(elevations.getElevations());
+		TestCase.assertEquals(elevations.getElevations()[0].length,
+				elevations.getWidth());
+		TestCase.assertEquals(elevations.getElevations().length,
+				elevations.getHeight());
+		TestCase.assertNotNull(elevations.getTileMatrix());
+		TestCase.assertTrue(elevations.getZoomLevel() >= 0);
+		TestCase.assertTrue(elevations.getElevations().length > 0);
+		TestCase.assertTrue(elevations.getElevations()[0].length > 0);
+		TestCase.assertEquals(
+				elevations.getElevations()[0].length,
+				elevations.getElevations()[elevations.getElevations().length - 1].length);
+		for (int y = 0; y < elevations.getElevations().length; y++) {
+			for (int x = 0; x < elevations.getElevations()[y].length; x++) {
+				TestCase.assertNotNull(elevations.getElevations()[y][x]);
+				TestCase.assertEquals(elevations.getElevations()[y][x],
+						elevations.getElevation(y, x));
 			}
 		}
 
