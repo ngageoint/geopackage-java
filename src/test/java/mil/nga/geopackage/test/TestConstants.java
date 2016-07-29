@@ -68,9 +68,20 @@ public class TestConstants {
 			+ "." + TestConstants.GEO_PACKAGE_EXTENSION;
 
 	/**
+	 * Create elevation tiles database name
+	 */
+	public static final String CREATE_ELEVATION_TILES_DB_NAME = "elevation_tiles";
+
+	/**
+	 * Create elevation tiles database file name
+	 */
+	public static final String CREATE_ELEVATION_TILES_DB_FILE_NAME = CREATE_ELEVATION_TILES_DB_NAME
+			+ "." + TestConstants.GEO_PACKAGE_EXTENSION;
+
+	/**
 	 * Import elevation tiles database name
 	 */
-	public static final String IMPORT_ELEVATION_TILES_DB_NAME = "elevation_tiles2";
+	public static final String IMPORT_ELEVATION_TILES_DB_NAME = "elevation_tiles";
 
 	/**
 	 * Import elevation tiles database file name, located in the test assets
@@ -98,6 +109,11 @@ public class TestConstants {
 	 * Tiles 2 database table name
 	 */
 	public static final String TILES2_DB_TABLE_NAME = "imagery";
+
+	/**
+	 * Elevation Tiles table name
+	 */
+	public static final String CREATE_ELEVATION_TILES_DB_TABLE_NAME = "elevations";
 
 	/**
 	 * Tiles 2 database Web Mercator test image

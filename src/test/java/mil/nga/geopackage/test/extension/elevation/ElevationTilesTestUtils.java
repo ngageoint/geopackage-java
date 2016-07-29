@@ -8,6 +8,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
@@ -25,7 +26,6 @@ import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
-import mil.nga.geopackage.test.ImportElevationTilesGeoPackageTestCase;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
@@ -33,20 +33,21 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 
-import org.junit.Test;
-
 /**
- * Elevation Tiles Extensions Tests
+ * Elevation Tiles test utils
  * 
  * @author osbornb
  */
-public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
+public class ElevationTilesTestUtils {
 
 	/**
-	 * Test the Extension creation
+	 * Test elevations GeoPackage
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws Exception
 	 */
-	@Test
-	public void testExtension() throws Exception {
+	public static void testElevations(GeoPackage geoPackage) throws Exception {
 
 		// Verify the elevation shows up as an elevation table and not a tile
 		// table
@@ -182,7 +183,8 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 			for (GriddedTile griddedTile : griddedTiles) {
 				TileRow tileRow = tileDao.queryForIdRow(griddedTile
 						.getTableId());
-				testTileRow(elevationTiles, tileMatrixSet, griddedTile, tileRow);
+				testTileRow(geoPackage, elevationTiles, tileMatrixSet,
+						griddedTile, tileRow);
 			}
 
 			TileResultSet tileResultSet = tileDao.queryForAll();
@@ -192,7 +194,8 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 				TileRow tileRow = tileResultSet.getRow();
 				GriddedTile griddedTile = elevationTiles.getGriddedTile(tileRow
 						.getId());
-				testTileRow(elevationTiles, tileMatrixSet, griddedTile, tileRow);
+				testTileRow(geoPackage, elevationTiles, tileMatrixSet,
+						griddedTile, tileRow);
 			}
 			tileResultSet.close();
 
@@ -203,6 +206,7 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 	/**
 	 * Perform tests on the tile row
 	 * 
+	 * @param geoPackage
 	 * @param elevationTiles
 	 * @param tileMatrixSet
 	 * @param griddedTile
@@ -210,9 +214,10 @@ public class ElevationTilesTest extends ImportElevationTilesGeoPackageTestCase {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	private void testTileRow(ElevationTiles elevationTiles,
-			TileMatrixSet tileMatrixSet, GriddedTile griddedTile,
-			TileRow tileRow) throws IOException, SQLException {
+	private static void testTileRow(GeoPackage geoPackage,
+			ElevationTiles elevationTiles, TileMatrixSet tileMatrixSet,
+			GriddedTile griddedTile, TileRow tileRow) throws IOException,
+			SQLException {
 
 		TestCase.assertNotNull(griddedTile);
 		TestCase.assertTrue(griddedTile.getId() >= 0);
