@@ -345,6 +345,7 @@ public class TileDao extends
 	 * @param length
 	 *            in default units
 	 * @return zoom level
+	 * @since 1.2.1
 	 */
 	public Long getClosestZoomLevel(double length) {
 
