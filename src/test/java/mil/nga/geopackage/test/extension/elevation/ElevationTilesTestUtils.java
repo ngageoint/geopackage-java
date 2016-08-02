@@ -247,8 +247,8 @@ public class ElevationTilesTestUtils {
 
 		// Get each individual image pixel value
 		List<Short> pixelValuesList = new ArrayList<>();
-		for (int y = 0; y < width; y++) {
-			for (int x = 0; x < height; x++) {
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
 				short pixelValue = elevationTiles.getPixelValue(image, x, y);
 				pixelValuesList.add(pixelValue);
 
@@ -259,15 +259,25 @@ public class ElevationTilesTestUtils {
 				TestCase.assertEquals(pixelValue, pixelValue2);
 
 				// Test getting the elevation value
-				double elevationValue = elevationTiles.getElevationValue(
+				Double elevationValue = elevationTiles.getElevationValue(
 						griddedTile, pixelValue);
 				GriddedCoverage griddedCoverage = elevationTiles
 						.getGriddedCoverage().get(0);
-				TestCase.assertEquals(
-						(pixelValue * griddedTile.getScale() + griddedTile
-								.getOffset())
-								* griddedCoverage.getScale()
-								+ griddedCoverage.getOffset(), elevationValue);
+				int unsignedPixelValue = elevationTiles
+						.getUnsignedPixelValue(pixelValue);
+				if ((griddedCoverage.getDataNull() != null && unsignedPixelValue == griddedCoverage
+						.getDataNull())
+						|| (griddedCoverage.getDataMissing() != null && unsignedPixelValue == griddedCoverage
+								.getDataMissing())) {
+					TestCase.assertNull(elevationValue);
+				} else {
+					TestCase.assertEquals(
+							(unsignedPixelValue * griddedTile.getScale() + griddedTile
+									.getOffset())
+									* griddedCoverage.getScale()
+									+ griddedCoverage.getOffset(),
+							elevationValue);
+				}
 			}
 		}
 
@@ -315,7 +325,6 @@ public class ElevationTilesTestUtils {
 		ElevationTiles elevationTiles2 = new ElevationTiles(geoPackage,
 				elevationTiles.getTileDao(), requestProjection);
 		Double elevation = elevationTiles2.getElevation(latitude, longitude);
-		TestCase.assertNotNull(elevation);
 
 		// Build a random bounding box
 		double minLatitude = (projectedBoundingBox.getMaxLatitude() - projectedBoundingBox
@@ -347,7 +356,6 @@ public class ElevationTilesTestUtils {
 		TestCase.assertTrue(elevations.getElevations()[0].length > 0);
 		for (int y = 0; y < elevations.getElevations().length; y++) {
 			for (int x = 0; x < elevations.getElevations()[y].length; x++) {
-				TestCase.assertNotNull(elevations.getElevations()[y][x]);
 				TestCase.assertEquals(elevations.getElevations()[y][x],
 						elevations.getElevation(y, x));
 			}
@@ -373,7 +381,6 @@ public class ElevationTilesTestUtils {
 		TestCase.assertEquals(specifiedWidth, elevations.getWidth());
 		for (int y = 0; y < specifiedHeight; y++) {
 			for (int x = 0; x < specifiedWidth; x++) {
-				TestCase.assertNotNull(elevations.getElevations()[y][x]);
 				TestCase.assertEquals(elevations.getElevations()[y][x],
 						elevations.getElevation(y, x));
 			}
@@ -395,7 +402,6 @@ public class ElevationTilesTestUtils {
 				elevations.getElevations()[elevations.getElevations().length - 1].length);
 		for (int y = 0; y < elevations.getElevations().length; y++) {
 			for (int x = 0; x < elevations.getElevations()[y].length; x++) {
-				TestCase.assertNotNull(elevations.getElevations()[y][x]);
 				TestCase.assertEquals(elevations.getElevations()[y][x],
 						elevations.getElevation(y, x));
 			}
