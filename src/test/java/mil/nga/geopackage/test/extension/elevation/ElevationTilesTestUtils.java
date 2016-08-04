@@ -26,6 +26,9 @@ import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.test.CreateElevationTilesGeoPackageTestCase.ElevationTileValues;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
@@ -45,9 +48,12 @@ public class ElevationTilesTestUtils {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
+	 * @param elevationTileValues
+	 *            elevation tile values
 	 * @throws Exception
 	 */
-	public static void testElevations(GeoPackage geoPackage) throws Exception {
+	public static void testElevations(GeoPackage geoPackage,
+			ElevationTileValues elevationTileValues) throws Exception {
 
 		// Verify the elevation shows up as an elevation table and not a tile
 		// table
@@ -183,8 +189,8 @@ public class ElevationTilesTestUtils {
 			for (GriddedTile griddedTile : griddedTiles) {
 				TileRow tileRow = tileDao.queryForIdRow(griddedTile
 						.getTableId());
-				testTileRow(geoPackage, elevationTiles, tileMatrixSet,
-						griddedTile, tileRow);
+				testTileRow(geoPackage, elevationTileValues, elevationTiles,
+						tileMatrixSet, griddedTile, tileRow);
 			}
 
 			TileResultSet tileResultSet = tileDao.queryForAll();
@@ -194,11 +200,13 @@ public class ElevationTilesTestUtils {
 				TileRow tileRow = tileResultSet.getRow();
 				GriddedTile griddedTile = elevationTiles.getGriddedTile(tileRow
 						.getId());
-				testTileRow(geoPackage, elevationTiles, tileMatrixSet,
-						griddedTile, tileRow);
+				testTileRow(geoPackage, elevationTileValues, elevationTiles,
+						tileMatrixSet, griddedTile, tileRow);
 			}
 			tileResultSet.close();
 
+			// Perform elevation query tests
+			testElevationQueries(geoPackage, elevationTiles, tileMatrixSet);
 		}
 
 	}
@@ -207,6 +215,7 @@ public class ElevationTilesTestUtils {
 	 * Perform tests on the tile row
 	 * 
 	 * @param geoPackage
+	 * @param elevationTileValues
 	 * @param elevationTiles
 	 * @param tileMatrixSet
 	 * @param griddedTile
@@ -215,6 +224,7 @@ public class ElevationTilesTestUtils {
 	 * @throws SQLException
 	 */
 	private static void testTileRow(GeoPackage geoPackage,
+			ElevationTileValues elevationTileValues,
 			ElevationTiles elevationTiles, TileMatrixSet tileMatrixSet,
 			GriddedTile griddedTile, TileRow tileRow) throws IOException,
 			SQLException {
@@ -241,6 +251,12 @@ public class ElevationTilesTestUtils {
 
 		// Get all the pixel values of the image
 		short[] pixelValues = elevationTiles.getPixelValues(image);
+		if (elevationTileValues != null) {
+			for (int i = 0; i < pixelValues.length; i++) {
+				TestCase.assertEquals(elevationTileValues.tilePixelsFlat[i],
+						pixelValues[i]);
+			}
+		}
 
 		int width = image.getWidth();
 		int height = image.getHeight();
@@ -265,6 +281,19 @@ public class ElevationTilesTestUtils {
 						.getGriddedCoverage().get(0);
 				int unsignedPixelValue = elevationTiles
 						.getUnsignedPixelValue(pixelValue);
+				if (elevationTileValues != null) {
+					TestCase.assertEquals(elevationTileValues.tilePixels[y][x],
+							pixelValue);
+					TestCase.assertEquals(
+							elevationTileValues.tilePixelsFlat[(y * width) + x],
+							pixelValue);
+					TestCase.assertEquals(
+							elevationTileValues.tileUnsignedPixels[y][x],
+							unsignedPixelValue);
+					TestCase.assertEquals(
+							elevationTileValues.tileUnsignedPixelsFlat[(y * width)
+									+ x], unsignedPixelValue);
+				}
 				if ((griddedCoverage.getDataNull() != null && unsignedPixelValue == griddedCoverage
 						.getDataNull())
 						|| (griddedCoverage.getDataMissing() != null && unsignedPixelValue == griddedCoverage
@@ -288,6 +317,51 @@ public class ElevationTilesTestUtils {
 			TestCase.assertEquals((short) pixelValuesList.get(i),
 					pixelValues[i]);
 		}
+
+		TileMatrix tileMatrix = elevationTiles.getTileDao().getTileMatrix(
+				tileRow.getZoomLevel());
+		BoundingBox boundingBox = TileBoundingBoxUtils.getBoundingBox(
+				tileMatrixSet.getBoundingBox(), tileMatrix,
+				tileRow.getTileColumn(), tileRow.getTileRow());
+		ElevationTileResults elevationTileResults = elevationTiles
+				.getElevations(boundingBox);
+		if (elevationTileValues != null) {
+			TestCase.assertEquals(elevationTileValues.tileElevations.length,
+					elevationTileResults.getElevations().length);
+			TestCase.assertEquals(elevationTileValues.tileElevations[0].length,
+					elevationTileResults.getElevations()[0].length);
+			TestCase.assertEquals(
+					elevationTileValues.tileElevationsFlat.length,
+					elevationTileResults.getElevations().length
+							* elevationTileResults.getElevations()[0].length);
+			for (int y = 0; y < elevationTileResults.getElevations().length; y++) {
+				for (int x = 0; x < elevationTileResults.getElevations()[0].length; x++) {
+					if (elevationTileValues.tileElevations[y][x] != null
+							&& elevationTileResults.getElevations()[y][x] != null
+							&& !elevationTileValues.tileElevations[y][x]
+									.equals(elevationTileResults
+											.getElevations()[y][x])) {
+					}
+					TestCase.assertEquals(
+							elevationTileValues.tileElevations[y][x],
+							elevationTileResults.getElevations()[y][x]);
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Test performing elevation queries
+	 * 
+	 * @param geoPackage
+	 * @param elevationTiles
+	 * @param tileMatrixSet
+	 * @throws SQLException
+	 */
+	private static void testElevationQueries(GeoPackage geoPackage,
+			ElevationTiles elevationTiles, TileMatrixSet tileMatrixSet)
+			throws SQLException {
 
 		// Determine an alternate projection
 		BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
@@ -406,7 +480,6 @@ public class ElevationTilesTestUtils {
 						elevations.getElevation(y, x));
 			}
 		}
-
 	}
 
 }

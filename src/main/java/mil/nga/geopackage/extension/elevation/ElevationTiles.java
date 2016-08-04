@@ -175,10 +175,14 @@ public class ElevationTiles extends ElevationTilesCore {
 		ElevationTileResults elevationResults = null;
 
 		// Transform to the projection of the elevation tiles
-		ProjectionTransform transformRequestToElevation = requestProjection
-				.getTransformation(elevationProjection);
-		BoundingBox requestProjectedBoundingBox = transformRequestToElevation
-				.transform(request.getBoundingBox());
+		ProjectionTransform transformRequestToElevation = null;
+		BoundingBox requestProjectedBoundingBox = request.getBoundingBox();
+		if (!sameProjection) {
+			transformRequestToElevation = requestProjection
+					.getTransformation(elevationProjection);
+			requestProjectedBoundingBox = transformRequestToElevation
+					.transform(requestProjectedBoundingBox);
+		}
 		request.setProjectedBoundingBox(requestProjectedBoundingBox);
 
 		// Find the tile matrix and results
@@ -277,10 +281,14 @@ public class ElevationTiles extends ElevationTilesCore {
 		ElevationTileResults elevationResults = null;
 
 		// Transform to the projection of the elevation tiles
-		ProjectionTransform transformRequestToElevation = requestProjection
-				.getTransformation(elevationProjection);
-		BoundingBox requestProjectedBoundingBox = transformRequestToElevation
-				.transform(request.getBoundingBox());
+		ProjectionTransform transformRequestToElevation = null;
+		BoundingBox requestProjectedBoundingBox = request.getBoundingBox();
+		if (!sameProjection) {
+			transformRequestToElevation = requestProjection
+					.getTransformation(elevationProjection);
+			requestProjectedBoundingBox = transformRequestToElevation
+					.transform(requestProjectedBoundingBox);
+		}
 		request.setProjectedBoundingBox(requestProjectedBoundingBox);
 
 		// Find the tile matrix and results
@@ -724,11 +732,14 @@ public class ElevationTiles extends ElevationTilesCore {
 			// Get the tile distance
 			BoundingBox projectedBoundingBox = request
 					.getProjectedBoundingBox();
-			double distance = projectedBoundingBox.getMaxLongitude()
+			double distanceWidth = projectedBoundingBox.getMaxLongitude()
 					- projectedBoundingBox.getMinLongitude();
+			double distanceHeight = projectedBoundingBox.getMaxLatitude()
+					- projectedBoundingBox.getMinLatitude();
 
 			// Get the zoom level to request based upon the tile size
-			Long zoomLevel = tileDao.getClosestZoomLevel(distance);
+			Long zoomLevel = tileDao.getClosestZoomLevel(distanceWidth,
+					distanceHeight);
 
 			// If there is a matching zoom level
 			if (zoomLevel != null) {

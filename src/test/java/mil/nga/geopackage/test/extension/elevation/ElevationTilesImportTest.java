@@ -9,7 +9,8 @@ import org.junit.Test;
  * 
  * @author osbornb
  */
-public class ElevationTilesImportTest extends ImportElevationTilesGeoPackageTestCase {
+public class ElevationTilesImportTest extends
+		ImportElevationTilesGeoPackageTestCase {
 
 	/**
 	 * Test the Extension creation
@@ -17,7 +18,7 @@ public class ElevationTilesImportTest extends ImportElevationTilesGeoPackageTest
 	@Test
 	public void testExtension() throws Exception {
 
-		ElevationTilesTestUtils.testElevations(geoPackage);
+		ElevationTilesTestUtils.testElevations(geoPackage, null);
 
 	}
 

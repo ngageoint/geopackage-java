@@ -18,7 +18,7 @@ public class ElevationTilesCreateTest extends
 	@Test
 	public void testExtension() throws Exception {
 
-		ElevationTilesTestUtils.testElevations(geoPackage);
+		ElevationTilesTestUtils.testElevations(geoPackage, elevationTileValues);
 
 	}
 

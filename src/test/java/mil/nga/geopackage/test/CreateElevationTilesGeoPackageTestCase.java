@@ -36,17 +36,23 @@ import org.junit.After;
 public abstract class CreateElevationTilesGeoPackageTestCase extends
 		GeoPackageTestCase {
 
-	protected short[][] tilePixels;
+	public class ElevationTileValues {
 
-	protected int[][] tileUnsignedPixels;
+		public short[][] tilePixels;
 
-	protected Double[][] tileElevations;
+		public int[][] tileUnsignedPixels;
 
-	protected short[] tilePixelsFlat;
+		public Double[][] tileElevations;
 
-	protected int[] tileUnsignedPixelsFlat;
+		public short[] tilePixelsFlat;
 
-	protected Double[] tileElevationsFlat;
+		public int[] tileUnsignedPixelsFlat;
+
+		public Double[] tileElevationsFlat;
+
+	}
+
+	protected ElevationTileValues elevationTileValues = new ElevationTileValues();
 
 	/**
 	 * Constructor
@@ -148,6 +154,53 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 					&& griddedCoverage.getPrecision() <= 10.0);
 		}
 
+		GriddedTile commonGriddedTile = new GriddedTile();
+		commonGriddedTile.setContents(tileMatrixSet.getContents());
+		boolean defaultGTScale = true;
+		if (Math.random() < .5) {
+			commonGriddedTile.setScale(100.0 * Math.random());
+			defaultGTScale = false;
+		}
+		boolean defaultGTOffset = true;
+		if (Math.random() < .5) {
+			commonGriddedTile.setOffset(100.0 * Math.random());
+			defaultGTOffset = false;
+		}
+		// The min, max, mean, and sd are just for testing and have
+		// no association on the test tile created
+		boolean defaultGTMin = true;
+		if (Math.random() < .5) {
+			commonGriddedTile.setMin(1000.0 * Math.random());
+			defaultGTMin = false;
+		}
+		boolean defaultGTMax = true;
+		if (Math.random() < .5) {
+			commonGriddedTile.setMax(1000.0
+					* Math.random()
+					+ (commonGriddedTile.getMin() == null ? 0
+							: commonGriddedTile.getMin()));
+			defaultGTMax = false;
+		}
+		boolean defaultGTMean = true;
+		if (Math.random() < .5) {
+			double min = commonGriddedTile.getMin() != null ? commonGriddedTile
+					.getMin() : 0;
+			double max = commonGriddedTile.getMax() != null ? commonGriddedTile
+					.getMax() : 2000.0;
+			commonGriddedTile.setMean(((max - min) * Math.random()) + min);
+			defaultGTMean = false;
+		}
+		boolean defaultGTStandardDeviation = true;
+		if (Math.random() < .5) {
+
+			double min = commonGriddedTile.getMin() != null ? commonGriddedTile
+					.getMin() : 0;
+			double max = commonGriddedTile.getMax() != null ? commonGriddedTile
+					.getMax() : 2000.0;
+			commonGriddedTile.setStandardDeviation((max - min) * Math.random());
+			defaultGTStandardDeviation = false;
+		}
+
 		GriddedTileDao griddedTileDao = elevationTiles.getGriddedTileDao();
 
 		int width = 1 + (int) Math.floor((Math.random() * 4.0));
@@ -160,7 +213,7 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 		// Just draw one image and re-use
 		elevationTiles = new ElevationTiles(geoPackage, tileDao);
 		byte[] imageBytes = drawTile(elevationTiles, tileWidth, tileHeight,
-				griddedCoverage);
+				griddedCoverage, commonGriddedTile);
 
 		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
 
@@ -194,52 +247,13 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 					GriddedTile griddedTile = new GriddedTile();
 					griddedTile.setContents(tileMatrixSet.getContents());
 					griddedTile.setTableId(tileId);
-					boolean defaultGTScale = true;
-					if (Math.random() < .5) {
-						griddedTile.setScale(100.0 * Math.random());
-						defaultGTScale = false;
-					}
-					boolean defaultGTOffset = true;
-					if (Math.random() < .5) {
-						griddedTile.setOffset(100.0 * Math.random());
-						defaultGTOffset = false;
-					}
-					// The min, max, mean, and sd are just for testing and have
-					// no association on the test tile created
-					boolean defaultGTMin = true;
-					if (Math.random() < .5) {
-						griddedTile.setMin(1000.0 * Math.random());
-						defaultGTMin = false;
-					}
-					boolean defaultGTMax = true;
-					if (Math.random() < .5) {
-						griddedTile.setMax(1000.0
-								* Math.random()
-								+ (griddedTile.getMin() == null ? 0
-										: griddedTile.getMin()));
-						defaultGTMax = false;
-					}
-					boolean defaultGTMean = true;
-					if (Math.random() < .5) {
-						double min = griddedTile.getMin() != null ? griddedTile
-								.getMin() : 0;
-						double max = griddedTile.getMax() != null ? griddedTile
-								.getMax() : 2000.0;
-						griddedTile
-								.setMean(((max - min) * Math.random()) + min);
-						defaultGTMean = false;
-					}
-					boolean defaultGTStandardDeviation = true;
-					if (Math.random() < .5) {
-
-						double min = griddedTile.getMin() != null ? griddedTile
-								.getMin() : 0;
-						double max = griddedTile.getMax() != null ? griddedTile
-								.getMax() : 2000.0;
-						griddedTile.setStandardDeviation((max - min)
-								* Math.random());
-						defaultGTStandardDeviation = false;
-					}
+					griddedTile.setScale(commonGriddedTile.getScale());
+					griddedTile.setOffset(commonGriddedTile.getOffset());
+					griddedTile.setMin(commonGriddedTile.getMin());
+					griddedTile.setMax(commonGriddedTile.getMax());
+					griddedTile.setMean(commonGriddedTile.getMean());
+					griddedTile.setStandardDeviation(commonGriddedTile
+							.getStandardDeviation());
 
 					TestCase.assertEquals(1, griddedTileDao.create(griddedTile));
 					long gtId = griddedTile.getId();
@@ -306,28 +320,34 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 	/**
 	 * Draw an elevation tile with random values
 	 * 
+	 * @param elevationTiles
 	 * @param tileWidth
 	 * @param tileHeight
 	 * @param griddedCoverage
+	 * @param commonGriddedTile
 	 * @return
 	 */
 	private byte[] drawTile(ElevationTiles elevationTiles, int tileWidth,
-			int tileHeight, GriddedCoverage griddedCoverage) {
+			int tileHeight, GriddedCoverage griddedCoverage,
+			GriddedTile commonGriddedTile) {
 
-		tilePixels = new short[tileHeight][tileWidth];
-		tileUnsignedPixels = new int[tileHeight][tileWidth];
-		tileElevations = new Double[tileHeight][tileWidth];
-		tilePixelsFlat = new short[tileHeight * tileWidth];
-		tileUnsignedPixelsFlat = new int[tileHeight * tileWidth];
-		tileElevationsFlat = new Double[tileHeight * tileWidth];
+		elevationTileValues.tilePixels = new short[tileHeight][tileWidth];
+		elevationTileValues.tileUnsignedPixels = new int[tileHeight][tileWidth];
+		elevationTileValues.tileElevations = new Double[tileHeight][tileWidth];
+		elevationTileValues.tilePixelsFlat = new short[tileHeight * tileWidth];
+		elevationTileValues.tileUnsignedPixelsFlat = new int[tileHeight
+				* tileWidth];
+		elevationTileValues.tileElevationsFlat = new Double[tileHeight
+				* tileWidth];
 
 		GriddedTile griddedTile = new GriddedTile();
-		if (Math.random() < .5) {
-			griddedTile.setScale(100.0 * Math.random());
-		}
-		if (Math.random() < .5) {
-			griddedTile.setOffset(100.0 * Math.random());
-		}
+		griddedTile.setScale(commonGriddedTile.getScale());
+		griddedTile.setOffset(commonGriddedTile.getOffset());
+		griddedTile.setMin(commonGriddedTile.getMin());
+		griddedTile.setMax(commonGriddedTile.getMax());
+		griddedTile.setMean(commonGriddedTile.getMean());
+		griddedTile.setStandardDeviation(commonGriddedTile
+				.getStandardDeviation());
 
 		// Create the image and graphics
 		for (int x = 0; x < tileWidth; x++) {
@@ -342,31 +362,34 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 				}
 				short value = (short) unsignedValue;
 
-				tilePixels[y][x] = value;
-				tileUnsignedPixels[y][x] = unsignedValue;
-				tileElevations[y][x] = elevationTiles.getElevationValue(
-						griddedTile, value);
+				elevationTileValues.tilePixels[y][x] = value;
+				elevationTileValues.tileUnsignedPixels[y][x] = unsignedValue;
+				elevationTileValues.tileElevations[y][x] = elevationTiles
+						.getElevationValue(griddedTile, value);
 
-				tilePixelsFlat[(y * tileWidth) + x] = tilePixels[y][x];
-				tileUnsignedPixelsFlat[(y * tileWidth) + x] = tileUnsignedPixels[y][x];
-				tileElevationsFlat[(y * tileWidth) + x] = tileElevations[y][x];
+				elevationTileValues.tilePixelsFlat[(y * tileWidth) + x] = elevationTileValues.tilePixels[y][x];
+				elevationTileValues.tileUnsignedPixelsFlat[(y * tileWidth) + x] = elevationTileValues.tileUnsignedPixels[y][x];
+				elevationTileValues.tileElevationsFlat[(y * tileWidth) + x] = elevationTileValues.tileElevations[y][x];
 			}
 		}
 
-		byte[] imageData = elevationTiles.drawTileData(tilePixels);
+		byte[] imageData = elevationTiles
+				.drawTileData(elevationTileValues.tilePixels);
 
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData,
-				elevationTiles.drawTileData(tileUnsignedPixels));
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData,
-				elevationTiles.drawTileData(griddedTile, tileElevations));
 		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
-				.drawTileData(tilePixelsFlat, tileWidth, tileHeight));
+				.drawTileData(elevationTileValues.tileUnsignedPixels));
 		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
-				.drawTileData(tileUnsignedPixelsFlat, tileWidth, tileHeight));
-		// GeoPackageGeometryDataUtils.compareByteArrays(imageData,
-		// elevationTiles
-		// .drawTileData(griddedTile, tileElevationsFlat, tileWidth,
-		// tileHeight));
+				.drawTileData(griddedTile, elevationTileValues.tileElevations));
+		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
+				.drawTileData(elevationTileValues.tilePixelsFlat, tileWidth,
+						tileHeight));
+		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
+				.drawTileData(elevationTileValues.tileUnsignedPixelsFlat,
+						tileWidth, tileHeight));
+		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
+				.drawTileData(griddedTile,
+						elevationTileValues.tileElevationsFlat, tileWidth,
+						tileHeight));
 
 		return imageData;
 	}

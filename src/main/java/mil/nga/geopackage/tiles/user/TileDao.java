@@ -339,6 +339,23 @@ public class TileDao extends
 	}
 
 	/**
+	 * Get the zoom level for the provided width and height in the default units
+	 * 
+	 * @param width
+	 *            in default units
+	 * @param height
+	 *            in default units
+	 * @return zoom level
+	 * @since 1.2.1
+	 */
+	public Long getZoomLevel(double width, double height) {
+
+		Long zoomLevel = TileDaoUtils.getZoomLevel(widths, heights,
+				tileMatrices, width, height);
+		return zoomLevel;
+	}
+
+	/**
 	 * Get the closest zoom level for the provided width and height in the
 	 * default units
 	 * 
@@ -351,6 +368,24 @@ public class TileDao extends
 
 		Long zoomLevel = TileDaoUtils.getClosestZoomLevel(widths, heights,
 				tileMatrices, length);
+		return zoomLevel;
+	}
+
+	/**
+	 * Get the closest zoom level for the provided width and height in the
+	 * default units
+	 * 
+	 * @param width
+	 *            in default units
+	 * @param height
+	 *            in default units
+	 * @return zoom level
+	 * @since 1.2.1
+	 */
+	public Long getClosestZoomLevel(double width, double height) {
+
+		Long zoomLevel = TileDaoUtils.getClosestZoomLevel(widths, heights,
+				tileMatrices, width, height);
 		return zoomLevel;
 	}
 
