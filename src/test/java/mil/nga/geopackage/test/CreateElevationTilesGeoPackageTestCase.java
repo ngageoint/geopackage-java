@@ -54,11 +54,16 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 
 	protected ElevationTileValues elevationTileValues = new ElevationTileValues();
 
+	protected final boolean allowNulls;
+
 	/**
 	 * Constructor
+	 * 
+	 * @param allowNulls
+	 *            true to allow null elevations
 	 */
-	public CreateElevationTilesGeoPackageTestCase() {
-
+	public CreateElevationTilesGeoPackageTestCase(boolean allowNulls) {
+		this.allowNulls = allowNulls;
 	}
 
 	@Override
@@ -353,7 +358,7 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 		for (int x = 0; x < tileWidth; x++) {
 			for (int y = 0; y < tileHeight; y++) {
 				int unsignedValue;
-				if (Math.random() < .05) {
+				if (allowNulls && Math.random() < .05) {
 					unsignedValue = griddedCoverage.getDataNull().intValue();
 				} else {
 					unsignedValue = Short.MAX_VALUE - Short.MIN_VALUE - 1;

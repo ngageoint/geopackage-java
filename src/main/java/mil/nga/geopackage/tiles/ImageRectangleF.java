@@ -120,6 +120,16 @@ public class ImageRectangleF {
 	}
 
 	/**
+	 * Check if the rectangle is valid allowing empty ranges
+	 * 
+	 * @return valid
+	 * @since 1.2.1
+	 */
+	public boolean isValidAllowEmpty() {
+		return left <= right && top <= bottom;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

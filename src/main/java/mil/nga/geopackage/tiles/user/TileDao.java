@@ -413,11 +413,31 @@ public class TileDao extends
 	 * Query by tile grid and zoom level
 	 * 
 	 * @param tileGrid
+	 *            tile grid
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return cursor from query or null if the zoom level tile ranges do not
 	 *         overlap the bounding box
 	 */
 	public TileResultSet queryByTileGrid(TileGrid tileGrid, long zoomLevel) {
+		return queryByTileGrid(tileGrid, zoomLevel, null);
+	}
+
+	/**
+	 * Query by tile grid and zoom level
+	 * 
+	 * @param tileGrid
+	 *            tile grid
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param orderBy
+	 *            order by
+	 * @return cursor from query or null if the zoom level tile ranges do not
+	 *         overlap the bounding box
+	 * @since 1.2.1
+	 */
+	public TileResultSet queryByTileGrid(TileGrid tileGrid, long zoomLevel,
+			String orderBy) {
 
 		TileResultSet tileCursor = null;
 
@@ -447,7 +467,7 @@ public class TileDao extends
 					tileGrid.getMinX(), tileGrid.getMaxX(), tileGrid.getMinY(),
 					tileGrid.getMaxY() });
 
-			tileCursor = query(where.toString(), whereArgs);
+			tileCursor = query(where.toString(), whereArgs, null, null, orderBy);
 		}
 
 		return tileCursor;

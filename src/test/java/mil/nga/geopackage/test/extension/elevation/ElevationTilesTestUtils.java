@@ -18,6 +18,7 @@ import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.elevation.ElevationTileResults;
 import mil.nga.geopackage.extension.elevation.ElevationTiles;
+import mil.nga.geopackage.extension.elevation.ElevationTilesAlgorithm;
 import mil.nga.geopackage.extension.elevation.ElevationTilesCore;
 import mil.nga.geopackage.extension.elevation.GriddedCoverage;
 import mil.nga.geopackage.extension.elevation.GriddedCoverageDataType;
@@ -50,10 +51,13 @@ public class ElevationTilesTestUtils {
 	 *            GeoPackage
 	 * @param elevationTileValues
 	 *            elevation tile values
+	 * @param algorithm
+	 *            algorithm
 	 * @throws Exception
 	 */
 	public static void testElevations(GeoPackage geoPackage,
-			ElevationTileValues elevationTileValues) throws Exception {
+			ElevationTileValues elevationTileValues,
+			ElevationTilesAlgorithm algorithm) throws Exception {
 
 		// Verify the elevation shows up as an elevation table and not a tile
 		// table
@@ -67,7 +71,6 @@ public class ElevationTilesTestUtils {
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 		TestCase.assertTrue(dao.isTableExists());
 
-		// Verify non nulls
 		for (String elevationTable : elevationTables) {
 
 			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
@@ -116,6 +119,7 @@ public class ElevationTilesTestUtils {
 			ElevationTiles elevationTiles = new ElevationTiles(geoPackage,
 					tileDao);
 			TestCase.assertTrue(elevationTiles.has());
+			elevationTiles.setAlgorithm(algorithm);
 
 			// Test the 3 extension rows
 			ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
@@ -190,7 +194,7 @@ public class ElevationTilesTestUtils {
 				TileRow tileRow = tileDao.queryForIdRow(griddedTile
 						.getTableId());
 				testTileRow(geoPackage, elevationTileValues, elevationTiles,
-						tileMatrixSet, griddedTile, tileRow);
+						tileMatrixSet, griddedTile, tileRow, algorithm);
 			}
 
 			TileResultSet tileResultSet = tileDao.queryForAll();
@@ -201,12 +205,13 @@ public class ElevationTilesTestUtils {
 				GriddedTile griddedTile = elevationTiles.getGriddedTile(tileRow
 						.getId());
 				testTileRow(geoPackage, elevationTileValues, elevationTiles,
-						tileMatrixSet, griddedTile, tileRow);
+						tileMatrixSet, griddedTile, tileRow, algorithm);
 			}
 			tileResultSet.close();
 
 			// Perform elevation query tests
-			testElevationQueries(geoPackage, elevationTiles, tileMatrixSet);
+			testElevationQueries(geoPackage, elevationTiles, tileMatrixSet,
+					algorithm);
 		}
 
 	}
@@ -220,14 +225,15 @@ public class ElevationTilesTestUtils {
 	 * @param tileMatrixSet
 	 * @param griddedTile
 	 * @param tileRow
+	 * @param algorithm
 	 * @throws IOException
 	 * @throws SQLException
 	 */
 	private static void testTileRow(GeoPackage geoPackage,
 			ElevationTileValues elevationTileValues,
 			ElevationTiles elevationTiles, TileMatrixSet tileMatrixSet,
-			GriddedTile griddedTile, TileRow tileRow) throws IOException,
-			SQLException {
+			GriddedTile griddedTile, TileRow tileRow,
+			ElevationTilesAlgorithm algorithm) throws IOException, SQLException {
 
 		TestCase.assertNotNull(griddedTile);
 		TestCase.assertTrue(griddedTile.getId() >= 0);
@@ -357,11 +363,12 @@ public class ElevationTilesTestUtils {
 	 * @param geoPackage
 	 * @param elevationTiles
 	 * @param tileMatrixSet
+	 * @param algorithm
 	 * @throws SQLException
 	 */
 	private static void testElevationQueries(GeoPackage geoPackage,
-			ElevationTiles elevationTiles, TileMatrixSet tileMatrixSet)
-			throws SQLException {
+			ElevationTiles elevationTiles, TileMatrixSet tileMatrixSet,
+			ElevationTilesAlgorithm algorithm) throws SQLException {
 
 		// Determine an alternate projection
 		BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
@@ -398,6 +405,7 @@ public class ElevationTilesTestUtils {
 		// Test getting the elevation of a single coordinate
 		ElevationTiles elevationTiles2 = new ElevationTiles(geoPackage,
 				elevationTiles.getTileDao(), requestProjection);
+		elevationTiles.setAlgorithm(algorithm);
 		Double elevation = elevationTiles2.getElevation(latitude, longitude);
 
 		// Build a random bounding box
@@ -480,6 +488,98 @@ public class ElevationTilesTestUtils {
 						elevations.getElevation(y, x));
 			}
 		}
+	}
+
+	/**
+	 * Test a random bounding box query
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param elevationTileValues
+	 *            elevation tile values
+	 * @param algorithm
+	 *            algorithm
+	 * @param allowNulls
+	 *            allow null elevations
+	 * @throws Exception
+	 */
+	public static void testRandomBoundingBox(GeoPackage geoPackage,
+			ElevationTileValues elevationTileValues,
+			ElevationTilesAlgorithm algorithm, boolean allowNulls)
+			throws Exception {
+
+		// Verify the elevation shows up as an elevation table and not a tile
+		// table
+		List<String> tilesTables = geoPackage.getTileTables();
+		List<String> elevationTables = ElevationTiles.getTables(geoPackage);
+		TestCase.assertFalse(elevationTables.isEmpty());
+		for (String tilesTable : tilesTables) {
+			TestCase.assertFalse(elevationTables.contains(tilesTable));
+		}
+
+		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
+		TestCase.assertTrue(dao.isTableExists());
+
+		for (String elevationTable : elevationTables) {
+
+			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+
+			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
+			ElevationTiles elevationTiles = new ElevationTiles(geoPackage,
+					tileDao);
+			elevationTiles.setAlgorithm(algorithm);
+
+			int specifiedWidth = (int) (Math.random() * 100.0) + 1;
+			int specifiedHeight = (int) (Math.random() * 100.0) + 1;
+			elevationTiles.setWidth(specifiedWidth);
+			elevationTiles.setHeight(specifiedHeight);
+
+			BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
+
+			// Build a random bounding box
+			double minLatitude = (boundingBox.getMaxLatitude() - boundingBox
+					.getMinLatitude())
+					* Math.random()
+					+ boundingBox.getMinLatitude();
+			double minLongitude = (boundingBox.getMaxLongitude() - boundingBox
+					.getMinLongitude())
+					* Math.random()
+					+ boundingBox.getMinLongitude();
+			double maxLatitude = (boundingBox.getMaxLatitude() - minLatitude)
+					* Math.random() + minLatitude;
+			double maxLongitude = (boundingBox.getMaxLongitude() - minLongitude)
+					* Math.random() + minLongitude;
+
+			BoundingBox requestBoundingBox = new BoundingBox(minLongitude,
+					maxLongitude, minLatitude, maxLatitude);
+
+			ElevationTileResults elevations = elevationTiles
+					.getElevations(requestBoundingBox);
+
+			TestCase.assertNotNull(elevations);
+			TestCase.assertNotNull(elevations.getElevations());
+			TestCase.assertEquals(elevations.getElevations()[0].length,
+					elevations.getWidth());
+			TestCase.assertEquals(elevations.getElevations().length,
+					elevations.getHeight());
+			TestCase.assertNotNull(elevations.getTileMatrix());
+			TestCase.assertTrue(elevations.getZoomLevel() >= 0);
+			TestCase.assertTrue(elevations.getElevations().length > 0);
+			TestCase.assertTrue(elevations.getElevations()[0].length > 0);
+			TestCase.assertEquals(specifiedHeight, elevations.getHeight());
+			TestCase.assertEquals(specifiedWidth, elevations.getWidth());
+			for (int y = 0; y < specifiedHeight; y++) {
+				for (int x = 0; x < specifiedWidth; x++) {
+					TestCase.assertEquals(elevations.getElevations()[y][x],
+							elevations.getElevation(y, x));
+					if (!allowNulls) {
+						TestCase.assertNotNull(elevations.getElevations()[y][x]);
+					}
+				}
+			}
+
+		}
+
 	}
 
 }

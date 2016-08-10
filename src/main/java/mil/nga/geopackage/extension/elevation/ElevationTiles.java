@@ -5,6 +5,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferUShort;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -14,6 +15,7 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.ImageRectangle;
+import mil.nga.geopackage.tiles.ImageRectangleF;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxJavaUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
@@ -22,6 +24,7 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.geopackage.tiles.user.TileTable;
 
 /**
  * Tiled Gridded Elevation Data Extension
@@ -367,7 +370,7 @@ public class ElevationTiles extends ElevationTilesCore {
 	private ElevationTileMatrixResults getResults(
 			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
 		ElevationTileMatrixResults results = null;
-		TileResultSet tileResults = retrieveTileResults(
+		TileResultSet tileResults = retrieveSortedTileResults(
 				requestProjectedBoundingBox, tileMatrix);
 		if (tileResults != null) {
 			if (tileResults.getCount() > 0) {
@@ -486,32 +489,94 @@ public class ElevationTiles extends ElevationTilesCore {
 
 		Double[][] elevations = null;
 
+		// Tiles are ordered by rows and then columns. Track the last column
+		// elevations of the tile to the left and the last rows of the tiles in
+		// the row above
+		Double[][] leftLastColumns = null;
+		Map<Long, Double[][]> lastRowsByColumn = null;
+		Map<Long, Double[][]> previousLastRowsByColumn = null;
+
+		// Determine how many overlapping pixels to store based upon the
+		// algorithm
+		int overlappingPixels;
+		switch (algorithm) {
+		case BICUBIC:
+			overlappingPixels = 2;
+			break;
+		default:
+			overlappingPixels = 1;
+		}
+
+		long previousRow = -1;
+		long previousColumn = Long.MAX_VALUE;
+
 		// Process each elevation tile
 		while (tileResults.moveToNext()) {
 
 			// Get the next elevation tile
 			TileRow tileRow = tileResults.getRow();
 
+			long currentRow = tileRow.getTileRow();
+			long currentColumn = tileRow.getTileColumn();
+
+			// If the row has changed, save off the previous last rows and begin
+			// tracking this row. Clear the left last columns.
+			if (currentRow > previousRow) {
+				previousLastRowsByColumn = lastRowsByColumn;
+				lastRowsByColumn = new HashMap<Long, Double[][]>();
+				leftLastColumns = null;
+			}
+
+			// If there was a previous row, retrieve the top left and top
+			// overlapping rows
+			Double[][] topLeftRows = null;
+			Double[][] topRows = null;
+			if (previousLastRowsByColumn != null) {
+				topLeftRows = previousLastRowsByColumn.get(currentColumn - 1);
+				topRows = previousLastRowsByColumn.get(currentColumn);
+			}
+
+			// If the current column is not the column after the previous clear
+			// the left values
+			if (currentColumn < previousColumn
+					|| currentColumn != previousColumn + 1) {
+				leftLastColumns = null;
+			}
+
 			// Get the bounding box of the elevation
-			BoundingBox tileBoundingBox = TileBoundingBoxUtils.getBoundingBox(
-					elevationBoundingBox, tileMatrix, tileRow.getTileColumn(),
-					tileRow.getTileRow());
+			BoundingBox tileBoundingBox = TileBoundingBoxUtils
+					.getBoundingBox(elevationBoundingBox, tileMatrix,
+							currentColumn, currentRow);
 
 			// Get the bounding box where the request and elevation tile overlap
 			BoundingBox overlap = request.overlap(tileBoundingBox);
+
+			// Get the gridded tile value for the tile
+			GriddedTile griddedTile = getGriddedTile(tileRow.getId());
+
+			// Get the elevation tile image
+			BufferedImage image = null;
+			try {
+				image = tileRow.getTileDataImage();
+			} catch (IOException e) {
+				throw new GeoPackageException(
+						"Failed to get the Tile Row Data Image", e);
+			}
+			WritableRaster raster = image.getRaster();
 
 			// If the tile overlaps with the requested box
 			if (overlap != null) {
 
 				// Get the rectangle of the tile elevation with matching values
-				ImageRectangle src = TileBoundingBoxJavaUtils.getRectangle(
-						tileMatrix.getTileWidth(), tileMatrix.getTileHeight(),
-						tileBoundingBox, overlap);
+				ImageRectangleF src = TileBoundingBoxJavaUtils
+						.getFloatRectangle(tileMatrix.getTileWidth(),
+								tileMatrix.getTileHeight(), tileBoundingBox,
+								overlap);
 
 				// Get the rectangle of where to store the results
-				ImageRectangle dest = TileBoundingBoxJavaUtils.getRectangle(
-						tileWidth, tileHeight,
-						request.getProjectedBoundingBox(), overlap);
+				ImageRectangleF dest = TileBoundingBoxJavaUtils
+						.getFloatRectangle(tileWidth, tileHeight,
+								request.getProjectedBoundingBox(), overlap);
 
 				if (src.isValidAllowEmpty() && dest.isValidAllowEmpty()) {
 
@@ -520,74 +585,311 @@ public class ElevationTiles extends ElevationTilesCore {
 						elevations = new Double[tileHeight][tileWidth];
 					}
 
-					// Get the destination dimensions
-					int destTop = Math.min(dest.getTop(), tileHeight - 1);
-					int destBottom = Math.min(dest.getBottom(), tileHeight - 1);
-					int destLeft = Math.min(dest.getLeft(), tileWidth - 1);
-					int destRight = Math.min(dest.getRight(), tileWidth - 1);
+					// Get the destination widths
+					float destWidth = dest.getRight() - dest.getLeft();
+					float destHeight = dest.getBottom() - dest.getTop();
 
-					int destWidth = destRight - destLeft + 1;
-					int destHeight = destBottom - destTop + 1;
-
-					// Get the source dimensions
-					int srcTop = Math.min(src.getTop(),
-							(int) tileMatrix.getTileHeight() - 1);
-					int srcBottom = Math.min(src.getBottom(),
-							(int) tileMatrix.getTileHeight() - 1);
-					int srcLeft = Math.min(src.getLeft(),
-							(int) tileMatrix.getTileWidth() - 1);
-					int srcRight = Math.min(src.getRight(),
-							(int) tileMatrix.getTileWidth() - 1);
-
-					int srcWidth = srcRight - srcLeft + 1;
-					int srcHeight = srcBottom - srcTop + 1;
+					// Get the destination heights
+					float srcWidth = src.getRight() - src.getLeft();
+					float srcHeight = src.getBottom() - src.getTop();
 
 					// Determine the source to destination ratio
 					float widthRatio = srcWidth / destWidth;
 					float heightRatio = srcHeight / destHeight;
 
-					// Get the gridded tile value for the tile
-					GriddedTile griddedTile = getGriddedTile(tileRow.getId());
+					// Determine how many destination pixels equal half a source
+					// pixel
+					float halfDestWidthPixel = 0.5f / widthRatio;
+					float halfDestHeightPixel = 0.5f / heightRatio;
 
-					// Get the elevation tile image
-					BufferedImage image = null;
-					try {
-						image = tileRow.getTileDataImage();
-					} catch (IOException e) {
-						throw new GeoPackageException(
-								"Failed to get the Tile Row Data Image", e);
-					}
-					WritableRaster raster = image.getRaster();
+					// Determine the range of destination values to set
+					int minDestY = (int) Math.floor(dest.getTop()
+							- halfDestHeightPixel);
+					int maxDestY = (int) Math.ceil(dest.getBottom()
+							+ halfDestHeightPixel);
+					int minDestX = (int) Math.floor(dest.getLeft()
+							- halfDestWidthPixel);
+					int maxDestX = (int) Math.ceil(dest.getRight()
+							+ halfDestWidthPixel);
+					minDestY = Math.max(minDestY, 0);
+					minDestX = Math.max(minDestX, 0);
+					maxDestY = Math.min(maxDestY, tileHeight - 1);
+					maxDestX = Math.min(maxDestX, tileWidth - 1);
 
 					// Read and set the elevation values
-					for (int y = destTop; y <= destBottom; y++) {
-						for (int x = destLeft; x <= destRight; x++) {
+					for (int y = minDestY; y <= maxDestY; y++) {
+						for (int x = minDestX; x <= maxDestX; x++) {
 
-							// Determine which source pixel to use
-							float middleOfXDestPixel = (x - destLeft) + 0.5f;
-							float xSourcePixel = middleOfXDestPixel
-									* widthRatio;
-							int xSource = srcLeft
-									+ (int) Math.floor(xSourcePixel);
+							if (elevations[y][x] == null) {
 
-							float middleOfYDestPixel = (y - destTop) + 0.5f;
-							float ySourcePixel = middleOfYDestPixel
-									* heightRatio;
-							int ySource = srcTop
-									+ (int) Math.floor(ySourcePixel);
+								// Determine the elevation based upon the
+								// selected algorithm
+								Double elevation = null;
+								switch (algorithm) {
+								case NEAREST_NEIGHBOR:
+									elevation = getNearestNeighborElevation(
+											griddedTile, raster,
+											leftLastColumns, topLeftRows,
+											topRows, y, x, widthRatio,
+											heightRatio, dest.getTop(),
+											dest.getLeft(), src.getTop(),
+											src.getLeft());
+									break;
+								case BILINEAR:
+									elevation = getBilinearInterpolationElevation(
+											griddedTile, raster,
+											leftLastColumns, topLeftRows,
+											topRows, y, x, widthRatio,
+											heightRatio, dest.getTop(),
+											dest.getLeft(), src.getTop(),
+											src.getLeft());
+									break;
+								case BICUBIC:
+									// TODO
+									throw new UnsupportedOperationException();
+								default:
+									throw new UnsupportedOperationException(
+											"Algorithm is not supported: "
+													+ algorithm);
+								}
 
-							// Get the elevation value from the source pixel
-							Double elevation = getElevationValue(griddedTile,
-									raster, xSource, ySource);
+								if (elevation != null) {
+									elevations[y][x] = elevation;
+								}
+							}
+						}
+					}
 
-							elevations[y][x] = elevation;
+				}
+			}
+
+			// Determine and store the elevations of the last columns and rows
+			leftLastColumns = new Double[overlappingPixels][(int) tileMatrix
+					.getTileHeight()];
+			Double[][] lastRows = new Double[overlappingPixels][(int) tileMatrix
+					.getTileWidth()];
+			lastRowsByColumn.put(currentColumn, lastRows);
+
+			// For each overlapping pixel
+			for (int lastIndex = 0; lastIndex < overlappingPixels; lastIndex++) {
+
+				// Store the last column row elevation values
+				int lastColumnIndex = (int) tileMatrix.getTileWidth()
+						- lastIndex - 1;
+				for (int row = 0; row < tileMatrix.getTileHeight(); row++) {
+					Double elevation = getElevationValue(griddedTile, raster,
+							lastColumnIndex, row);
+					leftLastColumns[lastIndex][row] = elevation;
+				}
+
+				// Store the last row column elevation values
+				int lastRowIndex = (int) tileMatrix.getTileHeight() - lastIndex
+						- 1;
+				for (int column = 0; column < tileMatrix.getTileWidth(); column++) {
+					Double elevation = getElevationValue(griddedTile, raster,
+							column, lastRowIndex);
+					lastRows[lastIndex][column] = elevation;
+				}
+
+			}
+
+			// Update the previous row and column
+			previousRow = currentRow;
+			previousColumn = currentColumn;
+		}
+
+		return elevations;
+	}
+
+	/**
+	 * Get the bilinear interpolation elevation
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param raster
+	 *            image raster
+	 * @param leftLastColumns
+	 *            last columns in the tile to the left
+	 * @param topLeftRows
+	 *            last rows of the tile to the top left
+	 * @param topRows
+	 *            last rows of the tile to the top
+	 * @param y
+	 *            y coordinate
+	 * @param x
+	 *            x coordinate
+	 * @param widthRatio
+	 *            width source over destination ratio
+	 * @param heightRatio
+	 *            height source over destination ratio
+	 * @param destTop
+	 *            destination top most pixel
+	 * @param destLeft
+	 *            destination left most pixel
+	 * @param srcTop
+	 *            source top most pixel
+	 * @param srcLeft
+	 *            source left most pixel
+	 * @return bilinear elevation
+	 */
+	private Double getBilinearInterpolationElevation(GriddedTile griddedTile,
+			WritableRaster raster, Double[][] leftLastColumns,
+			Double[][] topLeftRows, Double[][] topRows, int y, int x,
+			float widthRatio, float heightRatio, float destTop, float destLeft,
+			float srcTop, float srcLeft) {
+
+		// Determine which source pixel to use
+		float xSource = getXSource(x, destLeft, srcLeft, widthRatio);
+		float ySource = getYSource(y, destTop, srcTop, heightRatio);
+
+		int minMaxX[] = getSourceMinAndMax(xSource);
+		int minX = minMaxX[0];
+		int maxX = minMaxX[1];
+
+		int minMaxY[] = getSourceMinAndMax(ySource);
+		int minY = minMaxY[0];
+		int maxY = minMaxY[1];
+
+		Double bottomLeft = getElevationValueOverBorders(griddedTile, raster,
+				leftLastColumns, topLeftRows, topRows, minX, maxY);
+		Double topLeft = getElevationValueOverBorders(griddedTile, raster,
+				leftLastColumns, topLeftRows, topRows, minX, minY);
+		Double bottomRight = getElevationValueOverBorders(griddedTile, raster,
+				leftLastColumns, topLeftRows, topRows, maxX, maxY);
+		Double topRight = getElevationValueOverBorders(griddedTile, raster,
+				leftLastColumns, topLeftRows, topRows, maxX, minY);
+
+		Double elevation = getBilinearInterpolationElevation(xSource, ySource,
+				minX, maxX, minY, maxY, bottomLeft, topLeft, bottomRight,
+				topRight);
+
+		return elevation;
+	}
+
+	/**
+	 * Get the nearest neighbor elevation
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param raster
+	 *            image raster image raster
+	 * @param leftLastColumns
+	 *            last columns in the tile to the left
+	 * @param topLeftRows
+	 *            last rows of the tile to the top left
+	 * @param topRows
+	 *            last rows of the tile to the top
+	 * @param y
+	 *            y coordinate
+	 * @param x
+	 *            x coordinate
+	 * @param widthRatio
+	 *            width source over destination ratio
+	 * @param heightRatio
+	 *            height source over destination ratio
+	 * @param destTop
+	 *            destination top most pixel
+	 * @param destLeft
+	 *            destination left most pixel
+	 * @param srcTop
+	 *            source top most pixel
+	 * @param srcLeft
+	 *            source left most pixel
+	 * @return nearest neighbor elevation
+	 */
+	private Double getNearestNeighborElevation(GriddedTile griddedTile,
+			WritableRaster raster, Double[][] leftLastColumns,
+			Double[][] topLeftRows, Double[][] topRows, int y, int x,
+			float widthRatio, float heightRatio, float destTop, float destLeft,
+			float srcTop, float srcLeft) {
+
+		// Determine which source pixel to use
+		float xSource = getXSource(x, destLeft, srcLeft, widthRatio);
+		float ySource = getYSource(y, destTop, srcTop, heightRatio);
+
+		int xSourceNearestNeighbor = getNearestNeighborXSource(xSource);
+		int ySourceNearestNeighbor = getNearestNeighborXSource(ySource);
+
+		// Get the elevation value from the source pixel
+		Double elevation = getElevationValueOverBorders(griddedTile, raster,
+				leftLastColumns, topLeftRows, topRows, xSourceNearestNeighbor,
+				ySourceNearestNeighbor);
+
+		return elevation;
+	}
+
+	/**
+	 * Get the elevation value from the coordinate location. If the coordinate
+	 * crosses the left, top, or top left tile, attempts to get the elevation
+	 * from previously processed border elevations.
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param raster
+	 *            image raster
+	 * @param leftLastColumns
+	 *            last columns in the tile to the left
+	 * @param topLeftRows
+	 *            last rows of the tile to the top left
+	 * @param topRows
+	 *            last rows of the tile to the top
+	 * @param y
+	 *            x coordinate
+	 * @param y
+	 *            y coordinate
+	 * @return elevation value
+	 */
+	private Double getElevationValueOverBorders(GriddedTile griddedTile,
+			WritableRaster raster, Double[][] leftLastColumns,
+			Double[][] topLeftRows, Double[][] topRows, int x, int y) {
+		Double elevation = null;
+
+		// Only handle locations in the current tile, to the left, top left, or
+		// top tiles. Tiles are processed sorted by rows and columns, so values
+		// to the top right, right, or any below tiles will be handled later if
+		// those tiles exist
+		if (x < raster.getWidth() && y < raster.getHeight()) {
+
+			if (x >= 0 && y >= 0) {
+				elevation = getElevationValue(griddedTile, raster, x, y);
+			} else if (x < 0 && y < 0) {
+				// Try to get the elevation from the top left tile values
+				if (topLeftRows != null) {
+					int row = (-1 * y) - 1;
+					if (row < topLeftRows.length) {
+						int column = x + topLeftRows[row].length;
+						if (column >= 0) {
+							elevation = topLeftRows[row][column];
+						}
+					}
+				}
+			} else if (x < 0) {
+				// Try to get the elevation from the left tile values
+				if (leftLastColumns != null) {
+					int column = (-1 * x) - 1;
+					if (column < leftLastColumns.length) {
+						int row = y;
+						if (row < leftLastColumns[column].length) {
+							elevation = leftLastColumns[column][row];
+						}
+					}
+				}
+			} else {
+				// Try to get the elevation from the top tile values
+				if (topRows != null) {
+					int row = (-1 * y) - 1;
+					if (row < topRows.length) {
+						int column = x;
+						if (column < topRows[row].length) {
+							elevation = topRows[row][column];
 						}
 					}
 				}
 			}
+
 		}
 
-		return elevations;
+		return elevation;
 	}
 
 	/**
@@ -752,7 +1054,7 @@ public class ElevationTiles extends ElevationTilesCore {
 
 	/**
 	 * Get the tile row results of elevation tiles needed to create the
-	 * requested bounding box elevations
+	 * requested bounding box elevations, sorted by row and then column
 	 *
 	 * @param projectedRequestBoundingBox
 	 *            bounding box projected to the elevations
@@ -760,7 +1062,7 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            tile matrix
 	 * @return tile results or null
 	 */
-	private TileResultSet retrieveTileResults(
+	private TileResultSet retrieveSortedTileResults(
 			BoundingBox projectedRequestBoundingBox, TileMatrix tileMatrix) {
 
 		TileResultSet tileResults = null;
@@ -774,7 +1076,8 @@ public class ElevationTiles extends ElevationTilesCore {
 
 			// Query for matching tiles in the tile grid
 			tileResults = tileDao.queryByTileGrid(tileGrid,
-					tileMatrix.getZoomLevel());
+					tileMatrix.getZoomLevel(), TileTable.COLUMN_TILE_ROW + ","
+							+ TileTable.COLUMN_TILE_COLUMN);
 
 		}
 
