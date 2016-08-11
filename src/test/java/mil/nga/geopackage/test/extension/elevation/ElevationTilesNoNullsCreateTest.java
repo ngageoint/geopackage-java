@@ -46,6 +46,18 @@ public class ElevationTilesNoNullsCreateTest extends
 	}
 
 	/**
+	 * Test the elevation extension with a newly created GeoPackage using the
+	 * Bicubic Algorithm
+	 */
+	@Test
+	public void testElevationsBicubic() throws Exception {
+
+		ElevationTilesTestUtils.testElevations(geoPackage, elevationTileValues,
+				ElevationTilesAlgorithm.BICUBIC);
+
+	}
+
+	/**
 	 * Test a random bounding box using the Nearest Neighbor Algorithm
 	 */
 	@Test
@@ -65,6 +77,18 @@ public class ElevationTilesNoNullsCreateTest extends
 
 		ElevationTilesTestUtils.testRandomBoundingBox(geoPackage,
 				elevationTileValues, ElevationTilesAlgorithm.BILINEAR,
+				allowNulls);
+
+	}
+
+	/**
+	 * Test a random bounding box using the Bicubic Algorithm
+	 */
+	@Test
+	public void testRandomBoundingBoxBicubic() throws Exception {
+
+		ElevationTilesTestUtils.testRandomBoundingBox(geoPackage,
+				elevationTileValues, ElevationTilesAlgorithm.BICUBIC,
 				allowNulls);
 
 	}

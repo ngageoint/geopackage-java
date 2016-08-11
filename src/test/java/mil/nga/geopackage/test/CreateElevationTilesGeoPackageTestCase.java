@@ -210,8 +210,8 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 
 		int width = 1 + (int) Math.floor((Math.random() * 4.0));
 		int height = 1 + (int) Math.floor((Math.random() * 4.0));
-		int tileWidth = 1 + (int) Math.floor((Math.random() * 256.0));
-		int tileHeight = 1 + (int) Math.floor((Math.random() * 256.0));
+		int tileWidth = 2 + (int) Math.floor((Math.random() * 255.0));
+		int tileHeight = 2 + (int) Math.floor((Math.random() * 255.0));
 		int minZoomLevel = (int) Math.floor(Math.random() * 22.0);
 		int maxZoomLevel = minZoomLevel + (int) Math.floor(Math.random() * 4.0);
 

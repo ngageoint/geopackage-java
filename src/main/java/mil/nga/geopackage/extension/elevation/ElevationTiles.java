@@ -645,8 +645,14 @@ public class ElevationTiles extends ElevationTilesCore {
 											src.getLeft());
 									break;
 								case BICUBIC:
-									// TODO
-									throw new UnsupportedOperationException();
+									elevation = getBicubicInterpolationElevation(
+											griddedTile, raster,
+											leftLastColumns, topLeftRows,
+											topRows, minDestY, maxDestY,
+											widthRatio, heightRatio,
+											dest.getTop(), dest.getLeft(),
+											src.getTop(), src.getLeft());
+									break;
 								default:
 									throw new UnsupportedOperationException(
 											"Algorithm is not supported: "
@@ -742,28 +748,159 @@ public class ElevationTiles extends ElevationTilesCore {
 		float xSource = getXSource(x, destLeft, srcLeft, widthRatio);
 		float ySource = getYSource(y, destTop, srcTop, heightRatio);
 
-		int minMaxX[] = getSourceMinAndMax(xSource);
-		int minX = minMaxX[0];
-		int maxX = minMaxX[1];
+		ElevationSourcePixel sourcePixelX = getSourceMinAndMax(xSource);
+		ElevationSourcePixel sourcePixelY = getSourceMinAndMax(ySource);
 
-		int minMaxY[] = getSourceMinAndMax(ySource);
-		int minY = minMaxY[0];
-		int maxY = minMaxY[1];
+		Double[][] values = new Double[2][2];
+		populateElevationValues(griddedTile, raster, leftLastColumns,
+				topLeftRows, topRows, sourcePixelX, sourcePixelY, values);
 
-		Double bottomLeft = getElevationValueOverBorders(griddedTile, raster,
-				leftLastColumns, topLeftRows, topRows, minX, maxY);
-		Double topLeft = getElevationValueOverBorders(griddedTile, raster,
-				leftLastColumns, topLeftRows, topRows, minX, minY);
-		Double bottomRight = getElevationValueOverBorders(griddedTile, raster,
-				leftLastColumns, topLeftRows, topRows, maxX, maxY);
-		Double topRight = getElevationValueOverBorders(griddedTile, raster,
-				leftLastColumns, topLeftRows, topRows, maxX, minY);
+		Double elevation = null;
 
-		Double elevation = getBilinearInterpolationElevation(xSource, ySource,
-				minX, maxX, minY, maxY, bottomLeft, topLeft, bottomRight,
-				topRight);
+		if (values != null) {
+			elevation = getBilinearInterpolationElevation(sourcePixelX,
+					sourcePixelY, values);
+		}
 
 		return elevation;
+	}
+
+	/**
+	 * Get the bicubic interpolation elevation
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param raster
+	 *            image raster
+	 * @param leftLastColumns
+	 *            last columns in the tile to the left
+	 * @param topLeftRows
+	 *            last rows of the tile to the top left
+	 * @param topRows
+	 *            last rows of the tile to the top
+	 * @param y
+	 *            y coordinate
+	 * @param x
+	 *            x coordinate
+	 * @param widthRatio
+	 *            width source over destination ratio
+	 * @param heightRatio
+	 *            height source over destination ratio
+	 * @param destTop
+	 *            destination top most pixel
+	 * @param destLeft
+	 *            destination left most pixel
+	 * @param srcTop
+	 *            source top most pixel
+	 * @param srcLeft
+	 *            source left most pixel
+	 * @return bicubic elevation
+	 */
+	private Double getBicubicInterpolationElevation(GriddedTile griddedTile,
+			WritableRaster raster, Double[][] leftLastColumns,
+			Double[][] topLeftRows, Double[][] topRows, int y, int x,
+			float widthRatio, float heightRatio, float destTop, float destLeft,
+			float srcTop, float srcLeft) {
+
+		// Determine which source pixel to use
+		float xSource = getXSource(x, destLeft, srcLeft, widthRatio);
+		float ySource = getYSource(y, destTop, srcTop, heightRatio);
+
+		ElevationSourcePixel sourcePixelX = getSourceMinAndMax(xSource);
+		sourcePixelX.setMin(sourcePixelX.getMin() - 1);
+		sourcePixelX.setMax(sourcePixelX.getMax() + 1);
+
+		ElevationSourcePixel sourcePixelY = getSourceMinAndMax(ySource);
+		sourcePixelY.setMin(sourcePixelY.getMin() - 1);
+		sourcePixelY.setMax(sourcePixelY.getMax() + 1);
+
+		Double[][] values = new Double[4][4];
+		populateElevationValues(griddedTile, raster, leftLastColumns,
+				topLeftRows, topRows, sourcePixelX, sourcePixelY, values);
+
+		Double elevation = null;
+
+		if (values != null) {
+			elevation = getBicubicInterpolationElevation(values, sourcePixelX,
+					sourcePixelY);
+		}
+
+		return elevation;
+	}
+
+	/**
+	 * Populate the elevation values
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param raster
+	 *            image raster
+	 * @param leftLastColumns
+	 *            last columns in the tile to the left
+	 * @param topLeftRows
+	 *            last rows of the tile to the top left
+	 * @param topRows
+	 *            last rows of the tile to the top
+	 * @param pixelX
+	 *            source x pixel
+	 * @param pixelY
+	 *            source y pixel
+	 * @param values
+	 *            values to populate
+	 */
+	private void populateElevationValues(GriddedTile griddedTile,
+			WritableRaster raster, Double[][] leftLastColumns,
+			Double[][] topLeftRows, Double[][] topRows,
+			ElevationSourcePixel pixelX, ElevationSourcePixel pixelY,
+			Double[][] values) {
+
+		populateElevationValues(griddedTile, raster, leftLastColumns,
+				topLeftRows, topRows, pixelX.getMin(), pixelX.getMax(),
+				pixelY.getMin(), pixelY.getMax(), values);
+	}
+
+	/**
+	 * Populate the elevation values
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param raster
+	 *            image raster
+	 * @param leftLastColumns
+	 *            last columns in the tile to the left
+	 * @param topLeftRows
+	 *            last rows of the tile to the top left
+	 * @param topRows
+	 *            last rows of the tile to the top
+	 * @param minX
+	 *            min x coordinate
+	 * @param maxX
+	 *            max x coordinate
+	 * @param minY
+	 *            min y coordinate
+	 * @param maxY
+	 *            max y coordinate
+	 * @param values
+	 *            values to populate
+	 */
+	private void populateElevationValues(GriddedTile griddedTile,
+			WritableRaster raster, Double[][] leftLastColumns,
+			Double[][] topLeftRows, Double[][] topRows, int minX, int maxX,
+			int minY, int maxY, Double[][] values) {
+
+		for (int yLocation = maxY; values != null && yLocation >= minY; yLocation--) {
+			for (int xLocation = maxX; xLocation >= minX; xLocation--) {
+				Double value = getElevationValueOverBorders(griddedTile,
+						raster, leftLastColumns, topLeftRows, topRows,
+						xLocation, yLocation);
+				if (value == null) {
+					values = null;
+					break;
+				} else {
+					values[yLocation - minY][xLocation - minX] = value;
+				}
+			}
+		}
 	}
 
 	/**
