@@ -29,7 +29,7 @@ public class ElevationTilesNoNullsCreateTest extends
 	public void testElevationsNearestNeighbor() throws Exception {
 
 		ElevationTilesTestUtils.testElevations(geoPackage, elevationTileValues,
-				ElevationTilesAlgorithm.NEAREST_NEIGHBOR);
+				ElevationTilesAlgorithm.NEAREST_NEIGHBOR, allowNulls);
 
 	}
 
@@ -41,7 +41,7 @@ public class ElevationTilesNoNullsCreateTest extends
 	public void testElevationsBilinear() throws Exception {
 
 		ElevationTilesTestUtils.testElevations(geoPackage, elevationTileValues,
-				ElevationTilesAlgorithm.BILINEAR);
+				ElevationTilesAlgorithm.BILINEAR, allowNulls);
 
 	}
 
@@ -53,7 +53,7 @@ public class ElevationTilesNoNullsCreateTest extends
 	public void testElevationsBicubic() throws Exception {
 
 		ElevationTilesTestUtils.testElevations(geoPackage, elevationTileValues,
-				ElevationTilesAlgorithm.BICUBIC);
+				ElevationTilesAlgorithm.BICUBIC, allowNulls);
 
 	}
 
