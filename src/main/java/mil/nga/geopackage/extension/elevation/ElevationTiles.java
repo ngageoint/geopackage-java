@@ -574,9 +574,14 @@ public class ElevationTiles extends ElevationTilesCore {
 								overlap);
 
 				// Get the rectangle of where to store the results
-				ImageRectangleF dest = TileBoundingBoxJavaUtils
-						.getFloatRectangle(tileWidth, tileHeight,
-								request.getProjectedBoundingBox(), overlap);
+				ImageRectangleF dest = null;
+				if(request.getProjectedBoundingBox().equals(overlap)){
+					dest = new ImageRectangleF(0, 0, tileWidth, tileHeight);
+				}else{
+					dest = TileBoundingBoxJavaUtils
+							.getFloatRectangle(tileWidth, tileHeight,
+									request.getProjectedBoundingBox(), overlap);
+				}
 
 				if (src.isValidAllowEmpty() && dest.isValidAllowEmpty()) {
 
