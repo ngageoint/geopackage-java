@@ -165,6 +165,8 @@ public class ElevationTilesImportTest extends
 	@Test
 	public void printBoundingBox() throws Exception {
 
+		long geoPackageEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
+
 		double widthPixelDistance = 1000;
 		double heightPixelDistance = 1000;
 		int width = 10;
@@ -177,19 +179,38 @@ public class ElevationTilesImportTest extends
 		BoundingBox boundingBox = new BoundingBox(minLongitude, maxLongitude,
 				minLatitude, maxLatitude);
 
-		System.out.println();
-		System.out.println();
-		System.out.println("LOCATIONS");
-		Projection projection = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+		Projection projection = ProjectionFactory.getProjection(geoPackageEpsg);
 		Projection printProjection = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		ProjectionTransform transform = projection
+		ProjectionTransform wgs84Transform = projection
 				.getTransformation(printProjection);
+
+		System.out.println("REQUEST");
+		System.out.println();
+		System.out.println("   Min Lat: " + boundingBox.getMinLatitude());
+		System.out.println("   Max Lat: " + boundingBox.getMaxLatitude());
+		System.out.println("   Min Lon: " + boundingBox.getMinLongitude());
+		System.out.println("   Max Lon: " + boundingBox.getMaxLongitude());
+		System.out.println("   Result Width: " + width);
+		System.out.println("   Result Height: " + height);
+
+		System.out.println();
+		System.out.println();
+		System.out.println("WGS84 REQUEST");
+		System.out.println();
+		BoundingBox wgs84BoundingBox = wgs84Transform.transform(boundingBox);
+		System.out.println("   Min Lat: " + wgs84BoundingBox.getMinLatitude());
+		System.out.println("   Max Lat: " + wgs84BoundingBox.getMaxLatitude());
+		System.out.println("   Min Lon: " + wgs84BoundingBox.getMinLongitude());
+		System.out.println("   Max Lon: " + wgs84BoundingBox.getMaxLongitude());
+
+		System.out.println();
+		System.out.println();
+		System.out.println("WGS84 LOCATIONS");
 		for (double lat = maxLatitude - (heightPixelDistance * .5); lat >= minLatitude; lat -= heightPixelDistance) {
 			System.out.println();
 			for (double lon = minLongitude + (widthPixelDistance * .5); lon <= maxLongitude; lon += widthPixelDistance) {
-				double[] point = transform.transform(lon, lat);
+				double[] point = wgs84Transform.transform(lon, lat);
 				System.out.print("   (" + point[1] + "," + point[0] + ")");
 			}
 		}
@@ -205,14 +226,13 @@ public class ElevationTilesImportTest extends
 				for (double lon = minLongitude + (widthPixelDistance * .5); lon <= maxLongitude; lon += widthPixelDistance) {
 					System.out.print("   "
 							+ ElevationTilesTestUtils.getElevation(geoPackage,
-									algorithm, lat, lon,
-									ProjectionConstants.EPSG_WEB_MERCATOR));
+									algorithm, lat, lon, geoPackageEpsg));
 				}
 			}
 
 			ElevationTileResults results = ElevationTilesTestUtils
 					.getElevations(geoPackage, algorithm, boundingBox, width,
-							height, ProjectionConstants.EPSG_WEB_MERCATOR);
+							height, geoPackageEpsg);
 			System.out.println();
 			System.out.println();
 			System.out.println(algorithm.name());

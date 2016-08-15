@@ -575,12 +575,12 @@ public class ElevationTiles extends ElevationTilesCore {
 
 				// Get the rectangle of where to store the results
 				ImageRectangleF dest = null;
-				if(request.getProjectedBoundingBox().equals(overlap)){
+				if (request.getProjectedBoundingBox().equals(overlap)) {
 					dest = new ImageRectangleF(0, 0, tileWidth, tileHeight);
-				}else{
-					dest = TileBoundingBoxJavaUtils
-							.getFloatRectangle(tileWidth, tileHeight,
-									request.getProjectedBoundingBox(), overlap);
+				} else {
+					dest = TileBoundingBoxJavaUtils.getFloatRectangle(
+							tileWidth, tileHeight,
+							request.getProjectedBoundingBox(), overlap);
 				}
 
 				if (src.isValidAllowEmpty() && dest.isValidAllowEmpty()) {
@@ -653,10 +653,10 @@ public class ElevationTiles extends ElevationTilesCore {
 									elevation = getBicubicInterpolationElevation(
 											griddedTile, raster,
 											leftLastColumns, topLeftRows,
-											topRows, minDestY, maxDestY,
-											widthRatio, heightRatio,
-											dest.getTop(), dest.getLeft(),
-											src.getTop(), src.getLeft());
+											topRows, y, x, widthRatio,
+											heightRatio, dest.getTop(),
+											dest.getLeft(), src.getTop(),
+											src.getLeft());
 									break;
 								default:
 									throw new UnsupportedOperationException(
