@@ -197,7 +197,8 @@ public class ElevationTilesTestUtils {
 				TileRow tileRow = tileDao.queryForIdRow(griddedTile
 						.getTableId());
 				testTileRow(geoPackage, elevationTileValues, elevationTiles,
-						tileMatrixSet, griddedTile, tileRow, algorithm);
+						tileMatrixSet, griddedTile, tileRow, algorithm,
+						allowNulls);
 			}
 
 			TileResultSet tileResultSet = tileDao.queryForAll();
@@ -208,7 +209,8 @@ public class ElevationTilesTestUtils {
 				GriddedTile griddedTile = elevationTiles.getGriddedTile(tileRow
 						.getId());
 				testTileRow(geoPackage, elevationTileValues, elevationTiles,
-						tileMatrixSet, griddedTile, tileRow, algorithm);
+						tileMatrixSet, griddedTile, tileRow, algorithm,
+						allowNulls);
 			}
 			tileResultSet.close();
 
@@ -229,6 +231,8 @@ public class ElevationTilesTestUtils {
 	 * @param griddedTile
 	 * @param tileRow
 	 * @param algorithm
+	 * @param allowNulls
+	 *            allow nulls
 	 * @throws IOException
 	 * @throws SQLException
 	 */
@@ -236,7 +240,8 @@ public class ElevationTilesTestUtils {
 			ElevationTileValues elevationTileValues,
 			ElevationTiles elevationTiles, TileMatrixSet tileMatrixSet,
 			GriddedTile griddedTile, TileRow tileRow,
-			ElevationTilesAlgorithm algorithm) throws IOException, SQLException {
+			ElevationTilesAlgorithm algorithm, boolean allowNulls)
+			throws IOException, SQLException {
 
 		TestCase.assertNotNull(griddedTile);
 		TestCase.assertTrue(griddedTile.getId() >= 0);
@@ -345,15 +350,32 @@ public class ElevationTilesTestUtils {
 							* elevationTileResults.getElevations()[0].length);
 			for (int y = 0; y < elevationTileResults.getElevations().length; y++) {
 				for (int x = 0; x < elevationTileResults.getElevations()[0].length; x++) {
-					if (algorithm == ElevationTilesAlgorithm.BICUBIC) {
+					switch (algorithm) {
+					case BICUBIC:
 						// TODO
-					//	TestCase.assertEquals(
-					//			elevationTileValues.tileElevations[y][x],
-					//			elevationTileResults.getElevations()[y][x]);
-					} else {
-						TestCase.assertEquals(
-								elevationTileValues.tileElevations[y][x],
-								elevationTileResults.getElevations()[y][x]);
+						// TestCase.assertEquals(
+						// elevationTileValues.tileElevations[y][x],
+						// elevationTileResults.getElevations()[y][x]);
+						break;
+					case BILINEAR:
+						if (y > 0
+								&& y < elevationTileValues.tileElevations.length - 1
+								&& x > 0
+								&& x < elevationTileValues.tileElevations[0].length - 1) {
+							if (!allowNulls) {
+								TestCase.assertEquals(
+										elevationTileValues.tileElevations[y][x],
+										elevationTileResults.getElevations()[y][x]);
+							}
+						}
+						break;
+					case NEAREST_NEIGHBOR:
+						if (!allowNulls) {
+							TestCase.assertEquals(
+									elevationTileValues.tileElevations[y][x],
+									elevationTileResults.getElevations()[y][x]);
+						}
+						break;
 					}
 				}
 			}
@@ -597,10 +619,10 @@ public class ElevationTilesTestUtils {
 					if (!allowNulls) {
 						if (algorithm == ElevationTilesAlgorithm.BICUBIC) {
 							// TODO
-							//if (elevations.getElevations()[y][x] == null) {
-								//System.out.println("y = " + y + ", x = " + x);
-								//TestCase.assertNotNull(elevations.getElevations()[y][x]);
-							//}
+							// if (elevations.getElevations()[y][x] == null) {
+							// System.out.println("y = " + y + ", x = " + x);
+							// TestCase.assertNotNull(elevations.getElevations()[y][x]);
+							// }
 						} else {
 							TestCase.assertNotNull(elevations.getElevations()[y][x]);
 						}
