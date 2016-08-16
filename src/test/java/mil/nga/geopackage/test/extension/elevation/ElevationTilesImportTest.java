@@ -13,6 +13,8 @@ import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.test.ImportElevationTilesGeoPackageTestCase;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 
@@ -241,6 +243,130 @@ public class ElevationTilesImportTest extends
 				System.out.println();
 				for (int x = 0; x < elevations[0].length; x++) {
 					System.out.print("   " + elevations[y][x]);
+				}
+			}
+		}
+
+		List<String> elevationTables = ElevationTiles.getTables(geoPackage);
+		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
+
+		for (String elevationTable : elevationTables) {
+
+			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+
+			boundingBox = tileMatrixSet.getBoundingBox();
+
+			minLongitude = boundingBox.getMinLongitude();
+			maxLongitude = boundingBox.getMaxLongitude();
+			minLatitude = boundingBox.getMinLatitude();
+			maxLatitude = boundingBox.getMaxLatitude();
+
+			widthPixelDistance = (maxLongitude - minLongitude) / width;
+			heightPixelDistance = (maxLatitude - minLatitude) / height;
+
+			for (ElevationTilesAlgorithm algorithm : ElevationTilesAlgorithm
+					.values()) {
+
+				System.out.println();
+				System.out.println();
+				System.out.println(algorithm.name()
+						+ " SINGLE ELEVATIONS Full Bounding Box");
+				for (double lat = maxLatitude; lat >= minLatitude; lat -= heightPixelDistance) {
+					System.out.println();
+					for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
+						System.out.print("   "
+								+ ElevationTilesTestUtils.getElevation(
+										geoPackage, algorithm, lat, lon,
+										geoPackageEpsg));
+					}
+					System.out.print("   "
+							+ ElevationTilesTestUtils.getElevation(
+									geoPackage, algorithm, lat, maxLongitude,
+									geoPackageEpsg));
+				}
+				System.out.println();
+				for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
+					System.out.print("   "
+							+ ElevationTilesTestUtils.getElevation(
+									geoPackage, algorithm, minLatitude, lon,
+									geoPackageEpsg));
+				}
+				System.out.print("   "
+						+ ElevationTilesTestUtils.getElevation(
+								geoPackage, algorithm, minLatitude, maxLongitude,
+								geoPackageEpsg));
+
+				ElevationTileResults results = ElevationTilesTestUtils
+						.getElevations(geoPackage, algorithm, boundingBox,
+								width, height, geoPackageEpsg);
+				System.out.println();
+				System.out.println();
+				System.out.println(algorithm.name() + " Full Bounding Box");
+				Double[][] elevations = results.getElevations();
+				for (int y = 0; y < elevations.length; y++) {
+					System.out.println();
+					for (int x = 0; x < elevations[0].length; x++) {
+						System.out.print("   " + elevations[y][x]);
+					}
+				}
+
+				TileMatrix tileMatrix = results.getTileMatrix();
+				for (int row = 0; row < tileMatrix.getMatrixHeight(); row++) {
+					for (int column = 0; column < tileMatrix.getMatrixWidth(); column++) {
+
+						BoundingBox boundingBox2 = TileBoundingBoxUtils
+								.getBoundingBox(boundingBox, tileMatrix,
+										column, row);
+
+						double minLongitude2 = boundingBox2.getMinLongitude();
+						double maxLongitude2 = boundingBox2.getMaxLongitude();
+						double minLatitude2 = boundingBox2.getMinLatitude();
+						double maxLatitude2 = boundingBox2.getMaxLatitude();
+
+						System.out.println();
+						System.out.println();
+						System.out.println(algorithm.name()
+								+ " SINGLE ELEVATIONS Tile row = " + row
+								+ ", column = " + column);
+						System.out.println();
+						System.out.print("   "
+								+ ElevationTilesTestUtils.getElevation(
+										geoPackage, algorithm, maxLatitude2,
+										minLongitude2, geoPackageEpsg));
+						System.out.println("   "
+								+ ElevationTilesTestUtils.getElevation(
+										geoPackage, algorithm, maxLatitude2,
+										maxLongitude2, geoPackageEpsg));
+						System.out.print("   "
+								+ ElevationTilesTestUtils.getElevation(
+										geoPackage, algorithm, minLatitude2,
+										minLongitude2, geoPackageEpsg));
+						System.out.println("   "
+								+ ElevationTilesTestUtils.getElevation(
+										geoPackage, algorithm, minLatitude2,
+										maxLongitude2, geoPackageEpsg));
+
+						results = ElevationTilesTestUtils.getElevations(
+								geoPackage, algorithm, boundingBox2, width,
+								height, geoPackageEpsg);
+						System.out.println();
+						System.out.println();
+						System.out.println(algorithm.name() + " Tile row = "
+								+ row + ", column = " + column);
+						if (results == null) {
+							System.out.println();
+							System.out.print("null results");
+						} else {
+							elevations = results.getElevations();
+							for (int y = 0; y < elevations.length; y++) {
+								System.out.println();
+								for (int x = 0; x < elevations[0].length; x++) {
+									System.out.print("   " + elevations[y][x]);
+								}
+							}
+						}
+
+					}
 				}
 			}
 		}

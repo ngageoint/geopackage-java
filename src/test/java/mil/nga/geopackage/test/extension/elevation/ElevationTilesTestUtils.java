@@ -347,6 +347,9 @@ public class ElevationTilesTestUtils {
 				for (int x = 0; x < elevationTileResults.getElevations()[0].length; x++) {
 					if (algorithm == ElevationTilesAlgorithm.BICUBIC) {
 						// TODO
+					//	TestCase.assertEquals(
+					//			elevationTileValues.tileElevations[y][x],
+					//			elevationTileResults.getElevations()[y][x]);
 					} else {
 						TestCase.assertEquals(
 								elevationTileValues.tileElevations[y][x],
@@ -594,9 +597,10 @@ public class ElevationTilesTestUtils {
 					if (!allowNulls) {
 						if (algorithm == ElevationTilesAlgorithm.BICUBIC) {
 							// TODO
-							if (elevations.getElevations()[y][x] == null) {
-								System.out.println("y = " + y + ", x = " + x);
-							}
+							//if (elevations.getElevations()[y][x] == null) {
+								//System.out.println("y = " + y + ", x = " + x);
+								//TestCase.assertNotNull(elevations.getElevations()[y][x]);
+							//}
 						} else {
 							TestCase.assertNotNull(elevations.getElevations()[y][x]);
 						}

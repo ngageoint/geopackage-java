@@ -6,6 +6,7 @@ import java.awt.image.DataBufferUShort;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -188,9 +189,20 @@ public class ElevationTiles extends ElevationTilesCore {
 		}
 		request.setProjectedBoundingBox(requestProjectedBoundingBox);
 
+		// Determine how many overlapping pixels to store based upon the
+		// algorithm
+		int overlappingPixels;
+		switch (algorithm) {
+		case BICUBIC:
+			overlappingPixels = 2;
+			break;
+		default:
+			overlappingPixels = 1;
+		}
+
 		// Find the tile matrix and results
 		ElevationTileMatrixResults results = getResults(request,
-				requestProjectedBoundingBox);
+				requestProjectedBoundingBox, overlappingPixels);
 
 		if (results != null) {
 
@@ -230,7 +242,7 @@ public class ElevationTiles extends ElevationTilesCore {
 
 				// Retrieve the elevations from the results
 				Double[][] elevations = getElevations(tileMatrix, tileResults,
-						request, tileWidth, tileHeight);
+						request, tileWidth, tileHeight, overlappingPixels);
 
 				// Project the elevations if needed
 				if (elevations != null && !sameProjection && !request.isPoint()) {
@@ -343,16 +355,33 @@ public class ElevationTiles extends ElevationTilesCore {
 	 */
 	private ElevationTileMatrixResults getResults(ElevationRequest request,
 			BoundingBox requestProjectedBoundingBox) {
+		return getResults(request, requestProjectedBoundingBox, 0);
+	}
+
+	/**
+	 * Get the elevation tile results by finding the tile matrix with values
+	 * 
+	 * @param request
+	 *            elevation request
+	 * @param requestProjectedBoundingBox
+	 *            request projected bounding box
+	 * @param overlappingPixels
+	 *            overlapping request pixels
+	 * @return tile matrix results
+	 */
+	private ElevationTileMatrixResults getResults(ElevationRequest request,
+			BoundingBox requestProjectedBoundingBox, int overlappingPixels) {
 		// Try to get the elevation from the current zoom level
 		TileMatrix tileMatrix = getTileMatrix(request);
 		ElevationTileMatrixResults results = null;
 		if (tileMatrix != null) {
-			results = getResults(requestProjectedBoundingBox, tileMatrix);
+			results = getResults(requestProjectedBoundingBox, tileMatrix,
+					overlappingPixels);
 
 			// Try to zoom in or out to find a matching elevation
 			if (results == null) {
 				results = getResultsZoom(requestProjectedBoundingBox,
-						tileMatrix);
+						tileMatrix, overlappingPixels);
 			}
 		}
 		return results;
@@ -365,13 +394,18 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            request projected bounding box
 	 * @param tileMatrix
 	 *            tile matrix
+	 * @param overlappingPixels
+	 *            number of overlapping pixels used by the algorithm
 	 * @return tile matrix results
 	 */
 	private ElevationTileMatrixResults getResults(
-			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix,
+			int overlappingPixels) {
 		ElevationTileMatrixResults results = null;
+		BoundingBox paddedBoundingBox = padBoundingBox(tileMatrix,
+				requestProjectedBoundingBox, overlappingPixels);
 		TileResultSet tileResults = retrieveSortedTileResults(
-				requestProjectedBoundingBox, tileMatrix);
+				paddedBoundingBox, tileMatrix);
 		if (tileResults != null) {
 			if (tileResults.getCount() > 0) {
 				results = new ElevationTileMatrixResults(tileMatrix,
@@ -384,6 +418,29 @@ public class ElevationTiles extends ElevationTilesCore {
 	}
 
 	/**
+	 * Pad the bounding box with extra space for the overlapping pixels
+	 * 
+	 * @param tileMatrix
+	 *            tile matrix
+	 * @param boundingBox
+	 *            bounding box
+	 * @param overlap
+	 *            overlapping pixels
+	 * @return padded bounding box
+	 */
+	private BoundingBox padBoundingBox(TileMatrix tileMatrix,
+			BoundingBox boundingBox, int overlap) {
+		double lonPixelPadding = tileMatrix.getPixelXSize() * overlap;
+		double latPixelPadding = tileMatrix.getPixelYSize() * overlap;
+		BoundingBox paddedBoundingBox = new BoundingBox(
+				boundingBox.getMinLongitude() - lonPixelPadding,
+				boundingBox.getMaxLongitude() + lonPixelPadding,
+				boundingBox.getMinLatitude() - latPixelPadding,
+				boundingBox.getMaxLatitude() + latPixelPadding);
+		return paddedBoundingBox;
+	}
+
+	/**
 	 * Get the elevation tile results by zooming in or out as needed from the
 	 * provided tile matrix to find values
 	 * 
@@ -391,21 +448,27 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            request projected bounding box
 	 * @param tileMatrix
 	 *            tile matrix
+	 * @param overlappingPixels
+	 *            overlapping request pixels
 	 * @return tile matrix results
 	 */
 	private ElevationTileMatrixResults getResultsZoom(
-			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix,
+			int overlappingPixels) {
 
 		ElevationTileMatrixResults results = null;
 
 		if (zoomIn && zoomInBeforeOut) {
-			results = getResultsZoomIn(requestProjectedBoundingBox, tileMatrix);
+			results = getResultsZoomIn(requestProjectedBoundingBox, tileMatrix,
+					overlappingPixels);
 		}
 		if (results == null && zoomOut) {
-			results = getResultsZoomOut(requestProjectedBoundingBox, tileMatrix);
+			results = getResultsZoomOut(requestProjectedBoundingBox,
+					tileMatrix, overlappingPixels);
 		}
 		if (results == null && zoomIn && !zoomInBeforeOut) {
-			results = getResultsZoomIn(requestProjectedBoundingBox, tileMatrix);
+			results = getResultsZoomIn(requestProjectedBoundingBox, tileMatrix,
+					overlappingPixels);
 		}
 
 		return results;
@@ -419,10 +482,13 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            request projected bounding box
 	 * @param tileMatrix
 	 *            tile matrix
+	 * @param overlappingPixels
+	 *            overlapping request pixels
 	 * @return tile matrix results
 	 */
 	private ElevationTileMatrixResults getResultsZoomIn(
-			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix,
+			int overlappingPixels) {
 
 		ElevationTileMatrixResults results = null;
 		for (long zoomLevel = tileMatrix.getZoomLevel() + 1; zoomLevel <= tileDao
@@ -430,7 +496,7 @@ public class ElevationTiles extends ElevationTilesCore {
 			TileMatrix zoomTileMatrix = tileDao.getTileMatrix(zoomLevel);
 			if (zoomTileMatrix != null) {
 				results = getResults(requestProjectedBoundingBox,
-						zoomTileMatrix);
+						zoomTileMatrix, overlappingPixels);
 				if (results != null) {
 					break;
 				}
@@ -447,10 +513,13 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            request projected bounding box
 	 * @param tileMatrix
 	 *            tile matrix
+	 * @param overlappingPixels
+	 *            overlapping request pixels
 	 * @return tile matrix results
 	 */
 	private ElevationTileMatrixResults getResultsZoomOut(
-			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix) {
+			BoundingBox requestProjectedBoundingBox, TileMatrix tileMatrix,
+			int overlappingPixels) {
 
 		ElevationTileMatrixResults results = null;
 		for (long zoomLevel = tileMatrix.getZoomLevel() - 1; zoomLevel >= tileDao
@@ -458,7 +527,7 @@ public class ElevationTiles extends ElevationTilesCore {
 			TileMatrix zoomTileMatrix = tileDao.getTileMatrix(zoomLevel);
 			if (zoomTileMatrix != null) {
 				results = getResults(requestProjectedBoundingBox,
-						zoomTileMatrix);
+						zoomTileMatrix, overlappingPixels);
 				if (results != null) {
 					break;
 				}
@@ -481,11 +550,13 @@ public class ElevationTiles extends ElevationTilesCore {
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
+	 * @param overlappingPixels
+	 *            overlapping request pixels
 	 * @return elevation values
 	 */
 	private Double[][] getElevations(TileMatrix tileMatrix,
 			TileResultSet tileResults, ElevationRequest request, int tileWidth,
-			int tileHeight) {
+			int tileHeight, int overlappingPixels) {
 
 		Double[][] elevations = null;
 
@@ -495,17 +566,6 @@ public class ElevationTiles extends ElevationTilesCore {
 		Double[][] leftLastColumns = null;
 		Map<Long, Double[][]> lastRowsByColumn = null;
 		Map<Long, Double[][]> previousLastRowsByColumn = null;
-
-		// Determine how many overlapping pixels to store based upon the
-		// algorithm
-		int overlappingPixels;
-		switch (algorithm) {
-		case BICUBIC:
-			overlappingPixels = 2;
-			break;
-		default:
-			overlappingPixels = 1;
-		}
 
 		long previousRow = -1;
 		long previousColumn = Long.MAX_VALUE;
@@ -576,7 +636,15 @@ public class ElevationTiles extends ElevationTilesCore {
 				// Get the rectangle of where to store the results
 				ImageRectangleF dest = null;
 				if (request.getProjectedBoundingBox().equals(overlap)) {
-					dest = new ImageRectangleF(0, 0, tileWidth, tileHeight);
+					if (request.isPoint()) {
+						// For single points request only a single destination
+						// pixel
+						dest = new ImageRectangleF(0, 0, 0, 0);
+					} else {
+						// The overlap is equal to the request, set as the full
+						// destination size
+						dest = new ImageRectangleF(0, 0, tileWidth, tileHeight);
+					}
 				} else {
 					dest = TileBoundingBoxJavaUtils.getFloatRectangle(
 							tileWidth, tileHeight,
@@ -598,14 +666,26 @@ public class ElevationTiles extends ElevationTilesCore {
 					float srcWidth = src.getRight() - src.getLeft();
 					float srcHeight = src.getBottom() - src.getTop();
 
-					// Determine the source to destination ratio
-					float widthRatio = srcWidth / destWidth;
-					float heightRatio = srcHeight / destHeight;
-
-					// Determine how many destination pixels equal half a source
-					// pixel
-					float halfDestWidthPixel = 0.5f / widthRatio;
-					float halfDestHeightPixel = 0.5f / heightRatio;
+					// Determine the source to destination ratio and how many
+					// destination pixels equal half a source pixel
+					float widthRatio;
+					float halfDestWidthPixel;
+					if (destWidth == 0) {
+						widthRatio = 0.0f;
+						halfDestWidthPixel = 0.0f;
+					} else {
+						widthRatio = srcWidth / destWidth;
+						halfDestWidthPixel = 0.5f / widthRatio;
+					}
+					float heightRatio;
+					float halfDestHeightPixel;
+					if (destHeight == 0) {
+						heightRatio = 0.0f;
+						halfDestHeightPixel = 0.0f;
+					} else {
+						heightRatio = srcHeight / destHeight;
+						halfDestHeightPixel = 0.5f / heightRatio;
+					}
 
 					// Determine the range of destination values to set
 					int minDestY = (int) Math.floor(dest.getTop()
@@ -625,49 +705,44 @@ public class ElevationTiles extends ElevationTilesCore {
 					for (int y = minDestY; y <= maxDestY; y++) {
 						for (int x = minDestX; x <= maxDestX; x++) {
 
-							if (elevations[y][x] == null) {
-
-								// Determine the elevation based upon the
-								// selected algorithm
-								Double elevation = null;
-								switch (algorithm) {
-								case NEAREST_NEIGHBOR:
-									elevation = getNearestNeighborElevation(
-											griddedTile, raster,
-											leftLastColumns, topLeftRows,
-											topRows, y, x, widthRatio,
-											heightRatio, dest.getTop(),
-											dest.getLeft(), src.getTop(),
-											src.getLeft());
-									break;
-								case BILINEAR:
-									elevation = getBilinearInterpolationElevation(
-											griddedTile, raster,
-											leftLastColumns, topLeftRows,
-											topRows, y, x, widthRatio,
-											heightRatio, dest.getTop(),
-											dest.getLeft(), src.getTop(),
-											src.getLeft());
-									break;
-								case BICUBIC:
-									elevation = getBicubicInterpolationElevation(
-											griddedTile, raster,
-											leftLastColumns, topLeftRows,
-											topRows, y, x, widthRatio,
-											heightRatio, dest.getTop(),
-											dest.getLeft(), src.getTop(),
-											src.getLeft());
-									break;
-								default:
-									throw new UnsupportedOperationException(
-											"Algorithm is not supported: "
-													+ algorithm);
-								}
-
-								if (elevation != null) {
-									elevations[y][x] = elevation;
-								}
+							// Determine the elevation based upon the
+							// selected algorithm
+							Double elevation = null;
+							switch (algorithm) {
+							case NEAREST_NEIGHBOR:
+								elevation = getNearestNeighborElevation(
+										griddedTile, raster, leftLastColumns,
+										topLeftRows, topRows, y, x, widthRatio,
+										heightRatio, dest.getTop(),
+										dest.getLeft(), src.getTop(),
+										src.getLeft());
+								break;
+							case BILINEAR:
+								elevation = getBilinearInterpolationElevation(
+										griddedTile, raster, leftLastColumns,
+										topLeftRows, topRows, y, x, widthRatio,
+										heightRatio, dest.getTop(),
+										dest.getLeft(), src.getTop(),
+										src.getLeft());
+								break;
+							case BICUBIC:
+								elevation = getBicubicInterpolationElevation(
+										griddedTile, raster, leftLastColumns,
+										topLeftRows, topRows, y, x, widthRatio,
+										heightRatio, dest.getTop(),
+										dest.getLeft(), src.getTop(),
+										src.getLeft());
+								break;
+							default:
+								throw new UnsupportedOperationException(
+										"Algorithm is not supported: "
+												+ algorithm);
 							}
+
+							if (elevation != null) {
+								elevations[y][x] = elevation;
+							}
+
 						}
 					}
 
@@ -949,13 +1024,20 @@ public class ElevationTiles extends ElevationTilesCore {
 		float xSource = getXSource(x, destLeft, srcLeft, widthRatio);
 		float ySource = getYSource(y, destTop, srcTop, heightRatio);
 
-		int xSourceNearestNeighbor = getNearestNeighborXSource(xSource);
-		int ySourceNearestNeighbor = getNearestNeighborXSource(ySource);
+		// Get the closest nearest neighbors
+		List<int[]> nearestNeighbors = getNearestNeighbors(xSource, ySource);
 
-		// Get the elevation value from the source pixel
-		Double elevation = getElevationValueOverBorders(griddedTile, raster,
-				leftLastColumns, topLeftRows, topRows, xSourceNearestNeighbor,
-				ySourceNearestNeighbor);
+		// Get the elevation value from the source pixel nearest neighbors until
+		// one is found
+		Double elevation = null;
+		for (int[] nearestNeighbor : nearestNeighbors) {
+			elevation = getElevationValueOverBorders(griddedTile, raster,
+					leftLastColumns, topLeftRows, topRows, nearestNeighbor[0],
+					nearestNeighbor[1]);
+			if (elevation != null) {
+				break;
+			}
+		}
 
 		return elevation;
 	}
