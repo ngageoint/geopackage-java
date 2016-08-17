@@ -194,7 +194,7 @@ public class ElevationTiles extends ElevationTilesCore {
 		int overlappingPixels;
 		switch (algorithm) {
 		case BICUBIC:
-			overlappingPixels = 2;
+			overlappingPixels = 3;
 			break;
 		default:
 			overlappingPixels = 1;
@@ -687,15 +687,20 @@ public class ElevationTiles extends ElevationTilesCore {
 						halfDestHeightPixel = 0.5f / heightRatio;
 					}
 
+					float algorithmDestWidthPixelOverlap = halfDestWidthPixel
+							* overlappingPixels;
+					float algorithmDestHeightPixelOverlap = halfDestHeightPixel
+							* overlappingPixels;
+
 					// Determine the range of destination values to set
 					int minDestY = (int) Math.floor(dest.getTop()
-							- halfDestHeightPixel);
+							- algorithmDestHeightPixelOverlap);
 					int maxDestY = (int) Math.ceil(dest.getBottom()
-							+ halfDestHeightPixel);
+							+ algorithmDestHeightPixelOverlap);
 					int minDestX = (int) Math.floor(dest.getLeft()
-							- halfDestWidthPixel);
+							- algorithmDestWidthPixelOverlap);
 					int maxDestX = (int) Math.ceil(dest.getRight()
-							+ halfDestWidthPixel);
+							+ algorithmDestWidthPixelOverlap);
 					minDestY = Math.max(minDestY, 0);
 					minDestX = Math.max(minDestX, 0);
 					maxDestY = Math.min(maxDestY, tileHeight - 1);

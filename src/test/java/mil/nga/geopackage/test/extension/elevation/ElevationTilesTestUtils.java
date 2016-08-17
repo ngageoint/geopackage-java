@@ -683,11 +683,35 @@ public class ElevationTilesTestUtils {
 			TestCase.assertEquals(specifiedWidth, elevations.getWidth());
 
 			for (int y = 0; y < specifiedHeight; y++) {
+				boolean nonNullFound = false;
+				boolean secondNullsFound = false;
 				for (int x = 0; x < specifiedWidth; x++) {
 					TestCase.assertEquals(elevations.getElevations()[y][x],
 							elevations.getElevation(y, x));
 					if (!allowNulls) {
-						TestCase.assertNotNull(elevations.getElevations()[y][x]);
+						if (elevations.getElevations()[y][x] != null) {
+							TestCase.assertFalse(secondNullsFound);
+							nonNullFound = true;
+						} else if (nonNullFound) {
+							secondNullsFound = true;
+						}
+					}
+				}
+			}
+
+			for (int x = 0; x < specifiedWidth; x++) {
+				boolean nonNullFound = false;
+				boolean secondNullsFound = false;
+				for (int y = 0; y < specifiedHeight; y++) {
+					TestCase.assertEquals(elevations.getElevations()[y][x],
+							elevations.getElevation(y, x));
+					if (!allowNulls) {
+						if (elevations.getElevations()[y][x] != null) {
+							TestCase.assertFalse(secondNullsFound);
+							nonNullFound = true;
+						} else if (nonNullFound) {
+							secondNullsFound = true;
+						}
 					}
 				}
 			}
