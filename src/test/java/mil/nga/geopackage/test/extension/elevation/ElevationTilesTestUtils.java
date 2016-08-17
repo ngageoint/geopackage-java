@@ -352,21 +352,71 @@ public class ElevationTilesTestUtils {
 				for (int x = 0; x < elevationTileResults.getElevations()[0].length; x++) {
 					switch (algorithm) {
 					case BICUBIC:
-						// TODO
-						// TestCase.assertEquals(
-						// elevationTileValues.tileElevations[y][x],
-						// elevationTileResults.getElevations()[y][x]);
+						// Don't test the edges
+						if (y > 1
+								&& y < elevationTileValues.tileElevations.length - 2
+								&& x > 1
+								&& x < elevationTileValues.tileElevations[0].length - 2) {
+							if (!allowNulls) {
+								// No nulls allowed, check for equality
+								TestCase.assertEquals(
+										elevationTileValues.tileElevations[y][x],
+										elevationTileResults.getElevations()[y][x]);
+							} else {
+								// Verify there is null neighbor value
+								Double value1 = elevationTileValues.tileElevations[y][x];
+								Double value2 = elevationTileResults
+										.getElevations()[y][x];
+								if (value1 == null ? value2 != null : !value1
+										.equals(value2)) {
+									boolean nullValue = false;
+									for (int yLocation = y - 2; !nullValue
+											&& yLocation <= y + 2; yLocation++) {
+										for (int xLocation = x - 2; xLocation <= x + 2; xLocation++) {
+											if (elevationTileValues.tileElevations[yLocation][xLocation] == null) {
+												nullValue = true;
+												break;
+											}
+										}
+									}
+									TestCase.assertTrue(nullValue);
+								}
+							}
+
+						}
 						break;
 					case BILINEAR:
+						// Don't test the edges
 						if (y > 0
 								&& y < elevationTileValues.tileElevations.length - 1
 								&& x > 0
 								&& x < elevationTileValues.tileElevations[0].length - 1) {
 							if (!allowNulls) {
+								// No nulls allowed, check for equality
 								TestCase.assertEquals(
 										elevationTileValues.tileElevations[y][x],
 										elevationTileResults.getElevations()[y][x]);
+							} else {
+								// Verify there is null neighbor value
+								Double value1 = elevationTileValues.tileElevations[y][x];
+								Double value2 = elevationTileResults
+										.getElevations()[y][x];
+								if (value1 == null ? value2 != null : !value1
+										.equals(value2)) {
+									boolean nullValue = false;
+									for (int yLocation = y - 1; !nullValue
+											&& yLocation <= y + 1; yLocation++) {
+										for (int xLocation = x - 1; xLocation <= x + 1; xLocation++) {
+											if (elevationTileValues.tileElevations[yLocation][xLocation] == null) {
+												nullValue = true;
+												break;
+											}
+										}
+									}
+									TestCase.assertTrue(nullValue);
+								}
 							}
+
 						}
 						break;
 					case NEAREST_NEIGHBOR:
@@ -374,6 +424,38 @@ public class ElevationTilesTestUtils {
 							TestCase.assertEquals(
 									elevationTileValues.tileElevations[y][x],
 									elevationTileResults.getElevations()[y][x]);
+						} else {
+							Double value1 = elevationTileValues.tileElevations[y][x];
+							Double value2 = elevationTileResults
+									.getElevations()[y][x];
+							if (value1 == null ? value2 != null : !value1
+									.equals(value2)) {
+								// Find a matching neighbor
+								boolean nonNull = false;
+								boolean match = false;
+								for (int yLocation = Math.max(0, y - 1); !match
+										&& yLocation <= y + 1
+										&& yLocation < elevationTileValues.tileElevations.length; yLocation++) {
+									for (int xLocation = Math.max(0, x - 1); xLocation <= x + 1
+											&& xLocation < elevationTileValues.tileElevations[yLocation].length; xLocation++) {
+										Double value = elevationTileValues.tileElevations[yLocation][xLocation];
+										if (value != null) {
+											nonNull = true;
+											match = value.equals(value2);
+											if (match) {
+												break;
+											}
+										}
+									}
+								}
+								if (!match) {
+									if (nonNull) {
+										TestCase.assertNotNull(value2);
+									} else {
+										TestCase.assertNull(value2);
+									}
+								}
+							}
 						}
 						break;
 					}
@@ -600,32 +682,12 @@ public class ElevationTilesTestUtils {
 			TestCase.assertEquals(specifiedHeight, elevations.getHeight());
 			TestCase.assertEquals(specifiedWidth, elevations.getWidth());
 
-			// TODO delete system outs
-			System.out
-					.println("TILE MATRIX HEIGHT: "
-							+ elevations.getTileMatrix().getMatrixHeight()
-							+ ", WIDTH: "
-							+ elevations.getTileMatrix().getMatrixWidth());
-			System.out.println("TILE HEIGHT: "
-					+ elevations.getTileMatrix().getTileHeight() + ", WIDTH: "
-					+ elevations.getTileMatrix().getTileWidth());
-			System.out.println("Request HEIGHT: " + specifiedHeight
-					+ ", WIDTH: " + specifiedWidth);
-
 			for (int y = 0; y < specifiedHeight; y++) {
 				for (int x = 0; x < specifiedWidth; x++) {
 					TestCase.assertEquals(elevations.getElevations()[y][x],
 							elevations.getElevation(y, x));
 					if (!allowNulls) {
-						if (algorithm == ElevationTilesAlgorithm.BICUBIC) {
-							// TODO
-							// if (elevations.getElevations()[y][x] == null) {
-							// System.out.println("y = " + y + ", x = " + x);
-							// TestCase.assertNotNull(elevations.getElevations()[y][x]);
-							// }
-						} else {
-							TestCase.assertNotNull(elevations.getElevations()[y][x]);
-						}
+						TestCase.assertNotNull(elevations.getElevations()[y][x]);
 					}
 				}
 			}

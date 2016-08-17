@@ -2,6 +2,7 @@ package mil.nga.geopackage.test.extension.elevation;
 
 import java.util.List;
 
+import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
@@ -27,6 +28,8 @@ import org.junit.Test;
  */
 public class ElevationTilesImportTest extends
 		ImportElevationTilesGeoPackageTestCase {
+
+	private static final boolean PRINT = false;
 
 	/**
 	 * Test the elevation extension with a newly created GeoPackage using the
@@ -97,8 +100,13 @@ public class ElevationTilesImportTest extends
 
 	}
 
+	/**
+	 * Test a single hard coded location and optional print
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void printLocation() throws Exception {
+	public void testLocation() throws Exception {
 
 		double latitude = 61.57941522271581;
 		double longitude = -148.96174115565339;
@@ -106,8 +114,13 @@ public class ElevationTilesImportTest extends
 		testLocation(latitude, longitude);
 	}
 
+	/**
+	 * Test 10 random locations and optionally print
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void printRandomLocations() throws Exception {
+	public void testRandomLocations() throws Exception {
 
 		BoundingBox projectedBoundingBox = null;
 
@@ -119,13 +132,17 @@ public class ElevationTilesImportTest extends
 			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
 
 			BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
-			System.out.println("Min Latitude: " + boundingBox.getMinLatitude());
-			System.out.println("Max Latitude: " + boundingBox.getMaxLatitude());
-			System.out.println("Min Longitude: "
-					+ boundingBox.getMinLongitude());
-			System.out.println("Max Longitude: "
-					+ boundingBox.getMaxLongitude());
-			System.out.println();
+			if (PRINT) {
+				System.out.println("Min Latitude: "
+						+ boundingBox.getMinLatitude());
+				System.out.println("Max Latitude: "
+						+ boundingBox.getMaxLatitude());
+				System.out.println("Min Longitude: "
+						+ boundingBox.getMinLongitude());
+				System.out.println("Max Longitude: "
+						+ boundingBox.getMaxLongitude());
+				System.out.println();
+			}
 			SpatialReferenceSystemDao srsDao = geoPackage
 					.getSpatialReferenceSystemDao();
 			long srsId = tileMatrixSet.getSrsId();
@@ -138,15 +155,17 @@ public class ElevationTilesImportTest extends
 			projectedBoundingBox = elevationToRequest.transform(boundingBox);
 
 		}
-		System.out.println("Min Latitude: "
-				+ projectedBoundingBox.getMinLatitude());
-		System.out.println("Max Latitude: "
-				+ projectedBoundingBox.getMaxLatitude());
-		System.out.println("Min Longitude: "
-				+ projectedBoundingBox.getMinLongitude());
-		System.out.println("Max Longitude: "
-				+ projectedBoundingBox.getMaxLongitude());
-		System.out.println();
+		if (PRINT) {
+			System.out.println("Min Latitude: "
+					+ projectedBoundingBox.getMinLatitude());
+			System.out.println("Max Latitude: "
+					+ projectedBoundingBox.getMaxLatitude());
+			System.out.println("Min Longitude: "
+					+ projectedBoundingBox.getMinLongitude());
+			System.out.println("Max Longitude: "
+					+ projectedBoundingBox.getMaxLongitude());
+			System.out.println();
+		}
 
 		for (int i = 0; i < 10; i++) {
 
@@ -160,12 +179,20 @@ public class ElevationTilesImportTest extends
 					* Math.random()
 					+ projectedBoundingBox.getMinLongitude();
 			testLocation(latitude, longitude);
-			System.out.println();
+			if (PRINT) {
+				System.out.println();
+			}
 		}
 	}
 
+	/**
+	 * Test elevation requests within the bounds of the tiles and optionally
+	 * print
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void printBoundingBox() throws Exception {
+	public void testBounds() throws Exception {
 
 		long geoPackageEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
 
@@ -187,65 +214,117 @@ public class ElevationTilesImportTest extends
 		ProjectionTransform wgs84Transform = projection
 				.getTransformation(printProjection);
 
-		System.out.println("REQUEST");
-		System.out.println();
-		System.out.println("   Min Lat: " + boundingBox.getMinLatitude());
-		System.out.println("   Max Lat: " + boundingBox.getMaxLatitude());
-		System.out.println("   Min Lon: " + boundingBox.getMinLongitude());
-		System.out.println("   Max Lon: " + boundingBox.getMaxLongitude());
-		System.out.println("   Result Width: " + width);
-		System.out.println("   Result Height: " + height);
-
-		System.out.println();
-		System.out.println();
-		System.out.println("WGS84 REQUEST");
-		System.out.println();
-		BoundingBox wgs84BoundingBox = wgs84Transform.transform(boundingBox);
-		System.out.println("   Min Lat: " + wgs84BoundingBox.getMinLatitude());
-		System.out.println("   Max Lat: " + wgs84BoundingBox.getMaxLatitude());
-		System.out.println("   Min Lon: " + wgs84BoundingBox.getMinLongitude());
-		System.out.println("   Max Lon: " + wgs84BoundingBox.getMaxLongitude());
-
-		System.out.println();
-		System.out.println();
-		System.out.println("WGS84 LOCATIONS");
-		for (double lat = maxLatitude - (heightPixelDistance * .5); lat >= minLatitude; lat -= heightPixelDistance) {
+		if (PRINT) {
 			System.out.println();
-			for (double lon = minLongitude + (widthPixelDistance * .5); lon <= maxLongitude; lon += widthPixelDistance) {
-				double[] point = wgs84Transform.transform(lon, lat);
-				System.out.print("   (" + point[1] + "," + point[0] + ")");
+			System.out.println();
+			System.out.println("Bounds Test");
+			System.out.println();
+			System.out.println("REQUEST");
+			System.out.println();
+			System.out.println("   Min Lat: " + boundingBox.getMinLatitude());
+			System.out.println("   Max Lat: " + boundingBox.getMaxLatitude());
+			System.out.println("   Min Lon: " + boundingBox.getMinLongitude());
+			System.out.println("   Max Lon: " + boundingBox.getMaxLongitude());
+			System.out.println("   Result Width: " + width);
+			System.out.println("   Result Height: " + height);
+
+			System.out.println();
+			System.out.println();
+			System.out.println("WGS84 REQUEST");
+			System.out.println();
+			BoundingBox wgs84BoundingBox = wgs84Transform
+					.transform(boundingBox);
+			System.out.println("   Min Lat: "
+					+ wgs84BoundingBox.getMinLatitude());
+			System.out.println("   Max Lat: "
+					+ wgs84BoundingBox.getMaxLatitude());
+			System.out.println("   Min Lon: "
+					+ wgs84BoundingBox.getMinLongitude());
+			System.out.println("   Max Lon: "
+					+ wgs84BoundingBox.getMaxLongitude());
+
+			System.out.println();
+			System.out.println();
+			System.out.println("WGS84 LOCATIONS");
+
+			for (double lat = maxLatitude - (heightPixelDistance * .5); lat >= minLatitude; lat -= heightPixelDistance) {
+				System.out.println();
+				for (double lon = minLongitude + (widthPixelDistance * .5); lon <= maxLongitude; lon += widthPixelDistance) {
+					double[] point = wgs84Transform.transform(lon, lat);
+					System.out.print("   (" + point[1] + "," + point[0] + ")");
+				}
 			}
 		}
 
 		for (ElevationTilesAlgorithm algorithm : ElevationTilesAlgorithm
 				.values()) {
 
-			System.out.println();
-			System.out.println();
-			System.out.println(algorithm.name() + " SINGLE ELEVATIONS");
-			for (double lat = maxLatitude - (heightPixelDistance * .5); lat >= minLatitude; lat -= heightPixelDistance) {
+			if (PRINT) {
 				System.out.println();
+				System.out.println();
+				System.out.println(algorithm.name() + " SINGLE ELEVATIONS");
+			}
+			for (double lat = maxLatitude - (heightPixelDistance * .5); lat >= minLatitude; lat -= heightPixelDistance) {
+				if (PRINT) {
+					System.out.println();
+				}
 				for (double lon = minLongitude + (widthPixelDistance * .5); lon <= maxLongitude; lon += widthPixelDistance) {
-					System.out.print("   "
-							+ ElevationTilesTestUtils.getElevation(geoPackage,
-									algorithm, lat, lon, geoPackageEpsg));
+					Double elevation = ElevationTilesTestUtils.getElevation(
+							geoPackage, algorithm, lat, lon, geoPackageEpsg);
+					if (PRINT) {
+						System.out.print("   " + elevation);
+					}
+					TestCase.assertNotNull(elevation);
 				}
 			}
 
 			ElevationTileResults results = ElevationTilesTestUtils
 					.getElevations(geoPackage, algorithm, boundingBox, width,
 							height, geoPackageEpsg);
-			System.out.println();
-			System.out.println();
-			System.out.println(algorithm.name());
-			Double[][] elevations = results.getElevations();
-			for (int y = 0; y < elevations.length; y++) {
+			TestCase.assertNotNull(results);
+			if (PRINT) {
 				System.out.println();
+				System.out.println();
+				System.out.println(algorithm.name());
+			}
+			Double[][] elevations = results.getElevations();
+			TestCase.assertEquals(height, elevations.length);
+			TestCase.assertEquals(width, elevations[0].length);
+			for (int y = 0; y < elevations.length; y++) {
+				if (PRINT) {
+					System.out.println();
+				}
 				for (int x = 0; x < elevations[0].length; x++) {
-					System.out.print("   " + elevations[y][x]);
+					Double elevation = elevations[y][x];
+					if (PRINT) {
+						System.out.print("   " + elevation);
+					}
+					TestCase.assertNotNull(elevation);
 				}
 			}
 		}
+
+	}
+
+	/**
+	 * Test a full bounding box around tiles and optionally print. Also test the
+	 * bounds of individual tiles.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFullBoundingBox() throws Exception {
+
+		long geoPackageEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
+
+		int width = 10;
+		int height = 6;
+
+		Projection projection = ProjectionFactory.getProjection(geoPackageEpsg);
+		Projection printProjection = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		ProjectionTransform wgs84Transform = projection
+				.getTransformation(printProjection);
 
 		List<String> elevationTables = ElevationTiles.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
@@ -254,59 +333,152 @@ public class ElevationTilesImportTest extends
 
 			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
 
-			boundingBox = tileMatrixSet.getBoundingBox();
+			BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
 
-			minLongitude = boundingBox.getMinLongitude();
-			maxLongitude = boundingBox.getMaxLongitude();
-			minLatitude = boundingBox.getMinLatitude();
-			maxLatitude = boundingBox.getMaxLatitude();
+			double minLongitude = boundingBox.getMinLongitude();
+			double maxLongitude = boundingBox.getMaxLongitude();
+			double minLatitude = boundingBox.getMinLatitude();
+			double maxLatitude = boundingBox.getMaxLatitude();
 
-			widthPixelDistance = (maxLongitude - minLongitude) / width;
-			heightPixelDistance = (maxLatitude - minLatitude) / height;
+			double widthPixelDistance = (maxLongitude - minLongitude) / width;
+			double heightPixelDistance = (maxLatitude - minLatitude) / height;
+
+			if (PRINT) {
+				System.out.println();
+				System.out.println();
+				System.out.println("Full Bounding Box Test");
+				System.out.println();
+				System.out.println("REQUEST");
+				System.out.println();
+				System.out.println("   Min Lat: "
+						+ boundingBox.getMinLatitude());
+				System.out.println("   Max Lat: "
+						+ boundingBox.getMaxLatitude());
+				System.out.println("   Min Lon: "
+						+ boundingBox.getMinLongitude());
+				System.out.println("   Max Lon: "
+						+ boundingBox.getMaxLongitude());
+				System.out.println("   Result Width: " + width);
+				System.out.println("   Result Height: " + height);
+
+				System.out.println();
+				System.out.println();
+				System.out.println("WGS84 REQUEST");
+				System.out.println();
+				BoundingBox wgs84BoundingBox = wgs84Transform
+						.transform(boundingBox);
+				System.out.println("   Min Lat: "
+						+ wgs84BoundingBox.getMinLatitude());
+				System.out.println("   Max Lat: "
+						+ wgs84BoundingBox.getMaxLatitude());
+				System.out.println("   Min Lon: "
+						+ wgs84BoundingBox.getMinLongitude());
+				System.out.println("   Max Lon: "
+						+ wgs84BoundingBox.getMaxLongitude());
+
+				System.out.println();
+				System.out.println();
+				System.out.println("WGS84 LOCATIONS");
+				for (double lat = maxLatitude; lat >= minLatitude; lat -= heightPixelDistance) {
+					System.out.println();
+					for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
+						double[] point = wgs84Transform.transform(lon, lat);
+						System.out.print("   (" + point[1] + "," + point[0]
+								+ ")");
+					}
+					double[] point = wgs84Transform
+							.transform(maxLongitude, lat);
+					System.out.print("   (" + point[1] + "," + point[0] + ")");
+				}
+				System.out.println();
+				for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
+					double[] point = wgs84Transform.transform(lon, minLatitude);
+					System.out.print("   (" + point[1] + "," + point[0] + ")");
+				}
+				double[] point = wgs84Transform.transform(maxLongitude,
+						minLatitude);
+				System.out.print("   (" + point[1] + "," + point[0] + ")");
+			}
 
 			for (ElevationTilesAlgorithm algorithm : ElevationTilesAlgorithm
 					.values()) {
 
-				System.out.println();
-				System.out.println();
-				System.out.println(algorithm.name()
-						+ " SINGLE ELEVATIONS Full Bounding Box");
-				for (double lat = maxLatitude; lat >= minLatitude; lat -= heightPixelDistance) {
+				if (PRINT) {
 					System.out.println();
-					for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
-						System.out.print("   "
-								+ ElevationTilesTestUtils.getElevation(
-										geoPackage, algorithm, lat, lon,
-										geoPackageEpsg));
+					System.out.println();
+					System.out.println(algorithm.name()
+							+ " SINGLE ELEVATIONS Full Bounding Box");
+				}
+				for (double lat = maxLatitude; lat >= minLatitude; lat -= heightPixelDistance) {
+					if (PRINT) {
+						System.out.println();
 					}
-					System.out.print("   "
-							+ ElevationTilesTestUtils.getElevation(
-									geoPackage, algorithm, lat, maxLongitude,
-									geoPackageEpsg));
+					for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
+						Double elevation = ElevationTilesTestUtils
+								.getElevation(geoPackage, algorithm, lat, lon,
+										geoPackageEpsg);
+						if (PRINT) {
+							System.out.print("   " + elevation);
+						}
+						if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR
+								|| (lat < maxLatitude && lon > minLongitude
+										&& lat > minLatitude && lon < maxLongitude)) {
+							TestCase.assertNotNull(elevation);
+						}
+					}
+					Double elevation = ElevationTilesTestUtils.getElevation(
+							geoPackage, algorithm, lat, maxLongitude,
+							geoPackageEpsg);
+					if (PRINT) {
+						System.out.print("   " + elevation);
+					}
+					if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR) {
+						TestCase.assertNotNull(elevation);
+					}
 				}
-				System.out.println();
+				if (PRINT) {
+					System.out.println();
+				}
 				for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
-					System.out.print("   "
-							+ ElevationTilesTestUtils.getElevation(
-									geoPackage, algorithm, minLatitude, lon,
-									geoPackageEpsg));
+					Double elevation = ElevationTilesTestUtils.getElevation(
+							geoPackage, algorithm, minLatitude, lon,
+							geoPackageEpsg);
+					if (PRINT) {
+						System.out.print("   " + elevation);
+					}
+					if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR) {
+						TestCase.assertNotNull(elevation);
+					}
 				}
-				System.out.print("   "
-						+ ElevationTilesTestUtils.getElevation(
-								geoPackage, algorithm, minLatitude, maxLongitude,
-								geoPackageEpsg));
+				Double elevation = ElevationTilesTestUtils.getElevation(
+						geoPackage, algorithm, minLatitude, maxLongitude,
+						geoPackageEpsg);
+				if (PRINT) {
+					System.out.print("   " + elevation);
+				}
+				if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR) {
+					TestCase.assertNotNull(elevation);
+				}
 
 				ElevationTileResults results = ElevationTilesTestUtils
 						.getElevations(geoPackage, algorithm, boundingBox,
 								width, height, geoPackageEpsg);
-				System.out.println();
-				System.out.println();
-				System.out.println(algorithm.name() + " Full Bounding Box");
+				if (PRINT) {
+					System.out.println();
+					System.out.println();
+					System.out.println(algorithm.name() + " Full Bounding Box");
+				}
 				Double[][] elevations = results.getElevations();
 				for (int y = 0; y < elevations.length; y++) {
-					System.out.println();
+					if (PRINT) {
+						System.out.println();
+					}
 					for (int x = 0; x < elevations[0].length; x++) {
-						System.out.print("   " + elevations[y][x]);
+						elevation = elevations[y][x];
+						if (PRINT) {
+							System.out.print("   " + elevations[y][x]);
+						}
+						TestCase.assertNotNull(elevation);
 					}
 				}
 
@@ -323,45 +495,108 @@ public class ElevationTilesImportTest extends
 						double minLatitude2 = boundingBox2.getMinLatitude();
 						double maxLatitude2 = boundingBox2.getMaxLatitude();
 
-						System.out.println();
-						System.out.println();
-						System.out.println(algorithm.name()
-								+ " SINGLE ELEVATIONS Tile row = " + row
-								+ ", column = " + column);
-						System.out.println();
-						System.out.print("   "
-								+ ElevationTilesTestUtils.getElevation(
-										geoPackage, algorithm, maxLatitude2,
-										minLongitude2, geoPackageEpsg));
-						System.out.println("   "
-								+ ElevationTilesTestUtils.getElevation(
-										geoPackage, algorithm, maxLatitude2,
-										maxLongitude2, geoPackageEpsg));
-						System.out.print("   "
-								+ ElevationTilesTestUtils.getElevation(
-										geoPackage, algorithm, minLatitude2,
-										minLongitude2, geoPackageEpsg));
-						System.out.println("   "
-								+ ElevationTilesTestUtils.getElevation(
-										geoPackage, algorithm, minLatitude2,
-										maxLongitude2, geoPackageEpsg));
+						if (PRINT) {
+							System.out.println();
+							System.out.println();
+							System.out.println(algorithm.name()
+									+ " SINGLE ELEVATIONS Tile row = " + row
+									+ ", column = " + column);
+						}
+
+						elevation = ElevationTilesTestUtils.getElevation(
+								geoPackage, algorithm, maxLatitude2,
+								minLongitude2, geoPackageEpsg);
+						double[] point = wgs84Transform.transform(
+								minLongitude2, maxLatitude2);
+						if (PRINT) {
+							System.out.print("   " + elevation + " ("
+									+ point[1] + "," + point[0] + ")");
+						}
+						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
+								&& (row == 0 || column == 0)) {
+							TestCase.assertNull(elevation);
+						} else {
+							TestCase.assertNotNull(elevation);
+						}
+
+						elevation = ElevationTilesTestUtils.getElevation(
+								geoPackage, algorithm, maxLatitude2,
+								maxLongitude2, geoPackageEpsg);
+						point = wgs84Transform.transform(maxLongitude2,
+								maxLatitude2);
+						if (PRINT) {
+							System.out.println("   " + elevation + " ("
+									+ point[1] + "," + point[0] + ")");
+						}
+						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
+								&& (row == 0 || column == tileMatrix
+										.getMatrixWidth() - 1)) {
+							TestCase.assertNull(elevation);
+						} else {
+							TestCase.assertNotNull(elevation);
+						}
+
+						elevation = ElevationTilesTestUtils.getElevation(
+								geoPackage, algorithm, minLatitude2,
+								minLongitude2, geoPackageEpsg);
+						point = wgs84Transform.transform(minLongitude2,
+								minLatitude2);
+						if (PRINT) {
+							System.out.print("   " + elevation + " ("
+									+ point[1] + "," + point[0] + ")");
+						}
+						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
+								&& (row == tileMatrix.getMatrixHeight() - 1 || column == 0)) {
+							TestCase.assertNull(elevation);
+						} else {
+							TestCase.assertNotNull(elevation);
+						}
+
+						elevation = ElevationTilesTestUtils.getElevation(
+								geoPackage, algorithm, minLatitude2,
+								maxLongitude2, geoPackageEpsg);
+						point = wgs84Transform.transform(maxLongitude2,
+								minLatitude2);
+						if (PRINT) {
+							System.out.println("   " + elevation + " ("
+									+ point[1] + "," + point[0] + ")");
+						}
+						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
+								&& (row == tileMatrix.getMatrixHeight() - 1 || column == tileMatrix
+										.getMatrixWidth() - 1)) {
+							TestCase.assertNull(elevation);
+						} else {
+							TestCase.assertNotNull(elevation);
+						}
 
 						results = ElevationTilesTestUtils.getElevations(
 								geoPackage, algorithm, boundingBox2, width,
 								height, geoPackageEpsg);
-						System.out.println();
-						System.out.println();
-						System.out.println(algorithm.name() + " Tile row = "
-								+ row + ", column = " + column);
-						if (results == null) {
+						if (PRINT) {
 							System.out.println();
-							System.out.print("null results");
+							System.out.println();
+							System.out.println(algorithm.name()
+									+ " Tile row = " + row + ", column = "
+									+ column);
+						}
+						if (results == null) {
+							if (PRINT) {
+								System.out.println();
+								System.out.print("null results");
+							}
 						} else {
 							elevations = results.getElevations();
 							for (int y = 0; y < elevations.length; y++) {
-								System.out.println();
+								if (PRINT) {
+									System.out.println();
+								}
 								for (int x = 0; x < elevations[0].length; x++) {
-									System.out.print("   " + elevations[y][x]);
+									elevation = elevations[y][x];
+									if (PRINT) {
+										System.out.print("   "
+												+ elevations[y][x]);
+									}
+									TestCase.assertNotNull(elevation);
 								}
 							}
 						}
@@ -373,18 +608,30 @@ public class ElevationTilesImportTest extends
 
 	}
 
-	public void testLocation(double latitude, double longitude)
+	/**
+	 * Test a single location
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @throws Exception
+	 */
+	private void testLocation(double latitude, double longitude)
 			throws Exception {
 
-		System.out.println("Latitude: " + latitude);
-		System.out.println("Longitude: " + longitude);
+		if (PRINT) {
+			System.out.println("Latitude: " + latitude);
+			System.out.println("Longitude: " + longitude);
+		}
 
 		for (ElevationTilesAlgorithm algorithm : ElevationTilesAlgorithm
 				.values()) {
 			Double elevation = ElevationTilesTestUtils.getElevation(geoPackage,
 					algorithm, latitude, longitude,
 					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-			System.out.println(algorithm.name() + ": " + elevation);
+			if (PRINT) {
+				System.out.println(algorithm.name() + ": " + elevation);
+			}
+			TestCase.assertNotNull(elevation);
 		}
 	}
 
