@@ -418,29 +418,6 @@ public class ElevationTiles extends ElevationTilesCore {
 	}
 
 	/**
-	 * Pad the bounding box with extra space for the overlapping pixels
-	 * 
-	 * @param tileMatrix
-	 *            tile matrix
-	 * @param boundingBox
-	 *            bounding box
-	 * @param overlap
-	 *            overlapping pixels
-	 * @return padded bounding box
-	 */
-	private BoundingBox padBoundingBox(TileMatrix tileMatrix,
-			BoundingBox boundingBox, int overlap) {
-		double lonPixelPadding = tileMatrix.getPixelXSize() * overlap;
-		double latPixelPadding = tileMatrix.getPixelYSize() * overlap;
-		BoundingBox paddedBoundingBox = new BoundingBox(
-				boundingBox.getMinLongitude() - lonPixelPadding,
-				boundingBox.getMaxLongitude() + lonPixelPadding,
-				boundingBox.getMinLatitude() - latPixelPadding,
-				boundingBox.getMaxLatitude() + latPixelPadding);
-		return paddedBoundingBox;
-	}
-
-	/**
 	 * Get the elevation tile results by zooming in or out as needed from the
 	 * provided tile matrix to find values
 	 * 
