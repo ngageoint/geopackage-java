@@ -503,14 +503,14 @@ public class ElevationTilesTestUtils {
 				.transform(boundingBox);
 
 		// Get a random coordinate
-		double latitude = (projectedBoundingBox.getMaxLatitude() - projectedBoundingBox
-				.getMinLatitude())
-				* Math.random()
-				+ projectedBoundingBox.getMinLatitude();
-		double longitude = (projectedBoundingBox.getMaxLongitude() - projectedBoundingBox
-				.getMinLongitude())
-				* Math.random()
-				+ projectedBoundingBox.getMinLongitude();
+		double latDistance = projectedBoundingBox.getMaxLatitude()
+				- projectedBoundingBox.getMinLatitude();
+		double latitude = latDistance * .9 * Math.random()
+				+ projectedBoundingBox.getMinLatitude() + (.05 * latDistance);
+		double lonDistance = projectedBoundingBox.getMaxLongitude()
+				- projectedBoundingBox.getMinLongitude();
+		double longitude = lonDistance * .9 * Math.random()
+				+ projectedBoundingBox.getMinLongitude() + (.05 * lonDistance);
 
 		// Test getting the elevation of a single coordinate
 		ElevationTiles elevationTiles2 = new ElevationTiles(geoPackage,

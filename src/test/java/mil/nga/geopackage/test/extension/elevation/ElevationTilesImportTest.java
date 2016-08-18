@@ -167,17 +167,20 @@ public class ElevationTilesImportTest extends
 			System.out.println();
 		}
 
+		double latDistance = projectedBoundingBox.getMaxLatitude()
+				- projectedBoundingBox.getMinLatitude();
+		double lonDistance = projectedBoundingBox.getMaxLongitude()
+				- projectedBoundingBox.getMinLongitude();
+
 		for (int i = 0; i < 10; i++) {
 
 			// Get a random coordinate
-			double latitude = (projectedBoundingBox.getMaxLatitude() - projectedBoundingBox
-					.getMinLatitude())
-					* Math.random()
-					+ projectedBoundingBox.getMinLatitude();
-			double longitude = (projectedBoundingBox.getMaxLongitude() - projectedBoundingBox
-					.getMinLongitude())
-					* Math.random()
-					+ projectedBoundingBox.getMinLongitude();
+			double latitude = latDistance * .9 * Math.random()
+					+ projectedBoundingBox.getMinLatitude()
+					+ (.05 * latDistance);
+			double longitude = lonDistance * .9 * Math.random()
+					+ projectedBoundingBox.getMinLongitude()
+					+ (.05 * lonDistance);
 			testLocation(latitude, longitude);
 			if (PRINT) {
 				System.out.println();
