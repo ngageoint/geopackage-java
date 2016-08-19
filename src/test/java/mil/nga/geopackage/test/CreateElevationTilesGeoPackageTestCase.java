@@ -11,7 +11,6 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.elevation.ElevationTiles;
-import mil.nga.geopackage.extension.elevation.ElevationTilesCore;
 import mil.nga.geopackage.extension.elevation.GriddedCoverage;
 import mil.nga.geopackage.extension.elevation.GriddedCoverageDao;
 import mil.nga.geopackage.extension.elevation.GriddedCoverageDataType;
@@ -103,12 +102,12 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 		SpatialReferenceSystem tileMatrixSrs = srsDao
 				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
-		TileMatrixSet tileMatrixSet = ElevationTilesCore
+		ElevationTiles elevationTiles = ElevationTiles
 				.createTileTableWithMetadata(geoPackage,
 						TestConstants.CREATE_ELEVATION_TILES_DB_TABLE_NAME,
 						bbox, contentsSrs.getId(), bbox, tileMatrixSrs.getId());
-		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-		ElevationTiles elevationTiles = new ElevationTiles(geoPackage, tileDao);
+		TileDao tileDao = elevationTiles.getTileDao();
+		TileMatrixSet tileMatrixSet = elevationTiles.getTileMatrixSet();
 
 		GriddedCoverageDao griddedCoverageDao = elevationTiles
 				.getGriddedCoverageDao();

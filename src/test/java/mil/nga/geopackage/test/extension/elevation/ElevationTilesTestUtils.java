@@ -19,7 +19,6 @@ import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.elevation.ElevationTileResults;
 import mil.nga.geopackage.extension.elevation.ElevationTiles;
 import mil.nga.geopackage.extension.elevation.ElevationTilesAlgorithm;
-import mil.nga.geopackage.extension.elevation.ElevationTilesCore;
 import mil.nga.geopackage.extension.elevation.GriddedCoverage;
 import mil.nga.geopackage.extension.elevation.GriddedCoverageDataType;
 import mil.nga.geopackage.extension.elevation.GriddedTile;
@@ -128,44 +127,44 @@ public class ElevationTilesTestUtils {
 			ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
 
 			Extensions griddedCoverageExtension = extensionsDao
-					.queryByExtension(ElevationTilesCore.EXTENSION_NAME,
+					.queryByExtension(ElevationTiles.EXTENSION_NAME,
 							GriddedCoverage.TABLE_NAME, null);
 			TestCase.assertNotNull(griddedCoverageExtension);
 			TestCase.assertEquals(GriddedCoverage.TABLE_NAME,
 					griddedCoverageExtension.getTableName());
 			TestCase.assertNull(griddedCoverageExtension.getColumnName());
-			TestCase.assertEquals(ElevationTilesCore.EXTENSION_NAME,
+			TestCase.assertEquals(ElevationTiles.EXTENSION_NAME,
 					griddedCoverageExtension.getExtensionName());
-			TestCase.assertEquals(ElevationTilesCore.EXTENSION_DEFINITION,
+			TestCase.assertEquals(ElevationTiles.EXTENSION_DEFINITION,
 					griddedCoverageExtension.getDefinition());
 			TestCase.assertEquals(ExtensionScopeType.READ_WRITE,
 					griddedCoverageExtension.getScope());
 
-			Extensions griddedTileExtension = extensionsDao.queryByExtension(
-					ElevationTilesCore.EXTENSION_NAME, GriddedTile.TABLE_NAME,
-					null);
+			Extensions griddedTileExtension = extensionsDao
+					.queryByExtension(ElevationTiles.EXTENSION_NAME,
+							GriddedTile.TABLE_NAME, null);
 			TestCase.assertNotNull(griddedTileExtension);
 			TestCase.assertEquals(GriddedTile.TABLE_NAME,
 					griddedTileExtension.getTableName());
 			TestCase.assertNull(griddedTileExtension.getColumnName());
-			TestCase.assertEquals(ElevationTilesCore.EXTENSION_NAME,
+			TestCase.assertEquals(ElevationTiles.EXTENSION_NAME,
 					griddedTileExtension.getExtensionName());
-			TestCase.assertEquals(ElevationTilesCore.EXTENSION_DEFINITION,
+			TestCase.assertEquals(ElevationTiles.EXTENSION_DEFINITION,
 					griddedTileExtension.getDefinition());
 			TestCase.assertEquals(ExtensionScopeType.READ_WRITE,
 					griddedTileExtension.getScope());
 
 			Extensions tileTableExtension = extensionsDao.queryByExtension(
-					ElevationTilesCore.EXTENSION_NAME,
+					ElevationTiles.EXTENSION_NAME,
 					tileMatrixSet.getTableName(), TileTable.COLUMN_TILE_DATA);
 			TestCase.assertNotNull(tileTableExtension);
 			TestCase.assertEquals(tileMatrixSet.getTableName(),
 					tileTableExtension.getTableName());
 			TestCase.assertEquals(TileTable.COLUMN_TILE_DATA,
 					tileTableExtension.getColumnName());
-			TestCase.assertEquals(ElevationTilesCore.EXTENSION_NAME,
+			TestCase.assertEquals(ElevationTiles.EXTENSION_NAME,
 					tileTableExtension.getExtensionName());
-			TestCase.assertEquals(ElevationTilesCore.EXTENSION_DEFINITION,
+			TestCase.assertEquals(ElevationTiles.EXTENSION_DEFINITION,
 					tileTableExtension.getDefinition());
 			TestCase.assertEquals(ExtensionScopeType.READ_WRITE,
 					tileTableExtension.getScope());

@@ -634,7 +634,6 @@ public class ElevationTilesImportTest extends
 			if (PRINT) {
 				System.out.println(algorithm.name() + ": " + elevation);
 			}
-			TestCase.assertNotNull(elevation);
 		}
 	}
 
