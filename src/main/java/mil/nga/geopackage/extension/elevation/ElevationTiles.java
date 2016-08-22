@@ -14,7 +14,6 @@ import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.property.GeoPackageProperties;
 import mil.nga.geopackage.property.PropertyConstants;
-import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
@@ -714,8 +713,7 @@ public class ElevationTiles extends ElevationTilesCommon {
 			BoundingBox tileMatrixSetBoundingBox, long tileMatrixSetSrsId) {
 
 		TileMatrixSet tileMatrixSet = ElevationTilesCore
-				.createTileTableWithMetadata(geoPackage,
-						TestConstants.CREATE_ELEVATION_TILES_DB_TABLE_NAME,
+				.createTileTableWithMetadata(geoPackage, tableName,
 						contentsBoundingBox, contentsSrsId,
 						tileMatrixSetBoundingBox, tileMatrixSetSrsId);
 		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
