@@ -81,8 +81,9 @@ public class SQLiteQueryBuilder {
 		} else {
 			query.append("* ");
 		}
-		query.append("FROM ");
+		query.append("FROM \"");
 		query.append(tables);
+		query.append("\"");
 		appendClause(query, " WHERE ", where);
 		appendClause(query, " GROUP BY ", groupBy);
 		appendClause(query, " HAVING ", having);

@@ -133,7 +133,7 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 
 		boolean exists = false;
 
-		ResultSet result = query("PRAGMA table_info(" + tableName + ")", null);
+		ResultSet result = query("PRAGMA table_info(\"" + tableName + "\")", null);
 		try {
 			while (result.next()) {
 				String name = result.getString(NAME_COLUMN);
