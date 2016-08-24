@@ -60,15 +60,6 @@ public abstract class ElevationTilesCommon extends ElevationTilesCore {
 	}
 
 	/**
-	 * Get an elevation image from the tile row
-	 * 
-	 * @param tileRow
-	 *            tile row
-	 * @return elevation image
-	 */
-	public abstract ElevationImage createElevationImage(TileRow tileRow);
-
-	/**
 	 * Get the elevation value from the image at the coordinate
 	 * 
 	 * @param griddedTile
@@ -602,7 +593,7 @@ public abstract class ElevationTilesCommon extends ElevationTilesCore {
 			GriddedTile griddedTile = getGriddedTile(tileRow.getId());
 
 			// Get the elevation tile image
-			ElevationImage image = createElevationImage(tileRow);
+			ElevationImage image = new ElevationImage(tileRow);
 
 			// If the tile overlaps with the requested box
 			if (overlap != null) {
@@ -1165,7 +1156,7 @@ public abstract class ElevationTilesCommon extends ElevationTilesCore {
 					GriddedTile griddedTile = getGriddedTile(tileRow.getId());
 
 					// Get the elevation tile image
-					ElevationImage image = createElevationImage(tileRow);
+					ElevationImage image = new ElevationImage(tileRow);
 
 					// Create the elevation results for this tile
 					Double[][] elevations = new Double[srcBottom - srcTop + 1][srcRight

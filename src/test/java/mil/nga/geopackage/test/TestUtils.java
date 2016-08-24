@@ -524,6 +524,15 @@ public class TestUtils {
 	}
 
 	/**
+	 * Get the import db elevation tiles tiff file
+	 * 
+	 * @return
+	 */
+	public static File getImportDbElevationTilesTiffFile() {
+		return getTestFile(TestConstants.IMPORT_ELEVATION_TILES_TIFF_DB_FILE_NAME);
+	}
+
+	/**
 	 * Get the tile file
 	 * 
 	 * @return

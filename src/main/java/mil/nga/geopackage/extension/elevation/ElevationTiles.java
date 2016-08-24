@@ -119,18 +119,9 @@ public class ElevationTiles extends ElevationTilesCommon {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ElevationImage createElevationImage(TileRow tileRow) {
-		return new ElevationTilesImage(tileRow);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Double getElevationValue(GriddedTile griddedTile,
 			ElevationImage image, int x, int y) {
-		ElevationTilesImage tilesImage = (ElevationTilesImage) image;
-		return getElevationValue(griddedTile, tilesImage.getRaster(), x, y);
+		return getElevationValue(griddedTile, image.getRaster(), x, y);
 	}
 
 	/**
@@ -492,8 +483,8 @@ public class ElevationTiles extends ElevationTilesCommon {
 	}
 
 	/**
-	 * Draw an elevation image tile from the flat array of unsigned 16 bit
-	 * integer pixel values formatted as short[row][width]
+	 * Draw an elevation image tile from the double array of unsigned 16 bit
+	 * integer pixel values formatted as int[row][width]
 	 * 
 	 * @param unsignedPixelValues
 	 *            unsigned 16 bit integer pixel values as [row][width]
@@ -517,8 +508,9 @@ public class ElevationTiles extends ElevationTilesCommon {
 	}
 
 	/**
-	 * Draw an elevation image tile and format as PNG bytes from the flat array
-	 * of unsigned 16 bit integer pixel values formatted as short[row][width]
+	 * Draw an elevation image tile and format as PNG bytes from the double
+	 * array of unsigned 16 bit integer pixel values formatted as
+	 * int[row][width]
 	 * 
 	 * @param unsignedPixelValues
 	 *            unsigned 16 bit integer pixel values as [row][width]
@@ -584,8 +576,8 @@ public class ElevationTiles extends ElevationTilesCommon {
 	}
 
 	/**
-	 * Draw an elevation image tile from the flat array of unsigned elevations
-	 * formatted as short[row][width]
+	 * Draw an elevation image tile from the double array of unsigned elevations
+	 * formatted as Double[row][width]
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
@@ -612,8 +604,8 @@ public class ElevationTiles extends ElevationTilesCommon {
 	}
 
 	/**
-	 * Draw an elevation image tile and format as PNG bytes from the flat array
-	 * of unsigned elevations formatted as short[row][width]
+	 * Draw an elevation image tile and format as PNG bytes from the double
+	 * array of unsigned elevations formatted as Double[row][width]
 	 * 
 	 * @param griddedTile
 	 *            gridded tile

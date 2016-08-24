@@ -38,6 +38,11 @@ public class ImageUtils {
 	public static final String IMAGE_FORMAT_JPEG = "jpeg";
 
 	/**
+	 * tiff image format
+	 */
+	public static final String IMAGE_FORMAT_TIFF = "tiff";
+	
+	/**
 	 * Create a buffered image for the dimensions and image format
 	 * 
 	 * @param width
