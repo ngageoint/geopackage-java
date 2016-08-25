@@ -1,14 +1,20 @@
 package mil.nga.geopackage.extension.elevation;
 
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferFloat;
+import java.awt.image.PixelInterleavedSampleModel;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.projection.Projection;
@@ -26,11 +32,6 @@ import mil.nga.geopackage.tiles.user.TileRow;
  * @since 1.2.1
  */
 public class ElevationTilesTiff extends ElevationTilesCommon {
-
-	/**
-	 * Extension author
-	 */
-	public static final String EXTENSION_AUTHOR = GeoPackageConstants.GEO_PACKAGE_EXTENSION_AUTHOR;
 
 	/**
 	 * Extension name without the author
@@ -474,8 +475,20 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 * @return image
 	 */
 	public BufferedImage createImage(int tileWidth, int tileHeight) {
-		return new BufferedImage(tileWidth, tileHeight,
-				BufferedImage.TYPE_USHORT_GRAY); // TODO
+
+		SampleModel sampleModel = new PixelInterleavedSampleModel(
+				DataBuffer.TYPE_FLOAT, tileWidth, tileHeight, 1, tileWidth,
+				new int[] { 0 });
+		DataBuffer buffer = new DataBufferFloat(tileWidth * tileHeight);
+		WritableRaster raster = Raster.createWritableRaster(sampleModel,
+				buffer, null);
+		ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+		ColorModel colorModel = new ComponentColorModel(colorSpace, false,
+				false, Transparency.OPAQUE, DataBuffer.TYPE_FLOAT);
+		BufferedImage image = new BufferedImage(colorModel, raster,
+				colorModel.isAlphaPremultiplied(), null);
+
+		return image;
 	}
 
 	/**

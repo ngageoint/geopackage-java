@@ -27,7 +27,6 @@ import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
-import mil.nga.geopackage.test.CreateElevationTilesGeoPackageTestCase.ElevationTileValues;
 import mil.nga.geopackage.test.CreateElevationTilesTiffGeoPackageTestCase.ElevationTileTiffValues;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
@@ -609,7 +608,7 @@ public class ElevationTilesTiffTestUtils {
 	 * @throws Exception
 	 */
 	public static void testRandomBoundingBox(GeoPackage geoPackage,
-			ElevationTileValues elevationTileValues,
+			ElevationTileTiffValues elevationTileValues,
 			ElevationTilesAlgorithm algorithm, boolean allowNulls)
 			throws Exception {
 

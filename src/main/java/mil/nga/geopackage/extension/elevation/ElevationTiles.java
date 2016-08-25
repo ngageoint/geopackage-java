@@ -8,9 +8,7 @@ import java.io.IOException;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.property.GeoPackageProperties;
 import mil.nga.geopackage.property.PropertyConstants;
@@ -28,20 +26,14 @@ import mil.nga.geopackage.tiles.user.TileRow;
 public class ElevationTiles extends ElevationTilesCommon {
 
 	/**
-	 * Extension author
-	 */
-	public static final String EXTENSION_AUTHOR = GeoPackageConstants.GEO_PACKAGE_EXTENSION_AUTHOR;
-
-	/**
 	 * Extension name without the author
 	 */
-	public static final String EXTENSION_NAME_NO_AUTHOR = "elevation_tiles";
+	public static final String EXTENSION_NAME_NO_AUTHOR = CORE_EXTENSION_NAME_NO_AUTHOR;
 
 	/**
 	 * Extension, with author and name
 	 */
-	public static final String EXTENSION_NAME = Extensions.buildExtensionName(
-			EXTENSION_AUTHOR, EXTENSION_NAME_NO_AUTHOR);
+	public static final String EXTENSION_NAME = CORE_EXTENSION_NAME;
 
 	/**
 	 * Extension definition URL

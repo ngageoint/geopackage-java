@@ -110,7 +110,7 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 
 		GriddedCoverage griddedCoverage = new GriddedCoverage();
 		griddedCoverage.setTileMatrixSet(tileMatrixSet);
-		griddedCoverage.setDataType(GriddedCoverageDataType.INTEGER);
+		griddedCoverage.setDataType(GriddedCoverageDataType.FLOAT);
 		boolean defaultScale = true;
 		if (Math.random() < .5) {
 			griddedCoverage.setScale(100.0 * Math.random());
@@ -126,10 +126,8 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 			griddedCoverage.setPrecision(10.0 * Math.random());
 			defaultPrecision = false;
 		}
-		griddedCoverage.setDataNull(new Double(Short.MAX_VALUE
-				- Short.MIN_VALUE));
-		griddedCoverage.setDataMissing(new Double(Short.MAX_VALUE
-				- Short.MIN_VALUE - 1));
+		griddedCoverage.setDataNull((double) Float.MAX_VALUE);
+		griddedCoverage.setDataMissing((double) (Float.MAX_VALUE - 1.0));
 		TestCase.assertEquals(1, griddedCoverageDao.create(griddedCoverage));
 
 		long gcId = griddedCoverage.getId();
@@ -346,6 +344,9 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 		griddedTile.setStandardDeviation(commonGriddedTile
 				.getStandardDeviation());
 
+		float maxElevation = 8850.0f;
+		float minElevation = 10994.0f;
+
 		// Create the image and graphics
 		for (int x = 0; x < tileWidth; x++) {
 			for (int y = 0; y < tileHeight; y++) {
@@ -353,8 +354,7 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 				if (allowNulls && Math.random() < .05) {
 					value = griddedCoverage.getDataNull().floatValue();
 				} else {
-					value = (float) (Math.floor(Math.random()
-							* (2 * Float.MAX_VALUE)) - Float.MAX_VALUE);
+					value = (float) ((Math.random() * (maxElevation + minElevation)) - minElevation);
 				}
 
 				elevationTileValues.tilePixels[y][x] = value;
@@ -369,15 +369,17 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 		byte[] imageData = elevationTiles
 				.drawTileData(elevationTileValues.tilePixels);
 
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
-				.drawTileData(griddedTile, elevationTileValues.tileElevations));
+		// GeoPackageGeometryDataUtils.compareByteArrays(imageData,
+		// elevationTiles
+		// .drawTileData(griddedTile, elevationTileValues.tileElevations));
 		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
 				.drawTileData(elevationTileValues.tilePixelsFlat, tileWidth,
 						tileHeight));
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
-				.drawTileData(griddedTile,
-						elevationTileValues.tileElevationsFlat, tileWidth,
-						tileHeight));
+		// GeoPackageGeometryDataUtils.compareByteArrays(imageData,
+		// elevationTiles
+		// .drawTileData(griddedTile,
+		// elevationTileValues.tileElevationsFlat, tileWidth,
+		// tileHeight));
 
 		return imageData;
 	}
