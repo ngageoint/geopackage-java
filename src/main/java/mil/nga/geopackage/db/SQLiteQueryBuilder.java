@@ -114,7 +114,7 @@ public class SQLiteQueryBuilder {
 				if (i > 0) {
 					s.append(", ");
 				}
-				s.append(column);
+				s.append("\"").append(column).append("\"");
 			}
 		}
 		s.append(' ');
