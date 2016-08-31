@@ -39,9 +39,11 @@ public class ImageUtils {
 
 	/**
 	 * tiff image format
+	 * 
+	 * @since 1.2.1
 	 */
 	public static final String IMAGE_FORMAT_TIFF = "tiff";
-	
+
 	/**
 	 * Create a buffered image for the dimensions and image format
 	 * 
