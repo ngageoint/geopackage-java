@@ -110,7 +110,8 @@ public class SQLUtils {
 	public static int count(Connection connection, String table, String where,
 			String[] args) {
 		StringBuilder countQuery = new StringBuilder();
-		countQuery.append("select count(*) from \"").append(table).append("\"");
+		countQuery.append("select count(*) from ").append(
+				CoreSQLUtils.quoteWrap(table));
 		if (where != null) {
 			countQuery.append(" where ").append(where);
 		}
@@ -138,8 +139,9 @@ public class SQLUtils {
 		Integer min = null;
 		if (count(connection, table, where, args) > 0) {
 			StringBuilder minQuery = new StringBuilder();
-			minQuery.append("select min(\"").append(column)
-					.append("\") from \"").append(table).append("\"");
+			minQuery.append("select min(")
+					.append(CoreSQLUtils.quoteWrap(column)).append(") from ")
+					.append(CoreSQLUtils.quoteWrap(table));
 			if (where != null) {
 				minQuery.append(" where ").append(where);
 			}
@@ -168,8 +170,9 @@ public class SQLUtils {
 		Integer max = null;
 		if (count(connection, table, where, args) > 0) {
 			StringBuilder maxQuery = new StringBuilder();
-			maxQuery.append("select max(\"").append(column)
-					.append("\") from \"").append(table).append("\"");
+			maxQuery.append("select max(")
+					.append(CoreSQLUtils.quoteWrap(column)).append(") from ")
+					.append(CoreSQLUtils.quoteWrap(table));
 			if (where != null) {
 				maxQuery.append(" where ").append(where);
 			}
@@ -256,7 +259,7 @@ public class SQLUtils {
 	public static int delete(Connection connection, String table, String where,
 			String[] args) {
 		StringBuilder delete = new StringBuilder();
-		delete.append("delete from \"").append(table).append("\"");
+		delete.append("delete from ").append(CoreSQLUtils.quoteWrap(table));
 		if (where != null) {
 			delete.append(" where ").append(where);
 		}
@@ -293,7 +296,8 @@ public class SQLUtils {
 			ContentValues values, String whereClause, String[] whereArgs) {
 
 		StringBuilder update = new StringBuilder();
-		update.append("update \"").append(table).append("\" set ");
+		update.append("update ").append(CoreSQLUtils.quoteWrap(table))
+				.append(" set ");
 
 		int setValuesSize = values.size();
 		int argsSize = (whereArgs == null) ? setValuesSize
@@ -302,7 +306,7 @@ public class SQLUtils {
 		int i = 0;
 		for (String colName : values.keySet()) {
 			update.append((i > 0) ? "," : "");
-			update.append("\"").append(colName).append("\"");
+			update.append(CoreSQLUtils.quoteWrap(colName));
 			args[i++] = values.get(colName);
 			update.append("=?");
 		}
@@ -365,7 +369,8 @@ public class SQLUtils {
 			ContentValues values) {
 
 		StringBuilder insert = new StringBuilder();
-		insert.append("insert into \"").append(table).append("\"(");
+		insert.append("insert into ").append(CoreSQLUtils.quoteWrap(table))
+				.append("(");
 
 		Object[] args = null;
 		int size = (values != null && values.size() > 0) ? values.size() : 0;
@@ -374,7 +379,7 @@ public class SQLUtils {
 		int i = 0;
 		for (String colName : values.keySet()) {
 			insert.append((i > 0) ? "," : "");
-			insert.append("\"").append(colName).append("\"");
+			insert.append(CoreSQLUtils.quoteWrap(colName));
 			args[i++] = values.get(colName);
 		}
 		insert.append(')');

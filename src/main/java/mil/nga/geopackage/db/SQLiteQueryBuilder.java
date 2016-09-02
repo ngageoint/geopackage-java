@@ -130,7 +130,7 @@ public class SQLiteQueryBuilder {
 			if (i > 0) {
 				query.append(", ");
 			}
-			query.append("\"").append(table).append("\"");
+			query.append(CoreSQLUtils.quoteWrap(table));
 		}
 		appendClause(query, " WHERE ", where);
 		appendClause(query, " GROUP BY ", groupBy);
@@ -162,7 +162,7 @@ public class SQLiteQueryBuilder {
 				if (i > 0) {
 					s.append(", ");
 				}
-				s.append("\"").append(column).append("\"");
+				s.append(CoreSQLUtils.quoteWrap(column));
 			}
 		}
 		s.append(' ');
