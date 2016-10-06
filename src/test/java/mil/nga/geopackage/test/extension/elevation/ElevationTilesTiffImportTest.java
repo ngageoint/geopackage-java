@@ -7,8 +7,8 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.elevation.ElevationTileResults;
-import mil.nga.geopackage.extension.elevation.ElevationTiles;
 import mil.nga.geopackage.extension.elevation.ElevationTilesAlgorithm;
+import mil.nga.geopackage.extension.elevation.ElevationTilesTiff;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
@@ -124,7 +124,7 @@ public class ElevationTilesTiffImportTest extends
 
 		BoundingBox projectedBoundingBox = null;
 
-		List<String> elevationTables = ElevationTiles.getTables(geoPackage);
+		List<String> elevationTables = ElevationTilesTiff.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 
 		for (String elevationTable : elevationTables) {
@@ -333,7 +333,7 @@ public class ElevationTilesTiffImportTest extends
 		ProjectionTransform wgs84Transform = projection
 				.getTransformation(printProjection);
 
-		List<String> elevationTables = ElevationTiles.getTables(geoPackage);
+		List<String> elevationTables = ElevationTilesTiff.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 
 		for (String elevationTable : elevationTables) {

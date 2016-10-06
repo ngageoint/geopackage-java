@@ -9,6 +9,7 @@ import java.io.IOException;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.property.GeoPackageProperties;
 import mil.nga.geopackage.property.PropertyConstants;
@@ -18,22 +19,23 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 
 /**
- * Tiled Gridded Elevation Data Extension
+ * Tiled Gridded Elevation, PNG Encoding, Data Extension
  * 
  * @author osbornb
  * @since 1.2.1
  */
-public class ElevationTiles extends ElevationTilesCommon {
+public class ElevationTilesPng extends ElevationTilesCommon {
 
 	/**
 	 * Extension name without the author
 	 */
-	public static final String EXTENSION_NAME_NO_AUTHOR = CORE_EXTENSION_NAME_NO_AUTHOR;
+	public static final String EXTENSION_NAME_NO_AUTHOR = PNG_EXTENSION_NAME_NO_AUTHOR;
 
 	/**
 	 * Extension, with author and name
 	 */
-	public static final String EXTENSION_NAME = CORE_EXTENSION_NAME;
+	public static final String EXTENSION_NAME = Extensions.buildExtensionName(
+			EXTENSION_AUTHOR, EXTENSION_NAME_NO_AUTHOR);
 
 	/**
 	 * Extension definition URL
@@ -55,7 +57,7 @@ public class ElevationTiles extends ElevationTilesCommon {
 	 * @param requestProjection
 	 *            request projection
 	 */
-	public ElevationTiles(GeoPackage geoPackage, TileDao tileDao,
+	public ElevationTilesPng(GeoPackage geoPackage, TileDao tileDao,
 			Integer width, Integer height, Projection requestProjection) {
 		super(geoPackage, EXTENSION_NAME, EXTENSION_DEFINITION, tileDao, width,
 				height, requestProjection);
@@ -70,7 +72,7 @@ public class ElevationTiles extends ElevationTilesCommon {
 	 * @param tileDao
 	 *            tile dao
 	 */
-	public ElevationTiles(GeoPackage geoPackage, TileDao tileDao) {
+	public ElevationTilesPng(GeoPackage geoPackage, TileDao tileDao) {
 		this(geoPackage, tileDao, null, null, tileDao.getProjection());
 	}
 
@@ -85,7 +87,7 @@ public class ElevationTiles extends ElevationTilesCommon {
 	 * @param requestProjection
 	 *            request projection
 	 */
-	public ElevationTiles(GeoPackage geoPackage, TileDao tileDao,
+	public ElevationTilesPng(GeoPackage geoPackage, TileDao tileDao,
 			Projection requestProjection) {
 		this(geoPackage, tileDao, null, null, requestProjection);
 	}
@@ -691,7 +693,7 @@ public class ElevationTiles extends ElevationTilesCommon {
 	 * @param tileMatrixSetSrsId
 	 * @return elevation tiles
 	 */
-	public static ElevationTiles createTileTableWithMetadata(
+	public static ElevationTilesPng createTileTableWithMetadata(
 			GeoPackage geoPackage, String tableName,
 			BoundingBox contentsBoundingBox, long contentsSrsId,
 			BoundingBox tileMatrixSetBoundingBox, long tileMatrixSetSrsId) {
@@ -701,7 +703,8 @@ public class ElevationTiles extends ElevationTilesCommon {
 						contentsBoundingBox, contentsSrsId,
 						tileMatrixSetBoundingBox, tileMatrixSetSrsId);
 		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-		ElevationTiles elevationTiles = new ElevationTiles(geoPackage, tileDao);
+		ElevationTilesPng elevationTiles = new ElevationTilesPng(geoPackage,
+				tileDao);
 		elevationTiles.getOrCreate();
 
 		return elevationTiles;

@@ -36,7 +36,7 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	/**
 	 * Extension name without the author
 	 */
-	public static final String EXTENSION_NAME_NO_AUTHOR = "elevation_tiles_tiff";
+	public static final String EXTENSION_NAME_NO_AUTHOR = TIFF_EXTENSION_NAME_NO_AUTHOR;
 
 	/**
 	 * Extension, with author and name

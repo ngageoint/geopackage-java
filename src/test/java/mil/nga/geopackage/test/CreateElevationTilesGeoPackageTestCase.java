@@ -10,7 +10,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.extension.elevation.ElevationTiles;
+import mil.nga.geopackage.extension.elevation.ElevationTilesPng;
 import mil.nga.geopackage.extension.elevation.GriddedCoverage;
 import mil.nga.geopackage.extension.elevation.GriddedCoverageDao;
 import mil.nga.geopackage.extension.elevation.GriddedCoverageDataType;
@@ -102,7 +102,7 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 		SpatialReferenceSystem tileMatrixSrs = srsDao
 				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
-		ElevationTiles elevationTiles = ElevationTiles
+		ElevationTilesPng elevationTiles = ElevationTilesPng
 				.createTileTableWithMetadata(geoPackage,
 						TestConstants.CREATE_ELEVATION_TILES_DB_TABLE_NAME,
 						bbox, contentsSrs.getId(), bbox, tileMatrixSrs.getId());
@@ -132,8 +132,6 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 		}
 		griddedCoverage.setDataNull(new Double(Short.MAX_VALUE
 				- Short.MIN_VALUE));
-		griddedCoverage.setDataMissing(new Double(Short.MAX_VALUE
-				- Short.MIN_VALUE - 1));
 		TestCase.assertEquals(1, griddedCoverageDao.create(griddedCoverage));
 
 		long gcId = griddedCoverage.getId();
@@ -215,7 +213,7 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 		int maxZoomLevel = minZoomLevel + (int) Math.floor(Math.random() * 4.0);
 
 		// Just draw one image and re-use
-		elevationTiles = new ElevationTiles(geoPackage, tileDao);
+		elevationTiles = new ElevationTilesPng(geoPackage, tileDao);
 		byte[] imageBytes = drawTile(elevationTiles, tileWidth, tileHeight,
 				griddedCoverage, commonGriddedTile);
 
@@ -331,7 +329,7 @@ public abstract class CreateElevationTilesGeoPackageTestCase extends
 	 * @param commonGriddedTile
 	 * @return
 	 */
-	private byte[] drawTile(ElevationTiles elevationTiles, int tileWidth,
+	private byte[] drawTile(ElevationTilesPng elevationTiles, int tileWidth,
 			int tileHeight, GriddedCoverage griddedCoverage,
 			GriddedTile commonGriddedTile) {
 
