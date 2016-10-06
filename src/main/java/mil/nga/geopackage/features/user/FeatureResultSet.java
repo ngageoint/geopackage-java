@@ -16,7 +16,7 @@ public class FeatureResultSet extends
 	/**
 	 * Constructor
 	 * 
-	 * @param dao
+	 * @param table
 	 * @param resultSet
 	 * @param count
 	 */
@@ -52,7 +52,7 @@ public class FeatureResultSet extends
 	/**
 	 * Get the geometry
 	 * 
-	 * @return
+	 * @return geometry data
 	 */
 	public GeoPackageGeometryData getGeometry() {
 

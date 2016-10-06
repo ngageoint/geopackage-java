@@ -31,7 +31,7 @@ public class GeoPackageManager {
 	 * Create a GeoPackage
 	 * 
 	 * @param file
-	 * @return
+	 * @return true if created
 	 */
 	public static boolean create(File file) {
 
@@ -66,7 +66,7 @@ public class GeoPackageManager {
 	 * Open a GeoPackage
 	 * 
 	 * @param file
-	 * @return
+	 * @return GeoPackage
 	 */
 	public static GeoPackage open(File file) {
 

@@ -36,7 +36,7 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	/**
 	 * Convert the row to content values
 	 * 
-	 * @return
+	 * @return content values
 	 */
 	public ContentValues toContentValues() {
 
@@ -67,7 +67,6 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	 * @param contentValues
 	 * @param column
 	 * @param value
-	 * @return
 	 */
 	protected void columnToContentValue(ContentValues contentValues,
 			TColumn column, Object value) {

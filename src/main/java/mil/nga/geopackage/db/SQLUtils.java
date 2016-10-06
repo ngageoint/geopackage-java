@@ -50,7 +50,7 @@ public class SQLUtils {
 	 * @param connection
 	 * @param sql
 	 * @param selectionArgs
-	 * @return
+	 * @return result set
 	 */
 	public static ResultSet query(Connection connection, String sql,
 			String[] selectionArgs) {
@@ -254,7 +254,7 @@ public class SQLUtils {
 	 * @param table
 	 * @param where
 	 * @param args
-	 * @return
+	 * @return deleted count
 	 */
 	public static int delete(Connection connection, String table, String where,
 			String[] args) {
@@ -290,7 +290,7 @@ public class SQLUtils {
 	 * @param values
 	 * @param whereClause
 	 * @param whereArgs
-	 * @return
+	 * @return updated count
 	 */
 	public static int update(Connection connection, String table,
 			ContentValues values, String whereClause, String[] whereArgs) {

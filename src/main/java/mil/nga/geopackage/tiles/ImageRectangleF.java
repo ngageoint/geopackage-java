@@ -67,7 +67,7 @@ public class ImageRectangleF {
 	/**
 	 * Get the left
 	 * 
-	 * @return
+	 * @return left
 	 */
 	public float getLeft() {
 		return left;
@@ -76,7 +76,7 @@ public class ImageRectangleF {
 	/**
 	 * Get the right
 	 * 
-	 * @return
+	 * @return right
 	 */
 	public float getRight() {
 		return right;
@@ -85,7 +85,7 @@ public class ImageRectangleF {
 	/**
 	 * Get the top
 	 * 
-	 * @return
+	 * @return top
 	 */
 	public float getTop() {
 		return top;
@@ -94,7 +94,7 @@ public class ImageRectangleF {
 	/**
 	 * Get the bottom
 	 * 
-	 * @return
+	 * @return bottom
 	 */
 	public float getBottom() {
 		return bottom;
@@ -103,7 +103,7 @@ public class ImageRectangleF {
 	/**
 	 * Round the floating point rectangle to an integer rectangle
 	 * 
-	 * @return
+	 * @return image rectangle
 	 */
 	public ImageRectangle round() {
 		return new ImageRectangle(Math.round(left), Math.round(top),
@@ -113,7 +113,7 @@ public class ImageRectangleF {
 	/**
 	 * Check if the rectangle is valid
 	 * 
-	 * @return
+	 * @return true if valid
 	 */
 	public boolean isValid() {
 		return left < right && top < bottom;

@@ -66,7 +66,7 @@ public class FeatureTilePointIcon {
 	/**
 	 * Get the icon
 	 *
-	 * @return
+	 * @return image
 	 */
 	public BufferedImage getIcon() {
 		return icon;
@@ -75,7 +75,7 @@ public class FeatureTilePointIcon {
 	/**
 	 * Get the width
 	 *
-	 * @return
+	 * @return width
 	 */
 	public int getWidth() {
 		return width;
@@ -84,7 +84,7 @@ public class FeatureTilePointIcon {
 	/**
 	 * Get the height
 	 *
-	 * @return
+	 * @return height
 	 */
 	public int getHeight() {
 		return height;
@@ -93,7 +93,7 @@ public class FeatureTilePointIcon {
 	/**
 	 * Get the x offset
 	 *
-	 * @return
+	 * @return x offset
 	 */
 	public float getXOffset() {
 		return xOffset;
@@ -111,7 +111,7 @@ public class FeatureTilePointIcon {
 	/**
 	 * Get the y offset
 	 *
-	 * @return
+	 * @return y offset
 	 */
 	public float getYOffset() {
 		return yOffset;

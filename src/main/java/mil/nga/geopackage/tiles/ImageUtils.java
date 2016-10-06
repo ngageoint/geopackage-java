@@ -50,7 +50,7 @@ public class ImageUtils {
 	 * @param width
 	 * @param height
 	 * @param imageFormat
-	 * @return
+	 * @return image
 	 */
 	public static BufferedImage createBufferedImage(int width, int height,
 			String imageFormat) {
@@ -76,7 +76,7 @@ public class ImageUtils {
 	 * transparent pixels as an empty image
 	 * 
 	 * @param image
-	 * @return
+	 * @return true if fully transparent
 	 */
 	public static boolean isFullyTransparent(BufferedImage image) {
 		boolean transparent = true;
@@ -100,7 +100,7 @@ public class ImageUtils {
 	 * @param image
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return true if transparent
 	 */
 	public static boolean isTransparent(BufferedImage image, int x, int y) {
 		int pixel = image.getRGB(x, y);
@@ -184,7 +184,6 @@ public class ImageUtils {
 	 * @param quality
 	 *            quality between 0.0 and 1.0
 	 * @return compressed image bytes
-	 * @throws IOException
 	 * @since 1.1.2
 	 */
 	public static byte[] compressAndWriteImageToBytes(BufferedImage image,

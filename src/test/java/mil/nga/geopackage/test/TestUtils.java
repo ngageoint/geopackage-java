@@ -75,7 +75,7 @@ public class TestUtils {
 	 * @param contents
 	 * @param geometryColumn
 	 * @param geometryType
-	 * @return
+	 * @return feature table
 	 * @throws SQLException
 	 */
 	public static FeatureTable createFeatureTable(GeoPackage geoPackage,
@@ -116,7 +116,7 @@ public class TestUtils {
 	 * @param tableName
 	 * @param geometryColumn
 	 * @param geometryType
-	 * @return
+	 * @return feature table
 	 */
 	public static FeatureTable buildFeatureTable(String tableName,
 			String geometryColumn, GeometryType geometryType) {
@@ -150,7 +150,7 @@ public class TestUtils {
 	 * Build an example tile table
 	 * 
 	 * @param tableName
-	 * @return
+	 * @return tile table
 	 */
 	public static TileTable buildTileTable(String tableName) {
 
@@ -310,7 +310,7 @@ public class TestUtils {
 	 * 
 	 * @param hasZ
 	 * @param hasM
-	 * @return
+	 * @return point
 	 */
 	public static Point createPoint(boolean hasZ, boolean hasM) {
 
@@ -338,7 +338,7 @@ public class TestUtils {
 	 * @param hasZ
 	 * @param hasM
 	 * @param ring
-	 * @return
+	 * @return line string
 	 */
 	public static LineString createLineString(boolean hasZ, boolean hasM,
 			boolean ring) {
@@ -363,7 +363,7 @@ public class TestUtils {
 	 * 
 	 * @param hasZ
 	 * @param hasM
-	 * @return
+	 * @return polygon
 	 */
 	public static Polygon createPolygon(boolean hasZ, boolean hasM) {
 
@@ -383,7 +383,6 @@ public class TestUtils {
 	 * 
 	 * @param value
 	 * @param dataType
-	 * @return
 	 */
 	public static void validateIntegerValue(Object value,
 			GeoPackageDataType dataType) {
@@ -417,7 +416,6 @@ public class TestUtils {
 	 * 
 	 * @param value
 	 * @param dataType
-	 * @return
 	 */
 	public static void validateFloatValue(Object value,
 			GeoPackageDataType dataType) {
@@ -499,7 +497,7 @@ public class TestUtils {
 	/**
 	 * Get the import db file
 	 * 
-	 * @return
+	 * @return file
 	 */
 	public static File getImportDbFile() {
 		return getTestFile(TestConstants.IMPORT_DB_FILE_NAME);
@@ -508,7 +506,7 @@ public class TestUtils {
 	/**
 	 * Get the import db corrupt file
 	 * 
-	 * @return
+	 * @return file
 	 */
 	public static File getImportDbCorruptFile() {
 		return getTestFile(TestConstants.IMPORT_CORRUPT_DB_FILE_NAME);
@@ -517,7 +515,7 @@ public class TestUtils {
 	/**
 	 * Get the import db elevation tiles file
 	 * 
-	 * @return
+	 * @return file
 	 */
 	public static File getImportDbElevationTilesFile() {
 		return getTestFile(TestConstants.IMPORT_ELEVATION_TILES_DB_FILE_NAME);
@@ -526,7 +524,7 @@ public class TestUtils {
 	/**
 	 * Get the import db elevation tiles tiff file
 	 * 
-	 * @return
+	 * @return file
 	 */
 	public static File getImportDbElevationTilesTiffFile() {
 		return getTestFile(TestConstants.IMPORT_ELEVATION_TILES_TIFF_DB_FILE_NAME);
@@ -535,7 +533,7 @@ public class TestUtils {
 	/**
 	 * Get the tile file
 	 * 
-	 * @return
+	 * @return file
 	 */
 	public static File getTileFile() {
 		return getTestFile(TestConstants.TILE_FILE_NAME);
@@ -544,7 +542,7 @@ public class TestUtils {
 	/**
 	 * Get the tile file bytes
 	 * 
-	 * @return
+	 * @return file bytes
 	 */
 	public static byte[] getTileBytes() {
 		try {
@@ -557,7 +555,7 @@ public class TestUtils {
 	/**
 	 * Get the file
 	 * 
-	 * @return
+	 * @return file
 	 */
 	public static File getTestFile(String fileName) {
 		URL resourceUrl = TestUtils.class.getResource("/" + fileName);

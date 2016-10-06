@@ -190,7 +190,7 @@ public class TileDao extends
 	/**
 	 * Get the Tile connection
 	 * 
-	 * @return
+	 * @return tile connection
 	 */
 	public TileConnection getTileDb() {
 		return tileDb;
@@ -199,7 +199,7 @@ public class TileDao extends
 	/**
 	 * Get the tile matrix set
 	 * 
-	 * @return
+	 * @return tile matrix set
 	 */
 	public TileMatrixSet getTileMatrixSet() {
 		return tileMatrixSet;
@@ -208,7 +208,7 @@ public class TileDao extends
 	/**
 	 * Get the tile matrices
 	 * 
-	 * @return
+	 * @return tile matrices
 	 */
 	public List<TileMatrix> getTileMatrices() {
 		return tileMatrices;
@@ -218,7 +218,7 @@ public class TileDao extends
 	 * Get the tile matrix at the zoom level
 	 * 
 	 * @param zoomLevel
-	 * @return
+	 * @return tile matrix
 	 */
 	public TileMatrix getTileMatrix(long zoomLevel) {
 		return zoomLevelToTileMatrix.get(zoomLevel);
@@ -227,7 +227,7 @@ public class TileDao extends
 	/**
 	 * Get the min zoom
 	 * 
-	 * @return
+	 * @return min zoom
 	 */
 	public long getMinZoom() {
 		return minZoom;
@@ -236,7 +236,7 @@ public class TileDao extends
 	/**
 	 * Get the max zoom
 	 * 
-	 * @return
+	 * @return max zoom
 	 */
 	public long getMaxZoom() {
 		return maxZoom;
@@ -248,7 +248,7 @@ public class TileDao extends
 	 * @param column
 	 * @param row
 	 * @param zoomLevel
-	 * @return
+	 * @return tile row
 	 */
 	public TileRow queryForTile(long column, long row, long zoomLevel) {
 
@@ -297,7 +297,7 @@ public class TileDao extends
 	 * 
 	 * @param column
 	 * @param zoomLevel
-	 * @return
+	 * @return tile result set
 	 */
 	public TileResultSet queryForTilesInColumn(long column, long zoomLevel) {
 
@@ -313,7 +313,7 @@ public class TileDao extends
 	 * 
 	 * @param row
 	 * @param zoomLevel
-	 * @return
+	 * @return tile result set
 	 */
 	public TileResultSet queryForTilesInRow(long row, long zoomLevel) {
 
@@ -541,7 +541,7 @@ public class TileDao extends
 	/**
 	 * Determine if the tiles are in the Google tile coordinate format
 	 * 
-	 * @return
+	 * @return true if Google tile format
 	 */
 	public boolean isGoogleTiles() {
 

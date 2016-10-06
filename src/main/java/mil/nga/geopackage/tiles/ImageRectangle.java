@@ -56,7 +56,7 @@ public class ImageRectangle {
 	/**
 	 * Get the left
 	 * 
-	 * @return
+	 * @return left
 	 */
 	public int getLeft() {
 		return left;
@@ -65,7 +65,7 @@ public class ImageRectangle {
 	/**
 	 * Get the right
 	 * 
-	 * @return
+	 * @return right
 	 */
 	public int getRight() {
 		return right;
@@ -74,7 +74,7 @@ public class ImageRectangle {
 	/**
 	 * Get the top
 	 * 
-	 * @return
+	 * @return top
 	 */
 	public int getTop() {
 		return top;
@@ -83,7 +83,7 @@ public class ImageRectangle {
 	/**
 	 * Get the bottom
 	 * 
-	 * @return
+	 * @return bottom
 	 */
 	public int getBottom() {
 		return bottom;
@@ -92,7 +92,7 @@ public class ImageRectangle {
 	/**
 	 * Check if the rectangle is valid
 	 * 
-	 * @return
+	 * @return true if valid
 	 */
 	public boolean isValid() {
 		return left < right && top < bottom;

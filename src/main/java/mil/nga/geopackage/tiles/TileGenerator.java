@@ -184,7 +184,7 @@ public abstract class TileGenerator {
 	/**
 	 * Get the max zoom
 	 * 
-	 * @return
+	 * @return max zoom
 	 */
 	public int getMaxZoom() {
 		return maxZoom;
@@ -881,7 +881,7 @@ public abstract class TileGenerator {
 	 * @param z
 	 * @param x
 	 * @param y
-	 * @return
+	 * @return tile bytes
 	 */
 	protected abstract byte[] createTile(int z, long x, long y);
 

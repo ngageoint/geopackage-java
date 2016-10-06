@@ -19,7 +19,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 * Get a Feature DAO from Geometry Columns
 	 *
 	 * @param geometryColumns
-	 * @return
+	 * @return feature dao
 	 */
 	public FeatureDao getFeatureDao(GeometryColumns geometryColumns);
 
@@ -27,7 +27,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 * Get a Feature DAO from Contents
 	 *
 	 * @param contents
-	 * @return
+	 * @return feature dao
 	 */
 	public FeatureDao getFeatureDao(Contents contents);
 
@@ -35,7 +35,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 * Get a Feature DAO from a table name
 	 *
 	 * @param tableName
-	 * @return
+	 * @return feature dao
 	 */
 	public FeatureDao getFeatureDao(String tableName);
 
@@ -43,7 +43,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 * Get a Tile DAO from Tile Matrix Set
 	 *
 	 * @param tileMatrixSet
-	 * @return
+	 * @return tile dao
 	 */
 	public TileDao getTileDao(TileMatrixSet tileMatrixSet);
 
@@ -51,7 +51,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 * Get a Tile DAO from Contents
 	 *
 	 * @param contents
-	 * @return
+	 * @return tile dao
 	 */
 	public TileDao getTileDao(Contents contents);
 
@@ -59,7 +59,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 * Get a Tile DAO from a table name
 	 *
 	 * @param tableName
-	 * @return
+	 * @return tile dao
 	 */
 	public TileDao getTileDao(String tableName);
 
@@ -68,7 +68,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 *
 	 * @param sql
 	 * @param args
-	 * @return cursor
+	 * @return result set
 	 * @since 1.1.2
 	 */
 	public ResultSet query(String sql, String[] args);
@@ -76,7 +76,7 @@ public interface GeoPackage extends GeoPackageCore {
 	/**
 	 * Perform a foreign key check on the database
 	 *
-	 * @return null if check passed, open cursor with results if failed
+	 * @return null if check passed, open result set with results if failed
 	 * @since 1.1.2
 	 */
 	public ResultSet foreignKeyCheck();
@@ -84,7 +84,7 @@ public interface GeoPackage extends GeoPackageCore {
 	/**
 	 * Perform an integrity check on the database
 	 *
-	 * @return null if check passed, open cursor with results if failed
+	 * @return null if check passed, open result set with results if failed
 	 * @since 1.1.2
 	 */
 	public ResultSet integrityCheck();
@@ -92,7 +92,7 @@ public interface GeoPackage extends GeoPackageCore {
 	/**
 	 * Perform a quick integrity check on the database
 	 *
-	 * @return null if check passed, open cursor with results if failed
+	 * @return null if check passed, open result set with results if failed
 	 * @since 1.1.2
 	 */
 	public ResultSet quickCheck();

@@ -756,7 +756,7 @@ public class ElevationTilesTiffTestUtils {
 	 *            bounding box
 	 * @param width
 	 *            results width
-	 * @param width
+	 * @param height
 	 *            results height
 	 * @return elevation tile results
 	 * @throws Exception

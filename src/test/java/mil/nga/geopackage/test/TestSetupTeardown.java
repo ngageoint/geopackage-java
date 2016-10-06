@@ -70,7 +70,7 @@ public class TestSetupTeardown {
 	 * @param directory
 	 * @param features
 	 * @param tiles
-	 * @return
+	 * @return GeoPackage
 	 * @throws SQLException
 	 * @throws IOException
 	 */
@@ -86,7 +86,7 @@ public class TestSetupTeardown {
 	 * @param features
 	 * @param allowEmptyFeatures
 	 * @param tiles
-	 * @return
+	 * @return GeoPackage
 	 * @throws SQLException
 	 * @throws IOException
 	 */
@@ -472,7 +472,7 @@ public class TestSetupTeardown {
 	 * Set up the import database
 	 * 
 	 * @param directory
-	 * @return
+	 * @return GeoPackage
 	 */
 	public static GeoPackage setUpImport(File directory) {
 

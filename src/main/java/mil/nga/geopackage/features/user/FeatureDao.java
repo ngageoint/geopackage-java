@@ -90,7 +90,7 @@ public class FeatureDao extends
 	/**
 	 * Get the Feature connection
 	 * 
-	 * @return
+	 * @return feature connection
 	 */
 	public FeatureConnection getFeatureDb() {
 		return featureDb;
@@ -99,7 +99,7 @@ public class FeatureDao extends
 	/**
 	 * Get the Geometry Columns
 	 * 
-	 * @return
+	 * @return geometry columns
 	 */
 	public GeometryColumns getGeometryColumns() {
 		return geometryColumns;
@@ -108,7 +108,7 @@ public class FeatureDao extends
 	/**
 	 * The the Geometry Column name
 	 * 
-	 * @return
+	 * @return geometry column name
 	 */
 	public String getGeometryColumnName() {
 		return geometryColumns.getColumnName();
@@ -117,7 +117,7 @@ public class FeatureDao extends
 	/**
 	 * Get the Geometry Type
 	 * 
-	 * @return
+	 * @return geometry type
 	 */
 	public GeometryType getGeometryType() {
 		return geometryColumns.getGeometryType();

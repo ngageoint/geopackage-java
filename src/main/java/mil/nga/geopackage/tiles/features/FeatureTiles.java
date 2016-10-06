@@ -232,7 +232,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the width draw overlap
 	 *
-	 * @return
+	 * @return width draw overlap
 	 */
 	public float getWidthDrawOverlap() {
 		return widthOverlap;
@@ -250,7 +250,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the height draw overlap
 	 *
-	 * @return
+	 * @return height draw overlap
 	 */
 	public float getHeightDrawOverlap() {
 		return heightOverlap;
@@ -268,7 +268,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the feature DAO
 	 *
-	 * @return
+	 * @return feature dao
 	 */
 	public FeatureDao getFeatureDao() {
 		return featureDao;
@@ -304,7 +304,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the tile width
 	 *
-	 * @return
+	 * @return tile width
 	 */
 	public int getTileWidth() {
 		return tileWidth;
@@ -322,7 +322,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the tile height
 	 *
-	 * @return
+	 * @return tile height
 	 */
 	public int getTileHeight() {
 		return tileHeight;
@@ -340,7 +340,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the compress format
 	 *
-	 * @return
+	 * @return compress format
 	 */
 	public String getCompressFormat() {
 		return compressFormat;
@@ -358,7 +358,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the point radius
 	 *
-	 * @return
+	 * @return radius
 	 */
 	public float getPointRadius() {
 		return pointRadius;
@@ -376,7 +376,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get point color
 	 * 
-	 * @return
+	 * @return color
 	 */
 	public Color getPointColor() {
 		return pointColor;
@@ -394,7 +394,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get the point icon
 	 *
-	 * @return
+	 * @return icon
 	 */
 	public FeatureTilePointIcon getPointIcon() {
 		return pointIcon;
@@ -412,7 +412,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get line stroke width
 	 * 
-	 * @return
+	 * @return width
 	 */
 	public float getLineStrokeWidth() {
 		return lineStrokeWidth;
@@ -430,7 +430,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get line color
 	 * 
-	 * @return
+	 * @return color
 	 */
 	public Color getLineColor() {
 		return lineColor;
@@ -448,7 +448,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get polygon stroke width
 	 * 
-	 * @return
+	 * @return width
 	 */
 	public float getPolygonStrokeWidth() {
 		return polygonStrokeWidth;
@@ -466,7 +466,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get polygon color
 	 * 
-	 * @return
+	 * @return color
 	 */
 	public Color getPolygonColor() {
 		return polygonColor;
@@ -484,7 +484,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Is fill polygon
 	 *
-	 * @return
+	 * @return true if fill polygon
 	 */
 	public boolean isFillPolygon() {
 		return fillPolygon;
@@ -502,7 +502,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Get polygon fill color
 	 * 
-	 * @return
+	 * @return color
 	 */
 	public Color getPolygonFillColor() {
 		return polygonFillColor;
@@ -813,7 +813,7 @@ public abstract class FeatureTiles {
 	 *
 	 * @param webMercatorBoundingBox
 	 * @param results
-	 * @return
+	 * @return image
 	 */
 	public abstract BufferedImage drawTile(BoundingBox webMercatorBoundingBox,
 			CloseableIterator<GeometryIndex> results);
@@ -823,7 +823,7 @@ public abstract class FeatureTiles {
 	 *
 	 * @param webMercatorBoundingBox
 	 * @param resultSet
-	 * @return
+	 * @return image
 	 */
 	public abstract BufferedImage drawTile(BoundingBox webMercatorBoundingBox,
 			FeatureResultSet resultSet);
@@ -833,7 +833,7 @@ public abstract class FeatureTiles {
 	 *
 	 * @param webMercatorBoundingBox
 	 * @param featureRow
-	 * @return
+	 * @return image
 	 */
 	public abstract BufferedImage drawTile(BoundingBox webMercatorBoundingBox,
 			List<FeatureRow> featureRow);

@@ -37,7 +37,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	/**
 	 * Get the geometry column index
 	 * 
-	 * @return
+	 * @return geometry column index
 	 */
 	public int getGeometryColumnIndex() {
 		return getTable().getGeometryColumnIndex();
@@ -46,7 +46,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	/**
 	 * Get the geometry feature column
 	 * 
-	 * @return
+	 * @return geometry feature column
 	 */
 	public FeatureColumn getGeometryColumn() {
 		return getTable().getGeometryColumn();
@@ -55,7 +55,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	/**
 	 * Get the geometry
 	 * 
-	 * @return
+	 * @return geometry data
 	 */
 	public GeoPackageGeometryData getGeometry() {
 		GeoPackageGeometryData geometryData = null;

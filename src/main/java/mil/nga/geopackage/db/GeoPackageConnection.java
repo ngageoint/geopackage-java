@@ -57,7 +57,7 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	/**
 	 * Get the connection
 	 *
-	 * @return
+	 * @return connection
 	 */
 	public Connection getConnection() {
 		return connection;

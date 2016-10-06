@@ -70,7 +70,7 @@ public abstract class ElevationTilesCommon extends ElevationTilesCore {
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
-	 * @return
+	 * @return elevation
 	 */
 	public abstract Double getElevationValue(GriddedTile griddedTile,
 			ElevationImage image, int x, int y);
