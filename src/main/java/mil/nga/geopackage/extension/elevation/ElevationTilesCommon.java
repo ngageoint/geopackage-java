@@ -38,10 +38,6 @@ public abstract class ElevationTilesCommon extends ElevationTilesCore {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
-	 * @param extensionName
-	 *            extension name
-	 * @param extensionDefinition
-	 *            extension definition
 	 * @param tileDao
 	 *            tile dao
 	 * @param width
@@ -51,11 +47,10 @@ public abstract class ElevationTilesCommon extends ElevationTilesCore {
 	 * @param requestProjection
 	 *            request projection
 	 */
-	public ElevationTilesCommon(GeoPackage geoPackage, String extensionName,
-			String extensionDefinition, TileDao tileDao, Integer width,
-			Integer height, Projection requestProjection) {
-		super(geoPackage, extensionName, extensionDefinition, tileDao
-				.getTileMatrixSet(), width, height, requestProjection);
+	public ElevationTilesCommon(GeoPackage geoPackage, TileDao tileDao,
+			Integer width, Integer height, Projection requestProjection) {
+		super(geoPackage, tileDao.getTileMatrixSet(), width, height,
+				requestProjection);
 		this.tileDao = tileDao;
 	}
 

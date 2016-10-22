@@ -9,10 +9,7 @@ import java.io.IOException;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.property.GeoPackageProperties;
-import mil.nga.geopackage.property.PropertyConstants;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
@@ -25,23 +22,6 @@ import mil.nga.geopackage.tiles.user.TileRow;
  * @since 1.2.1
  */
 public class ElevationTilesPng extends ElevationTilesCommon {
-
-	/**
-	 * Extension name without the author
-	 */
-	public static final String EXTENSION_NAME_NO_AUTHOR = PNG_EXTENSION_NAME_NO_AUTHOR;
-
-	/**
-	 * Extension, with author and name
-	 */
-	public static final String EXTENSION_NAME = Extensions.buildExtensionName(
-			EXTENSION_AUTHOR, EXTENSION_NAME_NO_AUTHOR);
-
-	/**
-	 * Extension definition URL
-	 */
-	public static final String EXTENSION_DEFINITION = GeoPackageProperties
-			.getProperty(PropertyConstants.EXTENSIONS, EXTENSION_NAME_NO_AUTHOR);
 
 	/**
 	 * Constructor
@@ -59,8 +39,7 @@ public class ElevationTilesPng extends ElevationTilesCommon {
 	 */
 	public ElevationTilesPng(GeoPackage geoPackage, TileDao tileDao,
 			Integer width, Integer height, Projection requestProjection) {
-		super(geoPackage, EXTENSION_NAME, EXTENSION_DEFINITION, tileDao, width,
-				height, requestProjection);
+		super(geoPackage, tileDao, width, height, requestProjection);
 	}
 
 	/**
