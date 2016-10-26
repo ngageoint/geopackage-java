@@ -8,6 +8,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * Elevation Extension support (PNG & TIFF)
 * geopackage-core version updated to 1.2.1
+* User Attributes table support
 * Image IO dependency for TIFF support
 * Elevation query algorithms including Nearest Neighbor, Bilinear, and Bicubic
 * Elevation unbounded results elevation queries
