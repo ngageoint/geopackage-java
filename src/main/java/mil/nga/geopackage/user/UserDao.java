@@ -40,7 +40,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	/**
 	 * Get the database connection
 	 * 
-	 * @return
+	 * @return connection
 	 */
 	public Connection getConnection() {
 		return connection;
@@ -67,7 +67,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * @param values
 	 * @param whereClause
 	 * @param whereArgs
-	 * @return
+	 * @return updated count
 	 */
 	public int update(ContentValues values, String whereClause,
 			String[] whereArgs) {

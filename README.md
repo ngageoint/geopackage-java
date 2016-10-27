@@ -82,6 +82,30 @@ geoPackage.close();
 
 ```
 
+### Image IO ###
+
+Image IO is required for elevation imagery stored in the Tagged Image File Format (TIFF).  The non distributable JAI ImageIO and core libraries are required in the local repository to install this library.  The libraries are required in the classpath to enable TIFF elevation extension functionality.  Download these jar files as needed to build and provide runtime access.
+
+```xml
+
+<dependency>
+    <groupId>com.sun.media</groupId>
+    <artifactId>jai_imageio</artifactId>
+    <version>1.1</version>
+</dependency>
+
+```
+
+```xml
+
+<dependency>
+    <groupId>javax.media</groupId>
+    <artifactId>jai_core</artifactId>
+    <version>1.1.3</version>
+</dependency>
+
+```
+
 ### Installation ###
 
 Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.2.0|jar) (JAR, POM, Source, Javadoc)
@@ -183,3 +207,7 @@ Example:
 #### Embedded ####
 
 * [The Android Open Source Project](https://source.android.com/) (Apache License, Version 2.0) - Slightly modified subset of SQLiteQueryBuilder
+
+#### Manually Copied ####
+
+* Image IO - Non distributable image library required for TIFF elevation imagery

@@ -36,7 +36,7 @@ public class GeoPackageTile {
 	 *
 	 * @param width
 	 * @param height
-	 * @param data
+	 * @param image
 	 */
 	public GeoPackageTile(int width, int height, BufferedImage image) {
 		this.width = width;

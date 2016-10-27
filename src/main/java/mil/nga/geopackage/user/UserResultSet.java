@@ -51,7 +51,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	/**
 	 * Get the Result Set
 	 * 
-	 * @return
+	 * @return result set
 	 */
 	public ResultSet getResultSet() {
 		return resultSet;

@@ -39,7 +39,7 @@ public class ContentValues {
 	/**
 	 * Get the number of value mappings
 	 * 
-	 * @return
+	 * @return size
 	 */
 	public int size() {
 		return values.size();
@@ -49,7 +49,7 @@ public class ContentValues {
 	 * Get the value of the key
 	 * 
 	 * @param key
-	 * @return
+	 * @return value
 	 */
 	public Object get(String key) {
 		return values.get(key);
@@ -58,7 +58,7 @@ public class ContentValues {
 	/**
 	 * Get a value set of the mappings
 	 * 
-	 * @return
+	 * @return value set
 	 */
 	public Set<Map.Entry<String, Object>> valueSet() {
 		return values.entrySet();
@@ -67,7 +67,7 @@ public class ContentValues {
 	/**
 	 * Get a field key set
 	 * 
-	 * @return
+	 * @return field key set
 	 */
 	public Set<String> keySet() {
 		return values.keySet();
@@ -77,7 +77,7 @@ public class ContentValues {
 	 * Get the key value as a string
 	 * 
 	 * @param key
-	 * @return
+	 * @return string value
 	 */
 	public String getAsString(String key) {
 		Object value = values.get(key);

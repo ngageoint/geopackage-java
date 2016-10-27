@@ -7,7 +7,13 @@ import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.attributes.AttributesConnection;
+import mil.nga.geopackage.attributes.AttributesDao;
+import mil.nga.geopackage.attributes.AttributesTable;
+import mil.nga.geopackage.attributes.AttributesTableReader;
 import mil.nga.geopackage.core.contents.Contents;
+import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageTableCreator;
 import mil.nga.geopackage.factory.GeoPackageCoreImpl;
@@ -256,6 +262,60 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 					+ tileMatrixSetList.size());
 		}
 		return getTileDao(tileMatrixSetList.get(0));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AttributesDao getAttributesDao(Contents contents) {
+
+		if (contents == null) {
+			throw new GeoPackageException("Non null "
+					+ Contents.class.getSimpleName()
+					+ " is required to create "
+					+ AttributesDao.class.getSimpleName());
+		}
+		if (contents.getDataType() != ContentsDataType.ATTRIBUTES) {
+			throw new GeoPackageException(Contents.class.getSimpleName()
+					+ " is required to be of type "
+					+ ContentsDataType.ATTRIBUTES + ". Actual: "
+					+ contents.getDataTypeString());
+		}
+
+		// Read the existing table and create the dao
+		AttributesTableReader tableReader = new AttributesTableReader(
+				contents.getTableName());
+		AttributesConnection userDb = new AttributesConnection(database);
+		final AttributesTable attributesTable = tableReader.readTable(userDb);
+		attributesTable.setContents(contents);
+		userDb.setTable(attributesTable);
+		AttributesDao dao = new AttributesDao(getName(), database, userDb,
+				attributesTable);
+
+		return dao;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AttributesDao getAttributesDao(String tableName) {
+
+		ContentsDao dao = getContentsDao();
+		Contents contents = null;
+		try {
+			contents = dao.queryForId(tableName);
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to retrieve "
+					+ Contents.class.getSimpleName() + " for table name: "
+					+ tableName, e);
+		}
+		if (contents == null) {
+			throw new GeoPackageException(
+					"No Contents Table exists for table name: " + tableName);
+		}
+		return getAttributesDao(contents);
 	}
 
 	/**

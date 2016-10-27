@@ -87,7 +87,6 @@ public class TileProperties {
 	 * Constructor
 	 * 
 	 * @param directory
-	 * @return
 	 */
 	public TileProperties(File directory) {
 		this.propertiesFile = new File(directory, GEOPACKAGE_PROPERTIES_FILE);
@@ -129,7 +128,7 @@ public class TileProperties {
 	 * 
 	 * @param property
 	 * @param required
-	 * @return
+	 * @return integer property
 	 */
 	public Integer getIntegerProperty(String property, boolean required) {
 		Integer integerValue = null;
@@ -151,7 +150,7 @@ public class TileProperties {
 	 * 
 	 * @param property
 	 * @param required
-	 * @return
+	 * @return double property
 	 */
 	public Double getDoubleProperty(String property, boolean required) {
 		Double doubleValue = null;
@@ -173,7 +172,7 @@ public class TileProperties {
 	 * 
 	 * @param property
 	 * @param required
-	 * @return
+	 * @return string property
 	 */
 	public String getProperty(String property, boolean required) {
 
@@ -232,7 +231,7 @@ public class TileProperties {
 	 * Get the matrix width property for the zoom level
 	 * 
 	 * @param zoom
-	 * @return
+	 * @return matrix width property
 	 */
 	public static String getMatrixWidthProperty(long zoom) {
 		return getMatrixWidthProperty(String.valueOf(zoom));
@@ -242,7 +241,7 @@ public class TileProperties {
 	 * Get the matrix width property for the zoom level
 	 * 
 	 * @param zoom
-	 * @return
+	 * @return matrix width property
 	 */
 	public static String getMatrixWidthProperty(String zoom) {
 		return GEOPACKAGE_PROPERTIES_ZOOM_LEVEL + "." + zoom + "."
@@ -253,7 +252,7 @@ public class TileProperties {
 	 * Get the matrix height property for the zoom level
 	 * 
 	 * @param zoom
-	 * @return
+	 * @return matrix height property
 	 */
 	public static String getMatrixHeightProperty(long zoom) {
 		return getMatrixHeightProperty(String.valueOf(zoom));
@@ -263,7 +262,7 @@ public class TileProperties {
 	 * Get the matrix height property for the zoom level
 	 * 
 	 * @param zoom
-	 * @return
+	 * @return matrix height property
 	 */
 	public static String getMatrixHeightProperty(String zoom) {
 		return GEOPACKAGE_PROPERTIES_ZOOM_LEVEL + "." + zoom + "."

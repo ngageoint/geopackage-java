@@ -217,7 +217,7 @@ public class TileReader {
 	/**
 	 * Read the tiles in the directory into the GeoPackage file table
 	 * 
-	 * @param geoPackageFile
+	 * @param geoPackage
 	 *            open GeoPackage
 	 * @param tileTable
 	 *            tile table

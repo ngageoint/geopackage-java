@@ -38,7 +38,7 @@ public abstract class CreateGeoPackageTestCase extends GeoPackageTestCase {
 	 * Return true to allow a chance that a feature will be created with an
 	 * empty geometry
 	 * 
-	 * @return
+	 * @return true to allow empty features
 	 */
 	public boolean allowEmptyFeatures() {
 		return true;

@@ -43,7 +43,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	/**
 	 * Get the table
 	 * 
-	 * @return
+	 * @return table
 	 */
 	public TTable getTable() {
 		return table;
@@ -63,7 +63,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * 
 	 * @param resultSet
 	 * @param count
-	 * @return
+	 * @return result
 	 */
 	protected abstract TResult createResult(ResultSet resultSet, int count);
 

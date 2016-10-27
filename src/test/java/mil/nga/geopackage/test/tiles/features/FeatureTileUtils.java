@@ -35,7 +35,7 @@ public class FeatureTileUtils {
 	/**
 	 * Create feature dao
 	 *
-	 * @return
+	 * @return feature dao
 	 */
 	public static FeatureDao createFeatureDao(GeoPackage geoPackage) {
 
@@ -103,7 +103,7 @@ public class FeatureTileUtils {
 	 * @param featureDao
 	 * @param useIcon
 	 *            true to use an icon instead of the default point
-	 * @return
+	 * @return feature tiles
 	 */
 	public static FeatureTiles createFeatureTiles(GeoPackage geoPackage,
 			FeatureDao featureDao, boolean useIcon) {

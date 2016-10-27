@@ -186,7 +186,7 @@ public class UrlTileGenerator extends TileGenerator {
 	/**
 	 * Get the number of download attempts per tile
 	 * 
-	 * @return
+	 * @return download attempts
 	 */
 	public int getDownloadAttempts() {
 		return downloadAttempts;
