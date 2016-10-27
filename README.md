@@ -207,3 +207,7 @@ Example:
 #### Embedded ####
 
 * [The Android Open Source Project](https://source.android.com/) (Apache License, Version 2.0) - Slightly modified subset of SQLiteQueryBuilder
+
+#### Manually Copied ####
+
+* Image IO - Non distributable image library required for TIFF elevation imagery
