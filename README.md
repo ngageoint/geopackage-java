@@ -86,7 +86,7 @@ JAI/Image IO is required for elevation imagery stored in the Tagged Image File F
 elevation extension functionality at runtime.  You can download and install these dependencies to your local repository manually.  Alternatively, if you have
 access to a repository that provides these depedencies, you can run the build with `-Djai_repo_url=http://your.repo -Djai_repo_id=your_repo`.  The
 `jai_repo_id` property is optional, but is available if there is a settings file you don't control that configures a specific server ID for a server that
-provides JAI, e.g., in a continous integration environment.  You can compile without the Image IO dependencies, but the tests will fail, and thus the install
+provides JAI, e.g., in a continous integration environment.  You can compile without the JAI dependencies, but the tests will fail, and thus the install
 goal will fail.  To install anyway, run `mvn -DskipTests clean install`.
 ```xml
 <dependency>
