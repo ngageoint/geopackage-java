@@ -78,7 +78,7 @@
 
 	<repositories>
 		<repository>
-			<id>where_jai_is</id>
+			<id>${jai_repo_id}</id>
 			<url>${jai_repo_url}</url>
 		</repository>
 	</repositories>
