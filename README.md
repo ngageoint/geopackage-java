@@ -20,7 +20,6 @@ The GeoPackage Java library provides the ability to read, create, and edit GeoPa
 View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
 
 ```java
-
 // File newGeoPackage = ...;
 // File existingGeoPackage = ...;
 
@@ -79,31 +78,30 @@ int indexedCount = indexer.index();
 
 // Close database when done
 geoPackage.close();
-
 ```
 
-### Image IO ###
+### JAI/Image IO ###
 
-Image IO is required for elevation imagery stored in the Tagged Image File Format (TIFF).  The non distributable JAI ImageIO and core libraries are required in the local repository to install this library.  The libraries are required in the classpath to enable TIFF elevation extension functionality.  Download these jar files as needed to build and provide runtime access.
-
+JAI/Image IO is required for elevation imagery stored in the Tagged Image File Format (TIFF).  The libraries are required in the classpath to enable TIFF
+elevation extension functionality at runtime.  You can download and install these dependencies to your local repository manually.  Alternatively, if you have
+access to a repository that provides these depedencies, you can run the build with `-Djai_repo_url=http://your.repo -Djai_repo_id=your_repo`.  The
+`jai_repo_id` property is optional, but is available if there is a settings file you don't control that configures a specific server ID for a server that
+provides JAI, e.g., in a continous integration environment.  You can compile without the Image IO dependencies, but the tests will fail, and thus the install
+goal will fail.  To install anyway, run `mvn -DskipTests clean install`.
 ```xml
-
 <dependency>
     <groupId>com.sun.media</groupId>
     <artifactId>jai_imageio</artifactId>
     <version>1.1</version>
+    <scope>runtime</scope>
 </dependency>
-
-```
-
-```xml
 
 <dependency>
     <groupId>javax.media</groupId>
     <artifactId>jai_core</artifactId>
     <version>1.1.3</version>
+    <scope>runtime</scope>
 </dependency>
-
 ```
 
 ### Installation ###
@@ -111,13 +109,11 @@ Image IO is required for elevation imagery stored in the Tagged Image File Forma
 Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.2.0|jar) (JAR, POM, Source, Javadoc)
 
 ```xml
-
 <dependency>
     <groupId>mil.nga.geopackage</groupId>
     <artifactId>geopackage</artifactId>
     <version>1.2.0</version>
 </dependency>
-
 ```
 
 ### Build ###

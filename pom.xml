@@ -136,6 +136,17 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>jai_repo_id</id>
+			<properties>
+				<jai_repo_id>jai_repo</jai_repo_id>
+			</properties>
+			<activation>
+				<property>
+					<name>!jai_repo_id</name>
+				</property>
+			</activation>
+		</profile>
 	</profiles>
 
 	<build>
