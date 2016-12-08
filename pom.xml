@@ -76,6 +76,13 @@
 		</dependency>
 	</dependencies>
 
+	<repositories>
+		<repository>
+			<id>where_jai_is</id>
+			<url>${jai_repo_url}</url>
+		</repository>
+	</repositories>
+
 	<profiles>
 		<profile>
 			<id>standalone</id>
