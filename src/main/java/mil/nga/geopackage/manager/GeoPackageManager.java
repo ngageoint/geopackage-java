@@ -47,8 +47,9 @@ public class GeoPackageManager {
 			// Create the GeoPackage Connection
 			GeoPackageConnection connection = connect(file);
 
-			// Set the application id as a GeoPackage
+			// Set the GeoPackage application id and user version
 			connection.setApplicationId();
+			connection.setUserVersion();
 
 			// Create the minimum required tables
 			GeoPackageTableCreator tableCreator = new GeoPackageTableCreator(
