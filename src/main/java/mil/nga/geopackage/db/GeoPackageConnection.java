@@ -169,6 +169,14 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Integer querySingleIntResult(String sql, String[] args) {
+		return SQLUtils.querySingleIntResult(connection, sql, args);
+	}
+
+	/**
 	 * Perform a database query
 	 * 
 	 * @param sql

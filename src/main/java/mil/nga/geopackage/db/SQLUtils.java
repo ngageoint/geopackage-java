@@ -248,6 +248,38 @@ public class SQLUtils {
 	}
 
 	/**
+	 * Query the SQL for a single result int
+	 * 
+	 * @param connection
+	 * @param sql
+	 * @param args
+	 * @return integer result, null if no result
+	 * @since 1.2.1
+	 */
+	public static Integer querySingleIntResult(Connection connection,
+			String sql, String[] args) {
+
+		ResultSet resultSet = query(connection, sql, args);
+
+		Integer result = null;
+		try {
+			if (resultSet.next()) {
+				result = resultSet.getInt(1);
+			} else {
+				throw new GeoPackageException(
+						"Failed to query for single result. SQL: " + sql);
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to query for single result. SQL: " + sql, e);
+		} finally {
+			closeResultSetStatement(resultSet, sql);
+		}
+
+		return result;
+	}
+	
+	/**
 	 * Execute a deletion
 	 * 
 	 * @param connection
