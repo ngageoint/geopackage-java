@@ -14,6 +14,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Elevation unbounded results elevation queries
 * Table and column name SQL quotations to allow uncommon but valid names
 * Zoom level determination using width and height
+* GeoPackage application id and user version
 
 ## [1.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/1.2.0) (06-22-2016)
 
