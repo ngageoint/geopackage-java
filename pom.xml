@@ -48,6 +48,11 @@
 			<version>1.2.1</version>
 		</dependency>
 		<dependency>
+			<groupId>mil.nga</groupId>
+			<artifactId>tiff</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.j256.ormlite</groupId>
 			<artifactId>ormlite-jdbc</artifactId>
 			<version>5.0</version>
@@ -63,25 +68,12 @@
 			<version>1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.sun.media</groupId>
-			<artifactId>jai_imageio</artifactId>
-			<version>1.1</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>${jai_repo_id}</id>
-			<url>${jai_repo_url}</url>
-		</repository>
-	</repositories>
 
 	<profiles>
 		<profile>
@@ -135,17 +127,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		<profile>
-			<id>jai_repo_id</id>
-			<properties>
-				<jai_repo_id>jai_repo</jai_repo_id>
-			</properties>
-			<activation>
-				<property>
-					<name>!jai_repo_id</name>
-				</property>
-			</activation>
 		</profile>
 	</profiles>
 

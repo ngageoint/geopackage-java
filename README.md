@@ -80,30 +80,6 @@ int indexedCount = indexer.index();
 geoPackage.close();
 ```
 
-### JAI/Image IO ###
-
-JAI/Image IO is required for elevation imagery stored in the Tagged Image File Format (TIFF).  The libraries are required in the classpath to enable TIFF
-elevation extension functionality at runtime.  You can download and install these dependencies to your local repository manually.  Alternatively, if you have
-access to a repository that provides these depedencies, you can run the build with `-Djai_repo_url=http://your.repo -Djai_repo_id=your_repo`.  The
-`jai_repo_id` property is optional, but is available if there is a settings file you don't control that configures a specific server ID for a server that
-provides JAI, e.g., in a continous integration environment.  You can compile without the JAI dependencies, but the tests will fail, and thus the install
-goal will fail.  To install anyway, run `mvn -DskipTests clean install`.
-```xml
-<dependency>
-    <groupId>com.sun.media</groupId>
-    <artifactId>jai_imageio</artifactId>
-    <version>1.1</version>
-    <scope>runtime</scope>
-</dependency>
-
-<dependency>
-    <groupId>javax.media</groupId>
-    <artifactId>jai_core</artifactId>
-    <version>1.1.3</version>
-    <scope>runtime</scope>
-</dependency>
-```
-
 ### Installation ###
 
 Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.2.0|jar) (JAR, POM, Source, Javadoc)
