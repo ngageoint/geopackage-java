@@ -1,5 +1,6 @@
 package mil.nga.geopackage.test.extension.index;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
@@ -26,7 +27,7 @@ public class FeatureTableIndexCreateTest extends CreateGeoPackageTestCase {
 	 * @throws SQLException
 	 */
 	@Test
-	public void testIndex() throws SQLException {
+	public void testIndex() throws SQLException, IOException {
 
 		FeatureTableIndexUtils.testIndex(geoPackage);
 
@@ -43,7 +44,7 @@ public class FeatureTableIndexCreateTest extends CreateGeoPackageTestCase {
 		FeatureTableIndexUtils.testDeleteAll(geoPackage);
 
 	}
-	
+
 	@Override
 	public boolean allowEmptyFeatures() {
 		return false;

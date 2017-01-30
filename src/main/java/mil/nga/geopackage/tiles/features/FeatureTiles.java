@@ -3,7 +3,6 @@ package mil.nga.geopackage.tiles.features;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -649,7 +648,7 @@ public abstract class FeatureTiles {
 		} finally {
 			try {
 				results.close();
-			} catch (SQLException e) {
+			} catch (IOException e) {
 				LOGGER.log(Level.WARNING,
 						"Failed to close result set for query on x: " + x
 								+ ", y: " + y + ", zoom: " + zoom, e);

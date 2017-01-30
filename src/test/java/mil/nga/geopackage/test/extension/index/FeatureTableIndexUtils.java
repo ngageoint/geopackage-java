@@ -1,5 +1,6 @@
 package mil.nga.geopackage.test.extension.index;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +41,7 @@ public class FeatureTableIndexUtils {
 	 * @param geoPackage
 	 * @throws SQLException
 	 */
-	public static void testIndex(GeoPackage geoPackage) throws SQLException {
+	public static void testIndex(GeoPackage geoPackage) throws SQLException, IOException {
 
 		// Test indexing each feature table
 		List<String> featureTables = geoPackage.getFeatureTables();
