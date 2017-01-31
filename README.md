@@ -172,7 +172,7 @@ Example:
 #### Remote ####
 
 * [GeoPackage Core Java](https://github.com/ngageoint/geopackage-core-java) (The MIT License (MIT)) - GeoPackage Library
-* [WKB](https://github.com/ngageoint/geopackage-wkb-java) (The MIT License (MIT)) - GeoPackage Well Known Binary Lib
+* [TIFF](https://github.com/ngageoint/geopackage-tiff-java) (The MIT License (MIT)) - GeoPackage Tagged Image File Format Lib
 * [OrmLite](http://ormlite.com/) (Open Source License) - Object Relational Mapping (ORM) Library
 * [SQLite JDBC](https://bitbucket.org/xerial/sqlite-jdbc) (Apache License, Version 2.0) - SQLiteJDBC library
 
