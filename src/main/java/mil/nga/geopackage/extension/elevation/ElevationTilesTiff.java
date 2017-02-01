@@ -1,38 +1,40 @@
 package mil.nga.geopackage.extension.elevation;
 
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.PixelInterleavedSampleModel;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
-import java.io.IOException;
-
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.tiff.FileDirectory;
+import mil.nga.tiff.Rasters;
+import mil.nga.tiff.TIFFImage;
+import mil.nga.tiff.TiffReader;
+import mil.nga.tiff.util.TiffConstants;
 
 /**
  * Tiled Gridded Elevation Data, TIFF Encoding, Extension
- * 
+ *
  * @author osbornb
  * @since 1.2.1
  */
-public class ElevationTilesTiff extends ElevationTilesCommon {
+public class ElevationTilesTiff extends
+		ElevationTilesCommon<ElevationTiffImage> {
+
+	/**
+	 * Single sample elevation
+	 */
+	public static final int SAMPLES_PER_PIXEL = 1;
+
+	/**
+	 * Bits per value for floating point elevations
+	 */
+	public static final int BITS_PER_SAMPLE = 32;
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param geoPackage
 	 *            GeoPackage
 	 * @param tileDao
@@ -82,16 +84,18 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public ElevationTiffImage createElevationImage(TileRow tileRow) {
+		return new ElevationTiffImage(tileRow);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public double getElevationValue(GriddedTile griddedTile, TileRow tileRow,
 			int x, int y) {
-		BufferedImage image = null;
-		try {
-			image = tileRow.getTileDataImage();
-		} catch (IOException e) {
-			throw new GeoPackageException(
-					"Failed to get the Tile Row Data Image", e);
-		}
-		double elevation = getElevationValue(griddedTile, image, x, y);
+		byte[] imageBytes = tileRow.getTileData();
+		double elevation = getElevationValue(griddedTile, imageBytes, x, y);
 		return elevation;
 	}
 
@@ -100,163 +104,130 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 */
 	@Override
 	public Double getElevationValue(GriddedTile griddedTile,
-			ElevationImage image, int x, int y) {
-		return getElevationValue(griddedTile, image.getRaster(), x, y);
-	}
-
-	/**
-	 * Get the pixel value as a float
-	 * 
-	 * @param image
-	 *            tile image
-	 * @param x
-	 *            x coordinate
-	 * @param y
-	 *            y coordinate
-	 * @return float pixel value
-	 */
-	public float getPixelValue(BufferedImage image, int x, int y) {
-		validateImageType(image);
-		WritableRaster raster = image.getRaster();
-		float pixelValue = getPixelValue(raster, x, y);
-		return pixelValue;
-	}
-
-	/**
-	 * Get the pixel value as a float from the raster and the coordinate
-	 * 
-	 * @param raster
-	 *            image raster
-	 * @param x
-	 *            x coordinate
-	 * @param y
-	 *            y coordinate
-	 * @return float pixel value
-	 */
-	public float getPixelValue(WritableRaster raster, int x, int y) {
-		Object pixelData = raster.getDataElements(x, y, null);
-		float sdata[] = (float[]) pixelData;
-		if (sdata.length != 1) {
-			throw new UnsupportedOperationException(
-					"This method is not supported by this color model");
+			ElevationTiffImage image, int x, int y) {
+		Double elevation = null;
+		if (image.getDirectory() != null) {
+			float pixelValue = image.getPixel(x, y);
+			elevation = getElevationValue(griddedTile, pixelValue);
+		} else {
+			elevation = getElevationValue(griddedTile, image.getImageBytes(),
+					x, y);
 		}
-		float pixelValue = sdata[0];
+		return elevation;
+	}
+
+	/**
+	 * Get the pixel value as a float from the image and the coordinate
+	 *
+	 * @param imageBytes
+	 *            image bytes
+	 * @param x
+	 *            x coordinate
+	 * @param y
+	 *            y coordinate
+	 * @return float pixel value
+	 */
+	public float getPixelValue(byte[] imageBytes, int x, int y) {
+
+		TIFFImage tiffImage = TiffReader.readTiff(imageBytes);
+		FileDirectory directory = tiffImage.getFileDirectory();
+		validateImageType(directory);
+		Rasters rasters = directory.readRasters();
+		float pixelValue = rasters.getFirstPixelSample(x, y).floatValue();
 
 		return pixelValue;
 	}
 
 	/**
-	 * Get the pixel values of the buffered image as floats
-	 * 
-	 * @param image
-	 *            tile image
+	 * Get the pixel values of the image as floats
+	 *
+	 * @param imageBytes
+	 *            image bytes
 	 * @return float pixel values
 	 */
-	public float[] getPixelValues(BufferedImage image) {
-		validateImageType(image);
-		WritableRaster raster = image.getRaster();
-		float[] pixelValues = getPixelValues(raster);
-		return pixelValues;
+	public float[] getPixelValues(byte[] imageBytes) {
+		TIFFImage tiffImage = TiffReader.readTiff(imageBytes);
+		FileDirectory directory = tiffImage.getFileDirectory();
+		validateImageType(directory);
+		Rasters rasters = directory.readRasters();
+		Number[] values = rasters.getSampleValues()[0];
+		float[] pixels = new float[values.length];
+		for (int i = 0; i < values.length; i++) {
+			pixels[i] = values[i].floatValue();
+		}
+		return pixels;
 	}
 
 	/**
-	 * Get the pixel values of the raster as floats
-	 * 
-	 * @param raster
-	 *            image raster
-	 * @return float pixel values
+	 * Validate that the image type
+	 *
+	 * @param directory
+	 *            file directory
 	 */
-	public float[] getPixelValues(WritableRaster raster) {
-		DataBufferFloat buffer = (DataBufferFloat) raster.getDataBuffer();
-		float[] pixelValues = buffer.getData();
-		return pixelValues;
-	}
-
-	/**
-	 * Validate that the image type is float
-	 * 
-	 * @param image
-	 *            tile image
-	 */
-	public void validateImageType(BufferedImage image) {
-		if (image == null) {
+	public static void validateImageType(FileDirectory directory) {
+		if (directory == null) {
 			throw new GeoPackageException("The image is null");
 		}
-		if (image.getColorModel().getTransferType() != DataBuffer.TYPE_FLOAT) {
-			throw new GeoPackageException(
-					"The elevation tile is expected to be a 32 bit float, actual: "
-							+ image.getColorModel().getTransferType());
+
+		Integer samplesPerPixel = directory.getSamplesPerPixel();
+		Integer bitsPerSample = null;
+		if (directory.getBitsPerSample() != null
+				&& !directory.getBitsPerSample().isEmpty()) {
+			bitsPerSample = directory.getBitsPerSample().get(0);
 		}
+		Integer sampleFormat = null;
+		if (directory.getSampleFormat() != null
+				&& !directory.getSampleFormat().isEmpty()) {
+			sampleFormat = directory.getSampleFormat().get(0);
+		}
+
+		if (samplesPerPixel == null || samplesPerPixel != SAMPLES_PER_PIXEL
+				|| bitsPerSample == null || bitsPerSample != BITS_PER_SAMPLE
+				|| sampleFormat == null
+				|| sampleFormat != TiffConstants.SAMPLE_FORMAT_FLOAT) {
+			throw new GeoPackageException(
+					"The elevation tile is expected to be a single sample 32 bit float. Samples Per Pixel: "
+							+ samplesPerPixel
+							+ ", Bits Per Sample: "
+							+ bitsPerSample
+							+ ", Sample Format: "
+							+ sampleFormat);
+		}
+
 	}
 
 	/**
 	 * Get the elevation value
-	 * 
+	 *
 	 * @param griddedTile
 	 *            gridded tile
-	 * @param image
-	 *            tile image
+	 * @param imageBytes
+	 *            image bytes
 	 * @param x
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
 	 * @return elevation value
 	 */
-	public Double getElevationValue(GriddedTile griddedTile,
-			BufferedImage image, int x, int y) {
-		float pixelValue = getPixelValue(image, x, y);
-		Double elevation = getElevationValue(griddedTile, pixelValue);
-		return elevation;
-	}
-
-	/**
-	 * Get the elevation value
-	 * 
-	 * @param griddedTile
-	 *            gridded tile
-	 * @param raster
-	 *            image raster
-	 * @param x
-	 *            x coordinate
-	 * @param y
-	 *            y coordinate
-	 * @return elevation value
-	 */
-	public Double getElevationValue(GriddedTile griddedTile,
-			WritableRaster raster, int x, int y) {
-		float pixelValue = getPixelValue(raster, x, y);
+	public Double getElevationValue(GriddedTile griddedTile, byte[] imageBytes,
+			int x, int y) {
+		float pixelValue = getPixelValue(imageBytes, x, y);
 		Double elevation = getElevationValue(griddedTile, pixelValue);
 		return elevation;
 	}
 
 	/**
 	 * Get the elevation values
-	 * 
+	 *
 	 * @param griddedTile
 	 *            gridded tile
-	 * @param image
-	 *            tile image
+	 * @param imageBytes
+	 *            image bytes
 	 * @return elevation values
 	 */
 	public Double[] getElevationValues(GriddedTile griddedTile,
-			BufferedImage image) {
-		float[] pixelValues = getPixelValues(image);
-		Double[] elevations = getElevationValues(griddedTile, pixelValues);
-		return elevations;
-	}
-
-	/**
-	 * Get the elevation values
-	 * 
-	 * @param griddedTile
-	 *            gridded tile
-	 * @param raster
-	 *            raster image
-	 * @return elevation values
-	 */
-	public Double[] getElevationValues(GriddedTile griddedTile,
-			WritableRaster raster) {
-		float[] pixelValues = getPixelValues(raster);
+			byte[] imageBytes) {
+		float[] pixelValues = getPixelValues(imageBytes);
 		Double[] elevations = getElevationValues(griddedTile, pixelValues);
 		return elevations;
 	}
@@ -264,7 +235,7 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	/**
 	 * Draw an elevation image tile from the flat array of float pixel values of
 	 * length tileWidth * tileHeight where each pixel is at: (y * tileWidth) + x
-	 * 
+	 *
 	 * @param pixelValues
 	 *            float pixel values of length tileWidth * tileHeight
 	 * @param tileWidth
@@ -273,17 +244,17 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 *            tile height
 	 * @return elevation image tile
 	 */
-	public BufferedImage drawTile(float[] pixelValues, int tileWidth,
+	public ElevationTiffImage drawTile(float[] pixelValues, int tileWidth,
 			int tileHeight) {
 
-		BufferedImage image = createImage(tileWidth, tileHeight);
-		WritableRaster raster = image.getRaster();
-		for (int x = 0; x < tileWidth; x++) {
-			for (int y = 0; y < tileHeight; y++) {
+		ElevationTiffImage image = createImage(tileWidth, tileHeight);
+		for (int y = 0; y < tileHeight; y++) {
+			for (int x = 0; x < tileWidth; x++) {
 				float pixelValue = pixelValues[(y * tileWidth) + x];
-				setPixelValue(raster, x, y, pixelValue);
+				setPixelValue(image, x, y, pixelValue);
 			}
 		}
+		image.writeTiff();
 
 		return image;
 	}
@@ -292,7 +263,7 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 * Draw an elevation image tile and format as TIFF bytes from the flat array
 	 * of float pixel values of length tileWidth * tileHeight where each pixel
 	 * is at: (y * tileWidth) + x
-	 * 
+	 *
 	 * @param pixelValues
 	 *            float pixel values of length tileWidth * tileHeight
 	 * @param tileWidth
@@ -303,32 +274,32 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 */
 	public byte[] drawTileData(float[] pixelValues, int tileWidth,
 			int tileHeight) {
-		BufferedImage image = drawTile(pixelValues, tileWidth, tileHeight);
-		byte[] bytes = getImageBytes(image);
+		ElevationTiffImage image = drawTile(pixelValues, tileWidth, tileHeight);
+		byte[] bytes = image.getImageBytes();
 		return bytes;
 	}
 
 	/**
 	 * Draw an elevation image tile from the double array of float pixel values
 	 * formatted as float[row][width]
-	 * 
+	 *
 	 * @param pixelValues
 	 *            float pixel values as [row][width]
 	 * @return elevation image tile
 	 */
-	public BufferedImage drawTile(float[][] pixelValues) {
+	public ElevationTiffImage drawTile(float[][] pixelValues) {
 
 		int tileWidth = pixelValues[0].length;
 		int tileHeight = pixelValues.length;
 
-		BufferedImage image = createImage(tileWidth, tileHeight);
-		WritableRaster raster = image.getRaster();
-		for (int x = 0; x < tileWidth; x++) {
-			for (int y = 0; y < tileHeight; y++) {
+		ElevationTiffImage image = createImage(tileWidth, tileHeight);
+		for (int y = 0; y < tileHeight; y++) {
+			for (int x = 0; x < tileWidth; x++) {
 				float pixelValue = pixelValues[y][x];
-				setPixelValue(raster, x, y, pixelValue);
+				setPixelValue(image, x, y, pixelValue);
 			}
 		}
+		image.writeTiff();
 
 		return image;
 	}
@@ -336,21 +307,21 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	/**
 	 * Draw an elevation image tile and format as TIFF bytes from the double
 	 * array of float pixel values formatted as float[row][width]
-	 * 
+	 *
 	 * @param pixelValues
 	 *            float pixel values as [row][width]
 	 * @return elevation image tile bytes
 	 */
 	public byte[] drawTileData(float[][] pixelValues) {
-		BufferedImage image = drawTile(pixelValues);
-		byte[] bytes = getImageBytes(image);
+		ElevationTiffImage image = drawTile(pixelValues);
+		byte[] bytes = image.getImageBytes();
 		return bytes;
 	}
 
 	/**
 	 * Draw an elevation image tile from the flat array of elevations of length
 	 * tileWidth * tileHeight where each elevation is at: (y * tileWidth) + x
-	 * 
+	 *
 	 * @param griddedTile
 	 *            gridded tile
 	 * @param elevations
@@ -361,18 +332,18 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 *            tile height
 	 * @return elevation image tile
 	 */
-	public BufferedImage drawTile(GriddedTile griddedTile, Double[] elevations,
-			int tileWidth, int tileHeight) {
+	public ElevationTiffImage drawTile(GriddedTile griddedTile,
+			Double[] elevations, int tileWidth, int tileHeight) {
 
-		BufferedImage image = createImage(tileWidth, tileHeight);
-		WritableRaster raster = image.getRaster();
+		ElevationTiffImage image = createImage(tileWidth, tileHeight);
 		for (int x = 0; x < tileWidth; x++) {
 			for (int y = 0; y < tileHeight; y++) {
 				Double elevation = elevations[(y * tileWidth) + x];
 				float pixelValue = getPixelValue(griddedTile, elevation);
-				setPixelValue(raster, x, y, pixelValue);
+				setPixelValue(image, x, y, pixelValue);
 			}
 		}
+		image.writeTiff();
 
 		return image;
 	}
@@ -381,7 +352,7 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 * Draw an elevation image tile and format as TIFF bytes from the flat array
 	 * of elevations of length tileWidth * tileHeight where each elevation is
 	 * at: (y * tileWidth) + x
-	 * 
+	 *
 	 * @param griddedTile
 	 *            gridded tile
 	 * @param elevations
@@ -394,36 +365,37 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 */
 	public byte[] drawTileData(GriddedTile griddedTile, Double[] elevations,
 			int tileWidth, int tileHeight) {
-		BufferedImage image = drawTile(griddedTile, elevations, tileWidth,
+		ElevationTiffImage image = drawTile(griddedTile, elevations, tileWidth,
 				tileHeight);
-		byte[] bytes = getImageBytes(image);
+		byte[] bytes = image.getImageBytes();
 		return bytes;
 	}
 
 	/**
 	 * Draw an elevation image tile from the double array of elevations
 	 * formatted as Double[row][width]
-	 * 
+	 *
 	 * @param griddedTile
 	 *            gridded tile
 	 * @param elevations
 	 *            elevations as [row][width]
 	 * @return elevation image tile
 	 */
-	public BufferedImage drawTile(GriddedTile griddedTile, Double[][] elevations) {
+	public ElevationTiffImage drawTile(GriddedTile griddedTile,
+			Double[][] elevations) {
 
 		int tileWidth = elevations[0].length;
 		int tileHeight = elevations.length;
 
-		BufferedImage image = createImage(tileWidth, tileHeight);
-		WritableRaster raster = image.getRaster();
+		ElevationTiffImage image = createImage(tileWidth, tileHeight);
 		for (int x = 0; x < tileWidth; x++) {
 			for (int y = 0; y < tileHeight; y++) {
 				Double elevation = elevations[y][x];
 				short pixelValue = getPixelValue(griddedTile, elevation);
-				setPixelValue(raster, x, y, pixelValue);
+				setPixelValue(image, x, y, pixelValue);
 			}
 		}
+		image.writeTiff();
 
 		return image;
 	}
@@ -431,7 +403,7 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	/**
 	 * Draw an elevation image tile and format as TIFF bytes from the double
 	 * array of elevations formatted as Double[row][width]
-	 * 
+	 *
 	 * @param griddedTile
 	 *            gridded tile
 	 * @param elevations
@@ -439,61 +411,51 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 * @return elevation image tile bytes
 	 */
 	public byte[] drawTileData(GriddedTile griddedTile, Double[][] elevations) {
-		BufferedImage image = drawTile(griddedTile, elevations);
-		byte[] bytes = getImageBytes(image);
+		ElevationTiffImage image = drawTile(griddedTile, elevations);
+		byte[] bytes = image.getImageBytes();
 		return bytes;
 	}
 
 	/**
 	 * Create a new image
-	 * 
+	 *
 	 * @param tileWidth
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
 	 * @return image
 	 */
-	public BufferedImage createImage(int tileWidth, int tileHeight) {
+	public ElevationTiffImage createImage(int tileWidth, int tileHeight) {
 
-		SampleModel sampleModel = new PixelInterleavedSampleModel(
-				DataBuffer.TYPE_FLOAT, tileWidth, tileHeight, 1, tileWidth,
-				new int[] { 0 });
-		DataBuffer buffer = new DataBufferFloat(tileWidth * tileHeight);
-		WritableRaster raster = Raster.createWritableRaster(sampleModel,
-				buffer, null);
-		ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-		ColorModel colorModel = new ComponentColorModel(colorSpace, false,
-				false, Transparency.OPAQUE, DataBuffer.TYPE_FLOAT);
-		BufferedImage image = new BufferedImage(colorModel, raster,
-				colorModel.isAlphaPremultiplied(), null);
+		Rasters rasters = new Rasters(tileWidth, tileHeight, 1, BITS_PER_SAMPLE);
+
+		int rowsPerStrip = rasters
+				.calculateRowsPerStrip(TiffConstants.PLANAR_CONFIGURATION_CHUNKY);
+
+		FileDirectory fileDirectory = new FileDirectory();
+		fileDirectory.setImageWidth(tileWidth);
+		fileDirectory.setImageHeight(tileHeight);
+		fileDirectory.setBitsPerSample(BITS_PER_SAMPLE);
+		fileDirectory.setCompression(TiffConstants.COMPRESSION_NO);
+		fileDirectory
+				.setPhotometricInterpretation(TiffConstants.PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO);
+		fileDirectory.setSamplesPerPixel(SAMPLES_PER_PIXEL);
+		fileDirectory.setRowsPerStrip(rowsPerStrip);
+		fileDirectory
+				.setPlanarConfiguration(TiffConstants.PLANAR_CONFIGURATION_CHUNKY);
+		fileDirectory.setSampleFormat(TiffConstants.SAMPLE_FORMAT_FLOAT);
+		fileDirectory.setWriteRasters(rasters);
+
+		ElevationTiffImage image = new ElevationTiffImage(fileDirectory);
 
 		return image;
 	}
 
 	/**
-	 * Get the image as TIFF bytes
-	 * 
+	 * Set the pixel value into the image
+	 *
 	 * @param image
-	 *            buffered image
-	 * @return image bytes
-	 */
-	public byte[] getImageBytes(BufferedImage image) {
-		byte[] bytes = null;
-		try {
-			bytes = ImageUtils.writeImageToBytes(image,
-					ImageUtils.IMAGE_FORMAT_TIFF);
-		} catch (IOException e) {
-			throw new GeoPackageException("Failed to write image to "
-					+ ImageUtils.IMAGE_FORMAT_TIFF + " bytes", e);
-		}
-		return bytes;
-	}
-
-	/**
-	 * Set the pixel value into the image raster
-	 * 
-	 * @param raster
-	 *            image raster
+	 *            image
 	 * @param x
 	 *            x coordinate
 	 * @param y
@@ -501,15 +463,14 @@ public class ElevationTilesTiff extends ElevationTilesCommon {
 	 * @param pixelValue
 	 *            pixel value
 	 */
-	public void setPixelValue(WritableRaster raster, int x, int y,
+	public void setPixelValue(ElevationTiffImage image, int x, int y,
 			float pixelValue) {
-		float data[] = new float[] { pixelValue };
-		raster.setDataElements(x, y, data);
+		image.getRasters().setFirstPixelSample(x, y, pixelValue);
 	}
 
 	/**
 	 * Create the elevation tile table with metadata and extension
-	 * 
+	 *
 	 * @param geoPackage
 	 * @param tableName
 	 * @param contentsBoundingBox

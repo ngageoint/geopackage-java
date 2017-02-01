@@ -1,6 +1,5 @@
 package mil.nga.geopackage.test.extension.elevation;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.ExtensionsDao;
+import mil.nga.geopackage.extension.elevation.ElevationTiffImage;
 import mil.nga.geopackage.extension.elevation.ElevationTileResults;
 import mil.nga.geopackage.extension.elevation.ElevationTilesAlgorithm;
 import mil.nga.geopackage.extension.elevation.ElevationTilesTiff;
@@ -256,10 +256,10 @@ public class ElevationTilesTiffTestUtils {
 		TestCase.assertNotNull(tileRow);
 		byte[] tileData = tileRow.getTileData();
 		TestCase.assertTrue(tileData.length > 0);
-		BufferedImage image = tileRow.getTileDataImage();
+		ElevationTiffImage image = new ElevationTiffImage(tileRow);
 
 		// Get all the pixel values of the image
-		float[] pixelValues = elevationTiles.getPixelValues(image);
+		float[] pixelValues = elevationTiles.getPixelValues(tileData);
 		if (elevationTileValues != null) {
 			for (int i = 0; i < pixelValues.length; i++) {
 				TestCase.assertEquals(elevationTileValues.tilePixelsFlat[i],
@@ -274,7 +274,7 @@ public class ElevationTilesTiffTestUtils {
 		List<Float> pixelValuesList = new ArrayList<>();
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				float pixelValue = elevationTiles.getPixelValue(image, x, y);
+				float pixelValue = image.getPixel(x, y);
 				pixelValuesList.add(pixelValue);
 
 				// Test getting the pixel value from the pixel values
@@ -299,7 +299,8 @@ public class ElevationTilesTiffTestUtils {
 						&& pixelValue == griddedCoverage.getDataNull()) {
 					TestCase.assertNull(elevationValue);
 				} else {
-					TestCase.assertEquals(pixelValue, elevationValue.floatValue());
+					TestCase.assertEquals(pixelValue,
+							elevationValue.floatValue());
 				}
 			}
 		}

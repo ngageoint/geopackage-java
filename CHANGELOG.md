@@ -9,12 +9,14 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Elevation Extension support (PNG & TIFF)
 * geopackage-core version updated to 1.2.1
 * User Attributes table support
-* Image IO dependency for TIFF support
+* geopackage-tiff-java dependency for TIFF support
 * Elevation query algorithms including Nearest Neighbor, Bilinear, and Bicubic
 * Elevation unbounded results elevation queries
 * Table and column name SQL quotations to allow uncommon but valid names
 * Zoom level determination using width and height
 * GeoPackage application id and user version
+* OrmLite JDBC version updated to 5.0
+* SQLite JDBC version updated to 3.16.1
 
 ## [1.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/1.2.0) (06-22-2016)
 

@@ -21,7 +21,7 @@ import mil.nga.geopackage.tiles.user.TileRow;
  * @author osbornb
  * @since 1.2.1
  */
-public class ElevationTilesPng extends ElevationTilesCommon {
+public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 
 	/**
 	 * Constructor
@@ -75,6 +75,14 @@ public class ElevationTilesPng extends ElevationTilesCommon {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public ElevationPngImage createElevationImage(TileRow tileRow) {
+		return new ElevationPngImage(tileRow);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public double getElevationValue(GriddedTile griddedTile, TileRow tileRow,
 			int x, int y) {
 		BufferedImage image = null;
@@ -93,7 +101,7 @@ public class ElevationTilesPng extends ElevationTilesCommon {
 	 */
 	@Override
 	public Double getElevationValue(GriddedTile griddedTile,
-			ElevationImage image, int x, int y) {
+			ElevationPngImage image, int x, int y) {
 		return getElevationValue(griddedTile, image.getRaster(), x, y);
 	}
 

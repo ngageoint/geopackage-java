@@ -13,7 +13,7 @@ import mil.nga.geopackage.tiles.user.TileRow;
  * @author osbornb
  * @since 1.2.1
  */
-public class ElevationImage {
+public class ElevationPngImage implements ElevationImage {
 
 	/**
 	 * Buffered image
@@ -31,7 +31,7 @@ public class ElevationImage {
 	 * @param tileRow
 	 *            tile row
 	 */
-	public ElevationImage(TileRow tileRow) {
+	public ElevationPngImage(TileRow tileRow) {
 		try {
 			image = tileRow.getTileDataImage();
 		} catch (IOException e) {
