@@ -153,6 +153,7 @@
 					<links>
 						<link>http://ngageoint.github.io/geopackage-core-java/docs/api/</link>
 						<link>http://ngageoint.github.io/geopackage-wkb-java/docs/api/</link>
+						<link>http://ngageoint.github.io/geopackage-tiff-java/docs/api/</link>
 						<link>http://ormlite.com/javadoc/ormlite-core/</link>
 						<link>http://ormlite.com/javadoc/ormlite-jdbc/</link>
 					</links>
