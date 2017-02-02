@@ -1,5 +1,7 @@
 mil.nga.geopackage
+mil.nga.geopackage.attributes
 mil.nga.geopackage.db
+mil.nga.geopackage.extension.elevation
 mil.nga.geopackage.extension.index
 mil.nga.geopackage.extension.link
 mil.nga.geopackage.features.user
