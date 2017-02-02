@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.2.1 (TBD)
+## [1.2.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.2.1) (02-02-2017)
 
 * Elevation Extension support (PNG & TIFF)
 * geopackage-core version updated to 1.2.1
