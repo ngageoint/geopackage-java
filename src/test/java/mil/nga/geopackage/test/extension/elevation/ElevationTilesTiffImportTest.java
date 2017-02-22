@@ -322,16 +322,8 @@ public class ElevationTilesTiffImportTest extends
 
 		boolean allowNull = true;
 
-		long geoPackageEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
-
 		int width = 10;
 		int height = 6;
-
-		Projection projection = ProjectionFactory.getProjection(geoPackageEpsg);
-		Projection printProjection = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		ProjectionTransform wgs84Transform = projection
-				.getTransformation(printProjection);
 
 		List<String> elevationTables = ElevationTilesTiff.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
@@ -339,6 +331,16 @@ public class ElevationTilesTiffImportTest extends
 		for (String elevationTable : elevationTables) {
 
 			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+
+			long geoPackageEpsg = tileMatrixSet.getSrs()
+					.getOrganizationCoordsysId();
+
+			Projection projection = ProjectionFactory
+					.getProjection(geoPackageEpsg);
+			Projection printProjection = ProjectionFactory
+					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+			ProjectionTransform wgs84Transform = projection
+					.getTransformation(printProjection);
 
 			BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
 
@@ -535,7 +537,9 @@ public class ElevationTilesTiffImportTest extends
 								&& (row == 0 || column == 0)) {
 							TestCase.assertNull(elevation);
 						} else {
-							TestCase.assertNotNull(elevation);
+							if (!allowNull) {
+								TestCase.assertNotNull(elevation);
+							}
 						}
 
 						elevation = ElevationTilesTiffTestUtils.getElevation(
