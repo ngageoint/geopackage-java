@@ -559,13 +559,14 @@ public class TestSetupTeardown {
 		// Create new Tile Matrix rows
 		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
 
-		int matrixWidthAndHeight = 2;
-		double pixelXSize = 69237.2;
-		double pixelYSize = 68412.1;
-
-		byte[] tileData = TestUtils.getTileBytes();
 		final int tileWidth = 256;
 		final int tileHeight = 256;
+		
+		int matrixWidthAndHeight = 2;
+		double pixelXSize = (tileMatrixSet.getMaxX() - tileMatrixSet.getMinX()) / (matrixWidthAndHeight * tileWidth);
+		double pixelYSize = (tileMatrixSet.getMaxY() - tileMatrixSet.getMinY()) / (matrixWidthAndHeight * tileHeight);
+
+		byte[] tileData = TestUtils.getTileBytes();
 
 		for (int zoom = 0; zoom < CREATE_TILE_MATRIX_COUNT; zoom++) {
 
