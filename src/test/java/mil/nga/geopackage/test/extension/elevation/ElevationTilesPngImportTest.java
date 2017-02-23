@@ -30,6 +30,7 @@ public class ElevationTilesPngImportTest extends
 		ImportElevationTilesGeoPackageTestCase {
 
 	private static final boolean PRINT = false;
+	private static final boolean allowNulls = false;
 
 	/**
 	 * Test the elevation extension with a newly created GeoPackage using the
@@ -39,7 +40,7 @@ public class ElevationTilesPngImportTest extends
 	public void testElevationsNearestNeighbor() throws Exception {
 
 		ElevationTilesPngTestUtils.testElevations(geoPackage, null,
-				ElevationTilesAlgorithm.NEAREST_NEIGHBOR, false);
+				ElevationTilesAlgorithm.NEAREST_NEIGHBOR, allowNulls);
 
 	}
 
@@ -51,7 +52,7 @@ public class ElevationTilesPngImportTest extends
 	public void testElevationsBilinear() throws Exception {
 
 		ElevationTilesPngTestUtils.testElevations(geoPackage, null,
-				ElevationTilesAlgorithm.BILINEAR, false);
+				ElevationTilesAlgorithm.BILINEAR, allowNulls);
 
 	}
 
@@ -63,7 +64,7 @@ public class ElevationTilesPngImportTest extends
 	public void testElevationsBicubic() throws Exception {
 
 		ElevationTilesPngTestUtils.testElevations(geoPackage, null,
-				ElevationTilesAlgorithm.BICUBIC, false);
+				ElevationTilesAlgorithm.BICUBIC, allowNulls);
 
 	}
 
@@ -197,7 +198,7 @@ public class ElevationTilesPngImportTest extends
 	@Test
 	public void testBounds() throws Exception {
 
-		long geoPackageEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
+		long requestEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
 
 		double widthPixelDistance = 1000;
 		double heightPixelDistance = 1000;
@@ -211,7 +212,7 @@ public class ElevationTilesPngImportTest extends
 		BoundingBox boundingBox = new BoundingBox(minLongitude, maxLongitude,
 				minLatitude, maxLatitude);
 
-		Projection projection = ProjectionFactory.getProjection(geoPackageEpsg);
+		Projection projection = ProjectionFactory.getProjection(requestEpsg);
 		Projection printProjection = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		ProjectionTransform wgs84Transform = projection
@@ -273,36 +274,42 @@ public class ElevationTilesPngImportTest extends
 				}
 				for (double lon = minLongitude + (widthPixelDistance * .5); lon <= maxLongitude; lon += widthPixelDistance) {
 					Double elevation = ElevationTilesPngTestUtils.getElevation(
-							geoPackage, algorithm, lat, lon, geoPackageEpsg);
+							geoPackage, algorithm, lat, lon, requestEpsg);
 					if (PRINT) {
 						System.out.print("   " + elevation);
 					}
-					TestCase.assertNotNull(elevation);
+					if (!allowNulls) {
+						TestCase.assertNotNull(elevation);
+					}
 				}
 			}
 
 			ElevationTileResults results = ElevationTilesPngTestUtils
 					.getElevations(geoPackage, algorithm, boundingBox, width,
-							height, geoPackageEpsg);
-			TestCase.assertNotNull(results);
-			if (PRINT) {
-				System.out.println();
-				System.out.println();
-				System.out.println(algorithm.name());
+							height, requestEpsg);
+			if (!allowNulls) {
+				TestCase.assertNotNull(results);
 			}
-			Double[][] elevations = results.getElevations();
-			TestCase.assertEquals(height, elevations.length);
-			TestCase.assertEquals(width, elevations[0].length);
-			for (int y = 0; y < elevations.length; y++) {
+			if (results != null) {
 				if (PRINT) {
 					System.out.println();
+					System.out.println();
+					System.out.println(algorithm.name());
 				}
-				for (int x = 0; x < elevations[0].length; x++) {
-					Double elevation = elevations[y][x];
+				Double[][] elevations = results.getElevations();
+				TestCase.assertEquals(height, elevations.length);
+				TestCase.assertEquals(width, elevations[0].length);
+				for (int y = 0; y < elevations.length; y++) {
 					if (PRINT) {
-						System.out.print("   " + elevation);
+						System.out.println();
 					}
-					TestCase.assertNotNull(elevation);
+					for (int x = 0; x < elevations[0].length; x++) {
+						Double elevation = elevations[y][x];
+						if (PRINT) {
+							System.out.print("   " + elevation);
+						}
+						TestCase.assertNotNull(elevation);
+					}
 				}
 			}
 		}
@@ -317,8 +324,6 @@ public class ElevationTilesPngImportTest extends
 	 */
 	@Test
 	public void testFullBoundingBox() throws Exception {
-
-		boolean allowNull = false;
 
 		int width = 10;
 		int height = 6;
@@ -430,7 +435,7 @@ public class ElevationTilesPngImportTest extends
 						if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR
 								|| (lat < maxLatitude && lon > minLongitude
 										&& lat > minLatitude && lon < maxLongitude)) {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
 							}
 						}
@@ -442,7 +447,7 @@ public class ElevationTilesPngImportTest extends
 						System.out.print("   " + elevation);
 					}
 					if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR) {
-						if (!allowNull) {
+						if (!allowNulls) {
 							TestCase.assertNotNull(elevation);
 						}
 					}
@@ -458,7 +463,7 @@ public class ElevationTilesPngImportTest extends
 						System.out.print("   " + elevation);
 					}
 					if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR) {
-						if (!allowNull) {
+						if (!allowNulls) {
 							TestCase.assertNotNull(elevation);
 						}
 					}
@@ -470,7 +475,7 @@ public class ElevationTilesPngImportTest extends
 					System.out.print("   " + elevation);
 				}
 				if (algorithm == ElevationTilesAlgorithm.NEAREST_NEIGHBOR) {
-					if (!allowNull) {
+					if (!allowNulls) {
 						TestCase.assertNotNull(elevation);
 					}
 				}
@@ -493,7 +498,7 @@ public class ElevationTilesPngImportTest extends
 						if (PRINT) {
 							System.out.print("   " + elevations[y][x]);
 						}
-						if (!allowNull) {
+						if (!allowNulls) {
 							TestCase.assertNotNull(elevation);
 						}
 					}
@@ -531,11 +536,11 @@ public class ElevationTilesPngImportTest extends
 						}
 						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
 								&& (row == 0 || column == 0)) {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNull(elevation);
 							}
 						} else {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
 							}
 						}
@@ -552,11 +557,11 @@ public class ElevationTilesPngImportTest extends
 						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
 								&& (row == 0 || column == tileMatrix
 										.getMatrixWidth() - 1)) {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNull(elevation);
 							}
 						} else {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
 							}
 						}
@@ -572,11 +577,11 @@ public class ElevationTilesPngImportTest extends
 						}
 						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
 								&& (row == tileMatrix.getMatrixHeight() - 1 || column == 0)) {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNull(elevation);
 							}
 						} else {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
 							}
 						}
@@ -595,7 +600,7 @@ public class ElevationTilesPngImportTest extends
 										.getMatrixWidth() - 1)) {
 							TestCase.assertNull(elevation);
 						} else {
-							if (!allowNull) {
+							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
 							}
 						}
@@ -627,7 +632,7 @@ public class ElevationTilesPngImportTest extends
 										System.out.print("   "
 												+ elevations[y][x]);
 									}
-									if (!allowNull) {
+									if (!allowNulls) {
 										TestCase.assertNotNull(elevation);
 									}
 								}

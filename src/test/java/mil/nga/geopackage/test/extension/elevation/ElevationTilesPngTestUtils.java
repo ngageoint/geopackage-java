@@ -332,6 +332,14 @@ public class ElevationTilesPngTestUtils {
 
 		TileMatrix tileMatrix = elevationTiles.getTileDao().getTileMatrix(
 				tileRow.getZoomLevel());
+		double xDistance = tileMatrixSet.getMaxX() - tileMatrixSet.getMinX();
+		double xDistance2 = tileMatrix.getMatrixWidth()
+				* tileMatrix.getTileWidth() * tileMatrix.getPixelXSize();
+		TestCase.assertEquals(xDistance, xDistance2, .0000000001);
+		double yDistance = tileMatrixSet.getMaxY() - tileMatrixSet.getMinY();
+		double yDistance2 = tileMatrix.getMatrixHeight()
+				* tileMatrix.getTileHeight() * tileMatrix.getPixelYSize();
+		TestCase.assertEquals(yDistance, yDistance2, .0000000001);
 		BoundingBox boundingBox = TileBoundingBoxUtils.getBoundingBox(
 				tileMatrixSet.getBoundingBox(), tileMatrix,
 				tileRow.getTileColumn(), tileRow.getTileRow());
