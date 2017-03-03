@@ -536,9 +536,7 @@ public class ElevationTilesPngImportTest extends
 						}
 						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
 								&& (row == 0 || column == 0)) {
-							if (!allowNulls) {
-								TestCase.assertNull(elevation);
-							}
+							TestCase.assertNull(elevation);
 						} else {
 							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
@@ -557,9 +555,7 @@ public class ElevationTilesPngImportTest extends
 						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
 								&& (row == 0 || column == tileMatrix
 										.getMatrixWidth() - 1)) {
-							if (!allowNulls) {
-								TestCase.assertNull(elevation);
-							}
+							TestCase.assertNull(elevation);
 						} else {
 							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
@@ -577,9 +573,7 @@ public class ElevationTilesPngImportTest extends
 						}
 						if (algorithm != ElevationTilesAlgorithm.NEAREST_NEIGHBOR
 								&& (row == tileMatrix.getMatrixHeight() - 1 || column == 0)) {
-							if (!allowNulls) {
-								TestCase.assertNull(elevation);
-							}
+							TestCase.assertNull(elevation);
 						} else {
 							if (!allowNulls) {
 								TestCase.assertNotNull(elevation);
