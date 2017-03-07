@@ -247,9 +247,9 @@ public class ElevationTilesPngTestUtils {
 				griddedTile.getTableName());
 		long tableId = griddedTile.getTableId();
 		TestCase.assertTrue(tableId >= 0);
-		TestCase.assertTrue(griddedTile.getScaleOrDefault() >= 0);
+		TestCase.assertTrue(griddedTile.getScale() >= 0);
 		if (elevationTileValues != null) {
-			TestCase.assertTrue(griddedTile.getOffsetOrDefault() >= 0);
+			TestCase.assertTrue(griddedTile.getOffset() >= 0);
 		}
 		griddedTile.getMin();
 		griddedTile.getMax();
@@ -312,11 +312,10 @@ public class ElevationTilesPngTestUtils {
 					TestCase.assertNull(elevationValue);
 				} else {
 					TestCase.assertEquals(
-							(unsignedPixelValue
-									* griddedTile.getScaleOrDefault() + griddedTile
-										.getOffsetOrDefault())
-									* griddedCoverage.getScaleOrDefault()
-									+ griddedCoverage.getOffsetOrDefault(),
+							(unsignedPixelValue * griddedTile.getScale() + griddedTile
+									.getOffset())
+									* griddedCoverage.getScale()
+									+ griddedCoverage.getOffset(),
 							elevationValue);
 				}
 			}
