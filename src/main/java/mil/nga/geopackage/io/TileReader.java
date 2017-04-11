@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -337,7 +336,7 @@ public class TileReader {
 		contents.setDataType(ContentsDataType.TILES);
 		contents.setIdentifier(tileTable);
 		// contents.setDescription("");
-		contents.setLastChange(new Date());
+		// contents.setLastChange(new Date());
 		contents.setMinX(minX);
 		contents.setMinY(minY);
 		contents.setMaxX(maxX);
@@ -586,7 +585,7 @@ public class TileReader {
 		contents.setDataType(ContentsDataType.TILES);
 		contents.setIdentifier(tileTable);
 		// contents.setDescription("");
-		contents.setLastChange(new Date());
+		// contents.setLastChange(new Date());
 		contents.setMinX(totalWgs84BoundingBox.getMinLongitude());
 		contents.setMinY(totalWgs84BoundingBox.getMinLatitude());
 		contents.setMaxX(totalWgs84BoundingBox.getMaxLongitude());

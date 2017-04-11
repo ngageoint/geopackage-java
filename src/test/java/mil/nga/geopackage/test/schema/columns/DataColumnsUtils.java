@@ -1,7 +1,6 @@
 package mil.nga.geopackage.test.schema.columns;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -257,7 +256,7 @@ public class DataColumnsUtils {
 			tileContents.setDataType(ContentsDataType.TILES);
 			tileContents.setIdentifier("tile_contents");
 			tileContents.setDescription("");
-			tileContents.setLastChange(new Date());
+			// tileContents.setLastChange(new Date());
 			tileContents.setMinX(-180.0);
 			tileContents.setMinY(-90.0);
 			tileContents.setMaxX(180.0);
@@ -312,7 +311,7 @@ public class DataColumnsUtils {
 			featureContents.setDataType(ContentsDataType.FEATURES);
 			featureContents.setIdentifier("feature_contents");
 			featureContents.setDescription("");
-			featureContents.setLastChange(new Date());
+			// featureContents.setLastChange(new Date());
 			featureContents.setMinX(-180.0);
 			featureContents.setMinY(-90.0);
 			featureContents.setMaxX(180.0);
