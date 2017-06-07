@@ -9,6 +9,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-core version updated to 1.2.2
 * tiff version updated to 1.0.1
 * Elevation Extension scale and offset columns changed to be non nullable
+* URL Tile Generator handle URL redirects
 
 ## [1.2.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.2.1) (02-02-2017)
 
