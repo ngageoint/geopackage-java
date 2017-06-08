@@ -7,7 +7,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 1.2.2 (TBD)
 
 * geopackage-core version updated to 1.2.2
-* tiff version updated to 1.0.1
+* tiff version updated to 1.0.2
 * Elevation Extension scale and offset columns changed to be non nullable
 * URL Tile Generator handle URL redirects
 
