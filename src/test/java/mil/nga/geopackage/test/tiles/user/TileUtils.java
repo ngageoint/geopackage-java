@@ -749,19 +749,19 @@ public class TileUtils {
 					long zoomLevel = dao.getZoomLevel(width);
 					TestCase.assertEquals(tileMatrix.getZoomLevel(), zoomLevel);
 
-					zoomLevel = dao.getZoomLevel(height);
+					zoomLevel = dao.getZoomLevel(width, height);
 					TestCase.assertEquals(tileMatrix.getZoomLevel(), zoomLevel);
 
 					zoomLevel = dao.getZoomLevel(width + 1);
 					TestCase.assertEquals(tileMatrix.getZoomLevel(), zoomLevel);
 
-					zoomLevel = dao.getZoomLevel(height + 1);
+					zoomLevel = dao.getZoomLevel(width + 1, height + 1);
 					TestCase.assertEquals(tileMatrix.getZoomLevel(), zoomLevel);
 
 					zoomLevel = dao.getZoomLevel(width - 1);
 					TestCase.assertEquals(tileMatrix.getZoomLevel(), zoomLevel);
 
-					zoomLevel = dao.getZoomLevel(height - 1);
+					zoomLevel = dao.getZoomLevel(width - 1, height - 1);
 					TestCase.assertEquals(tileMatrix.getZoomLevel(), zoomLevel);
 
 				}
@@ -799,7 +799,7 @@ public class TileUtils {
 					double height = tileMatrix.getPixelYSize()
 							* tileMatrix.getTileHeight();
 
-					long zoomLevel = dao.getZoomLevel(width);
+					long zoomLevel = dao.getZoomLevel(width, height);
 
 					BoundingBox setProjectionBoundingBox = tileMatrixSet
 							.getBoundingBox();
@@ -909,6 +909,19 @@ public class TileUtils {
 				List<TileMatrix> tileMatrices = dao.getTileMatrices();
 
 				for (TileMatrix tileMatrix : tileMatrices) {
+
+					double xDistance = tileMatrixSet.getMaxX()
+							- tileMatrixSet.getMinX();
+					double xDistance2 = tileMatrix.getMatrixWidth()
+							* tileMatrix.getTileWidth()
+							* tileMatrix.getPixelXSize();
+					TestCase.assertEquals(xDistance, xDistance2, .0000000001);
+					double yDistance = tileMatrixSet.getMaxY()
+							- tileMatrixSet.getMinY();
+					double yDistance2 = tileMatrix.getMatrixHeight()
+							* tileMatrix.getTileHeight()
+							* tileMatrix.getPixelYSize();
+					TestCase.assertEquals(yDistance, yDistance2, .0000000001);
 
 					long zoomLevel = tileMatrix.getZoomLevel();
 					int count = dao.count(zoomLevel);

@@ -1,7 +1,6 @@
 package mil.nga.geopackage.test.tiles.matrix;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -239,7 +238,7 @@ public class TileMatrixUtils {
 			contents.setDataType(ContentsDataType.TILES);
 			contents.setIdentifier("test_contents");
 			contents.setDescription("");
-			contents.setLastChange(new Date());
+			// contents.setLastChange(new Date());
 			contents.setMinX(-180.0);
 			contents.setMinY(-90.0);
 			contents.setMaxX(180.0);

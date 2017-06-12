@@ -111,8 +111,6 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 		GriddedCoverage griddedCoverage = new GriddedCoverage();
 		griddedCoverage.setTileMatrixSet(tileMatrixSet);
 		griddedCoverage.setDataType(GriddedCoverageDataType.FLOAT);
-		griddedCoverage.setScale(null);
-		griddedCoverage.setOffset(null);
 		boolean defaultPrecision = true;
 		if (Math.random() < .5) {
 			griddedCoverage.setPrecision(10.0 * Math.random());
@@ -124,8 +122,8 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 		long gcId = griddedCoverage.getId();
 		griddedCoverage = griddedCoverageDao.queryForId(gcId);
 		TestCase.assertNotNull(griddedCoverage);
-		TestCase.assertNull(griddedCoverage.getScale());
-		TestCase.assertNull(griddedCoverage.getOffset());
+		TestCase.assertEquals(1.0, griddedCoverage.getScale());
+		TestCase.assertEquals(0.0, griddedCoverage.getOffset());
 		if (defaultPrecision) {
 			TestCase.assertEquals(1.0, griddedCoverage.getPrecision());
 		} else {
@@ -135,8 +133,6 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 
 		GriddedTile commonGriddedTile = new GriddedTile();
 		commonGriddedTile.setContents(tileMatrixSet.getContents());
-		commonGriddedTile.setScale(null);
-		commonGriddedTile.setOffset(null);
 		// The min, max, mean, and sd are just for testing and have
 		// no association on the test tile created
 		boolean defaultGTMin = true;
@@ -232,8 +228,8 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 
 					griddedTile = griddedTileDao.queryForId(gtId);
 					TestCase.assertNotNull(griddedTile);
-					TestCase.assertNull(griddedTile.getScale());
-					TestCase.assertNull(griddedTile.getOffset());
+					TestCase.assertEquals(1.0, griddedTile.getScale());
+					TestCase.assertEquals(0.0, griddedTile.getOffset());
 
 					if (defaultGTMin) {
 						TestCase.assertNull(griddedTile.getMin());
