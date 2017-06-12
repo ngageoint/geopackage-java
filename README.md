@@ -82,13 +82,13 @@ geoPackage.close();
 
 ### Installation ###
 
-Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.2.1|jar) (JAR, POM, Source, Javadoc)
+Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|1.2.2|jar) (JAR, POM, Source, Javadoc)
 
 ```xml
 <dependency>
     <groupId>mil.nga.geopackage</groupId>
     <artifactId>geopackage</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 </dependency>
 ```
 
