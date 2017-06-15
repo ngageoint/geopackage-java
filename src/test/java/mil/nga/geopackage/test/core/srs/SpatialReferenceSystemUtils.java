@@ -351,6 +351,44 @@ public class SpatialReferenceSystemUtils {
 		TestCase.assertEquals(definition, querySrs.getDefinition());
 		TestCase.assertEquals(description, querySrs.getDescription());
 
+		// Test copied srs
+		SpatialReferenceSystem copySrs = new SpatialReferenceSystem(querySrs);
+		TestCase.assertEquals(querySrs.getSrsName(), copySrs.getSrsName());
+		TestCase.assertEquals(querySrs.getId(), copySrs.getId());
+		TestCase.assertEquals(querySrs.getOrganization(),
+				copySrs.getOrganization());
+		TestCase.assertEquals(querySrs.getOrganizationCoordsysId(),
+				copySrs.getOrganizationCoordsysId());
+		TestCase.assertEquals(querySrs.getDefinition(), copySrs.getDefinition());
+		TestCase.assertEquals(querySrs.getDescription(),
+				copySrs.getDescription());
+		TestCase.assertEquals(querySrs.getDefinition_12_063(),
+				copySrs.getDefinition_12_063());
+
+		// Change pk
+		long copySrsId = 654321l;
+		copySrs.setSrsId(copySrsId);
+
+		dao.create(copySrs);
+
+		// Verify count
+		long newCount2 = dao.countOf();
+		TestCase.assertEquals(count + 2, newCount2);
+
+		// Verify saved contents
+		SpatialReferenceSystem queryCopiedSrs = dao.queryForId(copySrsId);
+		TestCase.assertEquals(querySrs.getSrsName(),
+				queryCopiedSrs.getSrsName());
+		TestCase.assertEquals(copySrsId, queryCopiedSrs.getSrsId());
+		TestCase.assertEquals(querySrs.getOrganization(),
+				queryCopiedSrs.getOrganization());
+		TestCase.assertEquals(querySrs.getOrganizationCoordsysId(),
+				queryCopiedSrs.getOrganizationCoordsysId());
+		TestCase.assertEquals(querySrs.getDefinition(),
+				queryCopiedSrs.getDefinition());
+		TestCase.assertEquals(querySrs.getDescription(),
+				queryCopiedSrs.getDescription());
+
 	}
 
 	/**

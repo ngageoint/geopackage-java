@@ -289,6 +289,67 @@ public class ContentsUtils {
 		} else {
 			TestCase.assertNull(queryContents.getSrs());
 		}
+
+		// Test copied contents
+		Contents copyContents = new Contents(queryContents);
+		TestCase.assertEquals(queryContents.getId(), copyContents.getId());
+		TestCase.assertEquals(queryContents.getTableName(),
+				copyContents.getTableName());
+		TestCase.assertEquals(queryContents.getDataType(),
+				copyContents.getDataType());
+		TestCase.assertEquals(queryContents.getIdentifier(),
+				copyContents.getIdentifier());
+		TestCase.assertEquals(queryContents.getDescription(),
+				copyContents.getDescription());
+		TestCase.assertEquals(queryContents.getLastChange(),
+				copyContents.getLastChange());
+		TestCase.assertEquals(queryContents.getMinX(), copyContents.getMinX());
+		TestCase.assertEquals(queryContents.getMinY(), copyContents.getMinY());
+		TestCase.assertEquals(queryContents.getMaxX(), copyContents.getMaxX());
+		TestCase.assertEquals(queryContents.getMaxY(), copyContents.getMaxY());
+		TestCase.assertEquals(queryContents.getSrs(), copyContents.getSrs());
+		TestCase.assertEquals(queryContents.getSrsId(), copyContents.getSrsId());
+
+		// Change pk and unique
+		String copyTableName = "CopyContents";
+		String copyIdentifier = "CopyIdentifier";
+		copyContents.setId(copyTableName);
+		copyContents.setIdentifier(copyIdentifier);
+
+		geoPackage.createFeatureTable(TestUtils.buildFeatureTable(
+				copyContents.getTableName(), "geom", GeometryType.GEOMETRY));
+
+		dao.create(copyContents);
+
+		// Verify count
+		long newCount2 = dao.countOf();
+		TestCase.assertEquals(count + 2, newCount2);
+
+		// Verify saved contents
+		Contents queryCopiedContents = dao.queryForId(copyTableName);
+		TestCase.assertEquals(copyTableName, queryCopiedContents.getTableName());
+		TestCase.assertEquals(queryContents.getDataType(),
+				queryCopiedContents.getDataType());
+		TestCase.assertEquals(copyIdentifier,
+				queryCopiedContents.getIdentifier());
+		TestCase.assertEquals(queryContents.getDescription(),
+				queryCopiedContents.getDescription());
+		TestCase.assertEquals(queryContents.getLastChange(),
+				queryCopiedContents.getLastChange());
+		TestCase.assertEquals(queryContents.getMinX(),
+				queryCopiedContents.getMinX());
+		TestCase.assertEquals(queryContents.getMinY(),
+				queryCopiedContents.getMinY());
+		TestCase.assertEquals(queryContents.getMaxX(),
+				queryCopiedContents.getMaxX());
+		TestCase.assertEquals(queryContents.getMaxY(),
+				queryCopiedContents.getMaxY());
+		if (srs != null) {
+			TestCase.assertEquals(srs.getId(), queryCopiedContents.getSrs()
+					.getId());
+		} else {
+			TestCase.assertNull(queryCopiedContents.getSrs());
+		}
 	}
 
 	/**
