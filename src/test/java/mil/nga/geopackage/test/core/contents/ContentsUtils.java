@@ -275,6 +275,7 @@ public class ContentsUtils {
 
 		// Verify saved contents
 		Contents queryContents = dao.queryForId(tableName);
+		String queryContentsId = queryContents.getId();
 		TestCase.assertEquals(tableName, queryContents.getTableName());
 		TestCase.assertEquals(dataType, queryContents.getDataType());
 		TestCase.assertEquals(identifier, queryContents.getIdentifier());
@@ -315,6 +316,13 @@ public class ContentsUtils {
 		String copyIdentifier = "CopyIdentifier";
 		copyContents.setId(copyTableName);
 		copyContents.setIdentifier(copyIdentifier);
+		
+		TestCase.assertEquals(queryContentsId, queryContents.getId());
+		TestCase.assertEquals(identifier, queryContents.getIdentifier());
+		TestCase.assertEquals(copyTableName, copyContents.getId());
+		TestCase.assertEquals(copyIdentifier, copyContents.getIdentifier());
+		TestCase.assertNotSame(queryContents.getId(), copyContents.getId());
+		TestCase.assertNotSame(queryContents.getIdentifier(), copyContents.getIdentifier());
 
 		geoPackage.createFeatureTable(TestUtils.buildFeatureTable(
 				copyContents.getTableName(), "geom", GeometryType.GEOMETRY));
@@ -349,6 +357,24 @@ public class ContentsUtils {
 					.getId());
 		} else {
 			TestCase.assertNull(queryCopiedContents.getSrs());
+		}
+		
+		// Verify initial saved contents again
+		queryContents = dao.queryForId(tableName);
+		TestCase.assertEquals(queryContentsId, queryContents.getId());
+		TestCase.assertEquals(tableName, queryContents.getTableName());
+		TestCase.assertEquals(dataType, queryContents.getDataType());
+		TestCase.assertEquals(identifier, queryContents.getIdentifier());
+		TestCase.assertEquals(description, queryContents.getDescription());
+		TestCase.assertEquals(lastChange, queryContents.getLastChange());
+		TestCase.assertEquals(minX, queryContents.getMinX());
+		TestCase.assertEquals(minY, queryContents.getMinY());
+		TestCase.assertEquals(maxX, queryContents.getMaxX());
+		TestCase.assertEquals(maxY, queryContents.getMaxY());
+		if (srs != null) {
+			TestCase.assertEquals(srs.getId(), queryContents.getSrs().getId());
+		} else {
+			TestCase.assertNull(queryContents.getSrs());
 		}
 	}
 
