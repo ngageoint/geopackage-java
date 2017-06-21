@@ -12,6 +12,7 @@ import java.util.UUID;
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.SQLiteQueryBuilder;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -1040,6 +1041,62 @@ public class FeatureUtils {
 					cursor = dao.queryForAll();
 					TestCase.assertEquals(count + 2, cursor.getCount());
 					cursor.close();
+
+					// Test copied row
+					FeatureRow copyRow = new FeatureRow(queryFeatureRow2);
+					for (int i = 0; i < dao.getTable().getColumns().size(); i++) {
+						TestCase.assertEquals(queryFeatureRow2.getValue(i),
+								copyRow.getValue(i));
+					}
+
+					copyRow.resetId();
+
+					long newRowId3 = dao.create(copyRow);
+
+					TestCase.assertEquals(newRowId3, copyRow.getId());
+
+					// Verify new was created
+					FeatureRow queryFeatureRow3 = dao.queryForIdRow(newRowId3);
+					TestCase.assertNotNull(queryFeatureRow3);
+					cursor = dao.queryForAll();
+					TestCase.assertEquals(count + 3, cursor.getCount());
+					cursor.close();
+
+					for (FeatureColumn column : dao.getTable().getColumns()) {
+						if (column.isPrimaryKey()) {
+							TestCase.assertNotSame(
+									queryFeatureRow2.getValue(column.getName()),
+									queryFeatureRow3.getValue(column.getName()));
+						} else if (column.getIndex() == queryFeatureRow2
+								.getGeometryColumnIndex()) {
+							GeoPackageGeometryData geometry1 = queryFeatureRow2
+									.getGeometry();
+							GeoPackageGeometryData geometry2 = queryFeatureRow3
+									.getGeometry();
+							if (geometry1 == null) {
+								TestCase.assertNull(geometry2);
+							} else {
+								GeoPackageGeometryDataUtils
+										.compareGeometryData(geometry1,
+												geometry2);
+							}
+						} else if (column.getDataType() == GeoPackageDataType.BLOB) {
+							byte[] blob1 = (byte[]) queryFeatureRow2
+									.getValue(column.getName());
+							byte[] blob2 = (byte[]) queryFeatureRow3
+									.getValue(column.getName());
+							if (blob1 == null) {
+								TestCase.assertNull(blob2);
+							} else {
+								GeoPackageGeometryDataUtils.compareByteArrays(
+										blob1, blob2);
+							}
+						} else {
+							TestCase.assertEquals(
+									queryFeatureRow2.getValue(column.getName()),
+									queryFeatureRow3.getValue(column.getName()));
+						}
+					}
 				}
 				cursor.close();
 			}

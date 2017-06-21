@@ -19,6 +19,7 @@ import mil.nga.geopackage.attributes.AttributesRow;
 import mil.nga.geopackage.attributes.AttributesTable;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.SQLiteQueryBuilder;
 import mil.nga.geopackage.metadata.Metadata;
@@ -674,6 +675,53 @@ public class AttributesUtils {
 					cursor = dao.queryForAll();
 					TestCase.assertEquals(count + 2, cursor.getCount());
 					cursor.close();
+
+					// Test copied row
+					AttributesRow copyRow = new AttributesRow(
+							queryAttributesRow2);
+					for (int i = 0; i < dao.getTable().getColumns().size(); i++) {
+						TestCase.assertEquals(queryAttributesRow2.getValue(i),
+								copyRow.getValue(i));
+					}
+
+					copyRow.resetId();
+
+					long newRowId3 = dao.create(copyRow);
+
+					TestCase.assertEquals(newRowId3, copyRow.getId());
+
+					// Verify new was created
+					AttributesRow queryAttributesRow3 = dao
+							.queryForIdRow(newRowId3);
+					TestCase.assertNotNull(queryAttributesRow3);
+					cursor = dao.queryForAll();
+					TestCase.assertEquals(count + 3, cursor.getCount());
+					cursor.close();
+
+					for (AttributesColumn column : dao.getTable().getColumns()) {
+						if (column.isPrimaryKey()) {
+							TestCase.assertNotSame(queryAttributesRow2
+									.getValue(column.getName()),
+									queryAttributesRow3.getValue(column
+											.getName()));
+						} else if (column.getDataType() == GeoPackageDataType.BLOB) {
+							byte[] blob1 = (byte[]) queryAttributesRow2
+									.getValue(column.getName());
+							byte[] blob2 = (byte[]) queryAttributesRow3
+									.getValue(column.getName());
+							if (blob1 == null) {
+								TestCase.assertNull(blob2);
+							} else {
+								GeoPackageGeometryDataUtils.compareByteArrays(
+										blob1, blob2);
+							}
+						} else {
+							TestCase.assertEquals(queryAttributesRow2
+									.getValue(column.getName()),
+									queryAttributesRow3.getValue(column
+											.getName()));
+						}
+					}
 				}
 				cursor.close();
 			}
