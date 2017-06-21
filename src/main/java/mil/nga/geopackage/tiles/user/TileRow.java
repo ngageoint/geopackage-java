@@ -34,6 +34,16 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	}
 
 	/**
+	 * Copy Constructor
+	 * 
+	 * @param tileRow
+	 *            tile row to copy
+	 */
+	public TileRow(TileRow tileRow) {
+		super(tileRow);
+	}
+
+	/**
 	 * Get the zoom level column index
 	 * 
 	 * @return zoom level column index

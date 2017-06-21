@@ -35,6 +35,16 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	}
 
 	/**
+	 * Copy Constructor
+	 * 
+	 * @param featureRow
+	 *            feature row to copy
+	 */
+	public FeatureRow(FeatureRow featureRow) {
+		super(featureRow);
+	}
+
+	/**
 	 * Get the geometry column index
 	 * 
 	 * @return geometry column index

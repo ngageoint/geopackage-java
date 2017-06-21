@@ -34,6 +34,16 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	}
 
 	/**
+	 * Copy Constructor
+	 * 
+	 * @param userRow
+	 *            user row to copy
+	 */
+	protected UserRow(UserRow<TColumn, TTable> userRow) {
+		super(userRow);
+	}
+
+	/**
 	 * Convert the row to content values
 	 * 
 	 * @return content values
