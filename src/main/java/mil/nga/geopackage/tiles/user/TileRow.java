@@ -38,6 +38,7 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 * 
 	 * @param tileRow
 	 *            tile row to copy
+	 * @since 1.2.3
 	 */
 	public TileRow(TileRow tileRow) {
 		super(tileRow);

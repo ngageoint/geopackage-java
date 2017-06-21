@@ -39,6 +39,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 * 
 	 * @param featureRow
 	 *            feature row to copy
+	 * @since 1.2.3
 	 */
 	public FeatureRow(FeatureRow featureRow) {
 		super(featureRow);
