@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.ExtensionScopeType;
