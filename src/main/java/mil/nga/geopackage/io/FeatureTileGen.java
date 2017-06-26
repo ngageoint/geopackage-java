@@ -773,7 +773,8 @@ public class FeatureTileGen {
 		}
 
 		// Bound WGS84 tiles to Web Mercator limits
-		if (projection.getEpsg() == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+		if (projection.equals(ProjectionConstants.AUTHORITY_EPSG,
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
 			boundingBox = TileBoundingBoxUtils
 					.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
 		}
