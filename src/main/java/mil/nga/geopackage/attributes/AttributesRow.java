@@ -33,4 +33,15 @@ public class AttributesRow extends UserRow<AttributesColumn, AttributesTable> {
 		super(table);
 	}
 
+	/**
+	 * Copy Constructor
+	 * 
+	 * @param attributesRow
+	 *            attributes row to copy
+	 * @since 1.3.0
+	 */
+	public AttributesRow(AttributesRow attributesRow) {
+		super(attributesRow);
+	}
+
 }

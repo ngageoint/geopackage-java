@@ -1,6 +1,7 @@
 package mil.nga.geopackage.features.user;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
@@ -32,6 +33,17 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 */
 	FeatureRow(FeatureTable table) {
 		super(table);
+	}
+
+	/**
+	 * Copy Constructor
+	 * 
+	 * @param featureRow
+	 *            feature row to copy
+	 * @since 1.3.0
+	 */
+	public FeatureRow(FeatureRow featureRow) {
+		super(featureRow);
 	}
 
 	/**
@@ -73,6 +85,36 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 */
 	public void setGeometry(GeoPackageGeometryData geometryData) {
 		setValue(getGeometryColumnIndex(), geometryData);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Handles geometry columns
+	 */
+	@Override
+	protected Object copyValue(FeatureColumn column, Object value) {
+
+		Object copyValue = null;
+
+		if (column.isGeometry() && value instanceof GeoPackageGeometryData) {
+
+			GeoPackageGeometryData geometryData = (GeoPackageGeometryData) value;
+			try {
+				byte[] bytes = geometryData.toBytes();
+				byte[] copyBytes = Arrays.copyOf(bytes, bytes.length);
+				copyValue = new GeoPackageGeometryData(copyBytes);
+			} catch (IOException e) {
+				throw new GeoPackageException(
+						"Failed to copy Geometry Data bytes. column: "
+								+ column.getName(), e);
+			}
+
+		} else {
+			copyValue = super.copyValue(column, value);
+		}
+
+		return copyValue;
 	}
 
 	/**

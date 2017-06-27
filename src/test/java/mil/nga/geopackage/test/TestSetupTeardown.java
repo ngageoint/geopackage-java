@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.db.DateConverter;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
@@ -237,6 +239,10 @@ public class TestSetupTeardown {
 				GeoPackageDataType.TEXT, 5L, false, null));
 		columns.add(AttributesColumn.createColumn(7, "test_blob_limited",
 				GeoPackageDataType.BLOB, 7L, false, null));
+		columns.add(AttributesColumn.createColumn(8, "test_date",
+				GeoPackageDataType.DATE, false, null));
+		columns.add(AttributesColumn.createColumn(9, "test_datetime",
+				GeoPackageDataType.DATETIME, false, null));
 		columns.add(AttributesColumn.createColumn(1, "test_text",
 				GeoPackageDataType.TEXT, false, ""));
 		columns.add(AttributesColumn.createColumn(2, "test_real",
@@ -321,6 +327,16 @@ public class TestSetupTeardown {
 							blob = blobLimited;
 						}
 						value = blob;
+						break;
+					case DATE:
+					case DATETIME:
+						DateConverter converter = DateConverter.converter(column.getDataType());
+						Date date = new Date();
+						if(Math.random() < .5){
+							value = date;
+						}else{
+							value = converter.stringValue(date);
+						}
 						break;
 					default:
 						throw new UnsupportedOperationException(

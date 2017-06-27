@@ -513,7 +513,8 @@ public class TileWriter {
 
 		// Get the bounding box of actual tiles
 		BoundingBox zoomBoundingBox = tileDao.getBoundingBox();
-		if (projection.getEpsg() == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+		if (projection.equals(ProjectionConstants.AUTHORITY_EPSG,
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
 			zoomBoundingBox = TileBoundingBoxUtils
 					.boundWgs84BoundingBoxWithWebMercatorLimits(zoomBoundingBox);
 		}

@@ -1,6 +1,9 @@
 package mil.nga.geopackage.user;
 
+import java.util.Date;
+
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.db.DateConverter;
 
 /**
  * User Row containing the values from a single Result Set row
@@ -31,6 +34,16 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	 */
 	protected UserRow(TTable table) {
 		super(table);
+	}
+
+	/**
+	 * Copy Constructor
+	 * 
+	 * @param userRow
+	 *            user row to copy
+	 */
+	protected UserRow(UserRow<TColumn, TTable> userRow) {
+		super(userRow);
 	}
 
 	/**
@@ -124,6 +137,13 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 			Boolean booleanValue = (Boolean) value;
 			short shortBoolean = booleanValue ? (short) 1 : (short) 0;
 			contentValues.put(columnName, shortBoolean);
+		} else if (value instanceof Date) {
+			validateValue(column, value, Date.class, String.class);
+			Date dateValue = (Date) value;
+			DateConverter converter = DateConverter.converter(column
+					.getDataType());
+			String dateString = converter.stringValue(dateValue);
+			contentValues.put(columnName, dateString);
 		} else {
 			throw new GeoPackageException(
 					"Unsupported update column value. column: " + columnName

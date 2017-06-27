@@ -355,7 +355,8 @@ public class URLTileGen {
 		}
 
 		// Bound WGS84 tiles to Web Mercator limits
-		if (bboxProjection.getEpsg() == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+		if (bboxProjection.equals(ProjectionConstants.AUTHORITY_EPSG,
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
 			boundingBox = TileBoundingBoxUtils
 					.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
 		}

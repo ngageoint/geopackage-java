@@ -490,7 +490,7 @@ public class ElevationTilesPngTestUtils {
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
 		long srsId = tileMatrixSet.getSrsId();
-		SpatialReferenceSystem srs = srsDao.getOrCreate(srsId);
+		SpatialReferenceSystem srs = srsDao.queryForId(srsId);
 
 		long epsg = srs.getOrganizationCoordsysId();
 		Projection projection = ProjectionFactory.getProjection(srs);

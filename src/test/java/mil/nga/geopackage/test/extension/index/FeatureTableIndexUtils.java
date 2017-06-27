@@ -41,7 +41,8 @@ public class FeatureTableIndexUtils {
 	 * @param geoPackage
 	 * @throws SQLException
 	 */
-	public static void testIndex(GeoPackage geoPackage) throws SQLException, IOException {
+	public static void testIndex(GeoPackage geoPackage) throws SQLException,
+			IOException {
 
 		// Test indexing each feature table
 		List<String> featureTables = geoPackage.getFeatureTables();
@@ -154,7 +155,9 @@ public class FeatureTableIndexUtils {
 					envelope.getMaxX() + 1, envelope.getMinY() - 1,
 					envelope.getMaxY() + 1);
 			Projection projection = null;
-			if (featureDao.getProjection().getEpsg() != ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+			if (!featureDao.getProjection().equals(
+					ProjectionConstants.AUTHORITY_EPSG,
+					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
 				projection = ProjectionFactory
 						.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 			} else {
@@ -272,7 +275,8 @@ public class FeatureTableIndexUtils {
 				featureResultSet.close();
 			}
 
-			GeoPackageExtensions.deleteTableExtensions(geoPackage, featureTable);
+			GeoPackageExtensions
+					.deleteTableExtensions(geoPackage, featureTable);
 
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 			TestCase.assertEquals(0,
@@ -333,23 +337,23 @@ public class FeatureTableIndexUtils {
 		ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
 		GeometryIndexDao geometryIndexDao = geoPackage.getGeometryIndexDao();
 		TableIndexDao tableIndexDao = geoPackage.getTableIndexDao();
-		
+
 		TestCase.assertTrue(geometryIndexDao.isTableExists());
 		TestCase.assertTrue(tableIndexDao.isTableExists());
 		TestCase.assertTrue(extensionsDao.queryByExtension(
 				FeatureTableIndex.EXTENSION_NAME).size() > 0);
-		
+
 		TestCase.assertTrue(geometryIndexDao.countOf() > 0);
 		long count = tableIndexDao.countOf();
 		TestCase.assertTrue(count > 0);
-		
+
 		int deleteCount = tableIndexDao.deleteAllCascade();
 		TestCase.assertEquals(count, deleteCount);
-		
+
 		TestCase.assertTrue(geometryIndexDao.countOf() == 0);
 		TestCase.assertTrue(tableIndexDao.countOf() == 0);
 	}
-	
+
 	/**
 	 * Validate a Geometry Index result
 	 * 
