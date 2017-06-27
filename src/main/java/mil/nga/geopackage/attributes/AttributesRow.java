@@ -38,7 +38,7 @@ public class AttributesRow extends UserRow<AttributesColumn, AttributesTable> {
 	 * 
 	 * @param attributesRow
 	 *            attributes row to copy
-	 * @since 1.2.3
+	 * @since 1.3.0
 	 */
 	public AttributesRow(AttributesRow attributesRow) {
 		super(attributesRow);
