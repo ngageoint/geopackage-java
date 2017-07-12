@@ -17,6 +17,8 @@ import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 
+import org.osgeo.proj4j.units.DegreeUnit;
+
 /**
  * URL Tile Generator main method for command line tile generation
  * 
@@ -354,11 +356,10 @@ public class URLTileGen {
 					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}
 
-		// Bound WGS84 tiles to Web Mercator limits
-		if (bboxProjection.equals(ProjectionConstants.AUTHORITY_EPSG,
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
+		// Bound degree tiles to Web Mercator limits
+		if (bboxProjection.getUnit() instanceof DegreeUnit) {
 			boundingBox = TileBoundingBoxUtils
-					.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+					.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
 		}
 
 		// Transform to the URL projection bounding box

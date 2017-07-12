@@ -29,6 +29,8 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 
+import org.osgeo.proj4j.units.DegreeUnit;
+
 /**
  * Writes the tiles from a GeoPackage tile table to a file system directory
  * 
@@ -513,10 +515,9 @@ public class TileWriter {
 
 		// Get the bounding box of actual tiles
 		BoundingBox zoomBoundingBox = tileDao.getBoundingBox();
-		if (projection.equals(ProjectionConstants.AUTHORITY_EPSG,
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
+		if (projection.getUnit() instanceof DegreeUnit) {
 			zoomBoundingBox = TileBoundingBoxUtils
-					.boundWgs84BoundingBoxWithWebMercatorLimits(zoomBoundingBox);
+					.boundDegreesBoundingBoxWithWebMercatorLimits(zoomBoundingBox);
 		}
 		BoundingBox zoomWebMercatorBoundingBox = projectionToWebMercator
 				.transform(zoomBoundingBox);
