@@ -28,6 +28,8 @@ import mil.nga.geopackage.tiles.features.FeatureTilePointIcon;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 
+import org.osgeo.proj4j.units.DegreeUnit;
+
 /**
  * Feature Tile Generator main method for command line feature to tile
  * generation. Generate tiles from a feature table.
@@ -773,10 +775,9 @@ public class FeatureTileGen {
 		}
 
 		// Bound WGS84 tiles to Web Mercator limits
-		if (projection.equals(ProjectionConstants.AUTHORITY_EPSG,
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
+		if (projection.getUnit() instanceof DegreeUnit) {
 			boundingBox = TileBoundingBoxUtils
-					.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+					.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
 		}
 
 		// Transform to a Web Mercator bounding box
