@@ -36,6 +36,8 @@ public class SQLiteQueryBuilder {
 	 *            A list of which columns to return. Passing null will return
 	 *            all columns, which is discouraged to prevent reading data from
 	 *            storage that isn't going to be used.
+	 * @param columnsAs
+	 *            A list of values to return the corresponding columns as
 	 * @param where
 	 *            A filter declaring which rows to return, formatted as an SQL
 	 *            WHERE clause (excluding the WHERE itself). Passing null will
@@ -60,11 +62,11 @@ public class SQLiteQueryBuilder {
 	 * @return the SQL query string
 	 */
 	public static String buildQueryString(boolean distinct, String table,
-			String[] columns, String where, String groupBy, String having,
-			String orderBy, String limit) {
+			String[] columns, String[] columnsAs, String where, String groupBy,
+			String having, String orderBy, String limit) {
 
 		return buildQueryString(distinct, new String[] { table }, columns,
-				where, groupBy, having, orderBy, limit);
+				columnsAs, where, groupBy, having, orderBy, limit);
 	}
 
 	/**
@@ -78,6 +80,8 @@ public class SQLiteQueryBuilder {
 	 *            A list of which columns to return. Passing null will return
 	 *            all columns, which is discouraged to prevent reading data from
 	 *            storage that isn't going to be used.
+	 * @param columnsAs
+	 *            A list of values to return the corresponding columns as
 	 * @param where
 	 *            A filter declaring which rows to return, formatted as an SQL
 	 *            WHERE clause (excluding the WHERE itself). Passing null will
@@ -103,8 +107,8 @@ public class SQLiteQueryBuilder {
 	 * @since 1.2.1
 	 */
 	public static String buildQueryString(boolean distinct, String[] tables,
-			String[] columns, String where, String groupBy, String having,
-			String orderBy, String limit) {
+			String[] columns, String[] columnsAs, String where, String groupBy,
+			String having, String orderBy, String limit) {
 		if (isEmpty(groupBy) && !isEmpty(having)) {
 			throw new IllegalArgumentException(
 					"HAVING clauses are only permitted when using a groupBy clause");
@@ -120,7 +124,7 @@ public class SQLiteQueryBuilder {
 			query.append("DISTINCT ");
 		}
 		if (columns != null && columns.length != 0) {
-			appendColumns(query, columns);
+			appendColumns(query, columns, columnsAs);
 		} else {
 			query.append("* ");
 		}
@@ -152,17 +156,19 @@ public class SQLiteQueryBuilder {
 	 * Add the names that are non-null in columns to s, separating them with
 	 * commas.
 	 */
-	public static void appendColumns(StringBuilder s, String[] columns) {
-		int n = columns.length;
+	public static void appendColumns(StringBuilder s, String[] columns,
+			String[] columnsAs) {
+		String[] wrappedColumns = CoreSQLUtils.quoteWrap(columns);
+		wrappedColumns = CoreSQLUtils.buildColumnsAs(wrappedColumns, columnsAs);
 
-		for (int i = 0; i < n; i++) {
-			String column = columns[i];
+		for (int i = 0; i < wrappedColumns.length; i++) {
+			String column = wrappedColumns[i];
 
 			if (column != null) {
 				if (i > 0) {
 					s.append(", ");
 				}
-				s.append(CoreSQLUtils.quoteWrap(column));
+				s.append(column);
 			}
 		}
 		s.append(' ');

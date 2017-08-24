@@ -201,6 +201,18 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * {@inheritDoc}
 	 */
 	@Override
+	public int getPosition() {
+		try {
+			return resultSet.getRow();
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to get ResultSet row", e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean moveToPosition(int position) {
 		try {
 			// For SQLite forward only, best we can do is assume the result set
