@@ -50,6 +50,14 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * {@inheritDoc}
 	 */
 	@Override
+	protected TResult prepareResult(TResult result) {
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int update(TRow row) {
 		ContentValues contentValues = row.toContentValues();
 		int updated = 0;
