@@ -7,6 +7,8 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageException;
@@ -40,6 +42,12 @@ import com.j256.ormlite.dao.CloseableIterator;
  * @since 1.1.2
  */
 public class DefaultFeatureTiles extends FeatureTiles {
+
+	/**
+	 * Logger
+	 */
+	private static final Logger log = Logger
+			.getLogger(DefaultFeatureTiles.class.getName());
 
 	/**
 	 * Constructor
@@ -88,8 +96,14 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
 
 		while (resultSet.moveToNext()) {
-			FeatureRow row = resultSet.getRow();
-			drawFeature(boundingBox, webMercatorTransform, graphics, row);
+			try {
+				FeatureRow row = resultSet.getRow();
+				drawFeature(boundingBox, webMercatorTransform, graphics, row);
+			} catch (Exception e) {
+				log.log(Level.SEVERE, "Failed to draw feature in tile. Table: "
+						+ featureDao.getTableName() + ", Position: "
+						+ resultSet.getPosition(), e);
+			}
 		}
 
 		resultSet.close();

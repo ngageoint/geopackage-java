@@ -33,8 +33,7 @@ public class AttributesResultSet extends
 	 */
 	@Override
 	public AttributesRow getRow(int[] columnTypes, Object[] values) {
-		AttributesRow row = new AttributesRow(getTable(), columnTypes, values);
-		return row;
+		return new AttributesRow(getTable(), columnTypes, values);
 	}
 
 }

@@ -24,7 +24,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	/**
 	 * Connection
 	 */
-	private final Connection connection;
+	protected final Connection connection;
 
 	/**
 	 * Table

@@ -28,8 +28,7 @@ public class TileResultSet extends
 	 */
 	@Override
 	public TileRow getRow(int[] columnTypes, Object[] values) {
-		TileRow row = new TileRow(getTable(), columnTypes, values);
-		return row;
+		return new TileRow(getTable(), columnTypes, values);
 	}
 
 }

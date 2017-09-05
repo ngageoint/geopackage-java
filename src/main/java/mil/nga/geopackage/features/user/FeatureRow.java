@@ -65,6 +65,20 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
+	 * Handles geometry columns
+	 */
+	@Override
+	public void setValue(int index, Object value) {
+		if (index == getGeometryColumnIndex() && value instanceof byte[]) {
+			byte[] bytes = (byte[]) value;
+			value = new GeoPackageGeometryData(bytes);
+		}
+		super.setValue(index, value);
+	}
+
+	/**
 	 * Get the geometry
 	 * 
 	 * @return geometry data
