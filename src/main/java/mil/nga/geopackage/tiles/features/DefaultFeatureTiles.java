@@ -96,15 +96,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
 
 		while (resultSet.moveToNext()) {
-			try {
-				FeatureRow row = resultSet.getRow();
-				drawFeature(zoom, boundingBox, webMercatorTransform, graphics,
-						row);
-			} catch (Exception e) {
-				log.log(Level.SEVERE, "Failed to draw feature in tile. Table: "
-						+ featureDao.getTableName() + ", Position: "
-						+ resultSet.getPosition(), e);
-			}
+			FeatureRow row = resultSet.getRow();
+			drawFeature(zoom, boundingBox, webMercatorTransform, graphics, row);
 		}
 
 		resultSet.close();
@@ -156,13 +149,18 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 */
 	private void drawFeature(int zoom, BoundingBox boundingBox,
 			ProjectionTransform transform, Graphics2D graphics, FeatureRow row) {
-		GeoPackageGeometryData geomData = row.getGeometry();
-		if (geomData != null) {
-			Geometry geometry = geomData.getGeometry();
-			double simplifyTolerance = TileBoundingBoxUtils.toleranceDistance(
-					zoom, tileWidth, tileHeight);
-			drawGeometry(simplifyTolerance, boundingBox, transform, graphics,
-					geometry);
+		try {
+			GeoPackageGeometryData geomData = row.getGeometry();
+			if (geomData != null) {
+				Geometry geometry = geomData.getGeometry();
+				double simplifyTolerance = TileBoundingBoxUtils
+						.toleranceDistance(zoom, tileWidth, tileHeight);
+				drawGeometry(simplifyTolerance, boundingBox, transform,
+						graphics, geometry);
+			}
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Failed to draw feature in tile. Table: "
+					+ featureDao.getTableName(), e);
 		}
 	}
 
