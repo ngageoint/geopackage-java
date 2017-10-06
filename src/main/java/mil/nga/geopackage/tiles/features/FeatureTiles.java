@@ -877,7 +877,7 @@ public abstract class FeatureTiles {
 		if (simplifyGeometries) {
 
 			// Reproject to web mercator if not in meters
-			if (projection.getUnit() != Units.METRES) {
+			if (projection != null && projection.getUnit() != Units.METRES) {
 				points = toWebMercator.transform(points);
 			}
 
@@ -886,7 +886,7 @@ public abstract class FeatureTiles {
 					simplifyTolerance);
 
 			// Reproject back to the original projection
-			if (projection.getUnit() != Units.METRES) {
+			if (projection != null && projection.getUnit() != Units.METRES) {
 				simplifiedPoints = fromWebMercator.transform(simplifiedPoints);
 			}
 		} else {
