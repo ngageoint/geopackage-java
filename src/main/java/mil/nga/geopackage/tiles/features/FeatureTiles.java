@@ -167,9 +167,9 @@ public abstract class FeatureTiles {
 	protected CustomFeaturesTile maxFeaturesTileDraw;
 
 	/**
-	 * When true, geometries are simplified before being drawn
+	 * When true, geometries are simplified before being drawn. Default is true
 	 */
-	protected boolean simplifyGeometries = false;
+	protected boolean simplifyGeometries = true;
 
 	/**
 	 * Constructor
@@ -593,7 +593,7 @@ public abstract class FeatureTiles {
 	}
 
 	/**
-	 * Is the simplify geometries flag set?
+	 * Is the simplify geometries flag set? Default is true
 	 * 
 	 * @return simplify geometries flag
 	 * @since 1.3.2
