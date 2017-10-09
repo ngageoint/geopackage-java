@@ -65,16 +65,6 @@ public abstract class FeatureTiles {
 	protected Projection projection;
 
 	/**
-	 * Feature DAO Projection to Web Mercator transformation
-	 */
-	protected ProjectionTransform toWebMercator;
-
-	/**
-	 * Web Mercator to Feature DAO Projection transformation
-	 */
-	protected ProjectionTransform fromWebMercator;
-
-	/**
 	 * When not null, features are retrieved using a feature index
 	 */
 	protected FeatureTableIndex featureIndex;
@@ -180,10 +170,6 @@ public abstract class FeatureTiles {
 		this.featureDao = featureDao;
 		if (featureDao != null) {
 			this.projection = featureDao.getProjection();
-			this.toWebMercator = projection
-					.getTransformation(WEB_MERCATOR_PROJECTION);
-			this.fromWebMercator = WEB_MERCATOR_PROJECTION
-					.getTransformation(projection);
 		}
 
 		tileWidth = GeoPackageJavaProperties.getIntegerProperty(
@@ -878,6 +864,8 @@ public abstract class FeatureTiles {
 
 			// Reproject to web mercator if not in meters
 			if (projection != null && projection.getUnit() != Units.METRES) {
+				ProjectionTransform toWebMercator = projection
+						.getTransformation(WEB_MERCATOR_PROJECTION);
 				points = toWebMercator.transform(points);
 			}
 
@@ -887,6 +875,8 @@ public abstract class FeatureTiles {
 
 			// Reproject back to the original projection
 			if (projection != null && projection.getUnit() != Units.METRES) {
+				ProjectionTransform fromWebMercator = WEB_MERCATOR_PROJECTION
+						.getTransformation(projection);
 				simplifiedPoints = fromWebMercator.transform(simplifiedPoints);
 			}
 		} else {
