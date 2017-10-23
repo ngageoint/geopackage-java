@@ -4,9 +4,18 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.3.2 (TBD)
+## 1.4.0 (TBD)
 
-* TBD
+* geopackage-core version updated to 1.4.0
+* Attribute, Feature, and Tile User Row Sync implementations
+* Query support for "columns as"
+* Feature Table Index row syncing
+* Improved feature row geometry blob handling
+* Feature Tiles and Feature Tile Gen geometry simplifications
+* Feature Tile Gen increased default max features per tile to 5000
+* Tile Reader creates contents with the same SRS as the Tile Matrix Set
+* tiff version updated to 2.0.0
+* maven-gpg-plugin version 1.6
 
 ## [1.3.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.3.1) (07-13-2017)
 
