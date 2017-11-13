@@ -535,27 +535,27 @@ public class TileWriter {
 
 		double upperMax = getLength(
 				new BoundingBox(zoomBoundingBox.getMinLongitude(),
-						zoomBoundingBox.getMinLongitude() + maxLength,
 						zoomBoundingBox.getMaxLatitude() - maxLength,
+						zoomBoundingBox.getMinLongitude() + maxLength,
 						zoomBoundingBox.getMaxLatitude()),
 				projectionToWebMercator);
 		double upperMin = getLength(
 				new BoundingBox(zoomBoundingBox.getMinLongitude(),
-						zoomBoundingBox.getMinLongitude() + minLength,
 						zoomBoundingBox.getMaxLatitude() - minLength,
+						zoomBoundingBox.getMinLongitude() + minLength,
 						zoomBoundingBox.getMaxLatitude()),
 				projectionToWebMercator);
 
 		double lowerMax = getLength(
 				new BoundingBox(zoomBoundingBox.getMinLongitude(),
-						zoomBoundingBox.getMinLongitude() + maxLength,
 						zoomBoundingBox.getMinLatitude(),
+						zoomBoundingBox.getMinLongitude() + maxLength,
 						zoomBoundingBox.getMinLatitude() + maxLength),
 				projectionToWebMercator);
 		double lowerMin = getLength(
 				new BoundingBox(zoomBoundingBox.getMinLongitude(),
-						zoomBoundingBox.getMinLongitude() + minLength,
 						zoomBoundingBox.getMinLatitude(),
+						zoomBoundingBox.getMinLongitude() + minLength,
 						zoomBoundingBox.getMinLatitude() + minLength),
 				projectionToWebMercator);
 

@@ -7,7 +7,7 @@ import mil.nga.geopackage.user.UserRowSync;
  * simultaneous asynchronous requests are made
  *
  * @author osbornb
- * @since 1.4.0
+ * @since 2.0.0
  */
 public class TileRowSync extends UserRowSync<TileColumn, TileTable, TileRow> {
 

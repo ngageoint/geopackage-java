@@ -582,7 +582,7 @@ public abstract class FeatureTiles {
 	 * Is the simplify geometries flag set? Default is true
 	 * 
 	 * @return simplify geometries flag
-	 * @since 1.4.0
+	 * @since 2.0.0
 	 */
 	public boolean isSimplifyGeometries() {
 		return simplifyGeometries;
@@ -593,7 +593,7 @@ public abstract class FeatureTiles {
 	 * 
 	 * @param simplifyGeometries
 	 *            simplify geometries flag
-	 * @since 1.4.0
+	 * @since 2.0.0
 	 */
 	public void setSimplifyGeometries(boolean simplifyGeometries) {
 		this.simplifyGeometries = simplifyGeometries;
@@ -775,7 +775,7 @@ public abstract class FeatureTiles {
 		double minLatitude = TileBoundingBoxUtils.getLatitudeFromPixel(
 				tileHeight, webMercatorBoundingBox, tileHeight + heightOverlap);
 		BoundingBox expandedQueryBoundingBox = new BoundingBox(minLongitude,
-				maxLongitude, minLatitude, maxLatitude);
+				minLatitude, maxLongitude, maxLatitude);
 
 		return expandedQueryBoundingBox;
 	}
@@ -854,7 +854,7 @@ public abstract class FeatureTiles {
 	 * @param points
 	 *            ordered points
 	 * @return simplified points
-	 * @since 1.4.0
+	 * @since 2.0.0
 	 */
 	protected List<Point> simplifyPoints(double simplifyTolerance,
 			List<Point> points) {
@@ -894,7 +894,7 @@ public abstract class FeatureTiles {
 	 * @param webMercatorBoundingBox
 	 * @param results
 	 * @return image
-	 * @since 1.4.0
+	 * @since 2.0.0
 	 */
 	public abstract BufferedImage drawTile(int zoom,
 			BoundingBox webMercatorBoundingBox,
@@ -908,7 +908,7 @@ public abstract class FeatureTiles {
 	 * @param webMercatorBoundingBox
 	 * @param resultSet
 	 * @return image
-	 * @since 1.4.0
+	 * @since 2.0.0
 	 */
 	public abstract BufferedImage drawTile(int zoom,
 			BoundingBox webMercatorBoundingBox, FeatureResultSet resultSet);
@@ -921,7 +921,7 @@ public abstract class FeatureTiles {
 	 * @param webMercatorBoundingBox
 	 * @param featureRow
 	 * @return image
-	 * @since 1.4.0
+	 * @since 2.0.0
 	 */
 	public abstract BufferedImage drawTile(int zoom,
 			BoundingBox webMercatorBoundingBox, List<FeatureRow> featureRow);

@@ -867,8 +867,8 @@ public class TileUtils {
 							.getTransformation(
 									ProjectionConstants.EPSG_WEB_MERCATOR)
 							.transform(setProjectionBoundingBox);
-					BoundingBox boundingBox = new BoundingBox(-180.0, 180.0,
-							-90.0, 90.0);
+					BoundingBox boundingBox = new BoundingBox(-180.0, -90.0,
+							180.0, 90.0);
 					BoundingBox webMercatorBoundingBox = ProjectionFactory
 							.getProjection(
 									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
@@ -898,7 +898,7 @@ public class TileUtils {
 					double minLon = ((maxLon + 180.0) * Math.random()) - 180.0;
 					double maxLat = (180.0 * Math.random()) - 90.0;
 					double minLat = ((maxLon + 90.0) * Math.random()) - 90.0;
-					boundingBox = new BoundingBox(minLon, maxLon, minLat,
+					boundingBox = new BoundingBox(minLon, minLat, maxLon,
 							maxLat);
 					webMercatorBoundingBox = ProjectionFactory
 							.getProjection(
