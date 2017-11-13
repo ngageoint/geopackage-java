@@ -524,8 +524,8 @@ public class TileReader {
 			}
 
 			// Get the bounding box at the zoom level
-			TileGrid tileGrid = new TileGrid(zoomDirectory.minX,
-					zoomDirectory.maxX, minY, maxY);
+			TileGrid tileGrid = new TileGrid(zoomDirectory.minX, minY,
+					zoomDirectory.maxX, maxY);
 			BoundingBox zoomBoundingBox = TileBoundingBoxUtils
 					.getWebMercatorBoundingBox(tileGrid, zoomDirectory.zoom);
 
