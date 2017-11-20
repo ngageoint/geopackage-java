@@ -2,6 +2,8 @@ package mil.nga.geopackage.test.tiles;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
@@ -22,6 +24,8 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.wkb.geom.Point;
 
+import org.junit.Assume;
+
 /**
  * URL Tile Generator utils
  * 
@@ -30,7 +34,31 @@ import mil.nga.wkb.geom.Point;
 public class UrlTileGeneratorUtils {
 
 	private static final String TABLE_NAME = "generate_test";
-	private static final String URL = "http://osm.geointservices.io/osm_tiles/{z}/{x}/{y}.png";
+
+	private static final String BASE_URL = "http://osm.geointservices.io";
+	private static final String URL = BASE_URL + "/osm_tiles/{z}/{x}/{y}.png";
+
+	// private static final String BASE_URL = "http://a.tile.openstreetmap.org";
+	// private static final String URL = BASE_URL + "/{z}/{x}/{y}.png";
+
+	public static void checkUrl() {
+
+		boolean validConnection = false;
+
+		try {
+			HttpURLConnection connection = (HttpURLConnection) new URL(BASE_URL)
+					.openConnection();
+			connection.setRequestMethod("HEAD");
+			int responseCode = connection.getResponseCode();
+			validConnection = responseCode != 404;
+			connection.disconnect();
+		} catch (Exception e) {
+		}
+
+		Assume.assumeTrue(
+				"Failed to connect to the test url, URL: " + BASE_URL,
+				validConnection);
+	}
 
 	/**
 	 * Test generating tiles
