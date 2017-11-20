@@ -2,6 +2,8 @@ package mil.nga.geopackage.extension.index;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -9,6 +11,7 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.geopackage.features.user.FeatureRowSync;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionTransform;
 
@@ -29,15 +32,28 @@ import com.j256.ormlite.support.ConnectionSource;
 public class FeatureTableIndex extends FeatureTableCoreIndex {
 
 	/**
+	 * Logger
+	 */
+	private static final Logger log = Logger.getLogger(FeatureTableIndex.class
+			.getName());
+
+	/**
 	 * Feature DAO
 	 */
 	private final FeatureDao featureDao;
 
 	/**
+	 * Feature Row Sync for simultaneous same row queries
+	 */
+	private final FeatureRowSync featureRowSync = new FeatureRowSync();
+
+	/**
 	 * Constructor
 	 * 
 	 * @param geoPackage
+	 *            GeoPackage
 	 * @param featureDao
+	 *            feature dao
 	 */
 	public FeatureTableIndex(GeoPackage geoPackage, FeatureDao featureDao) {
 		super(geoPackage, featureDao.getTableName(), featureDao
@@ -57,6 +73,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * completed and maintained as the last indexed time is updated.
 	 *
 	 * @param row
+	 *            feature row
 	 * @return true if indexed
 	 */
 	public boolean index(FeatureRow row) {
@@ -81,7 +98,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	@Override
 	protected int indexTable(final TableIndex tableIndex) {
 
-		int count = 0;
+		int count;
 
 		try {
 			// Iterate through each row and index as a single transaction
@@ -90,25 +107,11 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 			count = TransactionManager.callInTransaction(connectionSource,
 					new Callable<Integer>() {
 						public Integer call() throws Exception {
-							int count = 0;
+
 							FeatureResultSet resultSet = featureDao
 									.queryForAll();
-							try {
-								while ((progress == null || progress.isActive())
-										&& resultSet.moveToNext()) {
-									FeatureRow row = resultSet.getRow();
-									boolean indexed = index(tableIndex,
-											row.getId(), row.getGeometry());
-									if (indexed) {
-										count++;
-									}
-									if (progress != null) {
-										progress.addProgress(1);
-									}
-								}
-							} finally {
-								resultSet.close();
-							}
+
+							int count = indexRows(tableIndex, resultSet);
 
 							// Update the last indexed time
 							if (progress == null || progress.isActive()) {
@@ -127,9 +130,49 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Index the feature rows in the cursor
+	 * 
+	 * @param tableIndex
+	 *            table index
+	 * @param resultSet
+	 *            feature result
+	 * @return count
+	 */
+	private int indexRows(TableIndex tableIndex, FeatureResultSet resultSet) {
+
+		int count = 0;
+
+		try {
+			while ((progress == null || progress.isActive())
+					&& resultSet.moveToNext()) {
+				try {
+					FeatureRow row = resultSet.getRow();
+					boolean indexed = index(tableIndex, row.getId(),
+							row.getGeometry());
+					if (indexed) {
+						count++;
+					}
+					if (progress != null) {
+						progress.addProgress(1);
+					}
+				} catch (Exception e) {
+					log.log(Level.SEVERE, "Failed to index feature. Table: "
+							+ tableIndex.getTableName() + ", Position: "
+							+ resultSet.getPosition(), e);
+				}
+			}
+		} finally {
+			resultSet.close();
+		}
+
+		return count;
+	}
+
+	/**
 	 * Delete the index for the feature row
 	 *
 	 * @param row
+	 *            feature row
 	 * @return deleted rows, should be 0 or 1
 	 */
 	public int deleteIndex(FeatureRow row) {
@@ -141,6 +184,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * correctly
 	 * 
 	 * @param boundingBox
+	 *            bounding box
 	 * @param projection
 	 *            projection of the provided bounding box
 	 * @return geometry indices iterator
@@ -161,6 +205,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * correctly
 	 * 
 	 * @param boundingBox
+	 *            bounding box
 	 * @param projection
 	 *            projection of the provided bounding box
 	 * @return count
@@ -180,7 +225,9 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * the provided projection
 	 * 
 	 * @param boundingBox
+	 *            bounding box
 	 * @param projection
+	 *            projection
 	 * @return feature projected bounding box
 	 */
 	private BoundingBox getFeatureBoundingBox(BoundingBox boundingBox,
@@ -196,10 +243,25 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * Get the feature row for the Geometry Index
 	 * 
 	 * @param geometryIndex
+	 *            geometry index
 	 * @return feature row
 	 */
 	public FeatureRow getFeatureRow(GeometryIndex geometryIndex) {
-		return featureDao.queryForIdRow(geometryIndex.getGeomId());
+
+		long geomId = geometryIndex.getGeomId();
+
+		// Get the row or lock for reading
+		FeatureRow row = featureRowSync.getRowOrLock(geomId);
+		if (row == null) {
+			// Query for the row and set in the sync
+			try {
+				row = featureDao.queryForIdRow(geomId);
+			} finally {
+				featureRowSync.setRow(geomId, row);
+			}
+		}
+
+		return row;
 	}
 
 }

@@ -86,7 +86,7 @@ public class AttributesUtils {
 				// Manually query for all and compare
 				Connection connection = dao.getConnection();
 				String sql = SQLiteQueryBuilder.buildQueryString(false,
-						dao.getTableName(), null, null, null, null, null, null);
+						dao.getTableName(), null, null, null, null, null, null, null);
 				ResultSet resultSet = SQLUtils.query(connection, sql, null);
 				int resultSetCount = SQLUtils.count(connection, sql, null);
 				cursor = new AttributesResultSet(attributesTable, resultSet,

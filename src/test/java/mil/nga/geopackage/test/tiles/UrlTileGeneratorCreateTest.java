@@ -14,6 +14,13 @@ import org.junit.Test;
  */
 public class UrlTileGeneratorCreateTest extends CreateGeoPackageTestCase {
 
+	@Override
+	public void geoPackageSetUp() throws Exception {
+		super.geoPackageSetUp();
+
+		UrlTileGeneratorUtils.checkUrl();
+	}
+
 	/**
 	 * Constructor
 	 */

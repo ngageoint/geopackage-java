@@ -40,7 +40,9 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * Constructor
 	 * 
 	 * @param table
+	 *            table
 	 * @param resultSet
+	 *            result set
 	 */
 	protected UserResultSet(TTable table, ResultSet resultSet, int count) {
 		this.table = table;
@@ -62,8 +64,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 */
 	@Override
 	public Object getValue(TColumn column) {
-		Object value = getValue(column.getIndex(), column.getDataType());
-		return value;
+		return getValue(column.getIndex(), column.getDataType());
 	}
 
 	/**
@@ -170,8 +171,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 */
 	@Override
 	public Object getValue(int index, GeoPackageDataType dataType) {
-		Object value = UserCoreResultUtils.getValue(this, index, dataType);
-		return value;
+		return UserCoreResultUtils.getValue(this, index, dataType);
 	}
 
 	/**
@@ -195,6 +195,18 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 		// For SQLite forward only, best we can do is assume the result set
 		// is at the beginning
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getPosition() {
+		try {
+			return resultSet.getRow();
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to get ResultSet row", e);
+		}
 	}
 
 	/**

@@ -7,6 +7,8 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageException;
@@ -42,6 +44,12 @@ import com.j256.ormlite.dao.CloseableIterator;
 public class DefaultFeatureTiles extends FeatureTiles {
 
 	/**
+	 * Logger
+	 */
+	private static final Logger log = Logger
+			.getLogger(DefaultFeatureTiles.class.getName());
+
+	/**
 	 * Constructor
 	 *
 	 * @param featureDao
@@ -54,7 +62,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BufferedImage drawTile(BoundingBox webMercatorBoundingBox,
+	public BufferedImage drawTile(int zoom, BoundingBox webMercatorBoundingBox,
 			CloseableIterator<GeometryIndex> results) {
 
 		// Create image and graphics
@@ -68,8 +76,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 			GeometryIndex geometryIndex = results.next();
 			FeatureRow featureRow = getFeatureIndex().getFeatureRow(
 					geometryIndex);
-			drawFeature(webMercatorBoundingBox, webMercatorTransform, graphics,
-					featureRow);
+			drawFeature(zoom, webMercatorBoundingBox, webMercatorTransform,
+					graphics, featureRow);
 		}
 
 		return image;
@@ -79,7 +87,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BufferedImage drawTile(BoundingBox boundingBox,
+	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
 			FeatureResultSet resultSet) {
 
 		BufferedImage image = createNewImage();
@@ -89,7 +97,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 
 		while (resultSet.moveToNext()) {
 			FeatureRow row = resultSet.getRow();
-			drawFeature(boundingBox, webMercatorTransform, graphics, row);
+			drawFeature(zoom, boundingBox, webMercatorTransform, graphics, row);
 		}
 
 		resultSet.close();
@@ -101,7 +109,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BufferedImage drawTile(BoundingBox boundingBox,
+	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
 			List<FeatureRow> featureRow) {
 
 		BufferedImage image = createNewImage();
@@ -110,7 +118,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
 
 		for (FeatureRow row : featureRow) {
-			drawFeature(boundingBox, webMercatorTransform, graphics, row);
+			drawFeature(zoom, boundingBox, webMercatorTransform, graphics, row);
 		}
 
 		return image;
@@ -132,31 +140,43 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	/**
 	 * Draw the feature
 	 *
+	 * @param zoom
+	 *            zoom level
 	 * @param boundingBox
 	 * @param transform
 	 * @param graphics
 	 * @param row
 	 */
-	private void drawFeature(BoundingBox boundingBox,
+	private void drawFeature(int zoom, BoundingBox boundingBox,
 			ProjectionTransform transform, Graphics2D graphics, FeatureRow row) {
-		GeoPackageGeometryData geomData = row.getGeometry();
-		if (geomData != null) {
-			Geometry geometry = geomData.getGeometry();
-			drawGeometry(boundingBox, transform, graphics, geometry);
+		try {
+			GeoPackageGeometryData geomData = row.getGeometry();
+			if (geomData != null) {
+				Geometry geometry = geomData.getGeometry();
+				double simplifyTolerance = TileBoundingBoxUtils
+						.toleranceDistance(zoom, tileWidth, tileHeight);
+				drawGeometry(simplifyTolerance, boundingBox, transform,
+						graphics, geometry);
+			}
+		} catch (Exception e) {
+			log.log(Level.SEVERE, "Failed to draw feature in tile. Table: "
+					+ featureDao.getTableName(), e);
 		}
 	}
 
 	/**
 	 * Draw the geometry
 	 *
+	 * @param simplifyTolerance
+	 *            simplify tolerance in meters
 	 * @param boundingBox
 	 * @param transform
 	 * @param graphics
 	 * @param geometry
 	 */
-	private void drawGeometry(BoundingBox boundingBox,
-			ProjectionTransform transform, Graphics2D graphics,
-			Geometry geometry) {
+	private void drawGeometry(double simplifyTolerance,
+			BoundingBox boundingBox, ProjectionTransform transform,
+			Graphics2D graphics, Geometry geometry) {
 
 		switch (geometry.getGeometryType()) {
 
@@ -166,11 +186,13 @@ public class DefaultFeatureTiles extends FeatureTiles {
 			break;
 		case LINESTRING:
 			LineString lineString = (LineString) geometry;
-			drawLineString(boundingBox, transform, graphics, lineString);
+			drawLineString(simplifyTolerance, boundingBox, transform, graphics,
+					lineString);
 			break;
 		case POLYGON:
 			Polygon polygon = (Polygon) geometry;
-			drawPolygon(boundingBox, transform, graphics, polygon);
+			drawPolygon(simplifyTolerance, boundingBox, transform, graphics,
+					polygon);
 			break;
 		case MULTIPOINT:
 			MultiPoint multiPoint = (MultiPoint) geometry;
@@ -181,46 +203,54 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		case MULTILINESTRING:
 			MultiLineString multiLineString = (MultiLineString) geometry;
 			for (LineString ls : multiLineString.getLineStrings()) {
-				drawLineString(boundingBox, transform, graphics, ls);
+				drawLineString(simplifyTolerance, boundingBox, transform,
+						graphics, ls);
 			}
 			break;
 		case MULTIPOLYGON:
 			MultiPolygon multiPolygon = (MultiPolygon) geometry;
 			for (Polygon p : multiPolygon.getPolygons()) {
-				drawPolygon(boundingBox, transform, graphics, p);
+				drawPolygon(simplifyTolerance, boundingBox, transform,
+						graphics, p);
 			}
 			break;
 		case CIRCULARSTRING:
 			CircularString circularString = (CircularString) geometry;
-			drawLineString(boundingBox, transform, graphics, circularString);
+			drawLineString(simplifyTolerance, boundingBox, transform, graphics,
+					circularString);
 			break;
 		case COMPOUNDCURVE:
 			CompoundCurve compoundCurve = (CompoundCurve) geometry;
 			for (LineString ls : compoundCurve.getLineStrings()) {
-				drawLineString(boundingBox, transform, graphics, ls);
+				drawLineString(simplifyTolerance, boundingBox, transform,
+						graphics, ls);
 			}
 			break;
 		case POLYHEDRALSURFACE:
 			PolyhedralSurface polyhedralSurface = (PolyhedralSurface) geometry;
 			for (Polygon p : polyhedralSurface.getPolygons()) {
-				drawPolygon(boundingBox, transform, graphics, p);
+				drawPolygon(simplifyTolerance, boundingBox, transform,
+						graphics, p);
 			}
 			break;
 		case TIN:
 			TIN tin = (TIN) geometry;
 			for (Polygon p : tin.getPolygons()) {
-				drawPolygon(boundingBox, transform, graphics, p);
+				drawPolygon(simplifyTolerance, boundingBox, transform,
+						graphics, p);
 			}
 			break;
 		case TRIANGLE:
 			Triangle triangle = (Triangle) geometry;
-			drawPolygon(boundingBox, transform, graphics, triangle);
+			drawPolygon(simplifyTolerance, boundingBox, transform, graphics,
+					triangle);
 			break;
 		case GEOMETRYCOLLECTION:
 			@SuppressWarnings("unchecked")
 			GeometryCollection<Geometry> geometryCollection = (GeometryCollection<Geometry>) geometry;
 			for (Geometry g : geometryCollection.getGeometries()) {
-				drawGeometry(boundingBox, transform, graphics, g);
+				drawGeometry(simplifyTolerance, boundingBox, transform,
+						graphics, g);
 			}
 			break;
 		default:
@@ -233,45 +263,57 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	/**
 	 * Draw a LineString
 	 * 
+	 * @param simplifyTolerance
+	 *            simplify tolerance in meters
 	 * @param boundingBox
 	 * @param transform
 	 * @param graphics
 	 * @param lineString
 	 */
-	private void drawLineString(BoundingBox boundingBox,
-			ProjectionTransform transform, Graphics2D graphics,
-			LineString lineString) {
-		Path2D path = getPath(boundingBox, transform, lineString);
+	private void drawLineString(double simplifyTolerance,
+			BoundingBox boundingBox, ProjectionTransform transform,
+			Graphics2D graphics, LineString lineString) {
+		Path2D path = getPath(simplifyTolerance, boundingBox, transform,
+				lineString);
 		drawLine(graphics, path);
 	}
 
 	/**
 	 * Draw a Polygon
 	 * 
+	 * @param simplifyTolerance
+	 *            simplify tolerance in meters
 	 * @param boundingBox
 	 * @param transform
 	 * @param graphics
 	 * @param polygon
 	 */
-	private void drawPolygon(BoundingBox boundingBox,
+	private void drawPolygon(double simplifyTolerance, BoundingBox boundingBox,
 			ProjectionTransform transform, Graphics2D graphics, Polygon polygon) {
-		Area polygonArea = getArea(boundingBox, transform, polygon);
+		Area polygonArea = getArea(simplifyTolerance, boundingBox, transform,
+				polygon);
 		drawPolygon(graphics, polygonArea);
 	}
 
 	/**
 	 * Get the path of the line string
 	 *
+	 * @param simplifyTolerance
+	 *            simplify tolerance in meters
 	 * @param boundingBox
 	 * @param transform
 	 * @param lineString
 	 */
-	private Path2D getPath(BoundingBox boundingBox,
+	private Path2D getPath(double simplifyTolerance, BoundingBox boundingBox,
 			ProjectionTransform transform, LineString lineString) {
 
 		Path2D path = null;
 
-		for (Point point : lineString.getPoints()) {
+		// Try to simplify the number of points in the LineString
+		List<Point> lineStringPoints = simplifyPoints(simplifyTolerance,
+				lineString.getPoints());
+
+		for (Point point : lineStringPoints) {
 
 			Point projectedPoint = transform.transform(point);
 
@@ -307,18 +349,21 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	/**
 	 * Get the area of the polygon
 	 *
+	 * @param simplifyTolerance
+	 *            simplify tolerance in meters
 	 * @param boundingBox
 	 * @param transform
 	 * @param lineString
 	 */
-	private Area getArea(BoundingBox boundingBox,
+	private Area getArea(double simplifyTolerance, BoundingBox boundingBox,
 			ProjectionTransform transform, Polygon polygon) {
 
 		Area area = null;
 
 		for (LineString ring : polygon.getRings()) {
 
-			Path2D path = getPath(boundingBox, transform, ring);
+			Path2D path = getPath(simplifyTolerance, boundingBox, transform,
+					ring);
 			Area ringArea = new Area(path);
 
 			if (area == null) {

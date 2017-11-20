@@ -23,10 +23,7 @@ import mil.nga.geopackage.io.TileDirectory.XDirectory;
 import mil.nga.geopackage.io.TileDirectory.YFile;
 import mil.nga.geopackage.io.TileDirectory.ZoomDirectory;
 import mil.nga.geopackage.manager.GeoPackageManager;
-import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.ImageRectangle;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxJavaUtils;
@@ -527,8 +524,8 @@ public class TileReader {
 			}
 
 			// Get the bounding box at the zoom level
-			TileGrid tileGrid = new TileGrid(zoomDirectory.minX,
-					zoomDirectory.maxX, minY, maxY);
+			TileGrid tileGrid = new TileGrid(zoomDirectory.minX, minY,
+					zoomDirectory.maxX, maxY);
 			BoundingBox zoomBoundingBox = TileBoundingBoxUtils
 					.getWebMercatorBoundingBox(tileGrid, zoomDirectory.zoom);
 
@@ -556,22 +553,8 @@ public class TileReader {
 		// Get SRS values
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
-		SpatialReferenceSystem srsWgs84 = srsDao
-				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		SpatialReferenceSystem srsWebMercator = srsDao
 				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WEB_MERCATOR);
-
-		// Get the transformation from web mercator to wgs84
-		Projection wgs84Projection = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		Projection webMercator = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-		ProjectionTransform webMercatorToWgs84 = webMercator
-				.getTransformation(wgs84Projection);
-
-		// Get the WGS 84 bounding box
-		BoundingBox totalWgs84BoundingBox = webMercatorToWgs84
-				.transform(totalWebMercatorBoundingBox);
 
 		// Create the Tile Matrix Set and Tile Matrix tables
 		geoPackage.createTileMatrixSetTable();
@@ -586,11 +569,11 @@ public class TileReader {
 		contents.setIdentifier(tileTable);
 		// contents.setDescription("");
 		// contents.setLastChange(new Date());
-		contents.setMinX(totalWgs84BoundingBox.getMinLongitude());
-		contents.setMinY(totalWgs84BoundingBox.getMinLatitude());
-		contents.setMaxX(totalWgs84BoundingBox.getMaxLongitude());
-		contents.setMaxY(totalWgs84BoundingBox.getMaxLatitude());
-		contents.setSrs(srsWgs84);
+		contents.setMinX(totalWebMercatorBoundingBox.getMinLongitude());
+		contents.setMinY(totalWebMercatorBoundingBox.getMinLatitude());
+		contents.setMaxX(totalWebMercatorBoundingBox.getMaxLongitude());
+		contents.setMaxY(totalWebMercatorBoundingBox.getMaxLatitude());
+		contents.setSrs(srsWebMercator);
 
 		// Create the contents
 		contentsDao.create(contents);

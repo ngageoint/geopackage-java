@@ -54,6 +54,7 @@ public class FeatureTableReader
 		GeoPackageDataType dataType = null;
 		if (geometry) {
 			geometryType = GeometryType.fromName(type);
+			dataType = GeoPackageDataType.BLOB;
 		} else {
 			dataType = GeoPackageDataType.fromName(type);
 		}

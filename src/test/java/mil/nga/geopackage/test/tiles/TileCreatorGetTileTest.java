@@ -46,7 +46,8 @@ public class TileCreatorGetTileTest extends TilesGeoPackageTestCase {
 				.getTileDao(TestConstants.TILES_DB_TABLE_NAME);
 		TestCase.assertEquals(tileDao.getProjection().getAuthority(),
 				ProjectionConstants.AUTHORITY_EPSG);
-		TestCase.assertEquals(Long.parseLong(tileDao.getProjection().getCode()),
+		TestCase.assertEquals(
+				Long.parseLong(tileDao.getProjection().getCode()),
 				ProjectionConstants.EPSG_WEB_MERCATOR);
 
 		tileDao.adjustTileMatrixLengths();
@@ -112,7 +113,8 @@ public class TileCreatorGetTileTest extends TilesGeoPackageTestCase {
 				.getTileDao(TestConstants.TILES_DB_TABLE_NAME);
 		TestCase.assertEquals(tileDao.getProjection().getAuthority(),
 				ProjectionConstants.AUTHORITY_EPSG);
-		TestCase.assertEquals(Long.parseLong(tileDao.getProjection().getCode()),
+		TestCase.assertEquals(
+				Long.parseLong(tileDao.getProjection().getCode()),
 				ProjectionConstants.EPSG_WEB_MERCATOR);
 
 		tileDao.adjustTileMatrixLengths();
@@ -144,7 +146,8 @@ public class TileCreatorGetTileTest extends TilesGeoPackageTestCase {
 		TestCase.assertEquals(height, image.getHeight());
 		validateImage(image);
 
-		boundingBox = new BoundingBox(-10018754.171394622, 0.0, 0.0, 10018754.17139462);
+		boundingBox = new BoundingBox(-10018754.171394622, 0.0, 0.0,
+				10018754.17139462);
 		TestCase.assertTrue(tileCreator.hasTile(boundingBox));
 
 		tile = tileCreator.getTile(boundingBox);
@@ -162,7 +165,8 @@ public class TileCreatorGetTileTest extends TilesGeoPackageTestCase {
 		validateImage(image);
 
 		// Test a raw image request when the bounds do not line up
-		boundingBox = new BoundingBox(-10018754.171394622, 0.0, 0.0, 5009377.085697312);
+		boundingBox = new BoundingBox(-10018754.171394622, 0.0, 0.0,
+				5009377.085697312);
 		TestCase.assertTrue(tileCreator.hasTile(boundingBox));
 
 		try {

@@ -3,6 +3,7 @@ package mil.nga.geopackage.features.user;
 import java.sql.ResultSet;
 
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.user.UserCoreResultUtils;
 import mil.nga.geopackage.user.UserResultSet;
 
 /**
@@ -29,8 +30,7 @@ public class FeatureResultSet extends
 	 */
 	@Override
 	public FeatureRow getRow(int[] columnTypes, Object[] values) {
-		FeatureRow row = new FeatureRow(getTable(), columnTypes, values);
-		return row;
+		return new FeatureRow(getTable(), columnTypes, values);
 	}
 
 	/**
@@ -56,11 +56,17 @@ public class FeatureResultSet extends
 	 */
 	public GeoPackageGeometryData getGeometry() {
 
-		byte[] geometryBytes = getBlob(getTable().getGeometryColumnIndex());
-
 		GeoPackageGeometryData geometry = null;
-		if (geometryBytes != null) {
-			geometry = new GeoPackageGeometryData(geometryBytes);
+
+		int columnIndex = getTable().getGeometryColumnIndex();
+		int type = getType(columnIndex);
+
+		if (type != UserCoreResultUtils.FIELD_TYPE_NULL) {
+			byte[] geometryBytes = getBlob(columnIndex);
+
+			if (geometryBytes != null) {
+				geometry = new GeoPackageGeometryData(geometryBytes);
+			}
 		}
 
 		return geometry;

@@ -240,8 +240,8 @@ public class URLTileGen {
 							double minLat = Double.valueOf(bboxParts[1]);
 							double maxLon = Double.valueOf(bboxParts[2]);
 							double maxLat = Double.valueOf(bboxParts[3]);
-							boundingBox = new BoundingBox(minLon, maxLon,
-									minLat, maxLat);
+							boundingBox = new BoundingBox(minLon, minLat,
+									maxLon, maxLat);
 						}
 					} else {
 						valid = false;

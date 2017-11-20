@@ -24,7 +24,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	/**
 	 * Connection
 	 */
-	private final Connection connection;
+	protected final Connection connection;
 
 	/**
 	 * Table
@@ -86,9 +86,20 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	public TResult query(String table, String[] columns, String selection,
 			String[] selectionArgs, String groupBy, String having,
 			String orderBy) {
+		return query(table, columns, null, selection, selectionArgs, groupBy,
+				having, orderBy);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TResult query(String table, String[] columns, String[] columnsAs,
+			String selection, String[] selectionArgs, String groupBy,
+			String having, String orderBy) {
 
 		String sql = SQLiteQueryBuilder.buildQueryString(false, table, columns,
-				selection, groupBy, having, orderBy, null);
+				columnsAs, selection, groupBy, having, orderBy, null);
 
 		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
 		int count = SQLUtils.count(connection, sql, selectionArgs);
@@ -103,9 +114,20 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	public TResult query(String table, String[] columns, String selection,
 			String[] selectionArgs, String groupBy, String having,
 			String orderBy, String limit) {
+		return query(table, columns, null, selection, selectionArgs, groupBy,
+				having, orderBy, limit);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TResult query(String table, String[] columns, String[] columnsAs,
+			String selection, String[] selectionArgs, String groupBy,
+			String having, String orderBy, String limit) {
 
 		String sql = SQLiteQueryBuilder.buildQueryString(false, table, columns,
-				selection, groupBy, having, orderBy, limit);
+				columnsAs, selection, groupBy, having, orderBy, limit);
 
 		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
 		int count = SQLUtils.count(connection, sql, selectionArgs);

@@ -53,9 +53,9 @@ public class TileCreatorImageTest extends TilesGeoPackageTestCase {
 				.getTileDao(TestConstants.TILES2_DB_TABLE_NAME);
 		TestCase.assertEquals(tileDao.getProjection().getAuthority(),
 				ProjectionConstants.AUTHORITY_EPSG);
-		TestCase.assertEquals(Long.parseLong(tileDao.getProjection().getCode()),
+		TestCase.assertEquals(
+				Long.parseLong(tileDao.getProjection().getCode()),
 				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		
 
 		Projection webMercator = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
@@ -213,19 +213,23 @@ public class TileCreatorImageTest extends TilesGeoPackageTestCase {
 
 		}
 
-        //  To write the images if the test images needs to change
+		// To write the images if the test images needs to change
 		/*
-        try {
-        	File webMercatorWriteFile = new File(".", TestConstants.TILES2_WEB_MERCATOR_TEST_IMAGE);
-        	ImageIO.write(webMercatorImage, "png", webMercatorWriteFile);
-        	System.out.println("Wrote test image: " + webMercatorWriteFile.getAbsolutePath());
-        	File wgs84WriteFile = new File(".", TestConstants.TILES2_WGS84_TEST_IMAGE);
-        	ImageIO.write(wgs84Image, "png", wgs84WriteFile);
-        	System.out.println("Wrote test image: " + wgs84WriteFile.getAbsolutePath());
-        }catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-        */
+		try {
+			File webMercatorWriteFile = new File(".",
+					TestConstants.TILES2_WEB_MERCATOR_TEST_IMAGE);
+			ImageIO.write(webMercatorImage, "png", webMercatorWriteFile);
+			System.out.println("Wrote test image: "
+					+ webMercatorWriteFile.getAbsolutePath());
+			File wgs84WriteFile = new File(".",
+					TestConstants.TILES2_WGS84_TEST_IMAGE);
+			ImageIO.write(wgs84Image, "png", wgs84WriteFile);
+			System.out.println("Wrote test image: "
+					+ wgs84WriteFile.getAbsolutePath());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		*/
 
 	}
 
@@ -242,7 +246,8 @@ public class TileCreatorImageTest extends TilesGeoPackageTestCase {
 				.getTileDao(TestConstants.TILES2_DB_TABLE_NAME);
 		TestCase.assertEquals(tileDao.getProjection().getAuthority(),
 				ProjectionConstants.AUTHORITY_EPSG);
-		TestCase.assertEquals(Long.parseLong(tileDao.getProjection().getCode()),
+		TestCase.assertEquals(
+				Long.parseLong(tileDao.getProjection().getCode()),
 				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
 		int width = 450;
@@ -252,14 +257,13 @@ public class TileCreatorImageTest extends TilesGeoPackageTestCase {
 		Projection webMercator = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
 		try {
-			new TileCreator(tileDao,
-					webMercator, null);
+			new TileCreator(tileDao, webMercator, null);
 			TestCase.fail("Tile Creator was created for raw images in a different projection");
 		} catch (Exception e) {
 			// expected
 		}
 
-		BoundingBox wgs84BoundingBox = new BoundingBox(-180, -157.5, 45, 67.5);
+		BoundingBox wgs84BoundingBox = new BoundingBox(-180, 45, -157.5, 67.5);
 
 		TestCase.assertTrue(wgs84TileCreator.hasTile(wgs84BoundingBox));
 

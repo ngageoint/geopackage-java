@@ -164,7 +164,7 @@ public class TileDao extends
 		TileGrid tileGrid = null;
 		TileMatrix tileMatrix = getTileMatrix(zoomLevel);
 		if (tileMatrix != null) {
-			tileGrid = new TileGrid(0, tileMatrix.getMatrixWidth() - 1, 0,
+			tileGrid = new TileGrid(0, 0, tileMatrix.getMatrixWidth() - 1,
 					tileMatrix.getMatrixHeight() - 1);
 		}
 		return tileGrid;
@@ -492,7 +492,7 @@ public class TileDao extends
 
 		TileGrid tileGrid = null;
 		if (minX != null && maxX != null && minY != null && maxY != null) {
-			tileGrid = new TileGrid(minX, maxX, minY, maxY);
+			tileGrid = new TileGrid(minX, minY, maxX, maxY);
 		}
 
 		return tileGrid;

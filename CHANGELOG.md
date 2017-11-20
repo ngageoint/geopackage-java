@@ -4,9 +4,22 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.3.2 (TBD)
+## [2.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/2.0.0) (11-20-2017)
 
-* TBD
+* WARNING - BoundingBox.java (geopackage-core) coordinate constructor arguments order changed to (min lon, min lat, max lon, max lat)
+  Pre-existing calls to BoundingBox coordinate constructor should swap the min lat and max lon values
+* WARNING - TileGrid.java (geopackage-core) constructor arguments order changed to (minX, minY, maxX, maxY)
+  Pre-existing calls to TileGrid constructor should swap the minY and maxX values
+* geopackage-core version updated to 2.0.0
+* Attribute, Feature, and Tile User Row Sync implementations
+* Query support for "columns as"
+* Feature Table Index row syncing
+* Improved feature row geometry blob handling
+* Feature Tiles and Feature Tile Gen geometry simplifications
+* Feature Tile Gen increased default max features per tile to 5000
+* Tile Reader creates contents with the same SRS as the Tile Matrix Set
+* tiff version updated to 2.0.0
+* maven-gpg-plugin version 1.6
 
 ## [1.3.1](https://github.com/ngageoint/geopackage-java/releases/tag/1.3.1) (07-13-2017)
 

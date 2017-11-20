@@ -76,7 +76,7 @@ public class FeatureTileGen {
 	/**
 	 * Default max features per tile value
 	 */
-	private static final int DEFAULT_MAX_FEATURES_PER_TILE = 1000;
+	private static final int DEFAULT_MAX_FEATURES_PER_TILE = 5000;
 
 	/**
 	 * Argument prefix
@@ -172,6 +172,11 @@ public class FeatureTileGen {
 	 * Polygon fill color argument
 	 */
 	public static final String ARGUMENT_POLYGON_FILL_COLOR = "polygonFillColor";
+
+	/**
+	 * Simplify geometries argument
+	 */
+	public static final String ARGUMENT_SIMPLIFY_GEOMETRIES = "simplifyGeometries";
 
 	/**
 	 * Tile progress
@@ -310,6 +315,11 @@ public class FeatureTileGen {
 	private static Color polygonFillColor = null;
 
 	/**
+	 * Simplify geometries
+	 */
+	private static boolean simplifyGeometries = true;
+
+	/**
 	 * Main method to generate tiles in a GeoPackage
 	 * 
 	 * @param args
@@ -403,8 +413,8 @@ public class FeatureTileGen {
 							double minLat = Double.valueOf(bboxParts[1]);
 							double maxLon = Double.valueOf(bboxParts[2]);
 							double maxLat = Double.valueOf(bboxParts[3]);
-							boundingBox = new BoundingBox(minLon, maxLon,
-									minLat, maxLat);
+							boundingBox = new BoundingBox(minLon, minLat,
+									maxLon, maxLat);
 						}
 					} else {
 						valid = false;
@@ -543,6 +553,18 @@ public class FeatureTileGen {
 						System.out
 								.println("Error: Polygon Fill Color argument '"
 										+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_SIMPLIFY_GEOMETRIES:
+					if (i < args.length) {
+						simplifyGeometries = Boolean.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Simplify Geometries argument '"
+										+ arg
+										+ "' must be followed by a boolean value");
 					}
 					break;
 
@@ -755,6 +777,7 @@ public class FeatureTileGen {
 		if (polygonFillColor != null) {
 			featureTiles.setPolygonFillColor(polygonFillColor);
 		}
+		featureTiles.setSimplifyGeometries(simplifyGeometries);
 
 		// Calculate the tile overlap with the new settings
 		featureTiles.calculateDrawOverlap();
@@ -868,12 +891,15 @@ public class FeatureTileGen {
 			tileStyle.append(", Polygon Color: ").append(
 					colorString(polygonColor));
 		}
-		if (fillPolygon != null) {
+		if (fillPolygon != null && fillPolygon) {
 			tileStyle.append(", Fill Polygon");
 		}
 		if (polygonFillColor != null) {
 			tileStyle.append(", Polygon Fill Color: ").append(
 					colorString(polygonFillColor));
+		}
+		if (simplifyGeometries) {
+			tileStyle.append(", Simplify Geometries");
 		}
 		if (tileStyle.length() == 0) {
 			tileStyle.append(", Default Settings");
@@ -989,7 +1015,10 @@ public class FeatureTileGen {
 						+ "] ["
 						+ ARGUMENT_PREFIX
 						+ ARGUMENT_POLYGON_FILL_COLOR
-						+ " color] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
+						+ " color] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_SIMPLIFY_GEOMETRIES
+						+ " true|false] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -1094,6 +1123,11 @@ public class FeatureTileGen {
 		System.out
 				.println("\t\tColor used when filling polygons formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
 						+ colorString(featureTiles.getPolygonFillColor()) + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX
+				+ ARGUMENT_SIMPLIFY_GEOMETRIES + " true|false");
+		System.out
+				.println("\t\tFlag indicating whether geometries should be simplified with a similar curve with fewer points before drawn (default is true)");
 		System.out.println();
 		System.out.println("\tfeature_geopackage_file");
 		System.out

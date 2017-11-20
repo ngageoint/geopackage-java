@@ -150,10 +150,12 @@ public class ElevationTilesTiff extends
 		FileDirectory directory = tiffImage.getFileDirectory();
 		validateImageType(directory);
 		Rasters rasters = directory.readRasters();
-		Number[] values = rasters.getSampleValues()[0];
-		float[] pixels = new float[values.length];
-		for (int i = 0; i < values.length; i++) {
-			pixels[i] = values[i].floatValue();
+		float[] pixels = new float[rasters.getWidth() * rasters.getHeight()];
+		for (int y = 0; y < rasters.getHeight(); y++) {
+			for (int x = 0; x < rasters.getWidth(); x++) {
+				int index = rasters.getSampleIndex(x, y);
+				pixels[index] = rasters.getPixelSample(0, x, y).floatValue();
+			}
 		}
 		return pixels;
 	}
@@ -169,7 +171,7 @@ public class ElevationTilesTiff extends
 			throw new GeoPackageException("The image is null");
 		}
 
-		Integer samplesPerPixel = directory.getSamplesPerPixel();
+		int samplesPerPixel = directory.getSamplesPerPixel();
 		Integer bitsPerSample = null;
 		if (directory.getBitsPerSample() != null
 				&& !directory.getBitsPerSample().isEmpty()) {
@@ -181,9 +183,8 @@ public class ElevationTilesTiff extends
 			sampleFormat = directory.getSampleFormat().get(0);
 		}
 
-		if (samplesPerPixel == null || samplesPerPixel != SAMPLES_PER_PIXEL
-				|| bitsPerSample == null || bitsPerSample != BITS_PER_SAMPLE
-				|| sampleFormat == null
+		if (samplesPerPixel != SAMPLES_PER_PIXEL || bitsPerSample == null
+				|| bitsPerSample != BITS_PER_SAMPLE || sampleFormat == null
 				|| sampleFormat != TiffConstants.SAMPLE_FORMAT_FLOAT) {
 			throw new GeoPackageException(
 					"The elevation tile is expected to be a single sample 32 bit float. Samples Per Pixel: "
@@ -427,7 +428,8 @@ public class ElevationTilesTiff extends
 	 */
 	public ElevationTiffImage createImage(int tileWidth, int tileHeight) {
 
-		Rasters rasters = new Rasters(tileWidth, tileHeight, 1, BITS_PER_SAMPLE);
+		Rasters rasters = new Rasters(tileWidth, tileHeight, 1,
+				BITS_PER_SAMPLE, TiffConstants.SAMPLE_FORMAT_FLOAT);
 
 		int rowsPerStrip = rasters
 				.calculateRowsPerStrip(TiffConstants.PLANAR_CONFIGURATION_CHUNKY);
