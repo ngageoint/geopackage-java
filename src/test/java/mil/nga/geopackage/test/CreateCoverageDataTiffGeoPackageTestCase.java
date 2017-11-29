@@ -10,12 +10,13 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.extension.elevation.ElevationTilesTiff;
-import mil.nga.geopackage.extension.elevation.GriddedCoverage;
-import mil.nga.geopackage.extension.elevation.GriddedCoverageDao;
-import mil.nga.geopackage.extension.elevation.GriddedCoverageDataType;
-import mil.nga.geopackage.extension.elevation.GriddedTile;
-import mil.nga.geopackage.extension.elevation.GriddedTileDao;
+import mil.nga.geopackage.extension.coverage.CoverageDataTiff;
+import mil.nga.geopackage.extension.coverage.GriddedCoverage;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageDao;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
+import mil.nga.geopackage.extension.coverage.GriddedTile;
+import mil.nga.geopackage.extension.coverage.GriddedTileDao;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.test.geom.GeoPackageGeometryDataUtils;
@@ -28,26 +29,26 @@ import mil.nga.geopackage.tiles.user.TileRow;
 import org.junit.After;
 
 /**
- * Abstract Test Case for Imported Elevation Tiles GeoPackages
+ * Abstract Test Case for Created TIFF Tiled Gridded Coverage Data GeoPackages
  * 
  * @author osbornb
  */
-public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
+public abstract class CreateCoverageDataTiffGeoPackageTestCase extends
 		GeoPackageTestCase {
 
-	public class ElevationTileTiffValues {
+	public class CoverageDataTiffValues {
 
 		public float[][] tilePixels;
 
-		public Double[][] tileElevations;
+		public Double[][] coverageData;
 
 		public float[] tilePixelsFlat;
 
-		public Double[] tileElevationsFlat;
+		public Double[] coverageDataFlat;
 
 	}
 
-	protected ElevationTileTiffValues elevationTileValues = new ElevationTileTiffValues();
+	protected CoverageDataTiffValues coverageDataValues = new CoverageDataTiffValues();
 
 	protected final boolean allowNulls;
 
@@ -55,9 +56,9 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 	 * Constructor
 	 * 
 	 * @param allowNulls
-	 *            true to allow null elevations
+	 *            true to allow null coverage data values
 	 */
-	public CreateElevationTilesTiffGeoPackageTestCase(boolean allowNulls) {
+	public CreateCoverageDataTiffGeoPackageTestCase(boolean allowNulls) {
 		this.allowNulls = allowNulls;
 	}
 
@@ -66,7 +67,7 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 
 		File testFolder = folder.newFolder();
 		File dbFile = new File(testFolder,
-				TestConstants.CREATE_ELEVATION_TILES_DB_FILE_NAME);
+				TestConstants.CREATE_COVERAGE_DATA_DB_FILE_NAME);
 
 		// Create
 		assertTrue("Database failed to create",
@@ -98,14 +99,14 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 		SpatialReferenceSystem tileMatrixSrs = srsDao
 				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
-		ElevationTilesTiff elevationTiles = ElevationTilesTiff
+		CoverageDataTiff coverageData = CoverageDataTiff
 				.createTileTableWithMetadata(geoPackage,
-						TestConstants.CREATE_ELEVATION_TILES_DB_TABLE_NAME,
-						bbox, contentsSrs.getId(), bbox, tileMatrixSrs.getId());
-		TileDao tileDao = elevationTiles.getTileDao();
-		TileMatrixSet tileMatrixSet = elevationTiles.getTileMatrixSet();
+						TestConstants.CREATE_COVERAGE_DATA_DB_TABLE_NAME, bbox,
+						contentsSrs.getId(), bbox, tileMatrixSrs.getId());
+		TileDao tileDao = coverageData.getTileDao();
+		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
 
-		GriddedCoverageDao griddedCoverageDao = elevationTiles
+		GriddedCoverageDao griddedCoverageDao = coverageData
 				.getGriddedCoverageDao();
 
 		GriddedCoverage griddedCoverage = new GriddedCoverage();
@@ -130,6 +131,12 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 			TestCase.assertTrue(griddedCoverage.getPrecision() >= 0.0
 					&& griddedCoverage.getPrecision() <= 10.0);
 		}
+		TestCase.assertEquals(GriddedCoverageEncodingType.CENTER,
+				griddedCoverage.getGridCellEncodingType());
+		TestCase.assertEquals(GriddedCoverageEncodingType.CENTER.getName(),
+				griddedCoverage.getGridCellEncoding());
+		TestCase.assertEquals("Height", griddedCoverage.getFieldName());
+		TestCase.assertEquals("Height", griddedCoverage.getQuantityDefinition());
 
 		GriddedTile commonGriddedTile = new GriddedTile();
 		commonGriddedTile.setContents(tileMatrixSet.getContents());
@@ -168,7 +175,7 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 			defaultGTStandardDeviation = false;
 		}
 
-		GriddedTileDao griddedTileDao = elevationTiles.getGriddedTileDao();
+		GriddedTileDao griddedTileDao = coverageData.getGriddedTileDao();
 
 		int width = 1 + (int) Math.floor((Math.random() * 4.0));
 		int height = 1 + (int) Math.floor((Math.random() * 4.0));
@@ -178,8 +185,8 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 		int maxZoomLevel = minZoomLevel + (int) Math.floor(Math.random() * 4.0);
 
 		// Just draw one image and re-use
-		elevationTiles = new ElevationTilesTiff(geoPackage, tileDao);
-		byte[] imageBytes = drawTile(elevationTiles, tileWidth, tileHeight,
+		coverageData = new CoverageDataTiff(geoPackage, tileDao);
+		byte[] imageBytes = drawTile(coverageData, tileWidth, tileHeight,
 				griddedCoverage, commonGriddedTile);
 
 		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
@@ -276,24 +283,23 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 	}
 
 	/**
-	 * Draw an elevation tile with random values
+	 * Draw a coverage data tile with random values
 	 * 
-	 * @param elevationTiles
+	 * @param coverageData
 	 * @param tileWidth
 	 * @param tileHeight
 	 * @param griddedCoverage
 	 * @param commonGriddedTile
 	 * @return
 	 */
-	private byte[] drawTile(ElevationTilesTiff elevationTiles, int tileWidth,
+	private byte[] drawTile(CoverageDataTiff coverageData, int tileWidth,
 			int tileHeight, GriddedCoverage griddedCoverage,
 			GriddedTile commonGriddedTile) {
 
-		elevationTileValues.tilePixels = new float[tileHeight][tileWidth];
-		elevationTileValues.tileElevations = new Double[tileHeight][tileWidth];
-		elevationTileValues.tilePixelsFlat = new float[tileHeight * tileWidth];
-		elevationTileValues.tileElevationsFlat = new Double[tileHeight
-				* tileWidth];
+		coverageDataValues.tilePixels = new float[tileHeight][tileWidth];
+		coverageDataValues.coverageData = new Double[tileHeight][tileWidth];
+		coverageDataValues.tilePixelsFlat = new float[tileHeight * tileWidth];
+		coverageDataValues.coverageDataFlat = new Double[tileHeight * tileWidth];
 
 		GriddedTile griddedTile = new GriddedTile();
 		griddedTile.setScale(commonGriddedTile.getScale());
@@ -304,8 +310,8 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 		griddedTile.setStandardDeviation(commonGriddedTile
 				.getStandardDeviation());
 
-		float minElevation = 8850.0f;
-		float maxElevation = 10994.0f;
+		float minValue = 8850.0f;
+		float maxValue = 10994.0f;
 
 		// Create the image and graphics
 		for (int x = 0; x < tileWidth; x++) {
@@ -314,32 +320,29 @@ public abstract class CreateElevationTilesTiffGeoPackageTestCase extends
 				if (allowNulls && Math.random() < .05) {
 					value = griddedCoverage.getDataNull().floatValue();
 				} else {
-					value = (float) ((Math.random() * (maxElevation - minElevation)) + minElevation);
+					value = (float) ((Math.random() * (maxValue - minValue)) + minValue);
 				}
 
-				elevationTileValues.tilePixels[y][x] = value;
-				elevationTileValues.tileElevations[y][x] = elevationTiles
-						.getElevationValue(griddedTile, value);
+				coverageDataValues.tilePixels[y][x] = value;
+				coverageDataValues.coverageData[y][x] = coverageData.getValue(
+						griddedTile, value);
 
-				elevationTileValues.tilePixelsFlat[(y * tileWidth) + x] = elevationTileValues.tilePixels[y][x];
-				elevationTileValues.tileElevationsFlat[(y * tileWidth) + x] = elevationTileValues.tileElevations[y][x];
+				coverageDataValues.tilePixelsFlat[(y * tileWidth) + x] = coverageDataValues.tilePixels[y][x];
+				coverageDataValues.coverageDataFlat[(y * tileWidth) + x] = coverageDataValues.coverageData[y][x];
 			}
 		}
 
-		byte[] imageData = elevationTiles
-				.drawTileData(elevationTileValues.tilePixels);
+		byte[] imageData = coverageData
+				.drawTileData(coverageDataValues.tilePixels);
 
-		// GeoPackageGeometryDataUtils.compareByteArrays(imageData,
-		// elevationTiles
-		// .drawTileData(griddedTile, elevationTileValues.tileElevations));
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData, elevationTiles
-				.drawTileData(elevationTileValues.tilePixelsFlat, tileWidth,
+		// GeoPackageGeometryDataUtils.compareByteArrays(imageData, coverageData
+		// .drawTileData(griddedTile, coverageDataValues.coverageData));
+		GeoPackageGeometryDataUtils.compareByteArrays(imageData, coverageData
+				.drawTileData(coverageDataValues.tilePixelsFlat, tileWidth,
 						tileHeight));
-		// GeoPackageGeometryDataUtils.compareByteArrays(imageData,
-		// elevationTiles
-		// .drawTileData(griddedTile,
-		// elevationTileValues.tileElevationsFlat, tileWidth,
-		// tileHeight));
+		// GeoPackageGeometryDataUtils.compareByteArrays(imageData, coverageData
+		// .drawTileData(griddedTile, coverageDataValues.coverageDataFlat,
+		// tileWidth, tileHeight));
 
 		return imageData;
 	}

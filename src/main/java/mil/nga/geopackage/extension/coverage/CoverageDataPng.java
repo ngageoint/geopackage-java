@@ -1,4 +1,4 @@
-package mil.nga.geopackage.extension.elevation;
+package mil.nga.geopackage.extension.coverage;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -9,6 +9,8 @@ import java.io.IOException;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.extension.coverage.CoverageDataCore;
+import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
@@ -16,12 +18,12 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 
 /**
- * Tiled Gridded Elevation, PNG Encoding, Data Extension
+ * Tiled Gridded Coverage Data, PNG Encoding, Extension
  * 
  * @author osbornb
- * @since 1.2.1
+ * @since 2.0.1
  */
-public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
+public class CoverageDataPng extends CoverageDataCommon<CoverageDataPngImage> {
 
 	/**
 	 * Constructor
@@ -31,33 +33,33 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 * @param tileDao
 	 *            tile dao
 	 * @param width
-	 *            elevation response width
+	 *            coverage data response width
 	 * @param height
-	 *            elevation response height
+	 *            coverage data response height
 	 * @param requestProjection
 	 *            request projection
 	 */
-	public ElevationTilesPng(GeoPackage geoPackage, TileDao tileDao,
+	public CoverageDataPng(GeoPackage geoPackage, TileDao tileDao,
 			Integer width, Integer height, Projection requestProjection) {
 		super(geoPackage, tileDao, width, height, requestProjection);
 	}
 
 	/**
-	 * Constructor, use the elevation tables pixel tile size as the request size
-	 * width and height
+	 * Constructor, use the coverage data tables pixel tile size as the request
+	 * size width and height
 	 *
 	 * @param geoPackage
 	 *            GeoPackage
 	 * @param tileDao
 	 *            tile dao
 	 */
-	public ElevationTilesPng(GeoPackage geoPackage, TileDao tileDao) {
+	public CoverageDataPng(GeoPackage geoPackage, TileDao tileDao) {
 		this(geoPackage, tileDao, null, null, tileDao.getProjection());
 	}
 
 	/**
-	 * Constructor, use the elevation tables pixel tile size as the request size
-	 * width and height, request as the specified projection
+	 * Constructor, use the coverage data tables pixel tile size as the request
+	 * size width and height, request as the specified projection
 	 *
 	 * @param geoPackage
 	 *            GeoPackage
@@ -66,7 +68,7 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 * @param requestProjection
 	 *            request projection
 	 */
-	public ElevationTilesPng(GeoPackage geoPackage, TileDao tileDao,
+	public CoverageDataPng(GeoPackage geoPackage, TileDao tileDao,
 			Projection requestProjection) {
 		this(geoPackage, tileDao, null, null, requestProjection);
 	}
@@ -75,16 +77,16 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ElevationPngImage createElevationImage(TileRow tileRow) {
-		return new ElevationPngImage(tileRow);
+	public CoverageDataPngImage createImage(TileRow tileRow) {
+		return new CoverageDataPngImage(tileRow);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public double getElevationValue(GriddedTile griddedTile, TileRow tileRow,
-			int x, int y) {
+	public double getValue(GriddedTile griddedTile, TileRow tileRow, int x,
+			int y) {
 		BufferedImage image = null;
 		try {
 			image = tileRow.getTileDataImage();
@@ -92,17 +94,17 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 			throw new GeoPackageException(
 					"Failed to get the Tile Row Data Image", e);
 		}
-		double elevation = getElevationValue(griddedTile, image, x, y);
-		return elevation;
+		double value = getValue(griddedTile, image, x, y);
+		return value;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Double getElevationValue(GriddedTile griddedTile,
-			ElevationPngImage image, int x, int y) {
-		return getElevationValue(griddedTile, image.getRaster(), x, y);
+	public Double getValue(GriddedTile griddedTile, CoverageDataPngImage image,
+			int x, int y) {
+		return getValue(griddedTile, image.getRaster(), x, y);
 	}
 
 	/**
@@ -247,13 +249,13 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 		}
 		if (image.getColorModel().getTransferType() != DataBuffer.TYPE_USHORT) {
 			throw new GeoPackageException(
-					"The elevation tile is expected to be a 16 bit unsigned short, actual: "
+					"The coverage data tile is expected to be a 16 bit unsigned short, actual: "
 							+ image.getColorModel().getTransferType());
 		}
 	}
 
 	/**
-	 * Get the elevation value
+	 * Get the coverage data value
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
@@ -263,17 +265,17 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
-	 * @return elevation value
+	 * @return coverage data value
 	 */
-	public Double getElevationValue(GriddedTile griddedTile,
-			BufferedImage image, int x, int y) {
+	public Double getValue(GriddedTile griddedTile, BufferedImage image, int x,
+			int y) {
 		short pixelValue = getPixelValue(image, x, y);
-		Double elevation = getElevationValue(griddedTile, pixelValue);
-		return elevation;
+		Double value = getValue(griddedTile, pixelValue);
+		return value;
 	}
 
 	/**
-	 * Get the elevation value
+	 * Get the coverage data value
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
@@ -283,49 +285,47 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
-	 * @return elevation value
+	 * @return coverage data value
 	 */
-	public Double getElevationValue(GriddedTile griddedTile,
-			WritableRaster raster, int x, int y) {
+	public Double getValue(GriddedTile griddedTile, WritableRaster raster,
+			int x, int y) {
 		short pixelValue = getPixelValue(raster, x, y);
-		Double elevation = getElevationValue(griddedTile, pixelValue);
-		return elevation;
+		Double value = getValue(griddedTile, pixelValue);
+		return value;
 	}
 
 	/**
-	 * Get the elevation values
+	 * Get the coverage data values
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
 	 * @param image
 	 *            tile image
-	 * @return elevation values
+	 * @return coverage data values
 	 */
-	public Double[] getElevationValues(GriddedTile griddedTile,
-			BufferedImage image) {
+	public Double[] getValues(GriddedTile griddedTile, BufferedImage image) {
 		short[] pixelValues = getPixelValues(image);
-		Double[] elevations = getElevationValues(griddedTile, pixelValues);
-		return elevations;
+		Double[] values = getValues(griddedTile, pixelValues);
+		return values;
 	}
 
 	/**
-	 * Get the elevation values
+	 * Get the coverage data values
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
 	 * @param raster
 	 *            raster image
-	 * @return elevation values
+	 * @return coverage data values
 	 */
-	public Double[] getElevationValues(GriddedTile griddedTile,
-			WritableRaster raster) {
+	public Double[] getValues(GriddedTile griddedTile, WritableRaster raster) {
 		short[] pixelValues = getPixelValues(raster);
-		Double[] elevations = getElevationValues(griddedTile, pixelValues);
-		return elevations;
+		Double[] values = getValues(griddedTile, pixelValues);
+		return values;
 	}
 
 	/**
-	 * Draw an elevation image tile from the flat array of "unsigned short"
+	 * Draw a coverage data image tile from the flat array of "unsigned short"
 	 * pixel values of length tileWidth * tileHeight where each pixel is at: (y
 	 * * tileWidth) + x
 	 * 
@@ -335,7 +335,7 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
-	 * @return elevation image tile
+	 * @return coverage data image tile
 	 */
 	public BufferedImage drawTile(short[] pixelValues, int tileWidth,
 			int tileHeight) {
@@ -353,9 +353,9 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile and format as PNG bytes from the flat array
-	 * of "unsigned short" pixel values of length tileWidth * tileHeight where
-	 * each pixel is at: (y * tileWidth) + x
+	 * Draw a coverage data image tile and format as PNG bytes from the flat
+	 * array of "unsigned short" pixel values of length tileWidth * tileHeight
+	 * where each pixel is at: (y * tileWidth) + x
 	 * 
 	 * @param pixelValues
 	 *            "unsigned short" pixel values of length tileWidth * tileHeight
@@ -363,7 +363,7 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
-	 * @return elevation image tile bytes
+	 * @return coverage data image tile bytes
 	 */
 	public byte[] drawTileData(short[] pixelValues, int tileWidth,
 			int tileHeight) {
@@ -373,12 +373,12 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation tile from the double array of "unsigned short" pixel
+	 * Draw a coverage data tile from the double array of "unsigned short" pixel
 	 * values formatted as short[row][width]
 	 * 
 	 * @param pixelValues
 	 *            "unsigned short" pixel values as [row][width]
-	 * @return elevation image tile
+	 * @return coverage data image tile
 	 */
 	public BufferedImage drawTile(short[][] pixelValues) {
 
@@ -398,12 +398,12 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation tile and format as PNG bytes from the double array of
-	 * "unsigned short" pixel values formatted as short[row][width]
+	 * Draw a coverage data tile and format as PNG bytes from the double array
+	 * of "unsigned short" pixel values formatted as short[row][width]
 	 * 
 	 * @param pixelValues
 	 *            "unsigned short" pixel values as [row][width]
-	 * @return elevation image tile bytes
+	 * @return coverage data image tile bytes
 	 */
 	public byte[] drawTileData(short[][] pixelValues) {
 		BufferedImage image = drawTile(pixelValues);
@@ -412,7 +412,7 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile from the flat array of unsigned 16 bit
+	 * Draw a coverage data image tile from the flat array of unsigned 16 bit
 	 * integer pixel values of length tileWidth * tileHeight where each pixel is
 	 * at: (y * tileWidth) + x
 	 * 
@@ -423,7 +423,7 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
-	 * @return elevation image tile
+	 * @return coverage data image tile
 	 */
 	public BufferedImage drawTile(int[] unsignedPixelValues, int tileWidth,
 			int tileHeight) {
@@ -442,9 +442,9 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile and format as PNG bytes from the flat array
-	 * of unsigned 16 bit integer pixel values of length tileWidth * tileHeight
-	 * where each pixel is at: (y * tileWidth) + x
+	 * Draw a coverage data image tile and format as PNG bytes from the flat
+	 * array of unsigned 16 bit integer pixel values of length tileWidth *
+	 * tileHeight where each pixel is at: (y * tileWidth) + x
 	 * 
 	 * @param unsignedPixelValues
 	 *            unsigned 16 bit integer pixel values of length tileWidth *
@@ -453,7 +453,7 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
-	 * @return elevation image tile bytes
+	 * @return coverage data image tile bytes
 	 */
 	public byte[] drawTileData(int[] unsignedPixelValues, int tileWidth,
 			int tileHeight) {
@@ -464,12 +464,12 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile from the double array of unsigned 16 bit
+	 * Draw a coverage data image tile from the double array of unsigned 16 bit
 	 * integer pixel values formatted as int[row][width]
 	 * 
 	 * @param unsignedPixelValues
 	 *            unsigned 16 bit integer pixel values as [row][width]
-	 * @return elevation image tile
+	 * @return coverage data image tile
 	 */
 	public BufferedImage drawTile(int[][] unsignedPixelValues) {
 
@@ -489,13 +489,13 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile and format as PNG bytes from the double
+	 * Draw a coverage data image tile and format as PNG bytes from the double
 	 * array of unsigned 16 bit integer pixel values formatted as
 	 * int[row][width]
 	 * 
 	 * @param unsignedPixelValues
 	 *            unsigned 16 bit integer pixel values as [row][width]
-	 * @return elevation image tile bytes
+	 * @return coverage data image tile bytes
 	 */
 	public byte[] drawTileData(int[][] unsignedPixelValues) {
 		BufferedImage image = drawTile(unsignedPixelValues);
@@ -504,28 +504,29 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile from the flat array of elevations of length
-	 * tileWidth * tileHeight where each elevation is at: (y * tileWidth) + x
+	 * Draw a coverage data image tile from the flat array of coverage data
+	 * values of length tileWidth * tileHeight where each coverage data value is
+	 * at: (y * tileWidth) + x
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
-	 * @param elevations
-	 *            elevations of length tileWidth * tileHeight
+	 * @param values
+	 *            coverage data values of length tileWidth * tileHeight
 	 * @param tileWidth
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
-	 * @return elevation image tile
+	 * @return coverage data image tile
 	 */
-	public BufferedImage drawTile(GriddedTile griddedTile, Double[] elevations,
+	public BufferedImage drawTile(GriddedTile griddedTile, Double[] values,
 			int tileWidth, int tileHeight) {
 
 		BufferedImage image = createImage(tileWidth, tileHeight);
 		WritableRaster raster = image.getRaster();
 		for (int x = 0; x < tileWidth; x++) {
 			for (int y = 0; y < tileHeight; y++) {
-				Double elevation = elevations[(y * tileWidth) + x];
-				short pixelValue = getPixelValue(griddedTile, elevation);
+				Double value = values[(y * tileWidth) + x];
+				short pixelValue = getPixelValue(griddedTile, value);
 				setPixelValue(raster, x, y, pixelValue);
 			}
 		}
@@ -534,49 +535,49 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile and format as PNG bytes from the flat array
-	 * of elevations of length tileWidth * tileHeight where each elevation is
-	 * at: (y * tileWidth) + x
+	 * Draw a coverage data image tile and format as PNG bytes from the flat
+	 * array of coverage data values of length tileWidth * tileHeight where each
+	 * coverage data value is at: (y * tileWidth) + x
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
-	 * @param elevations
-	 *            elevations of length tileWidth * tileHeight
+	 * @param values
+	 *            coverage data values of length tileWidth * tileHeight
 	 * @param tileWidth
 	 *            tile width
 	 * @param tileHeight
 	 *            tile height
-	 * @return elevation image tile bytes
+	 * @return coverage data image tile bytes
 	 */
-	public byte[] drawTileData(GriddedTile griddedTile, Double[] elevations,
+	public byte[] drawTileData(GriddedTile griddedTile, Double[] values,
 			int tileWidth, int tileHeight) {
-		BufferedImage image = drawTile(griddedTile, elevations, tileWidth,
+		BufferedImage image = drawTile(griddedTile, values, tileWidth,
 				tileHeight);
 		byte[] bytes = getImageBytes(image);
 		return bytes;
 	}
 
 	/**
-	 * Draw an elevation image tile from the double array of unsigned elevations
-	 * formatted as Double[row][width]
+	 * Draw a coverage data image tile from the double array of unsigned
+	 * coverage data values formatted as Double[row][width]
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
-	 * @param elevations
-	 *            elevations as [row][width]
-	 * @return elevation image tile
+	 * @param values
+	 *            coverage data values as [row][width]
+	 * @return coverage data image tile
 	 */
-	public BufferedImage drawTile(GriddedTile griddedTile, Double[][] elevations) {
+	public BufferedImage drawTile(GriddedTile griddedTile, Double[][] values) {
 
-		int tileWidth = elevations[0].length;
-		int tileHeight = elevations.length;
+		int tileWidth = values[0].length;
+		int tileHeight = values.length;
 
 		BufferedImage image = createImage(tileWidth, tileHeight);
 		WritableRaster raster = image.getRaster();
 		for (int x = 0; x < tileWidth; x++) {
 			for (int y = 0; y < tileHeight; y++) {
-				Double elevation = elevations[y][x];
-				short pixelValue = getPixelValue(griddedTile, elevation);
+				Double value = values[y][x];
+				short pixelValue = getPixelValue(griddedTile, value);
 				setPixelValue(raster, x, y, pixelValue);
 			}
 		}
@@ -585,17 +586,17 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Draw an elevation image tile and format as PNG bytes from the double
-	 * array of unsigned elevations formatted as Double[row][width]
+	 * Draw a coverage data image tile and format as PNG bytes from the double
+	 * array of unsigned coverage data values formatted as Double[row][width]
 	 * 
 	 * @param griddedTile
 	 *            gridded tile
-	 * @param elevations
-	 *            elevations as [row][width]
-	 * @return elevation image tile bytes
+	 * @param values
+	 *            coverage data values as [row][width]
+	 * @return coverage data image tile bytes
 	 */
-	public byte[] drawTileData(GriddedTile griddedTile, Double[][] elevations) {
-		BufferedImage image = drawTile(griddedTile, elevations);
+	public byte[] drawTileData(GriddedTile griddedTile, Double[][] values) {
+		BufferedImage image = drawTile(griddedTile, values);
 		byte[] bytes = getImageBytes(image);
 		return bytes;
 	}
@@ -670,7 +671,7 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	}
 
 	/**
-	 * Create the elevation tile table with metadata and extension
+	 * Create the coverage data tile table with metadata and extension
 	 * 
 	 * @param geoPackage
 	 * @param tableName
@@ -678,23 +679,22 @@ public class ElevationTilesPng extends ElevationTilesCommon<ElevationPngImage> {
 	 * @param contentsSrsId
 	 * @param tileMatrixSetBoundingBox
 	 * @param tileMatrixSetSrsId
-	 * @return elevation tiles
+	 * @return coverage data
 	 */
-	public static ElevationTilesPng createTileTableWithMetadata(
+	public static CoverageDataPng createTileTableWithMetadata(
 			GeoPackage geoPackage, String tableName,
 			BoundingBox contentsBoundingBox, long contentsSrsId,
 			BoundingBox tileMatrixSetBoundingBox, long tileMatrixSetSrsId) {
 
-		TileMatrixSet tileMatrixSet = ElevationTilesCore
+		TileMatrixSet tileMatrixSet = CoverageDataCore
 				.createTileTableWithMetadata(geoPackage, tableName,
 						contentsBoundingBox, contentsSrsId,
 						tileMatrixSetBoundingBox, tileMatrixSetSrsId);
 		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-		ElevationTilesPng elevationTiles = new ElevationTilesPng(geoPackage,
-				tileDao);
-		elevationTiles.getOrCreate();
+		CoverageDataPng coverageData = new CoverageDataPng(geoPackage, tileDao);
+		coverageData.getOrCreate();
 
-		return elevationTiles;
+		return coverageData;
 	}
 
 }

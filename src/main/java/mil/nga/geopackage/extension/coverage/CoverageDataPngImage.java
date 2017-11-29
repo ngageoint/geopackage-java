@@ -1,19 +1,20 @@
-package mil.nga.geopackage.extension.elevation;
+package mil.nga.geopackage.extension.coverage;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.extension.coverage.CoverageDataImage;
 import mil.nga.geopackage.tiles.user.TileRow;
 
 /**
- * Elevation image, stores the tile row image and raster
+ * Coverage Data PNG image, stores the tile row image and raster
  * 
  * @author osbornb
- * @since 1.2.1
+ * @since 2.0.1
  */
-public class ElevationPngImage implements ElevationImage {
+public class CoverageDataPngImage implements CoverageDataImage {
 
 	/**
 	 * Buffered image
@@ -31,7 +32,7 @@ public class ElevationPngImage implements ElevationImage {
 	 * @param tileRow
 	 *            tile row
 	 */
-	public ElevationPngImage(TileRow tileRow) {
+	public CoverageDataPngImage(TileRow tileRow) {
 		try {
 			image = tileRow.getTileDataImage();
 		} catch (IOException e) {

@@ -268,11 +268,12 @@ public class TestUtils {
 							break;
 						case DATE:
 						case DATETIME:
-							DateConverter converter = DateConverter.converter(column.getDataType());
+							DateConverter converter = DateConverter
+									.converter(column.getDataType());
 							Date date = new Date();
-							if(Math.random() < .5){
+							if (Math.random() < .5) {
 								value = date;
-							}else{
+							} else {
 								value = converter.stringValue(date);
 							}
 							break;
@@ -529,21 +530,21 @@ public class TestUtils {
 	}
 
 	/**
-	 * Get the import db elevation tiles file
+	 * Get the import db coverage data tiles file
 	 * 
 	 * @return file
 	 */
-	public static File getImportDbElevationTilesFile() {
-		return getTestFile(TestConstants.IMPORT_ELEVATION_TILES_DB_FILE_NAME);
+	public static File getImportDbCoverageDataFile() {
+		return getTestFile(TestConstants.IMPORT_COVERAGE_DATA_DB_FILE_NAME);
 	}
 
 	/**
-	 * Get the import db elevation tiles tiff file
+	 * Get the import db coverage data tiles tiff file
 	 * 
 	 * @return file
 	 */
-	public static File getImportDbElevationTilesTiffFile() {
-		return getTestFile(TestConstants.IMPORT_ELEVATION_TILES_TIFF_DB_FILE_NAME);
+	public static File getImportDbCoverageDataTiffFile() {
+		return getTestFile(TestConstants.IMPORT_COVERAGE_DATA_TIFF_DB_FILE_NAME);
 	}
 
 	/**

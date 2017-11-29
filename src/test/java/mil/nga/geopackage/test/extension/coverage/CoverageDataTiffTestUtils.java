@@ -1,6 +1,5 @@
-package mil.nga.geopackage.test.extension.elevation;
+package mil.nga.geopackage.test.extension.coverage;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,17 +15,19 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.ExtensionsDao;
-import mil.nga.geopackage.extension.elevation.ElevationTileResults;
-import mil.nga.geopackage.extension.elevation.ElevationTilesAlgorithm;
-import mil.nga.geopackage.extension.elevation.ElevationTilesPng;
-import mil.nga.geopackage.extension.elevation.GriddedCoverage;
-import mil.nga.geopackage.extension.elevation.GriddedCoverageDataType;
-import mil.nga.geopackage.extension.elevation.GriddedTile;
+import mil.nga.geopackage.extension.coverage.CoverageDataAlgorithm;
+import mil.nga.geopackage.extension.coverage.CoverageDataResults;
+import mil.nga.geopackage.extension.coverage.CoverageDataTiff;
+import mil.nga.geopackage.extension.coverage.CoverageDataTiffImage;
+import mil.nga.geopackage.extension.coverage.GriddedCoverage;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
+import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
-import mil.nga.geopackage.test.CreateElevationTilesGeoPackageTestCase.ElevationTileValues;
+import mil.nga.geopackage.test.CreateCoverageDataTiffGeoPackageTestCase.CoverageDataTiffValues;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
@@ -37,45 +38,46 @@ import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 
 /**
- * Elevation Tiles test utils
+ * Coverage Data TIFF test utils
  * 
  * @author osbornb
  */
-public class ElevationTilesPngTestUtils {
+public class CoverageDataTiffTestUtils {
 
 	/**
-	 * Test elevations GeoPackage
+	 * Test coverage data GeoPackage
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
-	 * @param elevationTileValues
-	 *            elevation tile values
+	 * @param coverageDataValues
+	 *            coverage data values
 	 * @param algorithm
 	 *            algorithm
 	 * @param allowNulls
 	 *            true if nulls are allowed
 	 * @throws Exception
 	 */
-	public static void testElevations(GeoPackage geoPackage,
-			ElevationTileValues elevationTileValues,
-			ElevationTilesAlgorithm algorithm, boolean allowNulls)
+	public static void testCoverageData(GeoPackage geoPackage,
+			CoverageDataTiffValues coverageDataValues,
+			CoverageDataAlgorithm algorithm, boolean allowNulls)
 			throws Exception {
 
-		// Verify the elevation shows up as an elevation table and not a tile
-		// table
+		// Verify the coverage data shows up as an coverage data table and not a
+		// tile table
 		List<String> tilesTables = geoPackage.getTileTables();
-		List<String> elevationTables = ElevationTilesPng.getTables(geoPackage);
-		TestCase.assertFalse(elevationTables.isEmpty());
+		List<String> coverageDataTables = CoverageDataTiff
+				.getTables(geoPackage);
+		TestCase.assertFalse(coverageDataTables.isEmpty());
 		for (String tilesTable : tilesTables) {
-			TestCase.assertFalse(elevationTables.contains(tilesTable));
+			TestCase.assertFalse(coverageDataTables.contains(tilesTable));
 		}
 
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 		TestCase.assertTrue(dao.isTableExists());
 
-		for (String elevationTable : elevationTables) {
+		for (String coverageTable : coverageDataTables) {
 
-			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+			TileMatrixSet tileMatrixSet = dao.queryForId(coverageTable);
 			TestCase.assertNotNull(tileMatrixSet);
 
 			// Test the tile matrix set
@@ -116,84 +118,96 @@ public class ElevationTilesPngTestUtils {
 			TestCase.assertNotNull(contentsSrs.getOrganizationCoordsysId());
 			TestCase.assertNotNull(contentsSrs.getDefinition());
 
-			// Test the elevation tiles extension is on
+			// Test the coverage data extension is on
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-			ElevationTilesPng elevationTiles = new ElevationTilesPng(
-					geoPackage, tileDao);
-			TestCase.assertTrue(elevationTiles.has());
-			elevationTiles.setAlgorithm(algorithm);
+			CoverageDataTiff coverageData = new CoverageDataTiff(geoPackage,
+					tileDao);
+			TestCase.assertTrue(coverageData.has());
+			coverageData.setAlgorithm(algorithm);
 
 			// Test the 3 extension rows
 			ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
 
 			Extensions griddedCoverageExtension = extensionsDao
-					.queryByExtension(ElevationTilesPng.EXTENSION_NAME,
+					.queryByExtension(CoverageDataTiff.EXTENSION_NAME,
 							GriddedCoverage.TABLE_NAME, null);
 			TestCase.assertNotNull(griddedCoverageExtension);
 			TestCase.assertEquals(GriddedCoverage.TABLE_NAME,
 					griddedCoverageExtension.getTableName());
 			TestCase.assertNull(griddedCoverageExtension.getColumnName());
-			TestCase.assertEquals(ElevationTilesPng.EXTENSION_NAME,
+			TestCase.assertEquals(CoverageDataTiff.EXTENSION_NAME,
 					griddedCoverageExtension.getExtensionName());
-			TestCase.assertEquals(ElevationTilesPng.EXTENSION_DEFINITION,
+			TestCase.assertEquals(CoverageDataTiff.EXTENSION_DEFINITION,
 					griddedCoverageExtension.getDefinition());
 			TestCase.assertEquals(ExtensionScopeType.READ_WRITE,
 					griddedCoverageExtension.getScope());
 
 			Extensions griddedTileExtension = extensionsDao.queryByExtension(
-					ElevationTilesPng.EXTENSION_NAME, GriddedTile.TABLE_NAME,
+					CoverageDataTiff.EXTENSION_NAME, GriddedTile.TABLE_NAME,
 					null);
 			TestCase.assertNotNull(griddedTileExtension);
 			TestCase.assertEquals(GriddedTile.TABLE_NAME,
 					griddedTileExtension.getTableName());
 			TestCase.assertNull(griddedTileExtension.getColumnName());
-			TestCase.assertEquals(ElevationTilesPng.EXTENSION_NAME,
+			TestCase.assertEquals(CoverageDataTiff.EXTENSION_NAME,
 					griddedTileExtension.getExtensionName());
-			TestCase.assertEquals(ElevationTilesPng.EXTENSION_DEFINITION,
+			TestCase.assertEquals(CoverageDataTiff.EXTENSION_DEFINITION,
 					griddedTileExtension.getDefinition());
 			TestCase.assertEquals(ExtensionScopeType.READ_WRITE,
 					griddedTileExtension.getScope());
 
 			Extensions tileTableExtension = extensionsDao.queryByExtension(
-					ElevationTilesPng.EXTENSION_NAME,
+					CoverageDataTiff.EXTENSION_NAME,
 					tileMatrixSet.getTableName(), TileTable.COLUMN_TILE_DATA);
 			TestCase.assertNotNull(tileTableExtension);
 			TestCase.assertEquals(tileMatrixSet.getTableName(),
 					tileTableExtension.getTableName());
 			TestCase.assertEquals(TileTable.COLUMN_TILE_DATA,
 					tileTableExtension.getColumnName());
-			TestCase.assertEquals(ElevationTilesPng.EXTENSION_NAME,
+			TestCase.assertEquals(CoverageDataTiff.EXTENSION_NAME,
 					tileTableExtension.getExtensionName());
-			TestCase.assertEquals(ElevationTilesPng.EXTENSION_DEFINITION,
+			TestCase.assertEquals(CoverageDataTiff.EXTENSION_DEFINITION,
 					tileTableExtension.getDefinition());
 			TestCase.assertEquals(ExtensionScopeType.READ_WRITE,
 					tileTableExtension.getScope());
 
 			// Test the Gridded Coverage
-			GriddedCoverage griddedCoverage = elevationTiles
-					.getGriddedCoverage();
+			GriddedCoverage griddedCoverage = coverageData.getGriddedCoverage();
 			TestCase.assertNotNull(griddedCoverage);
 			TestCase.assertTrue(griddedCoverage.getId() >= 0);
 			TestCase.assertNotNull(griddedCoverage.getTileMatrixSet());
 			TestCase.assertEquals(tileMatrixSet.getTableName(),
 					griddedCoverage.getTileMatrixSetName());
-			TestCase.assertEquals(GriddedCoverageDataType.INTEGER,
+			TestCase.assertEquals(GriddedCoverageDataType.FLOAT,
 					griddedCoverage.getDataType());
-			TestCase.assertTrue(griddedCoverage.getScale() >= 0);
-			if (elevationTileValues != null) {
-				TestCase.assertTrue(griddedCoverage.getOffset() >= 0);
-			}
+			TestCase.assertEquals(1.0, griddedCoverage.getScale());
+			TestCase.assertEquals(0.0, griddedCoverage.getOffset());
 			TestCase.assertTrue(griddedCoverage.getPrecision() >= 0);
 			griddedCoverage.getDataNull();
+			griddedCoverage.getUom();
+			if (coverageDataValues != null) {
+				TestCase.assertEquals(GriddedCoverageEncodingType.CENTER,
+						griddedCoverage.getGridCellEncodingType());
+				TestCase.assertEquals(
+						GriddedCoverageEncodingType.CENTER.getName(),
+						griddedCoverage.getGridCellEncoding());
+				TestCase.assertEquals("Height", griddedCoverage.getFieldName());
+				TestCase.assertEquals("Height",
+						griddedCoverage.getQuantityDefinition());
+			} else {
+				TestCase.assertNotNull(griddedCoverage
+						.getGridCellEncodingType());
+				griddedCoverage.getGridCellEncoding();
+			}
 
 			// Test the Gridded Tile
-			List<GriddedTile> griddedTiles = elevationTiles.getGriddedTile();
+			List<GriddedTile> griddedTiles = coverageData.getGriddedTile();
 			TestCase.assertNotNull(griddedTiles);
 			TestCase.assertFalse(griddedTiles.isEmpty());
 			for (GriddedTile griddedTile : griddedTiles) {
 				TileRow tileRow = tileDao.queryForIdRow(griddedTile
 						.getTableId());
-				testTileRow(geoPackage, elevationTileValues, elevationTiles,
+				testTileRow(geoPackage, coverageDataValues, coverageData,
 						tileMatrixSet, griddedTile, tileRow, algorithm,
 						allowNulls);
 			}
@@ -203,16 +217,16 @@ public class ElevationTilesPngTestUtils {
 			TestCase.assertTrue(tileResultSet.getCount() > 0);
 			while (tileResultSet.moveToNext()) {
 				TileRow tileRow = tileResultSet.getRow();
-				GriddedTile griddedTile = elevationTiles.getGriddedTile(tileRow
+				GriddedTile griddedTile = coverageData.getGriddedTile(tileRow
 						.getId());
-				testTileRow(geoPackage, elevationTileValues, elevationTiles,
+				testTileRow(geoPackage, coverageDataValues, coverageData,
 						tileMatrixSet, griddedTile, tileRow, algorithm,
 						allowNulls);
 			}
 			tileResultSet.close();
 
-			// Perform elevation query tests
-			testElevationQueries(geoPackage, elevationTiles, tileMatrixSet,
+			// Perform coverage data query tests
+			testCoverageDataQueries(geoPackage, coverageData, tileMatrixSet,
 					algorithm, allowNulls);
 		}
 
@@ -222,8 +236,8 @@ public class ElevationTilesPngTestUtils {
 	 * Perform tests on the tile row
 	 * 
 	 * @param geoPackage
-	 * @param elevationTileValues
-	 * @param elevationTiles
+	 * @param coverageDataValues
+	 * @param coverageData
 	 * @param tileMatrixSet
 	 * @param griddedTile
 	 * @param tileRow
@@ -234,10 +248,10 @@ public class ElevationTilesPngTestUtils {
 	 * @throws SQLException
 	 */
 	private static void testTileRow(GeoPackage geoPackage,
-			ElevationTileValues elevationTileValues,
-			ElevationTilesPng elevationTiles, TileMatrixSet tileMatrixSet,
+			CoverageDataTiffValues coverageDataValues,
+			CoverageDataTiff coverageData, TileMatrixSet tileMatrixSet,
 			GriddedTile griddedTile, TileRow tileRow,
-			ElevationTilesAlgorithm algorithm, boolean allowNulls)
+			CoverageDataAlgorithm algorithm, boolean allowNulls)
 			throws IOException, SQLException {
 
 		TestCase.assertNotNull(griddedTile);
@@ -247,10 +261,8 @@ public class ElevationTilesPngTestUtils {
 				griddedTile.getTableName());
 		long tableId = griddedTile.getTableId();
 		TestCase.assertTrue(tableId >= 0);
-		TestCase.assertTrue(griddedTile.getScale() >= 0);
-		if (elevationTileValues != null) {
-			TestCase.assertTrue(griddedTile.getOffset() >= 0);
-		}
+		TestCase.assertEquals(1.0, griddedTile.getScale());
+		TestCase.assertEquals(0.0, griddedTile.getOffset());
 		griddedTile.getMin();
 		griddedTile.getMax();
 		griddedTile.getMean();
@@ -260,13 +272,13 @@ public class ElevationTilesPngTestUtils {
 		TestCase.assertNotNull(tileRow);
 		byte[] tileData = tileRow.getTileData();
 		TestCase.assertTrue(tileData.length > 0);
-		BufferedImage image = tileRow.getTileDataImage();
+		CoverageDataTiffImage image = new CoverageDataTiffImage(tileRow);
 
 		// Get all the pixel values of the image
-		short[] pixelValues = elevationTiles.getPixelValues(image);
-		if (elevationTileValues != null) {
+		float[] pixelValues = coverageData.getPixelValues(tileData);
+		if (coverageDataValues != null) {
 			for (int i = 0; i < pixelValues.length; i++) {
-				TestCase.assertEquals(elevationTileValues.tilePixelsFlat[i],
+				TestCase.assertEquals(coverageDataValues.tilePixelsFlat[i],
 						pixelValues[i]);
 			}
 		}
@@ -275,48 +287,34 @@ public class ElevationTilesPngTestUtils {
 		int height = image.getHeight();
 
 		// Get each individual image pixel value
-		List<Short> pixelValuesList = new ArrayList<>();
+		List<Float> pixelValuesList = new ArrayList<>();
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				short pixelValue = elevationTiles.getPixelValue(image, x, y);
+				float pixelValue = image.getPixel(x, y);
 				pixelValuesList.add(pixelValue);
 
 				// Test getting the pixel value from the pixel values
 				// array
-				short pixelValue2 = elevationTiles.getPixelValue(pixelValues,
+				float pixelValue2 = coverageData.getPixelValue(pixelValues,
 						width, x, y);
 				TestCase.assertEquals(pixelValue, pixelValue2);
 
-				// Test getting the elevation value
-				Double elevationValue = elevationTiles.getElevationValue(
-						griddedTile, pixelValue);
-				GriddedCoverage griddedCoverage = elevationTiles
+				// Test getting the coverage data value
+				Double value = coverageData.getValue(griddedTile, pixelValue);
+				GriddedCoverage griddedCoverage = coverageData
 						.getGriddedCoverage();
-				int unsignedPixelValue = elevationTiles
-						.getUnsignedPixelValue(pixelValue);
-				if (elevationTileValues != null) {
-					TestCase.assertEquals(elevationTileValues.tilePixels[y][x],
+				if (coverageDataValues != null) {
+					TestCase.assertEquals(coverageDataValues.tilePixels[y][x],
 							pixelValue);
 					TestCase.assertEquals(
-							elevationTileValues.tilePixelsFlat[(y * width) + x],
+							coverageDataValues.tilePixelsFlat[(y * width) + x],
 							pixelValue);
-					TestCase.assertEquals(
-							elevationTileValues.tileUnsignedPixels[y][x],
-							unsignedPixelValue);
-					TestCase.assertEquals(
-							elevationTileValues.tileUnsignedPixelsFlat[(y * width)
-									+ x], unsignedPixelValue);
 				}
 				if (griddedCoverage.getDataNull() != null
-						&& unsignedPixelValue == griddedCoverage.getDataNull()) {
-					TestCase.assertNull(elevationValue);
+						&& pixelValue == griddedCoverage.getDataNull()) {
+					TestCase.assertNull(value);
 				} else {
-					TestCase.assertEquals(
-							(unsignedPixelValue * griddedTile.getScale() + griddedTile
-									.getOffset())
-									* griddedCoverage.getScale()
-									+ griddedCoverage.getOffset(),
-							elevationValue);
+					TestCase.assertEquals(pixelValue, value.floatValue());
 				}
 			}
 		}
@@ -325,60 +323,57 @@ public class ElevationTilesPngTestUtils {
 		// returned array
 		TestCase.assertEquals(pixelValuesList.size(), pixelValues.length);
 		for (int i = 0; i < pixelValuesList.size(); i++) {
-			TestCase.assertEquals((short) pixelValuesList.get(i),
-					pixelValues[i]);
+			TestCase.assertEquals(pixelValuesList.get(i), pixelValues[i]);
 		}
 
-		TileMatrix tileMatrix = elevationTiles.getTileDao().getTileMatrix(
+		TileMatrix tileMatrix = coverageData.getTileDao().getTileMatrix(
 				tileRow.getZoomLevel());
 		double xDistance = tileMatrixSet.getMaxX() - tileMatrixSet.getMinX();
 		double xDistance2 = tileMatrix.getMatrixWidth()
 				* tileMatrix.getTileWidth() * tileMatrix.getPixelXSize();
-		TestCase.assertEquals(xDistance, xDistance2, .0000000001);
+		TestCase.assertEquals(xDistance, xDistance2, .001);
 		double yDistance = tileMatrixSet.getMaxY() - tileMatrixSet.getMinY();
 		double yDistance2 = tileMatrix.getMatrixHeight()
 				* tileMatrix.getTileHeight() * tileMatrix.getPixelYSize();
-		TestCase.assertEquals(yDistance, yDistance2, .0000000001);
+		TestCase.assertEquals(yDistance, yDistance2, .001);
 		BoundingBox boundingBox = TileBoundingBoxUtils.getBoundingBox(
 				tileMatrixSet.getBoundingBox(), tileMatrix,
 				tileRow.getTileColumn(), tileRow.getTileRow());
-		ElevationTileResults elevationTileResults = elevationTiles
-				.getElevations(boundingBox);
-		if (elevationTileValues != null) {
-			TestCase.assertEquals(elevationTileValues.tileElevations.length,
-					elevationTileResults.getElevations().length);
-			TestCase.assertEquals(elevationTileValues.tileElevations[0].length,
-					elevationTileResults.getElevations()[0].length);
-			TestCase.assertEquals(
-					elevationTileValues.tileElevationsFlat.length,
-					elevationTileResults.getElevations().length
-							* elevationTileResults.getElevations()[0].length);
-			for (int y = 0; y < elevationTileResults.getElevations().length; y++) {
-				for (int x = 0; x < elevationTileResults.getElevations()[0].length; x++) {
+		CoverageDataResults coverageDataResults = coverageData
+				.getValues(boundingBox);
+		if (coverageDataValues != null) {
+			TestCase.assertEquals(coverageDataValues.coverageData.length,
+					coverageDataResults.getValues().length);
+			TestCase.assertEquals(coverageDataValues.coverageData[0].length,
+					coverageDataResults.getValues()[0].length);
+			TestCase.assertEquals(coverageDataValues.coverageDataFlat.length,
+					coverageDataResults.getValues().length
+							* coverageDataResults.getValues()[0].length);
+			for (int y = 0; y < coverageDataResults.getValues().length; y++) {
+				for (int x = 0; x < coverageDataResults.getValues()[0].length; x++) {
 					switch (algorithm) {
 					case BICUBIC:
 						// Don't test the edges
 						if (y > 1
-								&& y < elevationTileValues.tileElevations.length - 2
+								&& y < coverageDataValues.coverageData.length - 2
 								&& x > 1
-								&& x < elevationTileValues.tileElevations[0].length - 2) {
+								&& x < coverageDataValues.coverageData[0].length - 2) {
 							if (!allowNulls) {
 								// No nulls allowed, check for equality
 								TestCase.assertEquals(
-										elevationTileValues.tileElevations[y][x],
-										elevationTileResults.getElevations()[y][x]);
+										coverageDataValues.coverageData[y][x],
+										coverageDataResults.getValues()[y][x]);
 							} else {
 								// Verify there is null neighbor value
-								Double value1 = elevationTileValues.tileElevations[y][x];
-								Double value2 = elevationTileResults
-										.getElevations()[y][x];
+								Double value1 = coverageDataValues.coverageData[y][x];
+								Double value2 = coverageDataResults.getValues()[y][x];
 								if (value1 == null ? value2 != null : !value1
 										.equals(value2)) {
 									boolean nullValue = false;
 									for (int yLocation = y - 2; !nullValue
 											&& yLocation <= y + 2; yLocation++) {
 										for (int xLocation = x - 2; xLocation <= x + 2; xLocation++) {
-											if (elevationTileValues.tileElevations[yLocation][xLocation] == null) {
+											if (coverageDataValues.coverageData[yLocation][xLocation] == null) {
 												nullValue = true;
 												break;
 											}
@@ -393,26 +388,25 @@ public class ElevationTilesPngTestUtils {
 					case BILINEAR:
 						// Don't test the edges
 						if (y > 0
-								&& y < elevationTileValues.tileElevations.length - 1
+								&& y < coverageDataValues.coverageData.length - 1
 								&& x > 0
-								&& x < elevationTileValues.tileElevations[0].length - 1) {
+								&& x < coverageDataValues.coverageData[0].length - 1) {
 							if (!allowNulls) {
 								// No nulls allowed, check for equality
 								TestCase.assertEquals(
-										elevationTileValues.tileElevations[y][x],
-										elevationTileResults.getElevations()[y][x]);
+										coverageDataValues.coverageData[y][x],
+										coverageDataResults.getValues()[y][x]);
 							} else {
 								// Verify there is null neighbor value
-								Double value1 = elevationTileValues.tileElevations[y][x];
-								Double value2 = elevationTileResults
-										.getElevations()[y][x];
+								Double value1 = coverageDataValues.coverageData[y][x];
+								Double value2 = coverageDataResults.getValues()[y][x];
 								if (value1 == null ? value2 != null : !value1
 										.equals(value2)) {
 									boolean nullValue = false;
 									for (int yLocation = y - 1; !nullValue
 											&& yLocation <= y + 1; yLocation++) {
 										for (int xLocation = x - 1; xLocation <= x + 1; xLocation++) {
-											if (elevationTileValues.tileElevations[yLocation][xLocation] == null) {
+											if (coverageDataValues.coverageData[yLocation][xLocation] == null) {
 												nullValue = true;
 												break;
 											}
@@ -427,12 +421,11 @@ public class ElevationTilesPngTestUtils {
 					case NEAREST_NEIGHBOR:
 						if (!allowNulls) {
 							TestCase.assertEquals(
-									elevationTileValues.tileElevations[y][x],
-									elevationTileResults.getElevations()[y][x]);
+									coverageDataValues.coverageData[y][x],
+									coverageDataResults.getValues()[y][x]);
 						} else {
-							Double value1 = elevationTileValues.tileElevations[y][x];
-							Double value2 = elevationTileResults
-									.getElevations()[y][x];
+							Double value1 = coverageDataValues.coverageData[y][x];
+							Double value2 = coverageDataResults.getValues()[y][x];
 							if (value1 == null ? value2 != null : !value1
 									.equals(value2)) {
 								// Find a matching neighbor
@@ -440,10 +433,10 @@ public class ElevationTilesPngTestUtils {
 								boolean match = false;
 								for (int yLocation = Math.max(0, y - 1); !match
 										&& yLocation <= y + 1
-										&& yLocation < elevationTileValues.tileElevations.length; yLocation++) {
+										&& yLocation < coverageDataValues.coverageData.length; yLocation++) {
 									for (int xLocation = Math.max(0, x - 1); xLocation <= x + 1
-											&& xLocation < elevationTileValues.tileElevations[yLocation].length; xLocation++) {
-										Double value = elevationTileValues.tileElevations[yLocation][xLocation];
+											&& xLocation < coverageDataValues.coverageData[yLocation].length; xLocation++) {
+										Double value = coverageDataValues.coverageData[yLocation][xLocation];
 										if (value != null) {
 											nonNull = true;
 											match = value.equals(value2);
@@ -471,18 +464,18 @@ public class ElevationTilesPngTestUtils {
 	}
 
 	/**
-	 * Test performing elevation queries
+	 * Test performing coverage data queries
 	 * 
 	 * @param geoPackage
-	 * @param elevationTiles
+	 * @param coverageData
 	 * @param tileMatrixSet
 	 * @param algorithm
 	 * @param allowNulls
 	 * @throws SQLException
 	 */
-	private static void testElevationQueries(GeoPackage geoPackage,
-			ElevationTilesPng elevationTiles, TileMatrixSet tileMatrixSet,
-			ElevationTilesAlgorithm algorithm, boolean allowNulls)
+	private static void testCoverageDataQueries(GeoPackage geoPackage,
+			CoverageDataTiff coverageData, TileMatrixSet tileMatrixSet,
+			CoverageDataAlgorithm algorithm, boolean allowNulls)
 			throws SQLException {
 
 		// Determine an alternate projection
@@ -502,9 +495,9 @@ public class ElevationTilesPngTestUtils {
 		}
 		Projection requestProjection = ProjectionFactory
 				.getProjection(requestEpsg);
-		ProjectionTransform elevationToRequest = projection
+		ProjectionTransform coverageToRequest = projection
 				.getTransformation(requestProjection);
-		BoundingBox projectedBoundingBox = elevationToRequest
+		BoundingBox projectedBoundingBox = coverageToRequest
 				.transform(boundingBox);
 
 		// Get a random coordinate
@@ -517,13 +510,13 @@ public class ElevationTilesPngTestUtils {
 		double longitude = lonDistance * .9 * Math.random()
 				+ projectedBoundingBox.getMinLongitude() + (.05 * lonDistance);
 
-		// Test getting the elevation of a single coordinate
-		ElevationTilesPng elevationTiles2 = new ElevationTilesPng(geoPackage,
-				elevationTiles.getTileDao(), requestProjection);
-		elevationTiles2.setAlgorithm(algorithm);
-		Double elevation = elevationTiles2.getElevation(latitude, longitude);
+		// Test getting the coverage data value of a single coordinate
+		CoverageDataTiff coverageData2 = new CoverageDataTiff(geoPackage,
+				coverageData.getTileDao(), requestProjection);
+		coverageData2.setAlgorithm(algorithm);
+		Double value = coverageData2.getValue(latitude, longitude);
 		if (!allowNulls) {
-			TestCase.assertNotNull(elevation);
+			TestCase.assertNotNull(value);
 		}
 
 		// Build a random bounding box
@@ -542,68 +535,61 @@ public class ElevationTilesPngTestUtils {
 
 		BoundingBox requestBoundingBox = new BoundingBox(minLongitude,
 				minLatitude, maxLongitude, maxLatitude);
-		ElevationTileResults elevations = elevationTiles2
-				.getElevations(requestBoundingBox);
-		TestCase.assertNotNull(elevations);
-		TestCase.assertNotNull(elevations.getElevations());
-		TestCase.assertEquals(elevations.getElevations()[0].length,
-				elevations.getWidth());
-		TestCase.assertEquals(elevations.getElevations().length,
-				elevations.getHeight());
-		TestCase.assertNotNull(elevations.getTileMatrix());
-		TestCase.assertTrue(elevations.getZoomLevel() >= 0);
-		TestCase.assertTrue(elevations.getElevations().length > 0);
-		TestCase.assertTrue(elevations.getElevations()[0].length > 0);
-		for (int y = 0; y < elevations.getElevations().length; y++) {
-			for (int x = 0; x < elevations.getElevations()[y].length; x++) {
-				TestCase.assertEquals(elevations.getElevations()[y][x],
-						elevations.getElevation(y, x));
+		CoverageDataResults values = coverageData2
+				.getValues(requestBoundingBox);
+		TestCase.assertNotNull(values);
+		TestCase.assertNotNull(values.getValues());
+		TestCase.assertEquals(values.getValues()[0].length, values.getWidth());
+		TestCase.assertEquals(values.getValues().length, values.getHeight());
+		TestCase.assertNotNull(values.getTileMatrix());
+		TestCase.assertTrue(values.getZoomLevel() >= 0);
+		TestCase.assertTrue(values.getValues().length > 0);
+		TestCase.assertTrue(values.getValues()[0].length > 0);
+		for (int y = 0; y < values.getValues().length; y++) {
+			for (int x = 0; x < values.getValues()[y].length; x++) {
+				TestCase.assertEquals(values.getValues()[y][x],
+						values.getValue(y, x));
 			}
 		}
 
 		int specifiedWidth = 50;
 		int specifiedHeight = 100;
-		elevationTiles2.setWidth(specifiedWidth);
-		elevationTiles2.setHeight(specifiedHeight);
+		coverageData2.setWidth(specifiedWidth);
+		coverageData2.setHeight(specifiedHeight);
 
-		elevations = elevationTiles2.getElevations(requestBoundingBox);
-		TestCase.assertNotNull(elevations);
-		TestCase.assertNotNull(elevations.getElevations());
-		TestCase.assertEquals(elevations.getElevations()[0].length,
-				elevations.getWidth());
-		TestCase.assertEquals(elevations.getElevations().length,
-				elevations.getHeight());
-		TestCase.assertNotNull(elevations.getTileMatrix());
-		TestCase.assertTrue(elevations.getZoomLevel() >= 0);
-		TestCase.assertTrue(elevations.getElevations().length > 0);
-		TestCase.assertTrue(elevations.getElevations()[0].length > 0);
-		TestCase.assertEquals(specifiedHeight, elevations.getHeight());
-		TestCase.assertEquals(specifiedWidth, elevations.getWidth());
+		values = coverageData2.getValues(requestBoundingBox);
+		TestCase.assertNotNull(values);
+		TestCase.assertNotNull(values.getValues());
+		TestCase.assertEquals(values.getValues()[0].length, values.getWidth());
+		TestCase.assertEquals(values.getValues().length, values.getHeight());
+		TestCase.assertNotNull(values.getTileMatrix());
+		TestCase.assertTrue(values.getZoomLevel() >= 0);
+		TestCase.assertTrue(values.getValues().length > 0);
+		TestCase.assertTrue(values.getValues()[0].length > 0);
+		TestCase.assertEquals(specifiedHeight, values.getHeight());
+		TestCase.assertEquals(specifiedWidth, values.getWidth());
 		for (int y = 0; y < specifiedHeight; y++) {
 			for (int x = 0; x < specifiedWidth; x++) {
-				TestCase.assertEquals(elevations.getElevations()[y][x],
-						elevations.getElevation(y, x));
+				TestCase.assertEquals(values.getValues()[y][x],
+						values.getValue(y, x));
 			}
 		}
 
-		elevations = elevationTiles2.getElevationsUnbounded(requestBoundingBox);
-		TestCase.assertNotNull(elevations);
-		TestCase.assertNotNull(elevations.getElevations());
-		TestCase.assertEquals(elevations.getElevations()[0].length,
-				elevations.getWidth());
-		TestCase.assertEquals(elevations.getElevations().length,
-				elevations.getHeight());
-		TestCase.assertNotNull(elevations.getTileMatrix());
-		TestCase.assertTrue(elevations.getZoomLevel() >= 0);
-		TestCase.assertTrue(elevations.getElevations().length > 0);
-		TestCase.assertTrue(elevations.getElevations()[0].length > 0);
-		TestCase.assertEquals(
-				elevations.getElevations()[0].length,
-				elevations.getElevations()[elevations.getElevations().length - 1].length);
-		for (int y = 0; y < elevations.getElevations().length; y++) {
-			for (int x = 0; x < elevations.getElevations()[y].length; x++) {
-				TestCase.assertEquals(elevations.getElevations()[y][x],
-						elevations.getElevation(y, x));
+		values = coverageData2.getValuesUnbounded(requestBoundingBox);
+		TestCase.assertNotNull(values);
+		TestCase.assertNotNull(values.getValues());
+		TestCase.assertEquals(values.getValues()[0].length, values.getWidth());
+		TestCase.assertEquals(values.getValues().length, values.getHeight());
+		TestCase.assertNotNull(values.getTileMatrix());
+		TestCase.assertTrue(values.getZoomLevel() >= 0);
+		TestCase.assertTrue(values.getValues().length > 0);
+		TestCase.assertTrue(values.getValues()[0].length > 0);
+		TestCase.assertEquals(values.getValues()[0].length,
+				values.getValues()[values.getValues().length - 1].length);
+		for (int y = 0; y < values.getValues().length; y++) {
+			for (int x = 0; x < values.getValues()[y].length; x++) {
+				TestCase.assertEquals(values.getValues()[y][x],
+						values.getValue(y, x));
 			}
 		}
 	}
@@ -613,44 +599,45 @@ public class ElevationTilesPngTestUtils {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
-	 * @param elevationTileValues
-	 *            elevation tile values
+	 * @param coverageDataValues
+	 *            coverage data values
 	 * @param algorithm
 	 *            algorithm
 	 * @param allowNulls
-	 *            allow null elevations
+	 *            allow null coverage data values
 	 * @throws Exception
 	 */
 	public static void testRandomBoundingBox(GeoPackage geoPackage,
-			ElevationTileValues elevationTileValues,
-			ElevationTilesAlgorithm algorithm, boolean allowNulls)
+			CoverageDataTiffValues coverageDataValues,
+			CoverageDataAlgorithm algorithm, boolean allowNulls)
 			throws Exception {
 
-		// Verify the elevation shows up as an elevation table and not a tile
-		// table
+		// Verify the coverage data shows up as an coverage data table and not a
+		// tile table
 		List<String> tilesTables = geoPackage.getTileTables();
-		List<String> elevationTables = ElevationTilesPng.getTables(geoPackage);
-		TestCase.assertFalse(elevationTables.isEmpty());
+		List<String> coverageDataTables = CoverageDataTiff
+				.getTables(geoPackage);
+		TestCase.assertFalse(coverageDataTables.isEmpty());
 		for (String tilesTable : tilesTables) {
-			TestCase.assertFalse(elevationTables.contains(tilesTable));
+			TestCase.assertFalse(coverageDataTables.contains(tilesTable));
 		}
 
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 		TestCase.assertTrue(dao.isTableExists());
 
-		for (String elevationTable : elevationTables) {
+		for (String coverageTable : coverageDataTables) {
 
-			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+			TileMatrixSet tileMatrixSet = dao.queryForId(coverageTable);
 
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-			ElevationTilesPng elevationTiles = new ElevationTilesPng(
-					geoPackage, tileDao);
-			elevationTiles.setAlgorithm(algorithm);
+			CoverageDataTiff coverageData = new CoverageDataTiff(geoPackage,
+					tileDao);
+			coverageData.setAlgorithm(algorithm);
 
 			int specifiedWidth = (int) (Math.random() * 100.0) + 1;
 			int specifiedHeight = (int) (Math.random() * 100.0) + 1;
-			elevationTiles.setWidth(specifiedWidth);
-			elevationTiles.setHeight(specifiedHeight);
+			coverageData.setWidth(specifiedWidth);
+			coverageData.setHeight(specifiedHeight);
 
 			BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
 
@@ -671,30 +658,29 @@ public class ElevationTilesPngTestUtils {
 			BoundingBox requestBoundingBox = new BoundingBox(minLongitude,
 					minLatitude, maxLongitude, maxLatitude);
 
-			ElevationTileResults elevations = elevationTiles
-					.getElevations(requestBoundingBox);
+			CoverageDataResults values = coverageData
+					.getValues(requestBoundingBox);
 
-			TestCase.assertNotNull(elevations);
-			TestCase.assertNotNull(elevations.getElevations());
-			TestCase.assertEquals(elevations.getElevations()[0].length,
-					elevations.getWidth());
-			TestCase.assertEquals(elevations.getElevations().length,
-					elevations.getHeight());
-			TestCase.assertNotNull(elevations.getTileMatrix());
-			TestCase.assertTrue(elevations.getZoomLevel() >= 0);
-			TestCase.assertTrue(elevations.getElevations().length > 0);
-			TestCase.assertTrue(elevations.getElevations()[0].length > 0);
-			TestCase.assertEquals(specifiedHeight, elevations.getHeight());
-			TestCase.assertEquals(specifiedWidth, elevations.getWidth());
+			TestCase.assertNotNull(values);
+			TestCase.assertNotNull(values.getValues());
+			TestCase.assertEquals(values.getValues()[0].length,
+					values.getWidth());
+			TestCase.assertEquals(values.getValues().length, values.getHeight());
+			TestCase.assertNotNull(values.getTileMatrix());
+			TestCase.assertTrue(values.getZoomLevel() >= 0);
+			TestCase.assertTrue(values.getValues().length > 0);
+			TestCase.assertTrue(values.getValues()[0].length > 0);
+			TestCase.assertEquals(specifiedHeight, values.getHeight());
+			TestCase.assertEquals(specifiedWidth, values.getWidth());
 
 			for (int y = 0; y < specifiedHeight; y++) {
 				boolean nonNullFound = false;
 				boolean secondNullsFound = false;
 				for (int x = 0; x < specifiedWidth; x++) {
-					TestCase.assertEquals(elevations.getElevations()[y][x],
-							elevations.getElevation(y, x));
+					TestCase.assertEquals(values.getValues()[y][x],
+							values.getValue(y, x));
 					if (!allowNulls) {
-						if (elevations.getElevations()[y][x] != null) {
+						if (values.getValues()[y][x] != null) {
 							TestCase.assertFalse(secondNullsFound);
 							nonNullFound = true;
 						} else if (nonNullFound) {
@@ -708,10 +694,10 @@ public class ElevationTilesPngTestUtils {
 				boolean nonNullFound = false;
 				boolean secondNullsFound = false;
 				for (int y = 0; y < specifiedHeight; y++) {
-					TestCase.assertEquals(elevations.getElevations()[y][x],
-							elevations.getElevation(y, x));
+					TestCase.assertEquals(values.getValues()[y][x],
+							values.getValue(y, x));
 					if (!allowNulls) {
-						if (elevations.getElevations()[y][x] != null) {
+						if (values.getValues()[y][x] != null) {
 							TestCase.assertFalse(secondNullsFound);
 							nonNullFound = true;
 						} else if (nonNullFound) {
@@ -726,7 +712,7 @@ public class ElevationTilesPngTestUtils {
 	}
 
 	/**
-	 * Get the elevation at the coordinate
+	 * Get the coverage data value at the coordinate
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
@@ -736,38 +722,39 @@ public class ElevationTilesPngTestUtils {
 	 *            latitude
 	 * @param longitude
 	 *            longitude
-	 * @return elevation
+	 * @return coverage data value
 	 * @throws Exception
 	 */
-	public static Double getElevation(GeoPackage geoPackage,
-			ElevationTilesAlgorithm algorithm, double latitude,
-			double longitude, long epsg) throws Exception {
+	public static Double getValue(GeoPackage geoPackage,
+			CoverageDataAlgorithm algorithm, double latitude, double longitude,
+			long epsg) throws Exception {
 
-		Double elevation = null;
+		Double value = null;
 
-		List<String> elevationTables = ElevationTilesPng.getTables(geoPackage);
+		List<String> coverageDataTables = CoverageDataTiff
+				.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 
-		for (String elevationTable : elevationTables) {
+		for (String coverageTable : coverageDataTables) {
 
-			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+			TileMatrixSet tileMatrixSet = dao.queryForId(coverageTable);
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
 
 			Projection requestProjection = ProjectionFactory
 					.getProjection(epsg);
 
-			// Test getting the elevation of a single coordinate
-			ElevationTilesPng elevationTiles = new ElevationTilesPng(
-					geoPackage, tileDao, requestProjection);
-			elevationTiles.setAlgorithm(algorithm);
-			elevation = elevationTiles.getElevation(latitude, longitude);
+			// Test getting the coverage data value of a single coordinate
+			CoverageDataTiff coverageData = new CoverageDataTiff(geoPackage,
+					tileDao, requestProjection);
+			coverageData.setAlgorithm(algorithm);
+			value = coverageData.getValue(latitude, longitude);
 		}
 
-		return elevation;
+		return value;
 	}
 
 	/**
-	 * Get the elevations for the bounding box
+	 * Get the coverage data for the bounding box
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
@@ -779,36 +766,37 @@ public class ElevationTilesPngTestUtils {
 	 *            results width
 	 * @param height
 	 *            results height
-	 * @return elevation tile results
+	 * @return coverage data results
 	 * @throws Exception
 	 */
-	public static ElevationTileResults getElevations(GeoPackage geoPackage,
-			ElevationTilesAlgorithm algorithm, BoundingBox boundingBox,
+	public static CoverageDataResults getValues(GeoPackage geoPackage,
+			CoverageDataAlgorithm algorithm, BoundingBox boundingBox,
 			int width, int height, long epsg) throws Exception {
 
-		ElevationTileResults elevations = null;
+		CoverageDataResults values = null;
 
-		List<String> elevationTables = ElevationTilesPng.getTables(geoPackage);
+		List<String> coverageDataTables = CoverageDataTiff
+				.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 
-		for (String elevationTable : elevationTables) {
+		for (String coverageTable : coverageDataTables) {
 
-			TileMatrixSet tileMatrixSet = dao.queryForId(elevationTable);
+			TileMatrixSet tileMatrixSet = dao.queryForId(coverageTable);
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
 
 			Projection requestProjection = ProjectionFactory
 					.getProjection(epsg);
 
-			// Test getting the elevation of a single coordinate
-			ElevationTilesPng elevationTiles = new ElevationTilesPng(
-					geoPackage, tileDao, requestProjection);
-			elevationTiles.setAlgorithm(algorithm);
-			elevationTiles.setWidth(width);
-			elevationTiles.setHeight(height);
-			elevations = elevationTiles.getElevations(boundingBox);
+			// Test getting the coverage data value of a single coordinate
+			CoverageDataTiff coverageData = new CoverageDataTiff(geoPackage,
+					tileDao, requestProjection);
+			coverageData.setAlgorithm(algorithm);
+			coverageData.setWidth(width);
+			coverageData.setHeight(height);
+			values = coverageData.getValues(boundingBox);
 		}
 
-		return elevations;
+		return values;
 	}
 
 }
