@@ -118,6 +118,16 @@ public abstract class CreateCoverageDataTiffGeoPackageTestCase extends
 			defaultPrecision = false;
 		}
 		griddedCoverage.setDataNull((double) Float.MAX_VALUE);
+		GriddedCoverageEncodingType encoding;
+		double randomEncoding = Math.random();
+		if (randomEncoding < 1.0 / 3.0) {
+			encoding = GriddedCoverageEncodingType.AREA;
+		} else if (randomEncoding < 2.0 / 3.0) {
+			encoding = GriddedCoverageEncodingType.CENTER;
+		} else {
+			encoding = GriddedCoverageEncodingType.CORNER;
+		}
+		griddedCoverage.setGridCellEncodingType(encoding);
 		TestCase.assertEquals(1, griddedCoverageDao.create(griddedCoverage));
 
 		long gcId = griddedCoverage.getId();
@@ -131,9 +141,9 @@ public abstract class CreateCoverageDataTiffGeoPackageTestCase extends
 			TestCase.assertTrue(griddedCoverage.getPrecision() >= 0.0
 					&& griddedCoverage.getPrecision() <= 10.0);
 		}
-		TestCase.assertEquals(GriddedCoverageEncodingType.CENTER,
+		TestCase.assertEquals(encoding,
 				griddedCoverage.getGridCellEncodingType());
-		TestCase.assertEquals(GriddedCoverageEncodingType.CENTER.getName(),
+		TestCase.assertEquals(encoding.getName(),
 				griddedCoverage.getGridCellEncoding());
 		TestCase.assertEquals("Height", griddedCoverage.getFieldName());
 		TestCase.assertEquals("Height", griddedCoverage.getQuantityDefinition());

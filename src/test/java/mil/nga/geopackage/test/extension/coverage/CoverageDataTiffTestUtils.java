@@ -124,6 +124,9 @@ public class CoverageDataTiffTestUtils {
 					tileDao);
 			TestCase.assertTrue(coverageData.has());
 			coverageData.setAlgorithm(algorithm);
+			GriddedCoverageEncodingType encoding = coverageData
+					.getGriddedCoverage().getGridCellEncodingType();
+			coverageData.setEncoding(encoding);
 
 			// Test the 3 extension rows
 			ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
@@ -186,10 +189,9 @@ public class CoverageDataTiffTestUtils {
 			griddedCoverage.getDataNull();
 			griddedCoverage.getUom();
 			if (coverageDataValues != null) {
-				TestCase.assertEquals(GriddedCoverageEncodingType.CENTER,
+				TestCase.assertEquals(encoding,
 						griddedCoverage.getGridCellEncodingType());
-				TestCase.assertEquals(
-						GriddedCoverageEncodingType.CENTER.getName(),
+				TestCase.assertEquals(encoding.getName(),
 						griddedCoverage.getGridCellEncoding());
 				TestCase.assertEquals("Height", griddedCoverage.getFieldName());
 				TestCase.assertEquals("Height",
