@@ -1,16 +1,13 @@
 package mil.nga.geopackage.extension.coverage;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.extension.coverage.CoverageDataCore;
-import mil.nga.geopackage.extension.coverage.CoverageDataImage;
-import mil.nga.geopackage.extension.coverage.CoverageDataRequest;
-import mil.nga.geopackage.extension.coverage.CoverageDataResults;
-import mil.nga.geopackage.extension.coverage.GriddedTile;
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.ImageRectangle;
@@ -19,6 +16,7 @@ import mil.nga.geopackage.tiles.TileBoundingBoxJavaUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
@@ -30,8 +28,142 @@ import mil.nga.geopackage.tiles.user.TileTable;
  * @author osbornb
  * @since 2.0.1
  */
-public abstract class CoverageDataCommon<TImage extends CoverageDataImage>
-		extends CoverageDataCore<TImage> {
+public abstract class CoverageData<TImage extends CoverageDataImage> extends
+		CoverageDataCore<TImage> {
+
+	/**
+	 * Get a Tiled Gridded Coverage Data
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tileDao
+	 *            tile dao
+	 * @param width
+	 *            coverage data response width
+	 * @param height
+	 *            coverage data response height
+	 * @param requestProjection
+	 *            request projection
+	 */
+	public static CoverageData<?> getCoverageData(GeoPackage geoPackage,
+			TileDao tileDao, Integer width, Integer height,
+			Projection requestProjection) {
+
+		TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
+		GriddedCoverageDao griddedCoverageDao = geoPackage
+				.getGriddedCoverageDao();
+
+		GriddedCoverage griddedCoverage = null;
+		try {
+			if (griddedCoverageDao.isTableExists()) {
+				griddedCoverage = griddedCoverageDao.query(tileMatrixSet);
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to get Gridded Coverage for table name: "
+							+ tileMatrixSet.getTableName(), e);
+		}
+
+		CoverageData<?> coverageData = null;
+
+		GriddedCoverageDataType dataType = griddedCoverage.getDataType();
+		switch (dataType) {
+		case INTEGER:
+			coverageData = new CoverageDataPng(geoPackage, tileDao, width,
+					height, requestProjection);
+			break;
+		case FLOAT:
+			coverageData = new CoverageDataTiff(geoPackage, tileDao, width,
+					height, requestProjection);
+			break;
+		default:
+			throw new GeoPackageException(
+					"Unsupported Gridded Coverage Data Type: " + dataType);
+		}
+
+		return coverageData;
+	}
+
+	/**
+	 * Get a Tiled Gridded Coverage Data, use the coverage data pixel tile size
+	 * as the request size width and height
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tileDao
+	 *            tile dao
+	 */
+	public static CoverageData<?> getCoverageData(GeoPackage geoPackage,
+			TileDao tileDao) {
+		return getCoverageData(geoPackage, tileDao, null, null,
+				tileDao.getProjection());
+	}
+
+	/**
+	 * Get a Tiled Gridded Coverage Data, use the coverage data pixel tile size
+	 * as the request size width and height, request as the specified projection
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tileDao
+	 *            tile dao
+	 * @param requestProjection
+	 *            request projection
+	 */
+	public static CoverageData<?> getCoverageData(GeoPackage geoPackage,
+			TileDao tileDao, Projection requestProjection) {
+		return getCoverageData(geoPackage, tileDao, null, null,
+				requestProjection);
+	}
+
+	/**
+	 * Create the coverage data tile table with metadata and extension
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param contentsBoundingBox
+	 *            contents bounding box
+	 * @param contentsSrsId
+	 *            contents srs id
+	 * @param tileMatrixSetBoundingBox
+	 *            tile matrix set bounding box
+	 * @param tileMatrixSetSrsId
+	 *            tile matrix set srs id
+	 * @param dataType
+	 *            gridded coverage data type
+	 * @return coverage data
+	 */
+	public static CoverageData<?> createTileTableWithMetadata(
+			GeoPackage geoPackage, String tableName,
+			BoundingBox contentsBoundingBox, long contentsSrsId,
+			BoundingBox tileMatrixSetBoundingBox, long tileMatrixSetSrsId,
+			GriddedCoverageDataType dataType) {
+
+		TileMatrixSet tileMatrixSet = CoverageDataCore
+				.createTileTableWithMetadata(geoPackage, tableName,
+						contentsBoundingBox, contentsSrsId,
+						tileMatrixSetBoundingBox, tileMatrixSetSrsId);
+		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
+
+		CoverageData<?> coverageData = null;
+		switch (dataType) {
+		case INTEGER:
+			coverageData = new CoverageDataPng(geoPackage, tileDao);
+			break;
+		case FLOAT:
+			coverageData = new CoverageDataTiff(geoPackage, tileDao);
+			break;
+		default:
+			throw new GeoPackageException(
+					"Unsupported Gridded Coverage Data Type: " + dataType);
+		}
+
+		coverageData.getOrCreate();
+
+		return coverageData;
+	}
 
 	/**
 	 * Tile DAO
@@ -52,8 +184,8 @@ public abstract class CoverageDataCommon<TImage extends CoverageDataImage>
 	 * @param requestProjection
 	 *            request projection
 	 */
-	public CoverageDataCommon(GeoPackage geoPackage, TileDao tileDao,
-			Integer width, Integer height, Projection requestProjection) {
+	public CoverageData(GeoPackage geoPackage, TileDao tileDao, Integer width,
+			Integer height, Projection requestProjection) {
 		super(geoPackage, tileDao.getTileMatrixSet(), width, height,
 				requestProjection);
 		this.tileDao = tileDao;
@@ -83,6 +215,65 @@ public abstract class CoverageDataCommon<TImage extends CoverageDataImage>
 	 */
 	public abstract double getValue(GriddedTile griddedTile, TileRow tileRow,
 			int x, int y);
+
+	/**
+	 * Get the coverage data value
+	 *
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param imageBytes
+	 *            image bytes
+	 * @param x
+	 *            x coordinate
+	 * @param y
+	 *            y coordinate
+	 * @return coverage data value
+	 */
+	public abstract Double getValue(GriddedTile griddedTile, byte[] imageBytes,
+			int x, int y);
+
+	/**
+	 * Get the coverage data values
+	 *
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param imageBytes
+	 *            image bytes
+	 * @return coverage data values
+	 */
+	public abstract Double[] getValues(GriddedTile griddedTile,
+			byte[] imageBytes);
+
+	/**
+	 * Draw a coverage data image tile and format as PNG bytes from the flat
+	 * array of coverage data values of length tileWidth * tileHeight where each
+	 * coverage data value is at: (y * tileWidth) + x
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param values
+	 *            coverage data values of length tileWidth * tileHeight
+	 * @param tileWidth
+	 *            tile width
+	 * @param tileHeight
+	 *            tile height
+	 * @return coverage data image tile bytes
+	 */
+	public abstract byte[] drawTileData(GriddedTile griddedTile,
+			Double[] values, int tileWidth, int tileHeight);
+
+	/**
+	 * Draw a coverage data image tile and format as PNG bytes from the double
+	 * array of unsigned coverage data values formatted as Double[row][width]
+	 * 
+	 * @param griddedTile
+	 *            gridded tile
+	 * @param values
+	 *            coverage data values as [row][width]
+	 * @return coverage data image tile bytes
+	 */
+	public abstract byte[] drawTileData(GriddedTile griddedTile,
+			Double[][] values);
 
 	/**
 	 * Get the tile dao
@@ -443,8 +634,7 @@ public abstract class CoverageDataCommon<TImage extends CoverageDataImage>
 
 		// Tiles are ordered by rows and then columns. Track the last column
 		// coverage data of the tile to the left and the last rows of the tiles
-		// in
-		// the row above
+		// in the row above
 		Double[][] leftLastColumns = null;
 		Map<Long, Double[][]> lastRowsByColumn = null;
 		Map<Long, Double[][]> previousLastRowsByColumn = null;

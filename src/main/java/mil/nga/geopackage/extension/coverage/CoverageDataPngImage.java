@@ -5,7 +5,6 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.coverage.CoverageDataImage;
 import mil.nga.geopackage.tiles.user.TileRow;
 
 /**

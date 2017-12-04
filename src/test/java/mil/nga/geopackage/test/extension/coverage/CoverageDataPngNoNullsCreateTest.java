@@ -64,9 +64,8 @@ public class CoverageDataPngNoNullsCreateTest extends
 	@Test
 	public void testRandomBoundingBoxNearestNeighbor() throws Exception {
 
-		CoverageDataPngTestUtils.testRandomBoundingBox(geoPackage,
-				coverageDataValues, CoverageDataAlgorithm.NEAREST_NEIGHBOR,
-				allowNulls);
+		CoverageDataTestUtils.testRandomBoundingBox(geoPackage,
+				CoverageDataAlgorithm.NEAREST_NEIGHBOR, allowNulls);
 
 	}
 
@@ -76,8 +75,8 @@ public class CoverageDataPngNoNullsCreateTest extends
 	@Test
 	public void testRandomBoundingBoxBilinear() throws Exception {
 
-		CoverageDataPngTestUtils.testRandomBoundingBox(geoPackage,
-				coverageDataValues, CoverageDataAlgorithm.BILINEAR, allowNulls);
+		CoverageDataTestUtils.testRandomBoundingBox(geoPackage,
+				CoverageDataAlgorithm.BILINEAR, allowNulls);
 
 	}
 
@@ -87,8 +86,20 @@ public class CoverageDataPngNoNullsCreateTest extends
 	@Test
 	public void testRandomBoundingBoxBicubic() throws Exception {
 
-		CoverageDataPngTestUtils.testRandomBoundingBox(geoPackage,
-				coverageDataValues, CoverageDataAlgorithm.BICUBIC, allowNulls);
+		CoverageDataTestUtils.testRandomBoundingBox(geoPackage,
+				CoverageDataAlgorithm.BICUBIC, allowNulls);
+
+	}
+
+	/**
+	 * Test the pixel encoding
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testPixelEncoding() throws Exception {
+
+		CoverageDataTestUtils.testPixelEncoding(geoPackage, allowNulls);
 
 	}
 

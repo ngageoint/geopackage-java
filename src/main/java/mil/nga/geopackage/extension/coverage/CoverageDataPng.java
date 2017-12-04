@@ -9,11 +9,8 @@ import java.io.IOException;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.coverage.CoverageDataCore;
-import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.tiles.ImageUtils;
-import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 
@@ -23,7 +20,7 @@ import mil.nga.geopackage.tiles.user.TileRow;
  * @author osbornb
  * @since 2.0.1
  */
-public class CoverageDataPng extends CoverageDataCommon<CoverageDataPngImage> {
+public class CoverageDataPng extends CoverageData<CoverageDataPngImage> {
 
 	/**
 	 * Constructor
@@ -255,6 +252,23 @@ public class CoverageDataPng extends CoverageDataCommon<CoverageDataPngImage> {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Double getValue(GriddedTile griddedTile, byte[] imageBytes, int x,
+			int y) {
+		BufferedImage image;
+		try {
+			image = ImageUtils.getImage(imageBytes);
+		} catch (IOException e) {
+			throw new GeoPackageException(
+					"Failed to create an image from image bytes", e);
+		}
+		Double value = getValue(griddedTile, image, x, y);
+		return value;
+	}
+
+	/**
 	 * Get the coverage data value
 	 * 
 	 * @param griddedTile
@@ -292,6 +306,22 @@ public class CoverageDataPng extends CoverageDataCommon<CoverageDataPngImage> {
 		short pixelValue = getPixelValue(raster, x, y);
 		Double value = getValue(griddedTile, pixelValue);
 		return value;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Double[] getValues(GriddedTile griddedTile, byte[] imageBytes) {
+		BufferedImage image;
+		try {
+			image = ImageUtils.getImage(imageBytes);
+		} catch (IOException e) {
+			throw new GeoPackageException(
+					"Failed to create an image from image bytes", e);
+		}
+		Double[] values = getValues(griddedTile, image);
+		return values;
 	}
 
 	/**
@@ -535,20 +565,9 @@ public class CoverageDataPng extends CoverageDataCommon<CoverageDataPngImage> {
 	}
 
 	/**
-	 * Draw a coverage data image tile and format as PNG bytes from the flat
-	 * array of coverage data values of length tileWidth * tileHeight where each
-	 * coverage data value is at: (y * tileWidth) + x
-	 * 
-	 * @param griddedTile
-	 *            gridded tile
-	 * @param values
-	 *            coverage data values of length tileWidth * tileHeight
-	 * @param tileWidth
-	 *            tile width
-	 * @param tileHeight
-	 *            tile height
-	 * @return coverage data image tile bytes
+	 * {@inheritDoc}
 	 */
+	@Override
 	public byte[] drawTileData(GriddedTile griddedTile, Double[] values,
 			int tileWidth, int tileHeight) {
 		BufferedImage image = drawTile(griddedTile, values, tileWidth,
@@ -586,15 +605,9 @@ public class CoverageDataPng extends CoverageDataCommon<CoverageDataPngImage> {
 	}
 
 	/**
-	 * Draw a coverage data image tile and format as PNG bytes from the double
-	 * array of unsigned coverage data values formatted as Double[row][width]
-	 * 
-	 * @param griddedTile
-	 *            gridded tile
-	 * @param values
-	 *            coverage data values as [row][width]
-	 * @return coverage data image tile bytes
+	 * {@inheritDoc}
 	 */
+	@Override
 	public byte[] drawTileData(GriddedTile griddedTile, Double[][] values) {
 		BufferedImage image = drawTile(griddedTile, values);
 		byte[] bytes = getImageBytes(image);
@@ -686,14 +699,11 @@ public class CoverageDataPng extends CoverageDataCommon<CoverageDataPngImage> {
 			BoundingBox contentsBoundingBox, long contentsSrsId,
 			BoundingBox tileMatrixSetBoundingBox, long tileMatrixSetSrsId) {
 
-		TileMatrixSet tileMatrixSet = CoverageDataCore
+		CoverageDataPng coverageData = (CoverageDataPng) CoverageData
 				.createTileTableWithMetadata(geoPackage, tableName,
 						contentsBoundingBox, contentsSrsId,
-						tileMatrixSetBoundingBox, tileMatrixSetSrsId);
-		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-		CoverageDataPng coverageData = new CoverageDataPng(geoPackage, tileDao);
-		coverageData.getOrCreate();
-
+						tileMatrixSetBoundingBox, tileMatrixSetSrsId,
+						GriddedCoverageDataType.INTEGER);
 		return coverageData;
 	}
 

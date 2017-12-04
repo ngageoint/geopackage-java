@@ -3,7 +3,6 @@ package mil.nga.geopackage.extension.coverage;
 import java.io.IOException;
 
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.coverage.CoverageDataImage;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.tiff.FileDirectory;
 import mil.nga.tiff.Rasters;
