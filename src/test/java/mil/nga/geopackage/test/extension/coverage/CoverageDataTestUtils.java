@@ -8,8 +8,8 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.extension.coverage.CoverageDataAlgorithm;
 import mil.nga.geopackage.extension.coverage.CoverageData;
+import mil.nga.geopackage.extension.coverage.CoverageDataAlgorithm;
 import mil.nga.geopackage.extension.coverage.CoverageDataResults;
 import mil.nga.geopackage.extension.coverage.GriddedCoverage;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
@@ -28,7 +28,7 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 
 /**
- * Coverage Data TIFF test utils
+ * Coverage Data test utils
  * 
  * @author osbornb
  */
@@ -82,9 +82,8 @@ public class CoverageDataTestUtils {
 				+ projectedBoundingBox.getMinLongitude() + (.05 * lonDistance);
 
 		// Test getting the coverage data value of a single coordinate
-		CoverageData<?> coverageData2 = CoverageData
-				.getCoverageData(geoPackage, coverageData.getTileDao(),
-						requestProjection);
+		CoverageData<?> coverageData2 = CoverageData.getCoverageData(
+				geoPackage, coverageData.getTileDao(), requestProjection);
 		coverageData2.setAlgorithm(algorithm);
 		Double value = coverageData2.getValue(latitude, longitude);
 		if (!allowNulls) {
@@ -184,8 +183,7 @@ public class CoverageDataTestUtils {
 		// Verify the coverage data shows up as an coverage data table and not a
 		// tile table
 		List<String> tilesTables = geoPackage.getTileTables();
-		List<String> coverageDataTables = CoverageData
-				.getTables(geoPackage);
+		List<String> coverageDataTables = CoverageData.getTables(geoPackage);
 		TestCase.assertFalse(coverageDataTables.isEmpty());
 		for (String tilesTable : tilesTables) {
 			TestCase.assertFalse(coverageDataTables.contains(tilesTable));
@@ -199,8 +197,8 @@ public class CoverageDataTestUtils {
 			TileMatrixSet tileMatrixSet = dao.queryForId(coverageTable);
 
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-			CoverageData<?> coverageData = CoverageData
-					.getCoverageData(geoPackage, tileDao);
+			CoverageData<?> coverageData = CoverageData.getCoverageData(
+					geoPackage, tileDao);
 			coverageData.setAlgorithm(algorithm);
 
 			int specifiedWidth = (int) (Math.random() * 100.0) + 1;
@@ -291,6 +289,8 @@ public class CoverageDataTestUtils {
 	 *            latitude
 	 * @param longitude
 	 *            longitude
+	 * @param epsg
+	 *            epsg
 	 * @return coverage data value
 	 * @throws Exception
 	 */
@@ -300,8 +300,7 @@ public class CoverageDataTestUtils {
 
 		Double value = null;
 
-		List<String> coverageDataTables = CoverageData
-				.getTables(geoPackage);
+		List<String> coverageDataTables = CoverageData.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 
 		for (String coverageTable : coverageDataTables) {
@@ -313,8 +312,8 @@ public class CoverageDataTestUtils {
 					.getProjection(epsg);
 
 			// Test getting the coverage data value of a single coordinate
-			CoverageData<?> coverageData = CoverageData
-					.getCoverageData(geoPackage, tileDao, requestProjection);
+			CoverageData<?> coverageData = CoverageData.getCoverageData(
+					geoPackage, tileDao, requestProjection);
 			coverageData.setAlgorithm(algorithm);
 			value = coverageData.getValue(latitude, longitude);
 		}
@@ -335,6 +334,8 @@ public class CoverageDataTestUtils {
 	 *            results width
 	 * @param height
 	 *            results height
+	 * @param epsg
+	 *            epsg
 	 * @return coverage data results
 	 * @throws Exception
 	 */
@@ -344,8 +345,7 @@ public class CoverageDataTestUtils {
 
 		CoverageDataResults values = null;
 
-		List<String> coverageDataTables = CoverageData
-				.getTables(geoPackage);
+		List<String> coverageDataTables = CoverageData.getTables(geoPackage);
 		TileMatrixSetDao dao = geoPackage.getTileMatrixSetDao();
 
 		for (String coverageTable : coverageDataTables) {
@@ -357,8 +357,8 @@ public class CoverageDataTestUtils {
 					.getProjection(epsg);
 
 			// Test getting the coverage data value of a single coordinate
-			CoverageData<?> coverageData = CoverageData
-					.getCoverageData(geoPackage, tileDao, requestProjection);
+			CoverageData<?> coverageData = CoverageData.getCoverageData(
+					geoPackage, tileDao, requestProjection);
 			coverageData.setAlgorithm(algorithm);
 			coverageData.setWidth(width);
 			coverageData.setHeight(height);
@@ -373,13 +373,14 @@ public class CoverageDataTestUtils {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
+	 * @param allowNulls
+	 *            allow nulls
 	 * @throws Exception
 	 */
 	public static void testPixelEncoding(GeoPackage geoPackage,
 			boolean allowNulls) throws Exception {
 
-		List<String> coverageDataTables = CoverageData
-				.getTables(geoPackage);
+		List<String> coverageDataTables = CoverageData.getTables(geoPackage);
 		TestCase.assertFalse(coverageDataTables.isEmpty());
 
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
@@ -393,8 +394,8 @@ public class CoverageDataTestUtils {
 					.queryForId(coverageTable);
 
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-			CoverageData<?> coverageData = CoverageData
-					.getCoverageData(geoPackage, tileDao);
+			CoverageData<?> coverageData = CoverageData.getCoverageData(
+					geoPackage, tileDao);
 			GriddedCoverage griddedCoverage = coverageData.getGriddedCoverage();
 			GriddedCoverageEncodingType encoding = griddedCoverage
 					.getGridCellEncodingType();
