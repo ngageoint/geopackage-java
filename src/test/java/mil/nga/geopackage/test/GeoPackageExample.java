@@ -28,6 +28,7 @@ import mil.nga.wkb.geom.GeometryEnvelope;
 import mil.nga.wkb.geom.GeometryType;
 import mil.nga.wkb.geom.LineString;
 import mil.nga.wkb.geom.Point;
+import mil.nga.wkb.geom.Polygon;
 import mil.nga.wkb.util.GeometryEnvelopeBuilder;
 
 /**
@@ -131,6 +132,69 @@ public class GeoPackageExample {
 
 		createFeatures(geoPackage, srs, GeometryType.LINESTRING, lines,
 				lineNames);
+
+		List<Geometry> polygons = new ArrayList<>();
+		List<String> polygonNames = new ArrayList<>();
+
+		Polygon polygon1 = new Polygon();
+		LineString ring1 = new LineString();
+		ring1.addPoint(new Point(-104.802246, 39.720343));
+		ring1.addPoint(new Point(-104.802246, 39.719753));
+		ring1.addPoint(new Point(-104.802183, 39.719754));
+		ring1.addPoint(new Point(-104.802184, 39.719719));
+		ring1.addPoint(new Point(-104.802138, 39.719694));
+		ring1.addPoint(new Point(-104.802097, 39.719691));
+		ring1.addPoint(new Point(-104.802096, 39.719648));
+		ring1.addPoint(new Point(-104.801646, 39.719648));
+		ring1.addPoint(new Point(-104.801644, 39.719722));
+		ring1.addPoint(new Point(-104.801550, 39.719723));
+		ring1.addPoint(new Point(-104.801549, 39.720207));
+		ring1.addPoint(new Point(-104.801648, 39.720207));
+		ring1.addPoint(new Point(-104.801648, 39.720341));
+		ring1.addPoint(new Point(-104.802246, 39.720343));
+		polygon1.addRing(ring1);
+		polygons.add(polygon1);
+		polygonNames.add("BIT Systems");
+
+		Polygon polygon2 = new Polygon();
+		LineString ring2 = new LineString();
+		ring2.addPoint(new Point(-77.195299, 38.755159));
+		ring2.addPoint(new Point(-77.195203, 38.755080));
+		ring2.addPoint(new Point(-77.195410, 38.754930));
+		ring2.addPoint(new Point(-77.195350, 38.754884));
+		ring2.addPoint(new Point(-77.195228, 38.754966));
+		ring2.addPoint(new Point(-77.195135, 38.754889));
+		ring2.addPoint(new Point(-77.195048, 38.754956));
+		ring2.addPoint(new Point(-77.194986, 38.754906));
+		ring2.addPoint(new Point(-77.194897, 38.754976));
+		ring2.addPoint(new Point(-77.194953, 38.755025));
+		ring2.addPoint(new Point(-77.194763, 38.755173));
+		ring2.addPoint(new Point(-77.194827, 38.755224));
+		ring2.addPoint(new Point(-77.195012, 38.755082));
+		ring2.addPoint(new Point(-77.195041, 38.755104));
+		ring2.addPoint(new Point(-77.195028, 38.755116));
+		ring2.addPoint(new Point(-77.195090, 38.755167));
+		ring2.addPoint(new Point(-77.195106, 38.755154));
+		ring2.addPoint(new Point(-77.195205, 38.755233));
+		ring2.addPoint(new Point(-77.195299, 38.755159));
+		polygon2.addRing(ring2);
+		polygons.add(polygon2);
+		polygonNames.add("NGA Visitor Center");
+
+		createFeatures(geoPackage, srs, GeometryType.POLYGON, polygons,
+				polygonNames);
+
+		List<Geometry> geometries = new ArrayList<>();
+		List<String> geometryNames = new ArrayList<>();
+		geometries.addAll(points);
+		geometryNames.addAll(pointNames);
+		geometries.addAll(lines);
+		geometryNames.addAll(lineNames);
+		geometries.addAll(polygons);
+		geometryNames.addAll(polygonNames);
+
+		createFeatures(geoPackage, srs, GeometryType.GEOMETRY, geometries,
+				geometryNames);
 	}
 
 	private static void createFeatures(GeoPackage geoPackage,
