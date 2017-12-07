@@ -1,12 +1,17 @@
 package mil.nga.geopackage.test;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import javax.imageio.ImageIO;
+
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesDao;
@@ -25,8 +30,18 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.projection.ProjectionConstants;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.TileGrid;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.wkb.geom.Geometry;
 import mil.nga.wkb.geom.GeometryEnvelope;
 import mil.nga.wkb.geom.GeometryType;
@@ -45,7 +60,7 @@ public class GeoPackageExample {
 	private static final String GEOPACKAGE_FILE = "example.gpkg";
 
 	private static final boolean FEATURES = true;
-	private static final boolean TILES = false;
+	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
 
 	private static final String ID_COLUMN = "id";
@@ -60,7 +75,7 @@ public class GeoPackageExample {
 	private static final String DATE_COLUMN = "date";
 	private static final String DATETIME_COLUMN = "datetime";
 
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws SQLException, IOException {
 
 		System.out.println("Creating: " + GEOPACKAGE_FILE);
 		GeoPackage geoPackage = createGeoPackage();
@@ -103,7 +118,7 @@ public class GeoPackageExample {
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
 
-		SpatialReferenceSystem srs = srsDao.queryForOrganizationCoordsysId(
+		SpatialReferenceSystem srs = srsDao.getOrCreateCode(
 				ProjectionConstants.AUTHORITY_EPSG,
 				(long) ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
@@ -132,7 +147,7 @@ public class GeoPackageExample {
 		line1.addPoint(new Point(-104.803088, 39.720477));
 		line1.addPoint(new Point(-104.803474, 39.720209));
 		lines.add(line1);
-		lineNames.add("Laredo St");
+		lineNames.add("East Lockheed Drive");
 
 		LineString line2 = new LineString();
 		line2.addPoint(new Point(-77.196650, 38.756501));
@@ -324,8 +339,135 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createTiles(GeoPackage geoPackage) {
-		// TODO
+	private static void createTiles(GeoPackage geoPackage) throws IOException,
+			SQLException {
+
+		geoPackage.createTileMatrixSetTable();
+		geoPackage.createTileMatrixTable();
+
+		BoundingBox bitsBoundingBox = new BoundingBox(-11667347.997449303,
+				4824705.2253603265, -11666125.00499674, 4825928.217812888);
+		createTiles(geoPackage, "bit_systems", bitsBoundingBox, 15, 17, "png");
+
+		BoundingBox ngaBoundingBox = new BoundingBox(-8593967.964158937,
+				4685284.085768163, -8592744.971706374, 4687730.070673289);
+		createTiles(geoPackage, "nga", ngaBoundingBox, 15, 16, "png");
+
+	}
+
+	private static void createTiles(GeoPackage geoPackage, String name,
+			BoundingBox boundingBox, int minZoomLevel, int maxZoomLevel,
+			String extension) throws SQLException, IOException {
+
+		SpatialReferenceSystemDao srsDao = geoPackage
+				.getSpatialReferenceSystemDao();
+		SpatialReferenceSystem srs = srsDao.getOrCreateCode(
+				ProjectionConstants.AUTHORITY_EPSG,
+				(long) ProjectionConstants.EPSG_WEB_MERCATOR);
+
+		TileGrid totalTileGrid = TileBoundingBoxUtils.getTileGrid(boundingBox,
+				minZoomLevel);
+		BoundingBox totalBoundingBox = TileBoundingBoxUtils
+				.getWebMercatorBoundingBox(totalTileGrid, minZoomLevel);
+
+		ContentsDao contentsDao = geoPackage.getContentsDao();
+
+		Contents contents = new Contents();
+		contents.setTableName(name);
+		contents.setDataType(ContentsDataType.TILES);
+		contents.setIdentifier(name);
+		contents.setDescription(name);
+		contents.setMinX(totalBoundingBox.getMinLongitude());
+		contents.setMinY(totalBoundingBox.getMinLatitude());
+		contents.setMaxX(totalBoundingBox.getMaxLongitude());
+		contents.setMaxY(totalBoundingBox.getMaxLatitude());
+		contents.setSrs(srs);
+
+		TileTable tileTable = TestUtils.buildTileTable(contents.getTableName());
+		geoPackage.createTileTable(tileTable);
+
+		contentsDao.create(contents);
+
+		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
+
+		TileMatrixSet tileMatrixSet = new TileMatrixSet();
+		tileMatrixSet.setContents(contents);
+		tileMatrixSet.setSrs(contents.getSrs());
+		tileMatrixSet.setMinX(contents.getMinX());
+		tileMatrixSet.setMinY(contents.getMinY());
+		tileMatrixSet.setMaxX(contents.getMaxX());
+		tileMatrixSet.setMaxY(contents.getMaxY());
+		tileMatrixSetDao.create(tileMatrixSet);
+
+		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+
+		final String tilesPath = "tiles/";
+
+		for (int zoom = minZoomLevel; zoom <= maxZoomLevel; zoom++) {
+
+			final String zoomPath = tilesPath + zoom + "/";
+
+			Integer tileWidth = null;
+			Integer tileHeight = null;
+
+			TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
+					totalBoundingBox, zoom);
+			TileDao dao = geoPackage.getTileDao(tileMatrixSet);
+
+			for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
+
+				final String xPath = zoomPath + x + "/";
+
+				for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
+
+					final String yPath = xPath + y + "." + extension;
+
+					if (TestUtils.class.getResource("/" + yPath) != null) {
+
+						File tileFile = TestUtils.getTestFile(yPath);
+
+						byte[] tileBytes = GeoPackageIOUtils
+								.fileBytes(tileFile);
+
+						if (tileWidth == null || tileHeight == null) {
+							BufferedImage tileImage = ImageIO.read(tileFile);
+							tileHeight = tileImage.getHeight();
+							tileWidth = tileImage.getWidth();
+						}
+
+						TileRow newRow = dao.newRow();
+
+						newRow.setZoomLevel(zoom);
+						newRow.setTileColumn(x - tileGrid.getMinX());
+						newRow.setTileRow(y - tileGrid.getMinY());
+						newRow.setTileData(tileBytes);
+
+						dao.create(newRow);
+
+					}
+				}
+			}
+
+			long matrixWidth = tileGrid.getMaxX() - tileGrid.getMinX() + 1;
+			long matrixHeight = tileGrid.getMaxY() - tileGrid.getMinY() + 1;
+			double pixelXSize = (tileMatrixSet.getMaxX() - tileMatrixSet
+					.getMinX()) / (matrixWidth * tileWidth);
+			double pixelYSize = (tileMatrixSet.getMaxY() - tileMatrixSet
+					.getMinY()) / (matrixHeight * tileHeight);
+
+			TileMatrix tileMatrix = new TileMatrix();
+			tileMatrix.setContents(contents);
+			tileMatrix.setZoomLevel(zoom);
+			tileMatrix.setMatrixWidth(matrixWidth);
+			tileMatrix.setMatrixHeight(matrixHeight);
+			tileMatrix.setTileWidth(tileWidth);
+			tileMatrix.setTileHeight(tileHeight);
+			tileMatrix.setPixelXSize(pixelXSize);
+			tileMatrix.setPixelYSize(pixelYSize);
+			tileMatrixDao.create(tileMatrix);
+
+		}
+
 	}
 
 	private static void createAttributes(GeoPackage geoPackage) {
