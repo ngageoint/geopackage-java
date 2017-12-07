@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.UUID;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.attributes.AttributesColumn;
+import mil.nga.geopackage.attributes.AttributesDao;
+import mil.nga.geopackage.attributes.AttributesRow;
+import mil.nga.geopackage.attributes.AttributesTable;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
@@ -42,7 +46,19 @@ public class GeoPackageExample {
 
 	private static final boolean FEATURES = true;
 	private static final boolean TILES = false;
-	private static final boolean ATTRIBUTES = false;
+	private static final boolean ATTRIBUTES = true;
+
+	private static final String ID_COLUMN = "id";
+	private static final String GEOMETRY_COLUMN = "geometry";
+	private static final String TEXT_COLUMN = "text";
+	private static final String REAL_COLUMN = "real";
+	private static final String BOOLEAN_COLUMN = "boolean";
+	private static final String BLOB_COLUMN = "blob";
+	private static final String INTEGER_COLUMN = "integer";
+	private static final String TEXT_LIMITED_COLUMN = "text_limited";
+	private static final String BLOB_LIMITED_COLUMN = "blob_limited";
+	private static final String DATE_COLUMN = "date";
+	private static final String DATETIME_COLUMN = "datetime";
 
 	public static void main(String[] args) throws SQLException {
 
@@ -227,43 +243,31 @@ public class GeoPackageExample {
 
 		List<FeatureColumn> columns = new ArrayList<FeatureColumn>();
 
-		final String idColumn = "id";
-		final String geometryColumn = "geometry";
-		final String textColumn = "name";
-		final String realColumn = "test_real";
-		final String booleanColumn = "test_boolean";
-		final String blobColumn = "test_blob";
-		final String integerColumn = "test_integer";
-		final String textLimitedColumn = "test_text_limited";
-		final String blobLimitedColumn = "test_blob_limited";
-		final String dateColumn = "test_date";
-		final String datetimeColumn = "test_datetime";
-
 		int columnNumber = 0;
 		columns.add(FeatureColumn.createPrimaryKeyColumn(columnNumber++,
-				idColumn));
+				ID_COLUMN));
 		columns.add(FeatureColumn.createGeometryColumn(columnNumber++,
-				geometryColumn, type, false, null));
-		columns.add(FeatureColumn.createColumn(columnNumber++, textColumn,
+				GEOMETRY_COLUMN, type, false, null));
+		columns.add(FeatureColumn.createColumn(columnNumber++, TEXT_COLUMN,
 				GeoPackageDataType.TEXT, false, ""));
-		columns.add(FeatureColumn.createColumn(columnNumber++, realColumn,
+		columns.add(FeatureColumn.createColumn(columnNumber++, REAL_COLUMN,
 				GeoPackageDataType.REAL, false, null));
-		columns.add(FeatureColumn.createColumn(columnNumber++, booleanColumn,
+		columns.add(FeatureColumn.createColumn(columnNumber++, BOOLEAN_COLUMN,
 				GeoPackageDataType.BOOLEAN, false, null));
-		columns.add(FeatureColumn.createColumn(columnNumber++, blobColumn,
+		columns.add(FeatureColumn.createColumn(columnNumber++, BLOB_COLUMN,
 				GeoPackageDataType.BLOB, false, null));
-		columns.add(FeatureColumn.createColumn(columnNumber++, integerColumn,
+		columns.add(FeatureColumn.createColumn(columnNumber++, INTEGER_COLUMN,
 				GeoPackageDataType.INTEGER, false, null));
 		columns.add(FeatureColumn.createColumn(columnNumber++,
-				textLimitedColumn, GeoPackageDataType.TEXT, (long) UUID
+				TEXT_LIMITED_COLUMN, GeoPackageDataType.TEXT, (long) UUID
 						.randomUUID().toString().length(), false, null));
 		columns.add(FeatureColumn
-				.createColumn(columnNumber++, blobLimitedColumn,
+				.createColumn(columnNumber++, BLOB_LIMITED_COLUMN,
 						GeoPackageDataType.BLOB, (long) UUID.randomUUID()
 								.toString().getBytes().length, false, null));
-		columns.add(FeatureColumn.createColumn(columnNumber++, dateColumn,
+		columns.add(FeatureColumn.createColumn(columnNumber++, DATE_COLUMN,
 				GeoPackageDataType.DATE, false, null));
-		columns.add(FeatureColumn.createColumn(columnNumber++, datetimeColumn,
+		columns.add(FeatureColumn.createColumn(columnNumber++, DATETIME_COLUMN,
 				GeoPackageDataType.DATETIME, false, null));
 
 		FeatureTable table = new FeatureTable(tableName, columns);
@@ -276,7 +280,7 @@ public class GeoPackageExample {
 
 		GeometryColumns geometryColumns = new GeometryColumns();
 		geometryColumns.setContents(contents);
-		geometryColumns.setColumnName(geometryColumn);
+		geometryColumns.setColumnName(GEOMETRY_COLUMN);
 		geometryColumns.setGeometryType(type);
 		geometryColumns.setSrs(srs);
 		geometryColumns.setZ((byte) 0);
@@ -302,16 +306,17 @@ public class GeoPackageExample {
 			geometryData.setGeometry(geometry);
 			newRow.setGeometry(geometryData);
 
-			newRow.setValue(textColumn, name);
-			newRow.setValue(realColumn, Math.random() * 5000.0);
-			newRow.setValue(booleanColumn, Math.random() < .5 ? false : true);
-			newRow.setValue(blobColumn, UUID.randomUUID().toString().getBytes());
-			newRow.setValue(integerColumn, (int) (Math.random() * 500));
-			newRow.setValue(textLimitedColumn, UUID.randomUUID().toString());
-			newRow.setValue(blobLimitedColumn, UUID.randomUUID().toString()
+			newRow.setValue(TEXT_COLUMN, name);
+			newRow.setValue(REAL_COLUMN, Math.random() * 5000.0);
+			newRow.setValue(BOOLEAN_COLUMN, Math.random() < .5 ? false : true);
+			newRow.setValue(BLOB_COLUMN, UUID.randomUUID().toString()
 					.getBytes());
-			newRow.setValue(dateColumn, new Date());
-			newRow.setValue(datetimeColumn, new Date());
+			newRow.setValue(INTEGER_COLUMN, (int) (Math.random() * 500));
+			newRow.setValue(TEXT_LIMITED_COLUMN, UUID.randomUUID().toString());
+			newRow.setValue(BLOB_LIMITED_COLUMN, UUID.randomUUID().toString()
+					.getBytes());
+			newRow.setValue(DATE_COLUMN, new Date());
+			newRow.setValue(DATETIME_COLUMN, new Date());
 
 			dao.create(newRow);
 
@@ -324,7 +329,57 @@ public class GeoPackageExample {
 	}
 
 	private static void createAttributes(GeoPackage geoPackage) {
-		// TODO
+
+		List<AttributesColumn> columns = new ArrayList<AttributesColumn>();
+
+		int columnNumber = 1;
+		columns.add(AttributesColumn.createColumn(columnNumber++, TEXT_COLUMN,
+				GeoPackageDataType.TEXT, false, ""));
+		columns.add(AttributesColumn.createColumn(columnNumber++, REAL_COLUMN,
+				GeoPackageDataType.REAL, false, null));
+		columns.add(AttributesColumn.createColumn(columnNumber++,
+				BOOLEAN_COLUMN, GeoPackageDataType.BOOLEAN, false, null));
+		columns.add(AttributesColumn.createColumn(columnNumber++, BLOB_COLUMN,
+				GeoPackageDataType.BLOB, false, null));
+		columns.add(AttributesColumn.createColumn(columnNumber++,
+				INTEGER_COLUMN, GeoPackageDataType.INTEGER, false, null));
+		columns.add(AttributesColumn.createColumn(columnNumber++,
+				TEXT_LIMITED_COLUMN, GeoPackageDataType.TEXT, (long) UUID
+						.randomUUID().toString().length(), false, null));
+		columns.add(AttributesColumn
+				.createColumn(columnNumber++, BLOB_LIMITED_COLUMN,
+						GeoPackageDataType.BLOB, (long) UUID.randomUUID()
+								.toString().getBytes().length, false, null));
+		columns.add(AttributesColumn.createColumn(columnNumber++, DATE_COLUMN,
+				GeoPackageDataType.DATE, false, null));
+		columns.add(AttributesColumn.createColumn(columnNumber++,
+				DATETIME_COLUMN, GeoPackageDataType.DATETIME, false, null));
+
+		AttributesTable attributesTable = geoPackage
+				.createAttributesTableWithId("attributes", columns);
+
+		AttributesDao attributesDao = geoPackage
+				.getAttributesDao(attributesTable.getTableName());
+
+		for (int i = 0; i < 10; i++) {
+
+			AttributesRow newRow = attributesDao.newRow();
+
+			newRow.setValue(TEXT_COLUMN, UUID.randomUUID().toString());
+			newRow.setValue(REAL_COLUMN, Math.random() * 5000.0);
+			newRow.setValue(BOOLEAN_COLUMN, Math.random() < .5 ? false : true);
+			newRow.setValue(BLOB_COLUMN, UUID.randomUUID().toString()
+					.getBytes());
+			newRow.setValue(INTEGER_COLUMN, (int) (Math.random() * 500));
+			newRow.setValue(TEXT_LIMITED_COLUMN, UUID.randomUUID().toString());
+			newRow.setValue(BLOB_LIMITED_COLUMN, UUID.randomUUID().toString()
+					.getBytes());
+			newRow.setValue(DATE_COLUMN, new Date());
+			newRow.setValue(DATETIME_COLUMN, new Date());
+
+			attributesDao.create(newRow);
+
+		}
 	}
 
 }
