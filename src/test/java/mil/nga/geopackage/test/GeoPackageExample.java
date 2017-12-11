@@ -3,6 +3,7 @@ package mil.nga.geopackage.test;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +38,11 @@ import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.schema.columns.DataColumns;
+import mil.nga.geopackage.schema.columns.DataColumnsDao;
+import mil.nga.geopackage.schema.constraints.DataColumnConstraintType;
+import mil.nga.geopackage.schema.constraints.DataColumnConstraints;
+import mil.nga.geopackage.schema.constraints.DataColumnConstraintsDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.TileGrid;
@@ -70,6 +76,7 @@ public class GeoPackageExample {
 	private static final boolean FEATURES = true;
 	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
+	private static final boolean SCHEMA_EXTENSION = true;
 	private static final boolean GEOMETRY_INDEX_EXTENSION = true;
 	private static final boolean FEATURE_TILE_LINK_EXTENSION = true;
 
@@ -92,7 +99,13 @@ public class GeoPackageExample {
 
 		System.out.println("Features: " + FEATURES);
 		if (FEATURES) {
+
 			createFeatures(geoPackage);
+
+			System.out.println("Schema Extension: " + SCHEMA_EXTENSION);
+			if (SCHEMA_EXTENSION) {
+				createSchemaExtension(geoPackage);
+			}
 
 			System.out.println("Geometry Index Extension: "
 					+ GEOMETRY_INDEX_EXTENSION);
@@ -106,6 +119,7 @@ public class GeoPackageExample {
 				createFeatureTileLinkExtension(geoPackage);
 			}
 		} else {
+			System.out.println("Schema Extension: " + FEATURES);
 			System.out.println("Geometry Index Extension: " + FEATURES);
 			System.out.println("Feature Tile Link Extension: " + FEATURES);
 		}
@@ -614,6 +628,123 @@ public class GeoPackageExample {
 					requestBoundingBox, requestProjection);
 
 			tileGenerator.generateTiles();
+		}
+	}
+
+	private static int DATA_COLUMN_CONSTRAINT_INDEX = 0;
+
+	private static void createSchemaExtension(GeoPackage geoPackage)
+			throws SQLException {
+
+		// TODO make the feature column values fall within the constraints
+
+		geoPackage.createDataColumnConstraintsTable();
+
+		DataColumnConstraintsDao dao = geoPackage.getDataColumnConstraintsDao();
+
+		DataColumnConstraints sampleRange = new DataColumnConstraints();
+		sampleRange.setConstraintName("sampleRange");
+		sampleRange.setConstraintType(DataColumnConstraintType.RANGE);
+		sampleRange.setMin(BigDecimal.ONE);
+		sampleRange.setMinIsInclusive(true);
+		sampleRange.setMax(BigDecimal.TEN);
+		sampleRange.setMaxIsInclusive(true);
+		sampleRange.setDescription("sampleRange description");
+		dao.create(sampleRange);
+
+		DataColumnConstraints sampleEnum1 = new DataColumnConstraints();
+		sampleEnum1.setConstraintName("sampleEnum");
+		sampleEnum1.setConstraintType(DataColumnConstraintType.ENUM);
+		sampleEnum1.setValue("1");
+		sampleEnum1.setDescription("sampleEnum description");
+		dao.create(sampleEnum1);
+
+		DataColumnConstraints sampleEnum3 = new DataColumnConstraints();
+		sampleEnum3.setConstraintName(sampleEnum1.getConstraintName());
+		sampleEnum3.setConstraintType(DataColumnConstraintType.ENUM);
+		sampleEnum3.setValue("3");
+		sampleEnum3.setDescription("sampleEnum description");
+		dao.create(sampleEnum3);
+
+		DataColumnConstraints sampleEnum5 = new DataColumnConstraints();
+		sampleEnum5.setConstraintName(sampleEnum1.getConstraintName());
+		sampleEnum5.setConstraintType(DataColumnConstraintType.ENUM);
+		sampleEnum5.setValue("5");
+		sampleEnum5.setDescription("sampleEnum description");
+		dao.create(sampleEnum5);
+
+		DataColumnConstraints sampleEnum7 = new DataColumnConstraints();
+		sampleEnum7.setConstraintName(sampleEnum1.getConstraintName());
+		sampleEnum7.setConstraintType(DataColumnConstraintType.ENUM);
+		sampleEnum7.setValue("7");
+		sampleEnum7.setDescription("sampleEnum description");
+		dao.create(sampleEnum7);
+
+		DataColumnConstraints sampleEnum9 = new DataColumnConstraints();
+		sampleEnum9.setConstraintName(sampleEnum1.getConstraintName());
+		sampleEnum9.setConstraintType(DataColumnConstraintType.ENUM);
+		sampleEnum9.setValue("9");
+		sampleEnum9.setDescription("sampleEnum description");
+		dao.create(sampleEnum9);
+
+		DataColumnConstraints sampleGlob = new DataColumnConstraints();
+		sampleGlob.setConstraintName("sampleGlob");
+		sampleGlob.setConstraintType(DataColumnConstraintType.GLOB);
+		sampleGlob.setValue("[1-2][0-9][0-9][0-9]");
+		sampleGlob.setDescription("sampleGlob description");
+		dao.create(sampleGlob);
+
+		geoPackage.createDataColumnsTable();
+
+		DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+
+		List<String> featureTables = geoPackage.getFeatureTables();
+		for (String featureTable : featureTables) {
+
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+
+			FeatureTable table = featureDao.getTable();
+			for (FeatureColumn column : table.getColumns()) {
+
+				if (!column.isPrimaryKey()
+						&& column.getDataType() == GeoPackageDataType.INTEGER) {
+
+					DataColumns dataColumns = new DataColumns();
+					dataColumns.setContents(featureDao.getGeometryColumns()
+							.getContents());
+					dataColumns.setColumnName(column.getName());
+					dataColumns.setName(featureTable);
+					dataColumns.setTitle("TEST_TITLE");
+					dataColumns.setDescription("TEST_DESCRIPTION");
+					dataColumns.setMimeType("TEST_MIME_TYPE");
+
+					DataColumnConstraintType constraintType = DataColumnConstraintType
+							.values()[DATA_COLUMN_CONSTRAINT_INDEX];
+					DATA_COLUMN_CONSTRAINT_INDEX++;
+					if (DATA_COLUMN_CONSTRAINT_INDEX >= DataColumnConstraintType
+							.values().length) {
+						DATA_COLUMN_CONSTRAINT_INDEX = 0;
+					}
+
+					String contraintName = null;
+					switch (constraintType) {
+					case RANGE:
+						contraintName = sampleRange.getConstraintName();
+						break;
+					case ENUM:
+						contraintName = sampleEnum1.getConstraintName();
+						break;
+					case GLOB:
+						contraintName = sampleGlob.getConstraintName();
+						break;
+					}
+					dataColumns.setConstraintName(contraintName);
+
+					dataColumnsDao.create(dataColumns);
+
+					break;
+				}
+			}
 		}
 	}
 
