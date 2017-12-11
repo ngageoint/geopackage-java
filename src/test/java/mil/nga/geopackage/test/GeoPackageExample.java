@@ -23,6 +23,7 @@ import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.user.FeatureColumn;
@@ -32,9 +33,16 @@ import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.manager.GeoPackageManager;
+import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
+import mil.nga.geopackage.projection.ProjectionFactory;
+import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.TileGrid;
+import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
+import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
@@ -62,6 +70,8 @@ public class GeoPackageExample {
 	private static final boolean FEATURES = true;
 	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
+	private static final boolean GEOMETRY_INDEX_EXTENSION = true;
+	private static final boolean FEATURE_TILE_LINK_EXTENSION = true;
 
 	private static final String ID_COLUMN = "id";
 	private static final String GEOMETRY_COLUMN = "geometry";
@@ -83,6 +93,21 @@ public class GeoPackageExample {
 		System.out.println("Features: " + FEATURES);
 		if (FEATURES) {
 			createFeatures(geoPackage);
+
+			System.out.println("Geometry Index Extension: "
+					+ GEOMETRY_INDEX_EXTENSION);
+			if (GEOMETRY_INDEX_EXTENSION) {
+				createGeometryIndexExtension(geoPackage);
+			}
+
+			System.out.println("Feature Tile Link Extension: "
+					+ FEATURE_TILE_LINK_EXTENSION);
+			if (FEATURE_TILE_LINK_EXTENSION) {
+				createFeatureTileLinkExtension(geoPackage);
+			}
+		} else {
+			System.out.println("Geometry Index Extension: " + FEATURES);
+			System.out.println("Feature Tile Link Extension: " + FEATURES);
 		}
 
 		System.out.println("Tiles: " + TILES);
@@ -124,32 +149,31 @@ public class GeoPackageExample {
 
 		geoPackage.createGeometryColumnsTable();
 
-		List<Geometry> points = new ArrayList<>();
-		List<String> pointNames = new ArrayList<>();
+		Point point1 = new Point(-104.801918, 39.720014);
+		String point1Name = "BIT Systems";
 
-		Point point1 = new Point(-104.802223, 39.719994);
-		points.add(point1);
-		pointNames.add("BIT Systems");
+		createFeatures(geoPackage, srs, "point1", GeometryType.POINT, point1,
+				point1Name);
 
 		Point point2 = new Point(-77.196736, 38.753370);
-		points.add(point2);
-		pointNames.add("NGA");
+		String point2Name = "NGA";
 
-		createFeatures(geoPackage, srs, GeometryType.POINT, points, pointNames);
-
-		List<Geometry> lines = new ArrayList<>();
-		List<String> lineNames = new ArrayList<>();
+		createFeatures(geoPackage, srs, "point2", GeometryType.POINT, point2,
+				point2Name);
 
 		LineString line1 = new LineString();
+		String line1Name = "East Lockheed Drive";
 		line1.addPoint(new Point(-104.800614, 39.720721));
 		line1.addPoint(new Point(-104.802174, 39.720726));
 		line1.addPoint(new Point(-104.802584, 39.720660));
 		line1.addPoint(new Point(-104.803088, 39.720477));
 		line1.addPoint(new Point(-104.803474, 39.720209));
-		lines.add(line1);
-		lineNames.add("East Lockheed Drive");
+
+		createFeatures(geoPackage, srs, "line1", GeometryType.LINESTRING,
+				line1, line1Name);
 
 		LineString line2 = new LineString();
+		String line2Name = "NGA";
 		line2.addPoint(new Point(-77.196650, 38.756501));
 		line2.addPoint(new Point(-77.196414, 38.755979));
 		line2.addPoint(new Point(-77.195518, 38.755208));
@@ -158,16 +182,12 @@ public class GeoPackageExample {
 		line2.addPoint(new Point(-77.195863, 38.755697));
 		line2.addPoint(new Point(-77.196328, 38.756069));
 		line2.addPoint(new Point(-77.196568, 38.756526));
-		lines.add(line2);
-		lineNames.add("NGA");
 
-		createFeatures(geoPackage, srs, GeometryType.LINESTRING, lines,
-				lineNames);
-
-		List<Geometry> polygons = new ArrayList<>();
-		List<String> polygonNames = new ArrayList<>();
+		createFeatures(geoPackage, srs, "line2", GeometryType.LINESTRING,
+				line2, line2Name);
 
 		Polygon polygon1 = new Polygon();
+		String polygon1Name = "BIT Systems";
 		LineString ring1 = new LineString();
 		ring1.addPoint(new Point(-104.802246, 39.720343));
 		ring1.addPoint(new Point(-104.802246, 39.719753));
@@ -184,10 +204,12 @@ public class GeoPackageExample {
 		ring1.addPoint(new Point(-104.801648, 39.720341));
 		ring1.addPoint(new Point(-104.802246, 39.720343));
 		polygon1.addRing(ring1);
-		polygons.add(polygon1);
-		polygonNames.add("BIT Systems");
+
+		createFeatures(geoPackage, srs, "polygon1", GeometryType.POLYGON,
+				polygon1, polygon1Name);
 
 		Polygon polygon2 = new Polygon();
+		String polygon2Name = "NGA Visitor Center";
 		LineString ring2 = new LineString();
 		ring2.addPoint(new Point(-77.195299, 38.755159));
 		ring2.addPoint(new Point(-77.195203, 38.755080));
@@ -209,30 +231,51 @@ public class GeoPackageExample {
 		ring2.addPoint(new Point(-77.195205, 38.755233));
 		ring2.addPoint(new Point(-77.195299, 38.755159));
 		polygon2.addRing(ring2);
-		polygons.add(polygon2);
-		polygonNames.add("NGA Visitor Center");
 
-		createFeatures(geoPackage, srs, GeometryType.POLYGON, polygons,
-				polygonNames);
+		createFeatures(geoPackage, srs, "polygon2", GeometryType.POLYGON,
+				polygon2, polygon2Name);
 
-		List<Geometry> geometries = new ArrayList<>();
-		List<String> geometryNames = new ArrayList<>();
-		geometries.addAll(points);
-		geometryNames.addAll(pointNames);
-		geometries.addAll(lines);
-		geometryNames.addAll(lineNames);
-		geometries.addAll(polygons);
-		geometryNames.addAll(polygonNames);
+		List<Geometry> geometries1 = new ArrayList<>();
+		List<String> geometries1Names = new ArrayList<>();
+		geometries1.add(point1);
+		geometries1Names.add(point1Name);
+		geometries1.add(line1);
+		geometries1Names.add(line1Name);
+		geometries1.add(polygon1);
+		geometries1Names.add(polygon1Name);
 
-		createFeatures(geoPackage, srs, GeometryType.GEOMETRY, geometries,
-				geometryNames);
+		createFeatures(geoPackage, srs, "geometry1", GeometryType.GEOMETRY,
+				geometries1, geometries1Names);
+
+		List<Geometry> geometries2 = new ArrayList<>();
+		List<String> geometries2Names = new ArrayList<>();
+		geometries2.add(point2);
+		geometries2Names.add(point2Name);
+		geometries2.add(line2);
+		geometries2Names.add(line2Name);
+		geometries2.add(polygon2);
+		geometries2Names.add(polygon2Name);
+
+		createFeatures(geoPackage, srs, "geometry2", GeometryType.GEOMETRY,
+				geometries2, geometries2Names);
+
 	}
 
 	private static void createFeatures(GeoPackage geoPackage,
-			SpatialReferenceSystem srs, GeometryType type,
-			List<Geometry> geometries, List<String> names) throws SQLException {
+			SpatialReferenceSystem srs, String tableName, GeometryType type,
+			Geometry geometry, String name) throws SQLException {
 
-		String tableName = type.name().toLowerCase();
+		List<Geometry> geometries = new ArrayList<>();
+		geometries.add(geometry);
+		List<String> names = new ArrayList<>();
+		names.add(name);
+
+		createFeatures(geoPackage, srs, tableName, type, geometries, names);
+	}
+
+	private static void createFeatures(GeoPackage geoPackage,
+			SpatialReferenceSystem srs, String tableName, GeometryType type,
+			List<Geometry> geometries, List<String> names) throws SQLException {
 
 		GeometryEnvelope envelope = null;
 		for (Geometry geometry : geometries) {
@@ -521,6 +564,56 @@ public class GeoPackageExample {
 
 			attributesDao.create(newRow);
 
+		}
+	}
+
+	private static void createGeometryIndexExtension(GeoPackage geoPackage) {
+
+		List<String> featureTables = geoPackage.getFeatureTables();
+		for (String featureTable : featureTables) {
+
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+			FeatureTableIndex featureTableIndex = new FeatureTableIndex(
+					geoPackage, featureDao);
+			featureTableIndex.index();
+		}
+
+	}
+
+	private static void createFeatureTileLinkExtension(GeoPackage geoPackage)
+			throws SQLException, IOException {
+
+		List<String> featureTables = geoPackage.getFeatureTables();
+		for (String featureTable : featureTables) {
+
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+			FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
+
+			FeatureTableIndex featureIndex = new FeatureTableIndex(geoPackage,
+					featureDao);
+			featureTiles.setFeatureIndex(featureIndex);
+
+			BoundingBox boundingBox = featureDao.getBoundingBox();
+			Projection projection = featureDao.getProjection();
+
+			Projection requestProjection = ProjectionFactory
+					.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+			ProjectionTransform transform = projection
+					.getTransformation(requestProjection);
+			BoundingBox requestBoundingBox = transform.transform(boundingBox);
+
+			int zoomLevel = TileBoundingBoxUtils
+					.getZoomLevel(requestBoundingBox);
+			zoomLevel = Math.min(zoomLevel, 19);
+
+			int minZoom = zoomLevel - 2;
+			int maxZoom = zoomLevel + 2;
+
+			TileGenerator tileGenerator = new FeatureTileGenerator(geoPackage,
+					featureTable + "_tiles", featureTiles, minZoom, maxZoom,
+					requestBoundingBox, requestProjection);
+
+			tileGenerator.generateTiles();
 		}
 	}
 
