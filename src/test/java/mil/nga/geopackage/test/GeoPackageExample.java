@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesRow;
@@ -24,6 +25,7 @@ import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.extension.GeometryExtensions;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -56,10 +58,15 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.wkb.geom.CircularString;
+import mil.nga.wkb.geom.CompoundCurve;
+import mil.nga.wkb.geom.CurvePolygon;
 import mil.nga.wkb.geom.Geometry;
 import mil.nga.wkb.geom.GeometryEnvelope;
 import mil.nga.wkb.geom.GeometryType;
 import mil.nga.wkb.geom.LineString;
+import mil.nga.wkb.geom.MultiLineString;
+import mil.nga.wkb.geom.MultiPolygon;
 import mil.nga.wkb.geom.Point;
 import mil.nga.wkb.geom.Polygon;
 import mil.nga.wkb.util.GeometryEnvelopeBuilder;
@@ -77,6 +84,7 @@ public class GeoPackageExample {
 	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
 	private static final boolean SCHEMA_EXTENSION = true;
+	private static final boolean NON_LINEAR_GEOMETRY_TYPES = true;
 	private static final boolean GEOMETRY_INDEX_EXTENSION = true;
 	private static final boolean FEATURE_TILE_LINK_EXTENSION = true;
 
@@ -118,10 +126,19 @@ public class GeoPackageExample {
 			if (FEATURE_TILE_LINK_EXTENSION) {
 				createFeatureTileLinkExtension(geoPackage);
 			}
+
+			System.out.println("Non-Linear Geometry Types Extension: "
+					+ NON_LINEAR_GEOMETRY_TYPES);
+			if (NON_LINEAR_GEOMETRY_TYPES) {
+				createNonLinearGeometryTypesExtension(geoPackage);
+			}
+
 		} else {
 			System.out.println("Schema Extension: " + FEATURES);
 			System.out.println("Geometry Index Extension: " + FEATURES);
 			System.out.println("Feature Tile Link Extension: " + FEATURES);
+			System.out.println("Non-Linear Geometry Types Extension: "
+					+ FEATURES);
 		}
 
 		System.out.println("Tiles: " + TILES);
@@ -746,6 +763,90 @@ public class GeoPackageExample {
 				}
 			}
 		}
+	}
+
+	private static void createNonLinearGeometryTypesExtension(
+			GeoPackage geoPackage) throws SQLException {
+
+		SpatialReferenceSystemDao srsDao = geoPackage
+				.getSpatialReferenceSystemDao();
+
+		SpatialReferenceSystem srs = srsDao.getOrCreateCode(
+				ProjectionConstants.AUTHORITY_EPSG,
+				(long) ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+
+		GeometryExtensions extensions = new GeometryExtensions(geoPackage);
+
+		String tableName = "non_linear_geometries";
+
+		List<Geometry> geometries = new ArrayList<>();
+		List<String> geometryNames = new ArrayList<>();
+
+		CircularString circularString = new CircularString();
+		circularString.addPoint(new Point(-122.358, 47.653));
+		circularString.addPoint(new Point(-122.348, 47.649));
+		circularString.addPoint(new Point(-122.348, 47.658));
+		circularString.addPoint(new Point(-122.358, 47.658));
+		circularString.addPoint(new Point(-122.358, 47.653));
+
+		for (int i = GeometryType.CIRCULARSTRING.getCode(); i <= GeometryType.SURFACE
+				.getCode(); i++) {
+
+			GeometryType geometryType = GeometryType.fromCode(i);
+			extensions.getOrCreate(tableName, GEOMETRY_COLUMN, geometryType);
+
+			Geometry geometry = null;
+			String name = geometryType.getName().toLowerCase();
+
+			switch (geometryType) {
+			case CIRCULARSTRING:
+				geometry = circularString;
+				break;
+			case COMPOUNDCURVE:
+				CompoundCurve compundCurve = new CompoundCurve();
+				compundCurve.addLineString(circularString);
+				geometry = compundCurve;
+				break;
+			case CURVEPOLYGON:
+				CurvePolygon<CircularString> curvePolygon = new CurvePolygon<>();
+				curvePolygon.addRing(circularString);
+				geometry = curvePolygon;
+				break;
+			case MULTICURVE:
+				MultiLineString multiCurve = new MultiLineString();
+				multiCurve.addLineString(circularString);
+				geometry = multiCurve;
+				break;
+			case MULTISURFACE:
+				MultiPolygon multiSurface = new MultiPolygon();
+				Polygon polygon = new Polygon();
+				polygon.addRing(circularString);
+				multiSurface.addPolygon(polygon);
+				geometry = multiSurface;
+				break;
+			case CURVE:
+				CompoundCurve curve = new CompoundCurve();
+				curve.addLineString(circularString);
+				geometry = curve;
+				break;
+			case SURFACE:
+				CurvePolygon<CircularString> surface = new CurvePolygon<>();
+				surface.addRing(circularString);
+				geometry = surface;
+				break;
+			default:
+				throw new GeoPackageException("Unexpected Geometry Type: "
+						+ geometryType);
+			}
+
+			geometries.add(geometry);
+			geometryNames.add(name);
+
+		}
+
+		createFeatures(geoPackage, srs, tableName, GeometryType.GEOMETRY,
+				geometries, geometryNames);
+
 	}
 
 }
