@@ -25,6 +25,7 @@ import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.GeometryExtensions;
 import mil.nga.geopackage.extension.WebPExtension;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
@@ -87,6 +88,7 @@ public class GeoPackageExample {
 	private static final boolean SCHEMA_EXTENSION = true;
 	private static final boolean NON_LINEAR_GEOMETRY_TYPES = true;
 	private static final boolean WEBP = true;
+	private static final boolean CRS_WKT = true;
 	private static final boolean GEOMETRY_INDEX_EXTENSION = true;
 	private static final boolean FEATURE_TILE_LINK_EXTENSION = true;
 
@@ -106,6 +108,11 @@ public class GeoPackageExample {
 
 		System.out.println("Creating: " + GEOPACKAGE_FILE);
 		GeoPackage geoPackage = createGeoPackage();
+
+		System.out.println("CRS WKT Extension: " + CRS_WKT);
+		if (CRS_WKT) {
+			createCrsWktExtension(geoPackage);
+		}
 
 		System.out.println("Features: " + FEATURES);
 		if (FEATURES) {
@@ -516,7 +523,7 @@ public class GeoPackageExample {
 
 						if (tileWidth == null || tileHeight == null) {
 							BufferedImage tileImage = ImageIO.read(tileFile);
-							if(tileImage != null){
+							if (tileImage != null) {
 								tileHeight = tileImage.getHeight();
 								tileWidth = tileImage.getWidth();
 							}
@@ -535,13 +542,13 @@ public class GeoPackageExample {
 				}
 			}
 
-			if(tileWidth == null){
+			if (tileWidth == null) {
 				tileWidth = 256;
 			}
-			if(tileHeight == null){
+			if (tileHeight == null) {
 				tileHeight = 256;
 			}
-			
+
 			long matrixWidth = tileGrid.getMaxX() - tileGrid.getMinX() + 1;
 			long matrixHeight = tileGrid.getMaxY() - tileGrid.getMinY() + 1;
 			double pixelXSize = (tileMatrixSet.getMaxX() - tileMatrixSet
@@ -884,11 +891,41 @@ public class GeoPackageExample {
 		createTiles(geoPackage, tableName, bitsBoundingBox, 15, 15, "webp");
 	}
 
-	private static void createMetadataExtension(GeoPackage geoPackage) {
+	private static void createCrsWktExtension(GeoPackage geoPackage)
+			throws SQLException {
+
+		CrsWktExtension wktExtension = new CrsWktExtension(geoPackage);
+		wktExtension.getOrCreate();
+
+		SpatialReferenceSystemDao srsDao = geoPackage
+				.getSpatialReferenceSystemDao();
+
+		SpatialReferenceSystem srs = srsDao.queryForOrganizationCoordsysId(
+				ProjectionConstants.AUTHORITY_EPSG,
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+
+		SpatialReferenceSystem testSrs = new SpatialReferenceSystem();
+		testSrs.setSrsName("test");
+		testSrs.setSrsId(12345);
+		testSrs.setOrganization("test_org");
+		testSrs.setOrganizationCoordsysId(testSrs.getSrsId());
+		testSrs.setDefinition(srs.getDefinition());
+		testSrs.setDescription(srs.getDescription());
+		testSrs.setDefinition_12_063(srs.getDefinition_12_063());
+		srsDao.create(testSrs);
+
+		SpatialReferenceSystem testSrs2 = new SpatialReferenceSystem();
+		testSrs2.setSrsName("test2");
+		testSrs2.setSrsId(54321);
+		testSrs2.setOrganization("test_org");
+		testSrs2.setOrganizationCoordsysId(testSrs2.getSrsId());
+		testSrs2.setDefinition(srs.getDefinition());
+		testSrs2.setDescription(srs.getDescription());
+		srsDao.create(testSrs2);
 
 	}
 
-	private static void createCrsWktExtension(GeoPackage geoPackage) {
+	private static void createMetadataExtension(GeoPackage geoPackage) {
 
 	}
 
