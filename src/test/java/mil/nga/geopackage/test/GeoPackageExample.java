@@ -38,6 +38,12 @@ import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.manager.GeoPackageManager;
+import mil.nga.geopackage.metadata.Metadata;
+import mil.nga.geopackage.metadata.MetadataDao;
+import mil.nga.geopackage.metadata.MetadataScopeType;
+import mil.nga.geopackage.metadata.reference.MetadataReference;
+import mil.nga.geopackage.metadata.reference.MetadataReferenceDao;
+import mil.nga.geopackage.metadata.reference.ReferenceScopeType;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
@@ -89,6 +95,7 @@ public class GeoPackageExample {
 	private static final boolean NON_LINEAR_GEOMETRY_TYPES = true;
 	private static final boolean WEBP = true;
 	private static final boolean CRS_WKT = true;
+	private static final boolean METADATA = true;
 	private static final boolean GEOMETRY_INDEX_EXTENSION = true;
 	private static final boolean FEATURE_TILE_LINK_EXTENSION = true;
 
@@ -167,6 +174,11 @@ public class GeoPackageExample {
 		System.out.println("Attributes: " + ATTRIBUTES);
 		if (ATTRIBUTES) {
 			createAttributes(geoPackage);
+		}
+
+		System.out.println("Metadata: " + METADATA);
+		if (METADATA) {
+			createMetadataExtension(geoPackage);
 		}
 
 		System.out.println("Created: " + geoPackage.getPath());
@@ -925,7 +937,67 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createMetadataExtension(GeoPackage geoPackage) {
+	private static void createMetadataExtension(GeoPackage geoPackage)
+			throws SQLException {
+
+		geoPackage.createMetadataTable();
+		MetadataDao metadataDao = geoPackage.getMetadataDao();
+
+		Metadata metadata1 = new Metadata();
+		metadata1.setId(1);
+		metadata1.setMetadataScope(MetadataScopeType.DATASET);
+		metadata1.setStandardUri("TEST_URI_1");
+		metadata1.setMimeType("text/xml");
+		metadata1.setMetadata("TEST METADATA 1");
+		metadataDao.create(metadata1);
+
+		Metadata metadata2 = new Metadata();
+		metadata2.setId(2);
+		metadata2.setMetadataScope(MetadataScopeType.FEATURE_TYPE);
+		metadata2.setStandardUri("TEST_URI_2");
+		metadata2.setMimeType("text/xml");
+		metadata2.setMetadata("TEST METADATA 2");
+		metadataDao.create(metadata2);
+
+		Metadata metadata3 = new Metadata();
+		metadata3.setId(3);
+		metadata3.setMetadataScope(MetadataScopeType.TILE);
+		metadata3.setStandardUri("TEST_URI_3");
+		metadata3.setMimeType("text/xml");
+		metadata3.setMetadata("TEST METADATA 3");
+		metadataDao.create(metadata3);
+
+		geoPackage.createMetadataReferenceTable();
+		MetadataReferenceDao metadataReferenceDao = geoPackage
+				.getMetadataReferenceDao();
+
+		MetadataReference reference1 = new MetadataReference();
+		reference1.setReferenceScope(ReferenceScopeType.GEOPACKAGE);
+		reference1.setMetadata(metadata1);
+		metadataReferenceDao.create(reference1);
+
+		List<String> tileTables = geoPackage.getTileTables();
+		if (!tileTables.isEmpty()) {
+			String table = tileTables.get(0);
+			MetadataReference reference2 = new MetadataReference();
+			reference2.setReferenceScope(ReferenceScopeType.TABLE);
+			reference2.setTableName(table);
+			reference2.setMetadata(metadata2);
+			reference2.setParentMetadata(metadata1);
+			metadataReferenceDao.create(reference2);
+		}
+
+		List<String> featureTables = geoPackage.getFeatureTables();
+		if (!featureTables.isEmpty()) {
+			String table = featureTables.get(0);
+			MetadataReference reference3 = new MetadataReference();
+			reference3.setReferenceScope(ReferenceScopeType.ROW_COL);
+			reference3.setTableName(table);
+			reference3.setColumnName(GEOMETRY_COLUMN);
+			reference3.setRowIdValue(1L);
+			reference3.setMetadata(metadata3);
+			metadataReferenceDao.create(reference3);
+		}
 
 	}
 
