@@ -26,6 +26,7 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.GeometryExtensions;
+import mil.nga.geopackage.extension.WebPExtension;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -85,6 +86,7 @@ public class GeoPackageExample {
 	private static final boolean ATTRIBUTES = true;
 	private static final boolean SCHEMA_EXTENSION = true;
 	private static final boolean NON_LINEAR_GEOMETRY_TYPES = true;
+	private static final boolean WEBP = true;
 	private static final boolean GEOMETRY_INDEX_EXTENSION = true;
 	private static final boolean FEATURE_TILE_LINK_EXTENSION = true;
 
@@ -143,7 +145,16 @@ public class GeoPackageExample {
 
 		System.out.println("Tiles: " + TILES);
 		if (TILES) {
+
 			createTiles(geoPackage);
+
+			System.out.println("WebP Extension: " + WEBP);
+			if (WEBP) {
+				createWebPExtension(geoPackage);
+			}
+
+		} else {
+			System.out.println("WebP Extension: " + TILES);
 		}
 
 		System.out.println("Attributes: " + ATTRIBUTES);
@@ -505,8 +516,10 @@ public class GeoPackageExample {
 
 						if (tileWidth == null || tileHeight == null) {
 							BufferedImage tileImage = ImageIO.read(tileFile);
-							tileHeight = tileImage.getHeight();
-							tileWidth = tileImage.getWidth();
+							if(tileImage != null){
+								tileHeight = tileImage.getHeight();
+								tileWidth = tileImage.getWidth();
+							}
 						}
 
 						TileRow newRow = dao.newRow();
@@ -522,6 +535,13 @@ public class GeoPackageExample {
 				}
 			}
 
+			if(tileWidth == null){
+				tileWidth = 256;
+			}
+			if(tileHeight == null){
+				tileHeight = 256;
+			}
+			
 			long matrixWidth = tileGrid.getMaxX() - tileGrid.getMinX() + 1;
 			long matrixHeight = tileGrid.getMaxY() - tileGrid.getMinY() + 1;
 			double pixelXSize = (tileMatrixSet.getMaxX() - tileMatrixSet
@@ -846,6 +866,37 @@ public class GeoPackageExample {
 
 		createFeatures(geoPackage, srs, tableName, GeometryType.GEOMETRY,
 				geometries, geometryNames);
+
+	}
+
+	private static void createWebPExtension(GeoPackage geoPackage)
+			throws SQLException, IOException {
+
+		WebPExtension webpExtension = new WebPExtension(geoPackage);
+		String tableName = "webp_tiles";
+		webpExtension.getOrCreate(tableName);
+
+		geoPackage.createTileMatrixSetTable();
+		geoPackage.createTileMatrixTable();
+
+		BoundingBox bitsBoundingBox = new BoundingBox(-11667347.997449303,
+				4824705.2253603265, -11666125.00499674, 4825928.217812888);
+		createTiles(geoPackage, tableName, bitsBoundingBox, 15, 15, "webp");
+	}
+
+	private static void createMetadataExtension(GeoPackage geoPackage) {
+
+	}
+
+	private static void createCrsWktExtension(GeoPackage geoPackage) {
+
+	}
+
+	private static void createCoverageDataExtension(GeoPackage geoPackage) {
+
+	}
+
+	private static void createRTreeSpatialIndexExtension(GeoPackage geoPackage) {
 
 	}
 
