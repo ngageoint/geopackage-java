@@ -28,6 +28,13 @@ import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.GeometryExtensions;
 import mil.nga.geopackage.extension.WebPExtension;
+import mil.nga.geopackage.extension.coverage.CoverageDataPng;
+import mil.nga.geopackage.extension.coverage.GriddedCoverage;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageDao;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
+import mil.nga.geopackage.extension.coverage.GriddedTile;
+import mil.nga.geopackage.extension.coverage.GriddedTileDao;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -91,13 +98,14 @@ public class GeoPackageExample {
 	private static final boolean FEATURES = true;
 	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
-	private static final boolean SCHEMA_EXTENSION = true;
+	private static final boolean SCHEMA = true;
 	private static final boolean NON_LINEAR_GEOMETRY_TYPES = true;
 	private static final boolean WEBP = true;
 	private static final boolean CRS_WKT = true;
 	private static final boolean METADATA = true;
-	private static final boolean GEOMETRY_INDEX_EXTENSION = true;
-	private static final boolean FEATURE_TILE_LINK_EXTENSION = true;
+	private static final boolean COVERAGE_DATA = true;
+	private static final boolean GEOMETRY_INDEX = true;
+	private static final boolean FEATURE_TILE_LINK = true;
 
 	private static final String ID_COLUMN = "id";
 	private static final String GEOMETRY_COLUMN = "geometry";
@@ -126,20 +134,19 @@ public class GeoPackageExample {
 
 			createFeatures(geoPackage);
 
-			System.out.println("Schema Extension: " + SCHEMA_EXTENSION);
-			if (SCHEMA_EXTENSION) {
+			System.out.println("Schema Extension: " + SCHEMA);
+			if (SCHEMA) {
 				createSchemaExtension(geoPackage);
 			}
 
-			System.out.println("Geometry Index Extension: "
-					+ GEOMETRY_INDEX_EXTENSION);
-			if (GEOMETRY_INDEX_EXTENSION) {
+			System.out.println("Geometry Index Extension: " + GEOMETRY_INDEX);
+			if (GEOMETRY_INDEX) {
 				createGeometryIndexExtension(geoPackage);
 			}
 
 			System.out.println("Feature Tile Link Extension: "
-					+ FEATURE_TILE_LINK_EXTENSION);
-			if (FEATURE_TILE_LINK_EXTENSION) {
+					+ FEATURE_TILE_LINK);
+			if (FEATURE_TILE_LINK) {
 				createFeatureTileLinkExtension(geoPackage);
 			}
 
@@ -179,6 +186,11 @@ public class GeoPackageExample {
 		System.out.println("Metadata: " + METADATA);
 		if (METADATA) {
 			createMetadataExtension(geoPackage);
+		}
+
+		System.out.println("Coverage Data: " + METADATA);
+		if (COVERAGE_DATA) {
+			createCoverageDataExtension(geoPackage);
 		}
 
 		System.out.println("Created: " + geoPackage.getPath());
@@ -1001,7 +1013,87 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createCoverageDataExtension(GeoPackage geoPackage) {
+	private static void createCoverageDataExtension(GeoPackage geoPackage)
+			throws SQLException {
+
+		BoundingBox bbox = new BoundingBox(-11667347.997449303,
+				4824705.2253603265, -11666125.00499674, 4825928.217812888);
+
+		SpatialReferenceSystemDao srsDao = geoPackage
+				.getSpatialReferenceSystemDao();
+		SpatialReferenceSystem contentsSrs = srsDao
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		SpatialReferenceSystem tileMatrixSrs = srsDao
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+
+		CoverageDataPng coverageData = CoverageDataPng
+				.createTileTableWithMetadata(geoPackage, "coverage_png", bbox,
+						contentsSrs.getId(), bbox, tileMatrixSrs.getId());
+		TileDao tileDao = coverageData.getTileDao();
+		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
+
+		GriddedCoverageDao griddedCoverageDao = coverageData
+				.getGriddedCoverageDao();
+
+		GriddedCoverage griddedCoverage = new GriddedCoverage();
+		griddedCoverage.setTileMatrixSet(tileMatrixSet);
+		griddedCoverage.setDataType(GriddedCoverageDataType.INTEGER);
+		griddedCoverage.setDataNull(new Double(Short.MAX_VALUE
+				- Short.MIN_VALUE));
+		griddedCoverage
+				.setGridCellEncodingType(GriddedCoverageEncodingType.CENTER);
+		griddedCoverageDao.create(griddedCoverage);
+
+		GriddedTileDao griddedTileDao = coverageData.getGriddedTileDao();
+
+		int width = 1;
+		int height = 1;
+		int tileWidth = 3;
+		int tileHeight = 3;
+
+		short[][] tilePixels = new short[tileHeight][tileWidth];
+
+		tilePixels[0][0] = (short) 0;
+		tilePixels[0][1] = (short) 0;
+		tilePixels[0][2] = (short) 0;
+		tilePixels[1][0] = (short) 0;
+		tilePixels[1][1] = (short) 0;
+		tilePixels[1][2] = (short) 0;
+		tilePixels[2][0] = (short) 0;
+		tilePixels[2][1] = (short) 0;
+		tilePixels[2][2] = (short) 0;
+
+		byte[] imageBytes = coverageData.drawTileData(tilePixels);
+
+		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+
+		TileMatrix tileMatrix = new TileMatrix();
+		tileMatrix.setContents(tileMatrixSet.getContents());
+		tileMatrix.setMatrixHeight(height);
+		tileMatrix.setMatrixWidth(width);
+		tileMatrix.setTileHeight(tileHeight);
+		tileMatrix.setTileWidth(tileWidth);
+		tileMatrix.setPixelXSize((bbox.getMaxLongitude() - bbox
+				.getMinLongitude()) / width / tileWidth);
+		tileMatrix
+				.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
+						/ height / tileHeight);
+		tileMatrix.setZoomLevel(15);
+		tileMatrixDao.create(tileMatrix);
+
+		TileRow tileRow = tileDao.newRow();
+		tileRow.setTileColumn(0);
+		tileRow.setTileRow(0);
+		tileRow.setZoomLevel(tileMatrix.getZoomLevel());
+		tileRow.setTileData(imageBytes);
+
+		long tileId = tileDao.create(tileRow);
+
+		GriddedTile griddedTile = new GriddedTile();
+		griddedTile.setContents(tileMatrixSet.getContents());
+		griddedTile.setTableId(tileId);
+
+		griddedTileDao.create(griddedTile);
 
 	}
 
