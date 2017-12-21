@@ -29,6 +29,7 @@ import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.GeometryExtensions;
 import mil.nga.geopackage.extension.WebPExtension;
 import mil.nga.geopackage.extension.coverage.CoverageDataPng;
+import mil.nga.geopackage.extension.coverage.CoverageDataTiff;
 import mil.nga.geopackage.extension.coverage.GriddedCoverage;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageDao;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
@@ -1016,6 +1017,14 @@ public class GeoPackageExample {
 	private static void createCoverageDataExtension(GeoPackage geoPackage)
 			throws SQLException {
 
+		createCoverageDataPngExtension(geoPackage);
+		createCoverageDataTiffExtension(geoPackage);
+
+	}
+
+	private static void createCoverageDataPngExtension(GeoPackage geoPackage)
+			throws SQLException {
+
 		BoundingBox bbox = new BoundingBox(-11667347.997449303,
 				4824705.2253603265, -11666125.00499674, 4825928.217812888);
 
@@ -1024,11 +1033,17 @@ public class GeoPackageExample {
 		SpatialReferenceSystem contentsSrs = srsDao
 				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
 		SpatialReferenceSystem tileMatrixSrs = srsDao
-				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WEB_MERCATOR);
+
+		ProjectionTransform transform = ProjectionFactory.getProjection(
+				ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		BoundingBox contentsBoundingBox = transform.transform(bbox);
 
 		CoverageDataPng coverageData = CoverageDataPng
-				.createTileTableWithMetadata(geoPackage, "coverage_png", bbox,
-						contentsSrs.getId(), bbox, tileMatrixSrs.getId());
+				.createTileTableWithMetadata(geoPackage, "coverage_png",
+						contentsBoundingBox, contentsSrs.getId(), bbox,
+						tileMatrixSrs.getId());
 		TileDao tileDao = coverageData.getTileDao();
 		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
 
@@ -1053,15 +1068,111 @@ public class GeoPackageExample {
 
 		short[][] tilePixels = new short[tileHeight][tileWidth];
 
-		tilePixels[0][0] = (short) 0;
-		tilePixels[0][1] = (short) 0;
-		tilePixels[0][2] = (short) 0;
-		tilePixels[1][0] = (short) 0;
-		tilePixels[1][1] = (short) 0;
-		tilePixels[1][2] = (short) 0;
-		tilePixels[2][0] = (short) 0;
-		tilePixels[2][1] = (short) 0;
-		tilePixels[2][2] = (short) 0;
+		tilePixels[0][0] = (short) 1661.95;
+		tilePixels[0][1] = (short) 1665.40;
+		tilePixels[0][2] = (short) 1668.19;
+		tilePixels[1][0] = (short) 1657.18;
+		tilePixels[1][1] = (short) 1663.39;
+		tilePixels[1][2] = (short) 1669.65;
+		tilePixels[2][0] = (short) 1654.78;
+		tilePixels[2][1] = (short) 1660.31;
+		tilePixels[2][2] = (short) 1666.44;
+
+		byte[] imageBytes = coverageData.drawTileData(tilePixels);
+
+		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+
+		TileMatrix tileMatrix = new TileMatrix();
+		tileMatrix.setContents(tileMatrixSet.getContents());
+		tileMatrix.setMatrixHeight(height);
+		tileMatrix.setMatrixWidth(width);
+		tileMatrix.setTileHeight(tileHeight);
+		tileMatrix.setTileWidth(tileWidth);
+		tileMatrix.setPixelXSize((bbox.getMaxLongitude() - bbox
+				.getMinLongitude()) / width / tileWidth);
+		tileMatrix
+				.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
+						/ height / tileHeight);
+		tileMatrix.setZoomLevel(15);
+		tileMatrixDao.create(tileMatrix);
+
+		TileRow tileRow = tileDao.newRow();
+		tileRow.setTileColumn(0);
+		tileRow.setTileRow(0);
+		tileRow.setZoomLevel(tileMatrix.getZoomLevel());
+		tileRow.setTileData(imageBytes);
+
+		long tileId = tileDao.create(tileRow);
+
+		GriddedTile griddedTile = new GriddedTile();
+		griddedTile.setContents(tileMatrixSet.getContents());
+		griddedTile.setTableId(tileId);
+
+		griddedTileDao.create(griddedTile);
+
+	}
+
+	private static void createCoverageDataTiffExtension(GeoPackage geoPackage)
+			throws SQLException {
+
+		BoundingBox bbox = new BoundingBox(-8593967.964158937,
+				4685284.085768163, -8592744.971706374, 4687730.070673289);
+
+		SpatialReferenceSystemDao srsDao = geoPackage
+				.getSpatialReferenceSystemDao();
+		SpatialReferenceSystem contentsSrs = srsDao
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		SpatialReferenceSystem tileMatrixSrs = srsDao
+				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WEB_MERCATOR);
+
+		ProjectionTransform transform = ProjectionFactory.getProjection(
+				ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		BoundingBox contentsBoundingBox = transform.transform(bbox);
+
+		CoverageDataTiff coverageData = CoverageDataTiff
+				.createTileTableWithMetadata(geoPackage, "coverage_tiff",
+						contentsBoundingBox, contentsSrs.getId(), bbox,
+						tileMatrixSrs.getId());
+		TileDao tileDao = coverageData.getTileDao();
+		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
+
+		GriddedCoverageDao griddedCoverageDao = coverageData
+				.getGriddedCoverageDao();
+
+		GriddedCoverage griddedCoverage = new GriddedCoverage();
+		griddedCoverage.setTileMatrixSet(tileMatrixSet);
+		griddedCoverage.setDataType(GriddedCoverageDataType.FLOAT);
+		griddedCoverage.setDataNull((double) Float.MAX_VALUE);
+		griddedCoverage
+				.setGridCellEncodingType(GriddedCoverageEncodingType.CENTER);
+		griddedCoverageDao.create(griddedCoverage);
+
+		GriddedTileDao griddedTileDao = coverageData.getGriddedTileDao();
+
+		int width = 1;
+		int height = 1;
+		int tileWidth = 4;
+		int tileHeight = 4;
+
+		float[][] tilePixels = new float[tileHeight][tileWidth];
+
+		tilePixels[0][0] = 71.78f;
+		tilePixels[0][1] = 74.31f;
+		tilePixels[0][2] = 70.19f;
+		tilePixels[0][3] = 68.07f;
+		tilePixels[1][0] = 61.01f;
+		tilePixels[1][1] = 69.66f;
+		tilePixels[1][2] = 68.65f;
+		tilePixels[1][3] = 72.02f;
+		tilePixels[2][0] = 41.58f;
+		tilePixels[2][1] = 69.46f;
+		tilePixels[2][2] = 67.56f;
+		tilePixels[2][3] = 70.42f;
+		tilePixels[3][0] = 54.03f;
+		tilePixels[3][1] = 71.32f;
+		tilePixels[3][2] = 57.61f;
+		tilePixels[3][3] = 54.96f;
 
 		byte[] imageBytes = coverageData.drawTileData(tilePixels);
 
