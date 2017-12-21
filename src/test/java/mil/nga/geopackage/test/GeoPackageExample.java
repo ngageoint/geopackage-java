@@ -74,6 +74,7 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.geopackage.user.ContentValues;
 import mil.nga.wkb.geom.CircularString;
 import mil.nga.wkb.geom.CompoundCurve;
 import mil.nga.wkb.geom.CurvePolygon;
@@ -700,12 +701,10 @@ public class GeoPackageExample {
 		}
 	}
 
-	private static int DATA_COLUMN_CONSTRAINT_INDEX = 0;
+	private static int dataColumnConstraintIndex = 0;
 
 	private static void createSchemaExtension(GeoPackage geoPackage)
 			throws SQLException {
-
-		// TODO make the feature column values fall within the constraints
 
 		geoPackage.createDataColumnConstraintsTable();
 
@@ -788,26 +787,38 @@ public class GeoPackageExample {
 					dataColumns.setMimeType("TEST_MIME_TYPE");
 
 					DataColumnConstraintType constraintType = DataColumnConstraintType
-							.values()[DATA_COLUMN_CONSTRAINT_INDEX];
-					DATA_COLUMN_CONSTRAINT_INDEX++;
-					if (DATA_COLUMN_CONSTRAINT_INDEX >= DataColumnConstraintType
+							.values()[dataColumnConstraintIndex];
+					dataColumnConstraintIndex++;
+					if (dataColumnConstraintIndex >= DataColumnConstraintType
 							.values().length) {
-						DATA_COLUMN_CONSTRAINT_INDEX = 0;
+						dataColumnConstraintIndex = 0;
 					}
+
+					int value = 0;
 
 					String contraintName = null;
 					switch (constraintType) {
 					case RANGE:
 						contraintName = sampleRange.getConstraintName();
+						value = 1 + (int) (Math.random() * 10);
 						break;
 					case ENUM:
 						contraintName = sampleEnum1.getConstraintName();
+						value = 1 + ((int) (Math.random() * 5) * 2);
 						break;
 					case GLOB:
 						contraintName = sampleGlob.getConstraintName();
+						value = 1000 + (int) (Math.random() * 2000);
 						break;
+					default:
+						throw new GeoPackageException(
+								"Unexpected Constraint Type: " + constraintType);
 					}
 					dataColumns.setConstraintName(contraintName);
+
+					ContentValues values = new ContentValues();
+					values.put(column.getName(), value);
+					featureDao.update(values, null, null);
 
 					dataColumnsDao.create(dataColumns);
 
