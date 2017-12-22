@@ -87,7 +87,7 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		// GeoPackages created with SQLite version 4.2.0+ with GeoPackage
 		// support are not supported in sqlite-jdbc (3.8.6 version from
 		// October8, 2014 uses SQLite version 3.8.6)
-		dropSQLiteTriggers(geometryColumns);
+		//dropSQLiteTriggers(geometryColumns);
 
 		return dao;
 	}
@@ -334,6 +334,14 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		return database.query(sql, args);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public GeoPackageConnection getConnection(){
+		return database;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

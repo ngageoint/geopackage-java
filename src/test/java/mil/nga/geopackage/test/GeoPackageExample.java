@@ -27,6 +27,7 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.GeometryExtensions;
+import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.extension.WebPExtension;
 import mil.nga.geopackage.extension.coverage.CoverageDataPng;
 import mil.nga.geopackage.extension.coverage.CoverageDataTiff;
@@ -101,7 +102,8 @@ public class GeoPackageExample {
 	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
 	private static final boolean SCHEMA = true;
-	private static final boolean NON_LINEAR_GEOMETRY_TYPES = true;
+	private static final boolean NON_LINEAR_GEOMETRY_TYPES = false;
+	private static final boolean RTREE_SPATIAL_INDEX = true;
 	private static final boolean WEBP = true;
 	private static final boolean CRS_WKT = true;
 	private static final boolean METADATA = true;
@@ -156,6 +158,12 @@ public class GeoPackageExample {
 					+ NON_LINEAR_GEOMETRY_TYPES);
 			if (NON_LINEAR_GEOMETRY_TYPES) {
 				createNonLinearGeometryTypesExtension(geoPackage);
+			}
+
+			System.out.println("RTree Spatial Index Extension: "
+					+ RTREE_SPATIAL_INDEX);
+			if (RTREE_SPATIAL_INDEX) {
+				createRTreeSpatialIndexExtension(geoPackage);
 			}
 
 		} else {
@@ -1220,6 +1228,17 @@ public class GeoPackageExample {
 	}
 
 	private static void createRTreeSpatialIndexExtension(GeoPackage geoPackage) {
+
+		RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
+
+		List<String> featureTables = geoPackage.getFeatureTables();
+		for (String featureTable : featureTables) {
+
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+			FeatureTable table = featureDao.getTable();
+
+			extension.create(table);
+		}
 
 	}
 
