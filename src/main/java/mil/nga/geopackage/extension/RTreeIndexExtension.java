@@ -1,6 +1,5 @@
 package mil.nga.geopackage.extension;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,6 +13,12 @@ import mil.nga.wkb.util.GeometryEnvelopeBuilder;
 
 import org.sqlite.Function;
 
+/**
+ * RTree Index Extension
+ * 
+ * @author osbornb
+ * @since 2.0.1
+ */
 public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 
 	/**
@@ -22,6 +27,9 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	private static final Logger log = Logger
 			.getLogger(RTreeIndexExtension.class.getName());
 
+	/**
+	 * GeoPackage connection
+	 */
 	private GeoPackageConnection connection;
 
 	/**
@@ -29,73 +37,85 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
-	 * 
 	 */
 	public RTreeIndexExtension(GeoPackage geoPackage) {
 		super(geoPackage);
 		connection = geoPackage.getConnection();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void createMinXFunction(String name) {
-		createFunction(name, new GeometryFunction() {
+	public void createMinXFunction() {
+		createFunction(MIN_X_FUNCTION, new GeometryFunction() {
 			@Override
-			public Object execute(GeoPackageGeometryData data)
-					throws IOException {
-				GeometryEnvelope envelope = getEnvelope(data);
-				return envelope.getMinX();
+			public Object execute(GeoPackageGeometryData data) {
+				return getEnvelope(data).getMinX();
 			}
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void createMaxXFunction(String name) {
-		createFunction(name, new GeometryFunction() {
+	public void createMaxXFunction() {
+		createFunction(MAX_X_FUNCTION, new GeometryFunction() {
 			@Override
-			public Object execute(GeoPackageGeometryData data)
-					throws IOException {
-				GeometryEnvelope envelope = getEnvelope(data);
-				return envelope.getMaxX();
+			public Object execute(GeoPackageGeometryData data) {
+				return getEnvelope(data).getMaxX();
 			}
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void createMinYFunction(String name) {
-		createFunction(name, new GeometryFunction() {
+	public void createMinYFunction() {
+		createFunction(MIN_Y_FUNCTION, new GeometryFunction() {
 			@Override
-			public Object execute(GeoPackageGeometryData data)
-					throws IOException {
-				GeometryEnvelope envelope = getEnvelope(data);
-				return envelope.getMinY();
+			public Object execute(GeoPackageGeometryData data) {
+				return getEnvelope(data).getMinY();
 			}
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void createMaxYFunction(String name) {
-		createFunction(name, new GeometryFunction() {
+	public void createMaxYFunction() {
+		createFunction(MAX_Y_FUNCTION, new GeometryFunction() {
 			@Override
-			public Object execute(GeoPackageGeometryData data)
-					throws IOException {
-				GeometryEnvelope envelope = getEnvelope(data);
-				return envelope.getMaxY();
+			public Object execute(GeoPackageGeometryData data) {
+				return getEnvelope(data).getMaxY();
 			}
 		});
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void createIsEmptyFunction(String name) {
-		createFunction(name, new GeometryFunction() {
+	public void createIsEmptyFunction() {
+		createFunction(IS_EMPTY_FUNCTION, new GeometryFunction() {
 			@Override
-			public Object execute(GeoPackageGeometryData data)
-					throws IOException {
+			public Object execute(GeoPackageGeometryData data) {
 				return data == null || data.isEmpty()
 						|| data.getGeometry() == null;
 			}
 		});
 	}
 
+	/**
+	 * Get or build a geometry envelope from the Geometry Data
+	 * 
+	 * @param data
+	 *            geometry data
+	 * @return geometry envelope
+	 */
 	private GeometryEnvelope getEnvelope(GeoPackageGeometryData data) {
 		GeometryEnvelope envelope = null;
 		if (data != null) {
@@ -113,6 +133,14 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 		return envelope;
 	}
 
+	/**
+	 * Create the function for the connection
+	 * 
+	 * @param name
+	 *            function name
+	 * @param function
+	 *            geometry function
+	 */
 	private void createFunction(String name, GeometryFunction function) {
 		try {
 			Function.create(connection.getConnection(), name, function);

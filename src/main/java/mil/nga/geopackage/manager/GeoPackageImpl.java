@@ -16,6 +16,7 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageTableCreator;
+import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.factory.GeoPackageCoreImpl;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -83,11 +84,12 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		FeatureDao dao = new FeatureDao(getName(), database, userDb,
 				geometryColumns, featureTable);
 
-		// TODO
-		// GeoPackages created with SQLite version 4.2.0+ with GeoPackage
-		// support are not supported in sqlite-jdbc (3.8.6 version from
-		// October8, 2014 uses SQLite version 3.8.6)
-		//dropSQLiteTriggers(geometryColumns);
+		// If the GeoPackage is writable and the feature table has a RTree Index
+		// extension, create the SQL functions
+		if (writable) {
+			RTreeIndexExtension rtree = new RTreeIndexExtension(this);
+			rtree.createFunctions(featureTable);
+		}
 
 		return dao;
 	}
@@ -338,10 +340,10 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public GeoPackageConnection getConnection(){
+	public GeoPackageConnection getConnection() {
 		return database;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

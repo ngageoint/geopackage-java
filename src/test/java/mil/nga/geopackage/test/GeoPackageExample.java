@@ -102,7 +102,7 @@ public class GeoPackageExample {
 	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
 	private static final boolean SCHEMA = true;
-	private static final boolean NON_LINEAR_GEOMETRY_TYPES = false;
+	private static final boolean NON_LINEAR_GEOMETRY_TYPES = false; // TODO
 	private static final boolean RTREE_SPATIAL_INDEX = true;
 	private static final boolean WEBP = true;
 	private static final boolean CRS_WKT = true;
@@ -1232,12 +1232,12 @@ public class GeoPackageExample {
 		RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
 
 		List<String> featureTables = geoPackage.getFeatureTables();
-		for (String featureTable : featureTables) {
+		for (String tableName : featureTables) {
 
-			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
-			FeatureTable table = featureDao.getTable();
+			FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
+			FeatureTable featureTable = featureDao.getTable();
 
-			extension.create(table);
+			extension.create(featureTable);
 		}
 
 	}
