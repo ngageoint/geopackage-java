@@ -102,7 +102,7 @@ public class GeoPackageExample {
 	private static final boolean TILES = true;
 	private static final boolean ATTRIBUTES = true;
 	private static final boolean SCHEMA = true;
-	private static final boolean NON_LINEAR_GEOMETRY_TYPES = false; // TODO
+	private static final boolean NON_LINEAR_GEOMETRY_TYPES = true;
 	private static final boolean RTREE_SPATIAL_INDEX = true;
 	private static final boolean WEBP = true;
 	private static final boolean CRS_WKT = true;
