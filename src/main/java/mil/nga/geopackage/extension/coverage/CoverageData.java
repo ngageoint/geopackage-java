@@ -245,7 +245,7 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 			byte[] imageBytes);
 
 	/**
-	 * Draw a coverage data image tile and format as PNG bytes from the flat
+	 * Draw a coverage data image tile and format as image bytes from the flat
 	 * array of coverage data values of length tileWidth * tileHeight where each
 	 * coverage data value is at: (y * tileWidth) + x
 	 * 
@@ -263,7 +263,7 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 			Double[] values, int tileWidth, int tileHeight);
 
 	/**
-	 * Draw a coverage data image tile and format as PNG bytes from the double
+	 * Draw a coverage data image tile and format as image bytes from the double
 	 * array of unsigned coverage data values formatted as Double[row][width]
 	 * 
 	 * @param griddedTile
