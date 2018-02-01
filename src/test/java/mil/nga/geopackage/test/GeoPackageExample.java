@@ -172,6 +172,7 @@ public class GeoPackageExample {
 			System.out.println("Feature Tile Link Extension: " + FEATURES);
 			System.out.println("Non-Linear Geometry Types Extension: "
 					+ FEATURES);
+			System.out.println("RTree Spatial Index Extension: " + FEATURES);
 		}
 
 		System.out.println("Tiles: " + TILES);
@@ -198,7 +199,7 @@ public class GeoPackageExample {
 			createMetadataExtension(geoPackage);
 		}
 
-		System.out.println("Coverage Data: " + METADATA);
+		System.out.println("Coverage Data: " + COVERAGE_DATA);
 		if (COVERAGE_DATA) {
 			createCoverageDataExtension(geoPackage);
 		}
@@ -804,25 +805,25 @@ public class GeoPackageExample {
 
 					int value = 0;
 
-					String contraintName = null;
+					String constraintName = null;
 					switch (constraintType) {
 					case RANGE:
-						contraintName = sampleRange.getConstraintName();
+						constraintName = sampleRange.getConstraintName();
 						value = 1 + (int) (Math.random() * 10);
 						break;
 					case ENUM:
-						contraintName = sampleEnum1.getConstraintName();
+						constraintName = sampleEnum1.getConstraintName();
 						value = 1 + ((int) (Math.random() * 5) * 2);
 						break;
 					case GLOB:
-						contraintName = sampleGlob.getConstraintName();
+						constraintName = sampleGlob.getConstraintName();
 						value = 1000 + (int) (Math.random() * 2000);
 						break;
 					default:
 						throw new GeoPackageException(
 								"Unexpected Constraint Type: " + constraintType);
 					}
-					dataColumns.setConstraintName(contraintName);
+					dataColumns.setConstraintName(constraintName);
 
 					ContentValues values = new ContentValues();
 					values.put(column.getName(), value);
@@ -874,9 +875,9 @@ public class GeoPackageExample {
 				geometry = circularString;
 				break;
 			case COMPOUNDCURVE:
-				CompoundCurve compundCurve = new CompoundCurve();
-				compundCurve.addLineString(circularString);
-				geometry = compundCurve;
+				CompoundCurve compoundCurve = new CompoundCurve();
+				compoundCurve.addLineString(circularString);
+				geometry = compoundCurve;
 				break;
 			case CURVEPOLYGON:
 				CurvePolygon<CircularString> curvePolygon = new CurvePolygon<>();
