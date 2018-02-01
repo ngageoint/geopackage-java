@@ -204,6 +204,7 @@ public class GeoPackageExample {
 			createCoverageDataExtension(geoPackage);
 		}
 
+		geoPackage.close();
 		System.out.println("Created: " + geoPackage.getPath());
 	}
 
