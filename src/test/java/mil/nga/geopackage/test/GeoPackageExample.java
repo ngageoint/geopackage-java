@@ -531,6 +531,8 @@ public class GeoPackageExample {
 
 		final String tilesPath = "tiles/";
 
+		TileGrid tileGrid = totalTileGrid;
+
 		for (int zoom = minZoomLevel; zoom <= maxZoomLevel; zoom++) {
 
 			final String zoomPath = tilesPath + zoom + "/";
@@ -538,8 +540,6 @@ public class GeoPackageExample {
 			Integer tileWidth = null;
 			Integer tileHeight = null;
 
-			TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-					totalBoundingBox, zoom);
 			TileDao dao = geoPackage.getTileDao(tileMatrixSet);
 
 			for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
@@ -603,6 +603,7 @@ public class GeoPackageExample {
 			tileMatrix.setPixelYSize(pixelYSize);
 			tileMatrixDao.create(tileMatrix);
 
+			tileGrid = TileBoundingBoxUtils.tileGridZoomIncrease(tileGrid, 1);
 		}
 
 	}
