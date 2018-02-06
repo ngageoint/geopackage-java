@@ -6,7 +6,12 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 2.0.1 (TBD)
 
-* TBD
+* Coverage Data extension (previously Elevation Extension)
+* RTree Index Extension support
+* Tile Generator contents bounding box fix to use the requested bounds
+* GeoPackage creation example
+* geopackage-core version updated to 2.0.1
+* SQLite JDBC version updated to 3.21.0.1
 
 ## [2.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/2.0.0) (11-20-2017)
 
