@@ -357,7 +357,7 @@ public abstract class TileGenerator {
 					Long.parseLong(projection.getCode()));
 			// Create the tile table
 			tileMatrixSet = geoPackage.createTileTableWithMetadata(tableName,
-					tileGridBoundingBox, srs.getSrsId(), tileGridBoundingBox,
+					boundingBox, srs.getSrsId(), tileGridBoundingBox,
 					srs.getSrsId());
 		} else {
 			update = true;

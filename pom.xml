@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>mil.nga.geopackage</groupId>
 			<artifactId>geopackage-core</artifactId>
-			<version>2.0.0</version>
+			<version>2.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>mil.nga</groupId>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.16.1</version>
+			<version>3.21.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.xerial.thirdparty</groupId>
