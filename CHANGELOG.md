@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 2.0.2 (TBD)
 
-* TBD
+* Tile DAO approximate zoom level methods
+* Tile Generator fix to save updated bounds in the Tile Matrix Set
+* Tile Generator projection transformations only when projections differ
+* geopackage-core version updated to 2.0.2
 
 ## [2.0.1](https://github.com/ngageoint/geopackage-java/releases/tag/2.0.1) (02-13-2018)
 
