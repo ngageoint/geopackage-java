@@ -64,7 +64,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BufferedImage drawTile(int zoom, BoundingBox webMercatorBoundingBox,
+	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
 			CloseableIterator<GeometryIndex> results) {
 
 		// Create image and graphics
@@ -73,14 +73,15 @@ public class DefaultFeatureTiles extends FeatureTiles {
 
 		// WGS84 to web mercator projection and google shape converter
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
 		boolean drawn = false;
 		while (results.hasNext()) {
 			GeometryIndex geometryIndex = results.next();
 			FeatureRow featureRow = getFeatureIndex().getFeatureRow(
 					geometryIndex);
-			if (drawFeature(zoom, webMercatorBoundingBox, webMercatorTransform,
-					graphics, featureRow)) {
+			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
+					webMercatorTransform, graphics, featureRow)) {
 				drawn = true;
 			}
 		}
@@ -104,12 +105,13 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		Graphics2D graphics = getGraphics(image);
 
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
 		boolean drawn = false;
 		while (resultSet.moveToNext()) {
 			FeatureRow row = resultSet.getRow();
-			if (drawFeature(zoom, boundingBox, webMercatorTransform, graphics,
-					row)) {
+			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
+					webMercatorTransform, graphics, row)) {
 				drawn = true;
 			}
 		}
@@ -134,11 +136,12 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		Graphics2D graphics = getGraphics(image);
 
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
 		boolean drawn = false;
 		for (FeatureRow row : featureRow) {
-			if (drawFeature(zoom, boundingBox, webMercatorTransform, graphics,
-					row)) {
+			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
+					webMercatorTransform, graphics, row)) {
 				drawn = true;
 			}
 		}
@@ -171,6 +174,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            zoom level
 	 * @param boundingBox
 	 *            bounding box
+	 * @param expandedBoundingBox
+	 *            expanded bounding box
 	 * @param transform
 	 *            projection transform
 	 * @param graphics
@@ -180,7 +185,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @return true if at least one feature was drawn
 	 */
 	private boolean drawFeature(int zoom, BoundingBox boundingBox,
-			ProjectionTransform transform, Graphics2D graphics, FeatureRow row) {
+			BoundingBox expandedBoundingBox, ProjectionTransform transform,
+			Graphics2D graphics, FeatureRow row) {
 
 		boolean drawn = false;
 
@@ -199,8 +205,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 					BoundingBox transformedBoundingBox = transform
 							.transform(geometryBoundingBox);
 
-					if (TileBoundingBoxUtils.overlap(boundingBox,
-							transformedBoundingBox) != null) {
+					if (TileBoundingBoxUtils.overlap(expandedBoundingBox,
+							transformedBoundingBox, true) != null) {
 
 						double simplifyTolerance = TileBoundingBoxUtils
 								.toleranceDistance(zoom, tileWidth, tileHeight);

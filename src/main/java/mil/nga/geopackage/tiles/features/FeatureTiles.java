@@ -764,7 +764,7 @@ public abstract class FeatureTiles {
 	 * @param webMercatorBoundingBox
 	 * @return
 	 */
-	private BoundingBox expandBoundingBox(BoundingBox webMercatorBoundingBox) {
+	protected BoundingBox expandBoundingBox(BoundingBox webMercatorBoundingBox) {
 
 		// Create an expanded bounding box to handle features outside the tile
 		// that overlap
