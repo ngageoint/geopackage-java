@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 2.0.2 (TBD)
+## [2.0.2](https://github.com/ngageoint/geopackage-java/releases/tag/2.0.2) (03-20-2018)
 
 * Tile Scaling extension for generating missing tiles using nearby zoom levels
 * Skip tiles drawn from features when no features overlap the tile
