@@ -390,6 +390,44 @@ public class TileDao extends
 	}
 
 	/**
+	 * Get the approximate zoom level for the provided length in the default
+	 * units. Tiles may or may not exist for the returned zoom level. The
+	 * approximate zoom level is determined using a factor of 2 from the zoom
+	 * levels with tiles.
+	 * 
+	 * @param length
+	 *            length in default units
+	 * @return approximate zoom level
+	 * @since 2.0.2
+	 */
+	public Long getApproximateZoomLevel(double length) {
+
+		Long zoomLevel = TileDaoUtils.getApproximateZoomLevel(widths, heights,
+				tileMatrices, length);
+		return zoomLevel;
+	}
+
+	/**
+	 * Get the approximate zoom level for the provided width and height in the
+	 * default units. Tiles may or may not exist for the returned zoom level.
+	 * The approximate zoom level is determined using a factor of 2 from the
+	 * zoom levels with tiles.
+	 * 
+	 * @param width
+	 *            width in default units
+	 * @param height
+	 *            height in default units
+	 * @return approximate zoom level
+	 * @since 2.0.2
+	 */
+	public Long getApproximateZoomLevel(double width, double height) {
+
+		Long zoomLevel = TileDaoUtils.getApproximateZoomLevel(widths, heights,
+				tileMatrices, width, height);
+		return zoomLevel;
+	}
+
+	/**
 	 * Get the max length in default units that contains tiles
 	 * 
 	 * @return max distance length with tiles

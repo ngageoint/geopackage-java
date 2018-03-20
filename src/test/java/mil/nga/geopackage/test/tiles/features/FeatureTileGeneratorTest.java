@@ -134,7 +134,11 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 
 		if (maxFeatures) {
 			featureTiles.setMaxFeaturesPerTile(10);
-			featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile());
+			NumberFeaturesTile numberFeaturesTile = new NumberFeaturesTile();
+			if (!index) {
+				numberFeaturesTile.setDrawUnindexedTiles(false);
+			}
+			featureTiles.setMaxFeaturesTileDraw(numberFeaturesTile);
 		}
 
 		BoundingBox boundingBox = new BoundingBox();
@@ -154,9 +158,26 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 		int tiles = tileGenerator.generateTiles();
 
 		int expectedTiles = 0;
-		for (int i = minZoom; i <= maxZoom; i++) {
-			int tilesPerSide = TileBoundingBoxUtils.tilesPerSide(i);
-			expectedTiles += (tilesPerSide * tilesPerSide);
+		if (!maxFeatures || index) {
+
+			if (!index) {
+				FeatureTableIndex featureIndex = new FeatureTableIndex(
+						geoPackage, featureDao);
+				int indexed = featureIndex.index();
+				TestCase.assertEquals(num, indexed);
+				featureTiles.setFeatureIndex(featureIndex);
+			}
+
+			for (int z = minZoom; z <= maxZoom; z++) {
+				int tilesPerSide = TileBoundingBoxUtils.tilesPerSide(z);
+				for (int x = 0; x < tilesPerSide; x++) {
+					for (int y = 0; y < tilesPerSide; y++) {
+						if (featureTiles.queryIndexedFeaturesCount(x, y, z) > 0) {
+							expectedTiles++;
+						}
+					}
+				}
+			}
 		}
 
 		TestCase.assertEquals(expectedTiles, tiles);

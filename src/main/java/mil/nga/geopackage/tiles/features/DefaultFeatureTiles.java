@@ -23,6 +23,7 @@ import mil.nga.wkb.geom.CircularString;
 import mil.nga.wkb.geom.CompoundCurve;
 import mil.nga.wkb.geom.Geometry;
 import mil.nga.wkb.geom.GeometryCollection;
+import mil.nga.wkb.geom.GeometryEnvelope;
 import mil.nga.wkb.geom.LineString;
 import mil.nga.wkb.geom.MultiLineString;
 import mil.nga.wkb.geom.MultiPoint;
@@ -32,6 +33,7 @@ import mil.nga.wkb.geom.Polygon;
 import mil.nga.wkb.geom.PolyhedralSurface;
 import mil.nga.wkb.geom.TIN;
 import mil.nga.wkb.geom.Triangle;
+import mil.nga.wkb.util.GeometryEnvelopeBuilder;
 
 import com.j256.ormlite.dao.CloseableIterator;
 
@@ -62,7 +64,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BufferedImage drawTile(int zoom, BoundingBox webMercatorBoundingBox,
+	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
 			CloseableIterator<GeometryIndex> results) {
 
 		// Create image and graphics
@@ -71,13 +73,22 @@ public class DefaultFeatureTiles extends FeatureTiles {
 
 		// WGS84 to web mercator projection and google shape converter
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
+		boolean drawn = false;
 		while (results.hasNext()) {
 			GeometryIndex geometryIndex = results.next();
 			FeatureRow featureRow = getFeatureIndex().getFeatureRow(
 					geometryIndex);
-			drawFeature(zoom, webMercatorBoundingBox, webMercatorTransform,
-					graphics, featureRow);
+			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
+					webMercatorTransform, graphics, featureRow)) {
+				drawn = true;
+			}
+		}
+
+		if (!drawn) {
+			image.flush();
+			image = null;
 		}
 
 		return image;
@@ -94,13 +105,22 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		Graphics2D graphics = getGraphics(image);
 
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
+		boolean drawn = false;
 		while (resultSet.moveToNext()) {
 			FeatureRow row = resultSet.getRow();
-			drawFeature(zoom, boundingBox, webMercatorTransform, graphics, row);
+			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
+					webMercatorTransform, graphics, row)) {
+				drawn = true;
+			}
 		}
 
 		resultSet.close();
+		if (!drawn) {
+			image.flush();
+			image = null;
+		}
 
 		return image;
 	}
@@ -116,9 +136,19 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		Graphics2D graphics = getGraphics(image);
 
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
+		boolean drawn = false;
 		for (FeatureRow row : featureRow) {
-			drawFeature(zoom, boundingBox, webMercatorTransform, graphics, row);
+			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
+					webMercatorTransform, graphics, row)) {
+				drawn = true;
+			}
+		}
+
+		if (!drawn) {
+			image.flush();
+			image = null;
 		}
 
 		return image;
@@ -143,25 +173,56 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param zoom
 	 *            zoom level
 	 * @param boundingBox
+	 *            bounding box
+	 * @param expandedBoundingBox
+	 *            expanded bounding box
 	 * @param transform
+	 *            projection transform
 	 * @param graphics
+	 *            graphics to draw on
 	 * @param row
+	 *            feature row
+	 * @return true if at least one feature was drawn
 	 */
-	private void drawFeature(int zoom, BoundingBox boundingBox,
-			ProjectionTransform transform, Graphics2D graphics, FeatureRow row) {
+	private boolean drawFeature(int zoom, BoundingBox boundingBox,
+			BoundingBox expandedBoundingBox, ProjectionTransform transform,
+			Graphics2D graphics, FeatureRow row) {
+
+		boolean drawn = false;
+
 		try {
 			GeoPackageGeometryData geomData = row.getGeometry();
 			if (geomData != null) {
 				Geometry geometry = geomData.getGeometry();
-				double simplifyTolerance = TileBoundingBoxUtils
-						.toleranceDistance(zoom, tileWidth, tileHeight);
-				drawGeometry(simplifyTolerance, boundingBox, transform,
-						graphics, geometry);
+				if (geometry != null) {
+
+					GeometryEnvelope envelope = geomData.getEnvelope();
+					if (envelope == null) {
+						envelope = GeometryEnvelopeBuilder
+								.buildEnvelope(geometry);
+					}
+					BoundingBox geometryBoundingBox = new BoundingBox(envelope);
+					BoundingBox transformedBoundingBox = transform
+							.transform(geometryBoundingBox);
+
+					if (TileBoundingBoxUtils.overlap(expandedBoundingBox,
+							transformedBoundingBox, true) != null) {
+
+						double simplifyTolerance = TileBoundingBoxUtils
+								.toleranceDistance(zoom, tileWidth, tileHeight);
+						drawGeometry(simplifyTolerance, boundingBox, transform,
+								graphics, geometry);
+
+						drawn = true;
+					}
+				}
 			}
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Failed to draw feature in tile. Table: "
 					+ featureDao.getTableName(), e);
 		}
+
+		return drawn;
 	}
 
 	/**
