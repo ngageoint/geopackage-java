@@ -21,8 +21,8 @@ import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
-import mil.nga.wkb.geom.Point;
-import mil.nga.wkb.util.GeometryUtils;
+import mil.nga.sf.Point;
+import mil.nga.sf.util.GeometryUtils;
 
 import org.osgeo.proj4j.units.Units;
 

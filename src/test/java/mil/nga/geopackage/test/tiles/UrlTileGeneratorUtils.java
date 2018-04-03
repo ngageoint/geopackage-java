@@ -22,7 +22,7 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
-import mil.nga.wkb.geom.Point;
+import mil.nga.sf.Point;
 
 import org.junit.Assume;
 

@@ -46,7 +46,7 @@ import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileTable;
-import mil.nga.wkb.geom.GeometryType;
+import mil.nga.sf.GeometryType;
 
 /**
  * Test setup and teardown methods for preparing and cleaning the database with
@@ -118,16 +118,24 @@ public class TestSetupTeardown {
 			throw new GeoPackageException("Failed to open database");
 		}
 
-		assertEquals("Application Id", geoPackage.getApplicationId(), GeoPackageConstants.APPLICATION_ID);
-		assertEquals("User Version", geoPackage.getUserVersion(), GeoPackageConstants.USER_VERSION);
+		assertEquals("Application Id", geoPackage.getApplicationId(),
+				GeoPackageConstants.APPLICATION_ID);
+		assertEquals("User Version", geoPackage.getUserVersion(),
+				GeoPackageConstants.USER_VERSION);
 		String userVersionString = String.valueOf(geoPackage.getUserVersion());
-		String majorVersion = userVersionString.substring(0, userVersionString.length() - 4);
-		String minorVersion = userVersionString.substring(userVersionString.length() - 4, userVersionString.length() - 2);
-		String patchVersion = userVersionString.substring(userVersionString.length() - 2);
-		assertEquals("Major User Version", geoPackage.getUserVersionMajor(), Integer.valueOf(majorVersion).intValue());
-		assertEquals("Minor User Version", geoPackage.getUserVersionMinor(), Integer.valueOf(minorVersion).intValue());
-		assertEquals("Patch User Version", geoPackage.getUserVersionPatch(), Integer.valueOf(patchVersion).intValue());
-		
+		String majorVersion = userVersionString.substring(0,
+				userVersionString.length() - 4);
+		String minorVersion = userVersionString.substring(
+				userVersionString.length() - 4, userVersionString.length() - 2);
+		String patchVersion = userVersionString.substring(userVersionString
+				.length() - 2);
+		assertEquals("Major User Version", geoPackage.getUserVersionMajor(),
+				Integer.valueOf(majorVersion).intValue());
+		assertEquals("Minor User Version", geoPackage.getUserVersionMinor(),
+				Integer.valueOf(minorVersion).intValue());
+		assertEquals("Patch User Version", geoPackage.getUserVersionPatch(),
+				Integer.valueOf(patchVersion).intValue());
+
 		if (features) {
 			setUpCreateFeatures(geoPackage, allowEmptyFeatures);
 		}
@@ -330,11 +338,12 @@ public class TestSetupTeardown {
 						break;
 					case DATE:
 					case DATETIME:
-						DateConverter converter = DateConverter.converter(column.getDataType());
+						DateConverter converter = DateConverter
+								.converter(column.getDataType());
 						Date date = new Date();
-						if(Math.random() < .5){
+						if (Math.random() < .5) {
 							value = date;
-						}else{
+						} else {
 							value = converter.stringValue(date);
 						}
 						break;
@@ -576,10 +585,12 @@ public class TestSetupTeardown {
 
 		final int tileWidth = 256;
 		final int tileHeight = 256;
-		
+
 		int matrixWidthAndHeight = 2;
-		double pixelXSize = (tileMatrixSet.getMaxX() - tileMatrixSet.getMinX()) / (matrixWidthAndHeight * tileWidth);
-		double pixelYSize = (tileMatrixSet.getMaxY() - tileMatrixSet.getMinY()) / (matrixWidthAndHeight * tileHeight);
+		double pixelXSize = (tileMatrixSet.getMaxX() - tileMatrixSet.getMinX())
+				/ (matrixWidthAndHeight * tileWidth);
+		double pixelYSize = (tileMatrixSet.getMaxY() - tileMatrixSet.getMinY())
+				/ (matrixWidthAndHeight * tileHeight);
 
 		byte[] tileData = TestUtils.getTileBytes();
 

@@ -7,9 +7,9 @@ import java.util.logging.Logger;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.wkb.geom.Geometry;
-import mil.nga.wkb.geom.GeometryEnvelope;
-import mil.nga.wkb.util.GeometryEnvelopeBuilder;
+import mil.nga.sf.Geometry;
+import mil.nga.sf.GeometryEnvelope;
+import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 import org.sqlite.Function;
 

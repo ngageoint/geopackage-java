@@ -21,7 +21,7 @@ import mil.nga.geopackage.schema.constraints.DataColumnConstraintsDao;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.tiles.user.TileTable;
-import mil.nga.wkb.geom.GeometryType;
+import mil.nga.sf.GeometryType;
 
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
@@ -92,12 +92,13 @@ public class DataColumnsUtils {
 						queryDataColumns.getId());
 
 				// Query by id shortcut method
-                DataColumns queryDataColumns2 = dao.getDataColumn(dataColumns.getTableName(),
-                        dataColumns.getColumnName());
-                TestCase.assertNotNull(queryDataColumns2);
-                TestCase.assertEquals(dataColumns.getId(),
-                        queryDataColumns2.getId());
-				
+				DataColumns queryDataColumns2 = dao
+						.getDataColumn(dataColumns.getTableName(),
+								dataColumns.getColumnName());
+				TestCase.assertNotNull(queryDataColumns2);
+				TestCase.assertEquals(dataColumns.getId(),
+						queryDataColumns2.getId());
+
 				// Query for equal
 				List<DataColumns> queryDataColumnsList = dao.queryForEq(
 						DataColumns.COLUMN_COLUMN_NAME,
