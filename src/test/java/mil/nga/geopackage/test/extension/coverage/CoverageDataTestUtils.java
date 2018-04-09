@@ -14,10 +14,6 @@ import mil.nga.geopackage.extension.coverage.CoverageDataResults;
 import mil.nga.geopackage.extension.coverage.GriddedCoverage;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
 import mil.nga.geopackage.extension.coverage.GriddedTile;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
@@ -26,6 +22,10 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * Coverage Data test utils
@@ -57,7 +57,7 @@ public class CoverageDataTestUtils {
 		SpatialReferenceSystem srs = srsDao.queryForId(srsId);
 
 		long epsg = srs.getOrganizationCoordsysId();
-		Projection projection = ProjectionFactory.getProjection(srs);
+		Projection projection = srs.getProjection();
 		long requestEpsg = -1;
 		if (epsg == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
 			requestEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
@@ -68,8 +68,8 @@ public class CoverageDataTestUtils {
 				.getProjection(requestEpsg);
 		ProjectionTransform coverageToRequest = projection
 				.getTransformation(requestProjection);
-		BoundingBox projectedBoundingBox = coverageToRequest
-				.transform(boundingBox);
+		BoundingBox projectedBoundingBox = boundingBox
+				.transform(coverageToRequest);
 
 		// Get a random coordinate
 		double latDistance = projectedBoundingBox.getMaxLatitude()

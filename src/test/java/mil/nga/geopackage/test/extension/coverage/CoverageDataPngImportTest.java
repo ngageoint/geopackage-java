@@ -9,15 +9,15 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.coverage.CoverageDataAlgorithm;
 import mil.nga.geopackage.extension.coverage.CoverageDataPng;
 import mil.nga.geopackage.extension.coverage.CoverageDataResults;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.test.ImportCoverageDataGeoPackageTestCase;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 import org.junit.Test;
 
@@ -160,12 +160,12 @@ public class CoverageDataPngImportTest extends
 					.getSpatialReferenceSystemDao();
 			long srsId = tileMatrixSet.getSrsId();
 			SpatialReferenceSystem srs = srsDao.queryForId(srsId);
-			Projection projection = ProjectionFactory.getProjection(srs);
+			Projection projection = srs.getProjection();
 			Projection requestProjection = ProjectionFactory
 					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 			ProjectionTransform coverageToRequest = projection
 					.getTransformation(requestProjection);
-			projectedBoundingBox = coverageToRequest.transform(boundingBox);
+			projectedBoundingBox = boundingBox.transform(coverageToRequest);
 
 		}
 		if (PRINT) {
@@ -248,8 +248,8 @@ public class CoverageDataPngImportTest extends
 			System.out.println();
 			System.out.println("WGS84 REQUEST");
 			System.out.println();
-			BoundingBox wgs84BoundingBox = wgs84Transform
-					.transform(boundingBox);
+			BoundingBox wgs84BoundingBox = boundingBox
+					.transform(wgs84Transform);
 			System.out.println("   Min Lat: "
 					+ wgs84BoundingBox.getMinLatitude());
 			System.out.println("   Max Lat: "
@@ -285,8 +285,8 @@ public class CoverageDataPngImportTest extends
 					System.out.println();
 				}
 				for (double lon = minLongitude + (widthPixelDistance * .5); lon <= maxLongitude; lon += widthPixelDistance) {
-					Double value = CoverageDataTestUtils.getValue(
-							geoPackage, algorithm, lat, lon, requestEpsg);
+					Double value = CoverageDataTestUtils.getValue(geoPackage,
+							algorithm, lat, lon, requestEpsg);
 					if (PRINT) {
 						System.out.print("   " + value);
 					}
@@ -296,9 +296,9 @@ public class CoverageDataPngImportTest extends
 				}
 			}
 
-			CoverageDataResults results = CoverageDataTestUtils
-					.getValues(geoPackage, algorithm, boundingBox, width,
-							height, requestEpsg);
+			CoverageDataResults results = CoverageDataTestUtils.getValues(
+					geoPackage, algorithm, boundingBox, width, height,
+					requestEpsg);
 			if (!allowNulls) {
 				TestCase.assertNotNull(results);
 			}
@@ -391,8 +391,8 @@ public class CoverageDataPngImportTest extends
 				System.out.println();
 				System.out.println("WGS84 REQUEST");
 				System.out.println();
-				BoundingBox wgs84BoundingBox = wgs84Transform
-						.transform(boundingBox);
+				BoundingBox wgs84BoundingBox = boundingBox
+						.transform(wgs84Transform);
 				System.out.println("   Min Lat: "
 						+ wgs84BoundingBox.getMinLatitude());
 				System.out.println("   Max Lat: "
@@ -454,9 +454,8 @@ public class CoverageDataPngImportTest extends
 							}
 						}
 					}
-					Double value = CoverageDataTestUtils.getValue(
-							geoPackage, algorithm, lat, maxLongitude,
-							geoPackageEpsg);
+					Double value = CoverageDataTestUtils.getValue(geoPackage,
+							algorithm, lat, maxLongitude, geoPackageEpsg);
 					if (PRINT) {
 						System.out.print("   " + value);
 					}
@@ -470,9 +469,8 @@ public class CoverageDataPngImportTest extends
 					System.out.println();
 				}
 				for (double lon = minLongitude; lon <= maxLongitude; lon += widthPixelDistance) {
-					Double value = CoverageDataTestUtils.getValue(
-							geoPackage, algorithm, minLatitude, lon,
-							geoPackageEpsg);
+					Double value = CoverageDataTestUtils.getValue(geoPackage,
+							algorithm, minLatitude, lon, geoPackageEpsg);
 					if (PRINT) {
 						System.out.print("   " + value);
 					}
@@ -493,9 +491,9 @@ public class CoverageDataPngImportTest extends
 					}
 				}
 
-				CoverageDataResults results = CoverageDataTestUtils
-						.getValues(geoPackage, algorithm, boundingBox, width,
-								height, geoPackageEpsg);
+				CoverageDataResults results = CoverageDataTestUtils.getValues(
+						geoPackage, algorithm, boundingBox, width, height,
+						geoPackageEpsg);
 				if (PRINT) {
 					System.out.println();
 					System.out.println();
@@ -539,9 +537,9 @@ public class CoverageDataPngImportTest extends
 											+ row + ", column = " + column);
 						}
 
-						value = CoverageDataTestUtils.getValue(
-								geoPackage, algorithm, maxLatitude2,
-								minLongitude2, geoPackageEpsg);
+						value = CoverageDataTestUtils.getValue(geoPackage,
+								algorithm, maxLatitude2, minLongitude2,
+								geoPackageEpsg);
 						double[] point = wgs84Transform.transform(
 								minLongitude2, maxLatitude2);
 						if (PRINT) {
@@ -557,9 +555,9 @@ public class CoverageDataPngImportTest extends
 							}
 						}
 
-						value = CoverageDataTestUtils.getValue(
-								geoPackage, algorithm, maxLatitude2,
-								maxLongitude2, geoPackageEpsg);
+						value = CoverageDataTestUtils.getValue(geoPackage,
+								algorithm, maxLatitude2, maxLongitude2,
+								geoPackageEpsg);
 						point = wgs84Transform.transform(maxLongitude2,
 								maxLatitude2);
 						if (PRINT) {
@@ -576,9 +574,9 @@ public class CoverageDataPngImportTest extends
 							}
 						}
 
-						value = CoverageDataTestUtils.getValue(
-								geoPackage, algorithm, minLatitude2,
-								minLongitude2, geoPackageEpsg);
+						value = CoverageDataTestUtils.getValue(geoPackage,
+								algorithm, minLatitude2, minLongitude2,
+								geoPackageEpsg);
 						point = wgs84Transform.transform(minLongitude2,
 								minLatitude2);
 						if (PRINT) {
@@ -594,9 +592,9 @@ public class CoverageDataPngImportTest extends
 							}
 						}
 
-						value = CoverageDataTestUtils.getValue(
-								geoPackage, algorithm, minLatitude2,
-								maxLongitude2, geoPackageEpsg);
+						value = CoverageDataTestUtils.getValue(geoPackage,
+								algorithm, minLatitude2, maxLongitude2,
+								geoPackageEpsg);
 						point = wgs84Transform.transform(maxLongitude2,
 								minLatitude2);
 						if (PRINT) {
@@ -613,9 +611,9 @@ public class CoverageDataPngImportTest extends
 							}
 						}
 
-						results = CoverageDataTestUtils.getValues(
-								geoPackage, algorithm, boundingBox2, width,
-								height, geoPackageEpsg);
+						results = CoverageDataTestUtils.getValues(geoPackage,
+								algorithm, boundingBox2, width, height,
+								geoPackageEpsg);
 						if (PRINT) {
 							System.out.println();
 							System.out.println();

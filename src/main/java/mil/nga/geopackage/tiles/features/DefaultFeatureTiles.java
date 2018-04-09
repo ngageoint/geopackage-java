@@ -17,7 +17,6 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.sf.CircularString;
 import mil.nga.sf.CompoundCurve;
@@ -33,6 +32,7 @@ import mil.nga.sf.Polygon;
 import mil.nga.sf.PolyhedralSurface;
 import mil.nga.sf.TIN;
 import mil.nga.sf.Triangle;
+import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 import com.j256.ormlite.dao.CloseableIterator;
@@ -202,8 +202,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 								.buildEnvelope(geometry);
 					}
 					BoundingBox geometryBoundingBox = new BoundingBox(envelope);
-					BoundingBox transformedBoundingBox = transform
-							.transform(geometryBoundingBox);
+					BoundingBox transformedBoundingBox = geometryBoundingBox
+							.transform(transform);
 
 					if (TileBoundingBoxUtils.overlap(expandedBoundingBox,
 							transformedBoundingBox, true) != null) {

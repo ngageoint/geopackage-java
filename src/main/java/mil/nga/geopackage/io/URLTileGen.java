@@ -10,12 +10,12 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.manager.GeoPackageManager;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 import org.osgeo.proj4j.units.DegreeUnit;
 
@@ -366,7 +366,7 @@ public class URLTileGen {
 		Projection urlProjection = ProjectionFactory.getProjection(urlEpsg);
 		ProjectionTransform transform = bboxProjection
 				.getTransformation(urlProjection);
-		BoundingBox urlBoundingBox = transform.transform(boundingBox);
+		BoundingBox urlBoundingBox = boundingBox.transform(transform);
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
 				tileTable, url, minZoom, maxZoom, urlBoundingBox, urlProjection);

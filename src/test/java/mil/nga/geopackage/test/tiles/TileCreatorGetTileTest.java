@@ -6,9 +6,6 @@ import java.sql.SQLException;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TilesGeoPackageTestCase;
 import mil.nga.geopackage.tiles.GeoPackageTile;
@@ -16,6 +13,9 @@ import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileCreator;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 import org.junit.Test;
 

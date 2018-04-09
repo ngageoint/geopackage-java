@@ -8,8 +8,6 @@ import java.util.TreeMap;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.ImageRectangle;
 import mil.nga.geopackage.tiles.ImageRectangleF;
 import mil.nga.geopackage.tiles.TileBoundingBoxJavaUtils;
@@ -21,6 +19,8 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * Tiled Gridded Coverage Data, abstract Common Encoding, Extension
@@ -299,8 +299,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 		if (!sameProjection) {
 			transformRequestToCoverage = requestProjection
 					.getTransformation(coverageProjection);
-			requestProjectedBoundingBox = transformRequestToCoverage
-					.transform(requestProjectedBoundingBox);
+			requestProjectedBoundingBox = requestProjectedBoundingBox
+					.transform(transformRequestToCoverage);
 		}
 		request.setProjectedBoundingBox(requestProjectedBoundingBox);
 
@@ -396,8 +396,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 		if (!sameProjection) {
 			transformRequestToCoverage = requestProjection
 					.getTransformation(coverageProjection);
-			requestProjectedBoundingBox = transformRequestToCoverage
-					.transform(requestProjectedBoundingBox);
+			requestProjectedBoundingBox = requestProjectedBoundingBox
+					.transform(transformRequestToCoverage);
 		}
 		request.setProjectedBoundingBox(requestProjectedBoundingBox);
 

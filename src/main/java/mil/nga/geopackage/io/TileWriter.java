@@ -15,10 +15,6 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.manager.GeoPackageManager;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.GeoPackageTile;
 import mil.nga.geopackage.tiles.GeoPackageTileRetriever;
 import mil.nga.geopackage.tiles.ImageUtils;
@@ -28,6 +24,10 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 import org.osgeo.proj4j.units.DegreeUnit;
 
@@ -505,7 +505,7 @@ public class TileWriter {
 
 		// Get the projection of the tile matrix set
 		SpatialReferenceSystem srs = tileDao.getTileMatrixSet().getSrs();
-		Projection projection = ProjectionFactory.getProjection(srs);
+		Projection projection = srs.getProjection();
 
 		// Get the transformation to web mercator
 		Projection webMercator = ProjectionFactory
@@ -519,8 +519,8 @@ public class TileWriter {
 			zoomBoundingBox = TileBoundingBoxUtils
 					.boundDegreesBoundingBoxWithWebMercatorLimits(zoomBoundingBox);
 		}
-		BoundingBox zoomWebMercatorBoundingBox = projectionToWebMercator
-				.transform(zoomBoundingBox);
+		BoundingBox zoomWebMercatorBoundingBox = zoomBoundingBox
+				.transform(projectionToWebMercator);
 
 		GeoPackageTileRetriever retriever = null;
 		if (rawImage) {
@@ -656,8 +656,8 @@ public class TileWriter {
 	 */
 	private static double getLength(BoundingBox boundingBox,
 			ProjectionTransform toWebMercatorTransform) {
-		BoundingBox transformedBoundingBox = toWebMercatorTransform
-				.transform(boundingBox);
+		BoundingBox transformedBoundingBox = boundingBox
+				.transform(toWebMercatorTransform);
 		return getLength(transformedBoundingBox);
 	}
 

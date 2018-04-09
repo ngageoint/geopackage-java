@@ -12,8 +12,8 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureRowSync;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionTransform;
 
 import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.misc.TransactionManager;
@@ -234,8 +234,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 			Projection projection) {
 		ProjectionTransform projectionTransform = projection
 				.getTransformation(featureDao.getProjection());
-		BoundingBox featureBoundingBox = projectionTransform
-				.transform(boundingBox);
+		BoundingBox featureBoundingBox = boundingBox
+				.transform(projectionTransform);
 		return featureBoundingBox;
 	}
 

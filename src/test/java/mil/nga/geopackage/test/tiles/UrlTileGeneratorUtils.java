@@ -9,9 +9,6 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.io.TestGeoPackageProgress;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
@@ -23,6 +20,9 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.sf.Point;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 import org.junit.Assume;
 
@@ -219,10 +219,9 @@ public class UrlTileGeneratorUtils {
 	private static BoundingBox getBoundingBox(BoundingBox boundingBox) {
 		boundingBox = TileBoundingBoxUtils
 				.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
-		boundingBox = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR)
-				.transform(boundingBox);
+		boundingBox = boundingBox.transform(ProjectionFactory.getProjection(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR));
 		return boundingBox;
 	}
 

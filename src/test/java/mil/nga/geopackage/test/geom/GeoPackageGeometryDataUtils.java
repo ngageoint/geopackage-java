@@ -15,10 +15,6 @@ import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.sf.CircularString;
 import mil.nga.sf.CompoundCurve;
 import mil.nga.sf.CurvePolygon;
@@ -35,6 +31,9 @@ import mil.nga.sf.Polygon;
 import mil.nga.sf.PolyhedralSurface;
 import mil.nga.sf.TIN;
 import mil.nga.sf.Triangle;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.wkb.GeometryCodes;
 
 /**
@@ -177,8 +176,7 @@ public class GeoPackageGeometryDataUtils {
 									.queryForId(srsId);
 
 							long epsg = srs.getOrganizationCoordsysId();
-							Projection projection = ProjectionFactory
-									.getProjection(srs);
+							Projection projection = srs.getProjection();
 							long toEpsg = -1;
 							if (epsg == ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
 								toEpsg = ProjectionConstants.EPSG_WEB_MERCATOR;
@@ -187,8 +185,9 @@ public class GeoPackageGeometryDataUtils {
 							}
 							ProjectionTransform transformTo = projection
 									.getTransformation(toEpsg);
-							ProjectionTransform transformFrom = transformTo
-									.getToProjection().getTransformation(srs);
+							ProjectionTransform transformFrom = srs
+									.getTransformation(transformTo
+											.getToProjection());
 
 							byte[] bytes = geometryData.getWkbBytes();
 

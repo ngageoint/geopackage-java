@@ -10,9 +10,6 @@ import javax.imageio.ImageIO;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.TilesGeoPackageTestCase;
@@ -21,6 +18,9 @@ import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileCreator;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 import org.junit.Test;
 
@@ -71,8 +71,8 @@ public class TileCreatorImageTest extends TilesGeoPackageTestCase {
 
 		BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
 				.getWebMercatorBoundingBox(0, 4, 4);
-		BoundingBox wgs84BoundingBox = webMercator.getTransformation(wgs84)
-				.transform(webMercatorBoundingBox);
+		BoundingBox wgs84BoundingBox = webMercatorBoundingBox
+				.transform(webMercator.getTransformation(wgs84));
 
 		TestCase.assertTrue(webMeractorTileCreator
 				.hasTile(webMercatorBoundingBox));
