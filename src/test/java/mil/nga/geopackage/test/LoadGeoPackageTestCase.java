@@ -16,14 +16,14 @@ import org.junit.After;
  *
  * @author osbornb
  */
-public abstract class TilesGeoPackageTestCase extends GeoPackageTestCase {
+public abstract class LoadGeoPackageTestCase extends GeoPackageTestCase {
 
 	private final String file;
 
 	/**
 	 * Constructor
 	 */
-	public TilesGeoPackageTestCase(String file) {
+	public LoadGeoPackageTestCase(String file) {
 		this.file = file;
 	}
 
