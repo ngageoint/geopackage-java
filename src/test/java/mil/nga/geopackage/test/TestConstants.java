@@ -39,6 +39,11 @@ public class TestConstants {
 	public static final String TILES2_DB_NAME = "tiles2";
 
 	/**
+	 * Related Tables database name
+	 */
+	public static final String RTE_DB_NAME = "rte";
+
+	/**
 	 * Import database file name, located in the test assets
 	 */
 	public static final String IMPORT_DB_FILE_NAME = IMPORT_DB_NAME + "."
@@ -54,6 +59,12 @@ public class TestConstants {
 	 * Tiles 2 database file name, located in the test assets
 	 */
 	public static final String TILES2_DB_FILE_NAME = TILES2_DB_NAME + "."
+			+ GEO_PACKAGE_EXTENSION;
+
+	/**
+	 * Tiles 2 database file name, located in the test assets
+	 */
+	public static final String RTE_DB_FILE_NAME = RTE_DB_NAME + "."
 			+ GEO_PACKAGE_EXTENSION;
 
 	/**
