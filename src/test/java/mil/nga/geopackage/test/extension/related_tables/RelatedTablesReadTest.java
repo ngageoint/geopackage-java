@@ -44,9 +44,11 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 	@Test
 	public void testGetRelationships() throws SQLException, IOException {
 
+		// 1. has
 		RelatedTablesExtension rte = new RelatedTablesExtension(geoPackage);
 		TestCase.assertTrue(rte.has());
-		
+
+		// 4. get relationships
 		ExtendedRelationsDao extendedRelationsDao = geoPackage
 				.createDao(ExtendedRelations.class);
 		Collection<ExtendedRelations> extendedRelations = extendedRelationsDao.queryForAll();

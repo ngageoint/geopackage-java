@@ -5,7 +5,7 @@ import mil.nga.geopackage.user.UserRow;
 /**
  * Tile Row containing the values from a single cursor row
  * 
- * @author osbornb
+ * @author yutzlejp
  */
 public class UserMappingRow extends UserRow<UserMappingColumn, UserMappingTable> {
 
