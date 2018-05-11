@@ -25,7 +25,7 @@ public class UserMappingRow extends UserRow<UserMappingColumn, UserMappingTable>
 	 * 
 	 * @param table
 	 */
-	UserMappingRow(UserMappingTable table) {
+	public UserMappingRow(UserMappingTable table) {
 		super(table);
 	}
 
@@ -47,6 +47,15 @@ public class UserMappingRow extends UserRow<UserMappingColumn, UserMappingTable>
 	 */
 	public long getBaseId() {
 		return ((Number) getValue(getBaseIdColumnIndex())).longValue();
+	}
+	
+	/**
+	 * Set the base ID
+	 * 
+	 * @param baseId
+	 */
+	public void setBaseId(long baseId){
+		setValue(getBaseIdColumnIndex(), baseId);
 	}
 
 	/**
@@ -74,6 +83,15 @@ public class UserMappingRow extends UserRow<UserMappingColumn, UserMappingTable>
 	 */
 	public long getRelatedId() {
 		return ((Number) getValue(getBaseIdColumnIndex())).longValue();
+	}
+	
+	/**
+	 * Set the base ID
+	 * 
+	 * @param baseId
+	 */
+	public void setRelatedId(long relatedId){
+		setValue(getRelatedIdColumnIndex(), relatedId);
 	}
 
 	/**
