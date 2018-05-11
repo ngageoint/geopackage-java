@@ -6,6 +6,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 3.0.0 (TBD)
 
+* geopackage-core version updated to 3.0.0
 * [GeoPackage Core](https://github.com/ngageoint/geopackage-core-java) new WKB dependency on [Simple Features WKB library](https://github.com/ngageoint/simple-features-wkb-java)
   * Package names in dependent classes must be updated
   * GeometryType code calls must be replaced using GeometryCodes
