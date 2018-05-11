@@ -20,8 +20,11 @@ import mil.nga.geopackage.extension.related_tables.ExtendedRelationsDao;
 import mil.nga.geopackage.extension.related_tables.UserMappingConnection;
 import mil.nga.geopackage.extension.related_tables.UserMappingDao;
 import mil.nga.geopackage.extension.related_tables.UserMappingResultSet;
+import mil.nga.geopackage.extension.related_tables.UserMappingRow;
 import mil.nga.geopackage.extension.related_tables.UserMappingTable;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureResultSet;
+import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
 
@@ -66,7 +69,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
 		// 4. Get relationships
 		Collection<ExtendedRelations> extendedRelations = extendedRelationsDao.queryForAll();
-		TestCase.assertTrue(extendedRelations.size() == 0);
+		TestCase.assertEquals(0, extendedRelations.size());
 		
 		// 5. Add relationship between "geometry2d" and "geometry3d"
 		// 5a. Create mapping table
@@ -90,18 +93,43 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		extendedRelation.setRelationName("ggggg");
 		extendedRelationsDao.create(extendedRelation);
 		extendedRelations = extendedRelationsDao.queryForAll();
-		TestCase.assertTrue(extendedRelations.size() == 1);
+		TestCase.assertEquals(1, extendedRelations.size());
 		
-		// 7. Add mapping
-//		UserMappingDao mappingDao = new UserMappingDao(mappingTableName, geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), umt);
-//		mappingDao.
+		// 7. Add mappings
+		UserMappingDao mappingDao = new UserMappingDao(mappingTableName, geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), umt);
+		FeatureResultSet baseFrs = baseDao.queryForAll();
+		int baseCount = baseFrs.getCount();
+		long[] baseIds = new long[baseCount]; 
+		int inx=0;
+		while(baseFrs.moveToNext()) {
+			baseIds[inx++] = baseFrs.getRow().getId();
+		}
+		FeatureResultSet relatedFrs = relatedDao.queryForAll();
+		int relatedCount = relatedFrs.getCount();
+		long[] relatedIds = new long[relatedCount]; 
+		inx=0;
+		while(relatedFrs.moveToNext()) {
+			relatedIds[inx++] = relatedFrs.getRow().getId();
+		}
+		UserMappingRow umr = null;
+		for (inx = 0; inx < 10; inx++){
+			umr = new UserMappingRow(umt);
+			umr.setBaseId(baseIds[(int)Math.floor(Math.random() * baseCount)]);
+			umr.setRelatedId(relatedIds[(int)Math.floor(Math.random() * relatedCount)]);
+			mappingDao.insert(umr);
+		}
+		UserMappingResultSet mappings = mappingDao.queryForAll();
+		TestCase.assertEquals(10, mappings.getCount());
 
-		// 12. Remove mapping
+		// 12. Remove mappings
+//		mappingDao.delete(umr);
+//		mappings = mappingDao.queryForAll();
+//		TestCase.assertEquals(9, mappings.getCount());
 
 		// 6. Remove relationship
 		extendedRelationsDao.delete(extendedRelation);
 		extendedRelations = extendedRelationsDao.queryForAll();
-		TestCase.assertTrue(extendedRelations.size() == 0);
+		TestCase.assertEquals(0, extendedRelations.size());
 		geoPackage.dropTable(mappingTableName);
 
 		// 3. Remove extension
