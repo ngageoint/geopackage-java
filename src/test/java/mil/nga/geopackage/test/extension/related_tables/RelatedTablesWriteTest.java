@@ -3,15 +3,10 @@ package mil.nga.geopackage.test.extension.related_tables;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Test;
 
 import junit.framework.TestCase;
-import mil.nga.geopackage.attributes.AttributesColumn;
-import mil.nga.geopackage.attributes.AttributesDao;
-import mil.nga.geopackage.attributes.AttributesResultSet;
-import mil.nga.geopackage.db.GeoPackageCoreConnection;
 import mil.nga.geopackage.db.GeoPackageTableCreator;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.RelatedTablesExtension;
@@ -24,7 +19,6 @@ import mil.nga.geopackage.extension.related_tables.UserMappingRow;
 import mil.nga.geopackage.extension.related_tables.UserMappingTable;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
-import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
 
@@ -120,11 +114,12 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		}
 		UserMappingResultSet mappings = mappingDao.queryForAll();
 		TestCase.assertEquals(10, mappings.getCount());
+		mappings.close();
 
-		// 12. Remove mappings
-//		mappingDao.delete(umr);
-//		mappings = mappingDao.queryForAll();
-//		TestCase.assertEquals(9, mappings.getCount());
+		// 12. Remove mappings (note: it is plausible and allowed 
+		// to have duplicate entries)
+		int deleted = mappingDao.delete(umr);
+		TestCase.assertFalse(deleted == 0);
 
 		// 6. Remove relationship
 		extendedRelationsDao.delete(extendedRelation);
