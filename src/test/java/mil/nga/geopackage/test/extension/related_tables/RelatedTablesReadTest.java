@@ -55,7 +55,7 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 		
 		for (ExtendedRelations extendedRelation : extendedRelations) {
 			String mappingTableName = extendedRelation.getMappingTableName();
-			UserMappingDao mappingDao = new UserMappingDao(mappingTableName, geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), new UserMappingTable(mappingTableName));
+			UserMappingDao mappingDao = new UserMappingDao(geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), new UserMappingTable(mappingTableName));
 			UserMappingResultSet mappings = mappingDao.queryForAll();
 			AttributesDao attributesDao = geoPackage.getAttributesDao(extendedRelation.getRelatedTableName());
 			List<AttributesColumn> attributesColumns = attributesDao.getTable().getColumns();

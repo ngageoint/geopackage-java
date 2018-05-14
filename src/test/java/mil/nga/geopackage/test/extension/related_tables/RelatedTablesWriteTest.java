@@ -90,7 +90,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		TestCase.assertEquals(1, extendedRelations.size());
 		
 		// 7. Add mappings
-		UserMappingDao mappingDao = new UserMappingDao(mappingTableName, geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), umt);
+		UserMappingDao mappingDao = new UserMappingDao(geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), umt);
 		FeatureResultSet baseFrs = baseDao.queryForAll();
 		int baseCount = baseFrs.getCount();
 		long[] baseIds = new long[baseCount]; 

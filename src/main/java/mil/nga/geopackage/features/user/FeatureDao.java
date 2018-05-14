@@ -39,10 +39,10 @@ public class FeatureDao extends
 	 * @param geometryColumns
 	 * @param table
 	 */
-	public FeatureDao(String database, GeoPackageConnection db,
+	public FeatureDao(GeoPackageConnection db,
 			FeatureConnection featureDb, GeometryColumns geometryColumns,
 			FeatureTable table) {
-		super(database, db, featureDb, table);
+		super(db, featureDb, table);
 
 		this.featureDb = featureDb;
 		this.geometryColumns = geometryColumns;

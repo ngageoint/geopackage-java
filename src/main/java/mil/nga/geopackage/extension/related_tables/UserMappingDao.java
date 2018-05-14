@@ -15,16 +15,15 @@ public class UserMappingDao extends
 	/**
 	 * Constructor
 	 * 
-	 * @param database
 	 * @param db
 	 * @param tileDb
 	 * @param tileMatrixSet
 	 * @param tileMatrices
 	 * @param table
 	 */
-	public UserMappingDao(String database, GeoPackageConnection db,
+	public UserMappingDao(GeoPackageConnection db,
 			UserMappingConnection umc, UserMappingTable table) {
-		super(database, db, umc, table);
+		super(db, umc, table);
 	}
 
 	/**
