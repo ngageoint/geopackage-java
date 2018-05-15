@@ -59,6 +59,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName, relatedTableName, mappingTableName, relationshipName);
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(1, extendedRelations.size());
+		TestCase.assertTrue(geoPackage.getDatabase().tableExists(mappingTableName));
 
 		// 7. Add mappings
 		FeatureDao baseDao = geoPackage.getFeatureDao(baseTableName);
@@ -98,6 +99,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		rte.removeRelationship(baseTableName, relatedTableName, relationshipName);
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(0, extendedRelations.size());
+		TestCase.assertFalse(geoPackage.getDatabase().tableExists(mappingTableName));
 
 		// 3. Remove extension
 		rte.removeExtension();
