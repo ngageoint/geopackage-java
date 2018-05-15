@@ -12,11 +12,11 @@ import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesResultSet;
 import mil.nga.geopackage.extension.RelatedTablesExtension;
-import mil.nga.geopackage.extension.related_tables.ExtendedRelations;
+import mil.nga.geopackage.extension.related_tables.ExtendedRelation;
 import mil.nga.geopackage.extension.related_tables.ExtendedRelationsDao;
-import mil.nga.geopackage.extension.related_tables.UserMappingConnection;
-import mil.nga.geopackage.extension.related_tables.UserMappingDao;
-import mil.nga.geopackage.extension.related_tables.UserMappingResultSet;
+//import mil.nga.geopackage.extension.related_tables.UserMappingConnection;
+//import mil.nga.geopackage.extension.related_tables.UserMappingDao;
+//import mil.nga.geopackage.extension.related_tables.UserMappingResultSet;
 import mil.nga.geopackage.extension.related_tables.UserMappingTable;
 import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
@@ -50,24 +50,24 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 
 		// 4. get relationships
 		ExtendedRelationsDao extendedRelationsDao = geoPackage
-				.createDao(ExtendedRelations.class);
-		Collection<ExtendedRelations> extendedRelations = extendedRelationsDao.queryForAll();
+				.createDao(ExtendedRelation.class);
+		Collection<ExtendedRelation> extendedRelations = extendedRelationsDao.queryForAll();
 		
-		for (ExtendedRelations extendedRelation : extendedRelations) {
+		for (ExtendedRelation extendedRelation : extendedRelations) {
 			String mappingTableName = extendedRelation.getMappingTableName();
-			UserMappingDao mappingDao = new UserMappingDao(geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), new UserMappingTable(mappingTableName));
-			UserMappingResultSet mappings = mappingDao.queryForAll();
-			AttributesDao attributesDao = geoPackage.getAttributesDao(extendedRelation.getRelatedTableName());
-			List<AttributesColumn> attributesColumns = attributesDao.getTable().getColumns();
-			int relatedIdIndex = mappings.getColumnIndex(UserMappingTable.COLUMN_RELATED_ID);
-			while (mappings.moveToNext()) {
-				int relatedId = mappings.getInt(relatedIdIndex);
-				AttributesResultSet ars = attributesDao.queryForId(relatedId);
-				for (AttributesColumn attributesColumn : attributesColumns){
-					Object obj = ars.getValue(attributesColumn);
-					obj.toString();
-				}
-			}
+////			UserMappingDao mappingDao = new UserMappingDao(geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), new UserMappingTable(mappingTableName));
+////			UserMappingResultSet mappings = mappingDao.queryForAll();
+//			AttributesDao attributesDao = geoPackage.getAttributesDao(extendedRelation.getRelatedTableName());
+//			List<AttributesColumn> attributesColumns = attributesDao.getTable().getColumns();
+//			int relatedIdIndex = mappings.getColumnIndex(UserMappingTable.COLUMN_RELATED_ID);
+//			while (mappings.moveToNext()) {
+//				int relatedId = mappings.getInt(relatedIdIndex);
+//				AttributesResultSet ars = attributesDao.queryForId(relatedId);
+//				for (AttributesColumn attributesColumn : attributesColumns){
+//					Object obj = ars.getValue(attributesColumn);
+//					obj.toString();
+//				}
+//			}
 		}
 	}
 }
