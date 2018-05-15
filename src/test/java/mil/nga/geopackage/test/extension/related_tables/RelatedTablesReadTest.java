@@ -2,8 +2,10 @@ package mil.nga.geopackage.test.extension.related_tables;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.Test;
 
@@ -13,11 +15,9 @@ import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesResultSet;
 import mil.nga.geopackage.extension.RelatedTablesExtension;
 import mil.nga.geopackage.extension.related_tables.ExtendedRelation;
-import mil.nga.geopackage.extension.related_tables.ExtendedRelationsDao;
-//import mil.nga.geopackage.extension.related_tables.UserMappingConnection;
-//import mil.nga.geopackage.extension.related_tables.UserMappingDao;
-//import mil.nga.geopackage.extension.related_tables.UserMappingResultSet;
-import mil.nga.geopackage.extension.related_tables.UserMappingTable;
+import mil.nga.geopackage.features.user.FeatureColumn;
+import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
 
@@ -28,6 +28,8 @@ import mil.nga.geopackage.test.TestConstants;
  */
 public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 
+	private static final Logger log = Logger.getLogger(LoadGeoPackageTestCase.class
+			.getName());
 	/**
 	 * Constructor
 	 */
@@ -49,25 +51,32 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 		TestCase.assertTrue(rte.has());
 
 		// 4. get relationships
-		ExtendedRelationsDao extendedRelationsDao = geoPackage
-				.createDao(ExtendedRelation.class);
-		Collection<ExtendedRelation> extendedRelations = extendedRelationsDao.queryForAll();
+		Collection<ExtendedRelation> extendedRelations = rte.getRelationships();
+		TestCase.assertEquals(1, extendedRelations.size());
 		
 		for (ExtendedRelation extendedRelation : extendedRelations) {
-			String mappingTableName = extendedRelation.getMappingTableName();
-////			UserMappingDao mappingDao = new UserMappingDao(geoPackage.getConnection(), new UserMappingConnection(geoPackage.getConnection()), new UserMappingTable(mappingTableName));
-////			UserMappingResultSet mappings = mappingDao.queryForAll();
-//			AttributesDao attributesDao = geoPackage.getAttributesDao(extendedRelation.getRelatedTableName());
-//			List<AttributesColumn> attributesColumns = attributesDao.getTable().getColumns();
-//			int relatedIdIndex = mappings.getColumnIndex(UserMappingTable.COLUMN_RELATED_ID);
-//			while (mappings.moveToNext()) {
-//				int relatedId = mappings.getInt(relatedIdIndex);
-//				AttributesResultSet ars = attributesDao.queryForId(relatedId);
-//				for (AttributesColumn attributesColumn : attributesColumns){
-//					Object obj = ars.getValue(attributesColumn);
-//					obj.toString();
-//				}
-//			}
+			
+			// 8. get mappings by base ID
+			FeatureDao baseDao = geoPackage.getFeatureDao(extendedRelation.getBaseTableName());
+			FeatureColumn pkColumn = baseDao.getTable().getPkColumn();
+			FeatureResultSet frs = baseDao.queryForAll();
+			while(frs.moveToNext()){
+				long baseId = frs.getLong(pkColumn.getIndex());
+				long[] relatedIds = rte.getMappingsForBase(extendedRelation, baseId);
+				log.log(Level.INFO, String.format("Found ids for %s: %s", baseId, Arrays.toString(relatedIds)));
+			}
+			frs.close();
+
+			// 9. get mappings by related ID
+			AttributesDao relatedDao = geoPackage.getAttributesDao(extendedRelation.getRelatedTableName());
+			AttributesColumn pkColumn2 = relatedDao.getTable().getPkColumn();
+			AttributesResultSet ars = relatedDao.queryForAll();
+			while(ars.moveToNext()){
+				long relatedId = ars.getLong(pkColumn2.getIndex());
+				long[] baseIds = rte.getMappingsForRelated(extendedRelation, relatedId);
+				log.log(Level.INFO, String.format("Found ids for %s: %s", relatedId, Arrays.toString(baseIds)));
+			}
+			ars.close();
 		}
 	}
 }
