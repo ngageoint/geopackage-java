@@ -22,9 +22,9 @@ import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
 
 /**
- * Test Tile Creator from a GeoPackage with tiles
+ * Test Related Tables Extension reading
  * 
- * @author osbornb
+ * @author jyutzler
  */
 public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 
@@ -56,7 +56,7 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 		
 		for (ExtendedRelation extendedRelation : extendedRelations) {
 			
-			// 8. get mappings by base ID
+			// 9. get mappings by base ID
 			FeatureDao baseDao = geoPackage.getFeatureDao(extendedRelation.getBaseTableName());
 			FeatureColumn pkColumn = baseDao.getTable().getPkColumn();
 			FeatureResultSet frs = baseDao.queryForAll();
@@ -67,7 +67,7 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 			}
 			frs.close();
 
-			// 9. get mappings by related ID
+			// 10. get mappings by related ID
 			AttributesDao relatedDao = geoPackage.getAttributesDao(extendedRelation.getRelatedTableName());
 			AttributesColumn pkColumn2 = relatedDao.getTable().getPkColumn();
 			AttributesResultSet ars = relatedDao.queryForAll();

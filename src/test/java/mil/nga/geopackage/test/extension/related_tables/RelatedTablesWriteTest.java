@@ -16,9 +16,9 @@ import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
 
 /**
- * Test Tile Creator from a GeoPackage with tiles
+ * Test Related Tables Extension writing
  * 
- * @author osbornb
+ * @author jyutzler
  */
 public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
@@ -86,12 +86,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 			rte.addMapping(extendedRelation, umr);// How do we test that this worked?
 		}
 
-		// 8/9/10/11
-//		UserMappingResultSet mappings = mappingDao.queryForAll();
-//		TestCase.assertEquals(10, mappings.getCount());
-//		mappings.close();
-
-		// 12. Remove mappings (note: it is plausible and allowed 
+		// 8. Remove mappings (note: it is plausible and allowed 
 		// to have duplicate entries)
 		TestCase.assertTrue(rte.removeMapping(extendedRelation, umr) > 0);
 
