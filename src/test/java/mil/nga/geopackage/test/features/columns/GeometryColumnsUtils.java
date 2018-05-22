@@ -20,7 +20,8 @@ import mil.nga.geopackage.features.columns.GeometryColumnsSqlMm;
 import mil.nga.geopackage.features.columns.GeometryColumnsSqlMmDao;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.test.TestUtils;
-import mil.nga.wkb.geom.GeometryType;
+import mil.nga.sf.GeometryType;
+import mil.nga.sf.wkb.GeometryCodes;
 
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
@@ -103,10 +104,10 @@ public class GeometryColumnsUtils {
 						.queryForEq(GeometryColumns.COLUMN_GEOMETRY_TYPE_NAME,
 								geometryColumns.getGeometryType().getName());
 				TestCase.assertNotNull(queryGeometryColumnsList);
-				if(queryGeometryColumnsList.isEmpty()){
-					queryGeometryColumnsList = dao
-							.queryForEq(GeometryColumns.COLUMN_GEOMETRY_TYPE_NAME,
-									geometryColumns.getGeometryTypeName());
+				if (queryGeometryColumnsList.isEmpty()) {
+					queryGeometryColumnsList = dao.queryForEq(
+							GeometryColumns.COLUMN_GEOMETRY_TYPE_NAME,
+							geometryColumns.getGeometryTypeName());
 				}
 				TestCase.assertTrue(queryGeometryColumnsList.size() >= 1);
 				boolean found = false;
@@ -326,7 +327,7 @@ public class GeometryColumnsUtils {
 					TestCase.assertNotNull(result.getId().getTableName());
 					TestCase.assertNotNull(result.getId().getColumnName());
 					TestCase.assertNotNull(result.getGeometryType());
-					TestCase.assertNotNull(GeometryType.fromCode(result
+					TestCase.assertNotNull(GeometryCodes.getGeometryType(result
 							.getGeometryTypeCode()));
 					TestCase.assertTrue(result.getCoordDimension() >= 2
 							&& result.getCoordDimension() <= 5);
@@ -362,15 +363,16 @@ public class GeometryColumnsUtils {
 				// Query for equal
 				List<GeometryColumnsSfSql> queryGeometryColumnsList = dao
 						.queryForEq(GeometryColumnsSfSql.COLUMN_GEOMETRY_TYPE,
-								geometryColumns.getGeometryType().getCode());
+								GeometryCodes.getCode(geometryColumns
+										.getGeometryType()));
 				TestCase.assertNotNull(queryGeometryColumnsList);
 				TestCase.assertTrue(queryGeometryColumnsList.size() >= 1);
 				boolean found = false;
 				for (GeometryColumnsSfSql queryGeometryColumnsValue : queryGeometryColumnsList) {
 					TestCase.assertEquals(geometryColumns.getGeometryType(),
 							queryGeometryColumnsValue.getGeometryType());
-					TestCase.assertEquals(geometryColumns.getGeometryType()
-							.getCode(), queryGeometryColumnsValue
+					TestCase.assertEquals(GeometryCodes.getCode(geometryColumns
+							.getGeometryType()), queryGeometryColumnsValue
 							.getGeometryTypeCode());
 					if (!found) {
 						found = geometryColumns.getId().equals(

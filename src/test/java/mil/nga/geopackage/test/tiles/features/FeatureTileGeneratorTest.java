@@ -7,14 +7,14 @@ import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 import org.junit.Test;
 
@@ -144,10 +144,9 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 		BoundingBox boundingBox = new BoundingBox();
 		boundingBox = TileBoundingBoxUtils
 				.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
-		boundingBox = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR)
-				.transform(boundingBox);
+		boundingBox = boundingBox.transform(ProjectionFactory.getProjection(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR));
 		TileGenerator tileGenerator = new FeatureTileGenerator(geoPackage,
 				"gen_feature_tiles", featureTiles, minZoom, maxZoom,
 				boundingBox,

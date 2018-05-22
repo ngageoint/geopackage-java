@@ -15,15 +15,15 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTilePointIcon;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
-import mil.nga.wkb.geom.GeometryType;
-import mil.nga.wkb.geom.LineString;
-import mil.nga.wkb.geom.Point;
-import mil.nga.wkb.geom.Polygon;
+import mil.nga.sf.GeometryType;
+import mil.nga.sf.LineString;
+import mil.nga.sf.Point;
+import mil.nga.sf.Polygon;
+import mil.nga.sf.proj.ProjectionConstants;
 
 /**
  * Feature Tile Utils

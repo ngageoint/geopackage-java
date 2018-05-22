@@ -17,23 +17,23 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
-import mil.nga.wkb.geom.CircularString;
-import mil.nga.wkb.geom.CompoundCurve;
-import mil.nga.wkb.geom.Geometry;
-import mil.nga.wkb.geom.GeometryCollection;
-import mil.nga.wkb.geom.GeometryEnvelope;
-import mil.nga.wkb.geom.LineString;
-import mil.nga.wkb.geom.MultiLineString;
-import mil.nga.wkb.geom.MultiPoint;
-import mil.nga.wkb.geom.MultiPolygon;
-import mil.nga.wkb.geom.Point;
-import mil.nga.wkb.geom.Polygon;
-import mil.nga.wkb.geom.PolyhedralSurface;
-import mil.nga.wkb.geom.TIN;
-import mil.nga.wkb.geom.Triangle;
-import mil.nga.wkb.util.GeometryEnvelopeBuilder;
+import mil.nga.sf.CircularString;
+import mil.nga.sf.CompoundCurve;
+import mil.nga.sf.Geometry;
+import mil.nga.sf.GeometryCollection;
+import mil.nga.sf.GeometryEnvelope;
+import mil.nga.sf.LineString;
+import mil.nga.sf.MultiLineString;
+import mil.nga.sf.MultiPoint;
+import mil.nga.sf.MultiPolygon;
+import mil.nga.sf.Point;
+import mil.nga.sf.Polygon;
+import mil.nga.sf.PolyhedralSurface;
+import mil.nga.sf.TIN;
+import mil.nga.sf.Triangle;
+import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 import com.j256.ormlite.dao.CloseableIterator;
 
@@ -202,8 +202,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 								.buildEnvelope(geometry);
 					}
 					BoundingBox geometryBoundingBox = new BoundingBox(envelope);
-					BoundingBox transformedBoundingBox = transform
-							.transform(geometryBoundingBox);
+					BoundingBox transformedBoundingBox = geometryBoundingBox
+							.transform(transform);
 
 					if (TileBoundingBoxUtils.overlap(expandedBoundingBox,
 							transformedBoundingBox, true) != null) {

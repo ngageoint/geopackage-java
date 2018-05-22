@@ -3,8 +3,8 @@ package mil.nga.geopackage.tiles.features;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
-import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.tiles.TileGenerator;
+import mil.nga.sf.proj.Projection;
 
 /**
  * Creates a set of tiles within a GeoPackage by generating tiles from features

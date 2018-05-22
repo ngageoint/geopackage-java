@@ -13,16 +13,16 @@ import mil.nga.geopackage.extension.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
-import mil.nga.wkb.geom.Point;
-import mil.nga.wkb.util.GeometryUtils;
+import mil.nga.sf.Point;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.util.GeometryUtils;
 
 import org.osgeo.proj4j.units.Units;
 

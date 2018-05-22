@@ -53,10 +53,6 @@ import mil.nga.geopackage.metadata.MetadataScopeType;
 import mil.nga.geopackage.metadata.reference.MetadataReference;
 import mil.nga.geopackage.metadata.reference.MetadataReferenceDao;
 import mil.nga.geopackage.metadata.reference.ReferenceScopeType;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.schema.columns.DataColumns;
 import mil.nga.geopackage.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.schema.constraints.DataColumnConstraintType;
@@ -76,18 +72,23 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.user.ContentValues;
-import mil.nga.wkb.geom.CircularString;
-import mil.nga.wkb.geom.CompoundCurve;
-import mil.nga.wkb.geom.CurvePolygon;
-import mil.nga.wkb.geom.Geometry;
-import mil.nga.wkb.geom.GeometryEnvelope;
-import mil.nga.wkb.geom.GeometryType;
-import mil.nga.wkb.geom.LineString;
-import mil.nga.wkb.geom.MultiLineString;
-import mil.nga.wkb.geom.MultiPolygon;
-import mil.nga.wkb.geom.Point;
-import mil.nga.wkb.geom.Polygon;
-import mil.nga.wkb.util.GeometryEnvelopeBuilder;
+import mil.nga.sf.CircularString;
+import mil.nga.sf.CompoundCurve;
+import mil.nga.sf.CurvePolygon;
+import mil.nga.sf.Geometry;
+import mil.nga.sf.GeometryEnvelope;
+import mil.nga.sf.GeometryType;
+import mil.nga.sf.LineString;
+import mil.nga.sf.MultiLineString;
+import mil.nga.sf.MultiPolygon;
+import mil.nga.sf.Point;
+import mil.nga.sf.Polygon;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.util.GeometryEnvelopeBuilder;
+import mil.nga.sf.wkb.GeometryCodes;
 
 /**
  * Creates an example GeoPackage file
@@ -695,7 +696,7 @@ public class GeoPackageExample {
 					.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
 			ProjectionTransform transform = projection
 					.getTransformation(requestProjection);
-			BoundingBox requestBoundingBox = transform.transform(boundingBox);
+			BoundingBox requestBoundingBox = boundingBox.transform(transform);
 
 			int zoomLevel = TileBoundingBoxUtils
 					.getZoomLevel(requestBoundingBox);
@@ -863,10 +864,10 @@ public class GeoPackageExample {
 		circularString.addPoint(new Point(-122.358, 47.658));
 		circularString.addPoint(new Point(-122.358, 47.653));
 
-		for (int i = GeometryType.CIRCULARSTRING.getCode(); i <= GeometryType.SURFACE
-				.getCode(); i++) {
+		for (int i = GeometryCodes.getCode(GeometryType.CIRCULARSTRING); i <= GeometryCodes
+				.getCode(GeometryType.SURFACE); i++) {
 
-			GeometryType geometryType = GeometryType.fromCode(i);
+			GeometryType geometryType = GeometryCodes.getGeometryType(i);
 			extensions.getOrCreate(tableName, GEOMETRY_COLUMN, geometryType);
 
 			Geometry geometry = null;
@@ -1060,7 +1061,7 @@ public class GeoPackageExample {
 		ProjectionTransform transform = ProjectionFactory.getProjection(
 				ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
 				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
-		BoundingBox contentsBoundingBox = transform.transform(bbox);
+		BoundingBox contentsBoundingBox = bbox.transform(transform);
 
 		CoverageDataPng coverageData = CoverageDataPng
 				.createTileTableWithMetadata(geoPackage, "coverage_png",
@@ -1150,7 +1151,7 @@ public class GeoPackageExample {
 		ProjectionTransform transform = ProjectionFactory.getProjection(
 				ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
 				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
-		BoundingBox contentsBoundingBox = transform.transform(bbox);
+		BoundingBox contentsBoundingBox = bbox.transform(transform);
 
 		CoverageDataTiff coverageData = CoverageDataTiff
 				.createTileTableWithMetadata(geoPackage, "coverage_tiff",

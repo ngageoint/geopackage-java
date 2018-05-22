@@ -23,7 +23,6 @@ import mil.nga.geopackage.io.TileDirectory.XDirectory;
 import mil.nga.geopackage.io.TileDirectory.YFile;
 import mil.nga.geopackage.io.TileDirectory.ZoomDirectory;
 import mil.nga.geopackage.manager.GeoPackageManager;
-import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.tiles.ImageRectangle;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxJavaUtils;
@@ -37,6 +36,7 @@ import mil.nga.geopackage.tiles.user.TileColumn;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.sf.proj.ProjectionConstants;
 
 /**
  * Read tiles from a file system directory into a GeoPackage file

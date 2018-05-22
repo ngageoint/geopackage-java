@@ -17,16 +17,16 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.manager.GeoPackageManager;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTilePointIcon;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 import org.osgeo.proj4j.units.DegreeUnit;
 
@@ -808,7 +808,7 @@ public class FeatureTileGen {
 				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
 		ProjectionTransform transform = projection
 				.getTransformation(webMercatorProjection);
-		BoundingBox webMercatorBoundingBox = transform.transform(boundingBox);
+		BoundingBox webMercatorBoundingBox = boundingBox.transform(transform);
 
 		// Create the tile generator
 		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(

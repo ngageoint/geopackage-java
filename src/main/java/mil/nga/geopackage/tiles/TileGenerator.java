@@ -19,10 +19,6 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.io.GeoPackageZoomLevelProgress;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrix.TileMatrixKey;
@@ -32,6 +28,10 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 import org.osgeo.proj4j.units.DegreeUnit;
 
@@ -327,8 +327,8 @@ public abstract class TileGenerator {
 						.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
 				requestBoundingBox = boundingBox;
 				if (!transform.isSameProjection()) {
-					requestBoundingBox = transform
-							.transform(requestBoundingBox);
+					requestBoundingBox = requestBoundingBox
+							.transform(transform);
 				}
 			}
 			for (int zoom = minZoom; zoom <= maxZoom; zoom++) {
@@ -504,8 +504,8 @@ public abstract class TileGenerator {
 		ProjectionTransform wgs84ToWebMercatorTransform = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
 				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
-		tileGridBoundingBox = wgs84ToWebMercatorTransform
-				.transform(standardWgs84Box);
+		tileGridBoundingBox = standardWgs84Box
+				.transform(wgs84ToWebMercatorTransform);
 	}
 
 	/**
@@ -570,8 +570,8 @@ public abstract class TileGenerator {
 							+ " which already contains GeoPackage formatted tiles");
 		}
 
-		Projection tileMatrixProjection = ProjectionFactory
-				.getProjection(tileMatrixSet.getSrs());
+		Projection tileMatrixProjection = tileMatrixSet.getSrs()
+				.getProjection();
 		if (!tileMatrixProjection.equals(projection)) {
 			throw new GeoPackageException("Can not update tiles projected at "
 					+ tileMatrixProjection.getCode()
@@ -584,12 +584,11 @@ public abstract class TileGenerator {
 		BoundingBox previousContentsBoundingBox = contents.getBoundingBox();
 		if (previousContentsBoundingBox != null) {
 			ProjectionTransform transformProjectionToContents = projection
-					.getTransformation(ProjectionFactory.getProjection(contents
-							.getSrs()));
+					.getTransformation(contents.getSrs().getProjection());
 			BoundingBox contentsBoundingBox = boundingBox;
 			if (!transformProjectionToContents.isSameProjection()) {
-				contentsBoundingBox = transformProjectionToContents
-						.transform(contentsBoundingBox);
+				contentsBoundingBox = contentsBoundingBox
+						.transform(transformProjectionToContents);
 			}
 			contentsBoundingBox = TileBoundingBoxUtils.union(
 					contentsBoundingBox, previousContentsBoundingBox);
@@ -616,8 +615,8 @@ public abstract class TileGenerator {
 					.isSameProjection();
 			BoundingBox updateBoundingBox = boundingBox;
 			if (!sameProjection) {
-				updateBoundingBox = transformProjectionToTileMatrixSet
-						.transform(updateBoundingBox);
+				updateBoundingBox = updateBoundingBox
+						.transform(transformProjectionToTileMatrixSet);
 			}
 			int minNewOrUpdateZoom = Math.min(minZoom,
 					(int) tileDao.getMinZoom());
@@ -626,8 +625,8 @@ public abstract class TileGenerator {
 			// Update the tile matrix set if modified
 			BoundingBox updateTileGridBoundingBox = tileGridBoundingBox;
 			if (!sameProjection) {
-				updateTileGridBoundingBox = transformProjectionToTileMatrixSet
-						.transform(updateTileGridBoundingBox);
+				updateTileGridBoundingBox = updateTileGridBoundingBox
+						.transform(transformProjectionToTileMatrixSet);
 			}
 			if (!previousTileMatrixSetBoundingBox
 					.equals(updateTileGridBoundingBox)) {
@@ -637,8 +636,8 @@ public abstract class TileGenerator {
 				adjustBounds(updateTileGridBoundingBox, minNewOrUpdateZoom);
 				updateTileGridBoundingBox = tileGridBoundingBox;
 				if (!sameProjection) {
-					updateTileGridBoundingBox = transformProjectionToTileMatrixSet
-							.transform(updateTileGridBoundingBox);
+					updateTileGridBoundingBox = updateTileGridBoundingBox
+							.transform(transformProjectionToTileMatrixSet);
 				}
 				tileMatrixSet.setBoundingBox(updateTileGridBoundingBox);
 				TileMatrixSetDao tileMatrixSetDao = geoPackage
