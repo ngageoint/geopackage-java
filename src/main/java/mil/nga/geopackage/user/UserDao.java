@@ -26,14 +26,13 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	/**
 	 * Constructor
 	 * 
-	 * @param database
 	 * @param db
 	 * @param userDb
 	 * @param table
 	 */
-	protected UserDao(String database, GeoPackageConnection db,
+	protected UserDao(GeoPackageConnection db,
 			UserConnection<TColumn, TTable, TRow, TResult> userDb, TTable table) {
-		super(database, db, userDb, table);
+		super(db, userDb, table);
 		this.connection = db.getConnection();
 	}
 
@@ -90,7 +89,9 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	public long insert(TRow row) {
 		long id = SQLUtils.insertOrThrow(connection, getTableName(),
 				row.toContentValues());
-		row.setId(id);
+		if (row.hasId()) {
+			row.setId(id);
+		}
 		return id;
 	}
 

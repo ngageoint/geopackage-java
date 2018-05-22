@@ -24,8 +24,6 @@ public class AttributesDao
 	/**
 	 * Constructor
 	 * 
-	 * @param database
-	 *            database
 	 * @param db
 	 *            db connection
 	 * @param attributesDb
@@ -33,9 +31,9 @@ public class AttributesDao
 	 * @param table
 	 *            attributes table
 	 */
-	public AttributesDao(String database, GeoPackageConnection db,
+	public AttributesDao(GeoPackageConnection db,
 			AttributesConnection attributesDb, AttributesTable table) {
-		super(database, db, attributesDb, table);
+		super(db, attributesDb, table);
 
 		this.attributesDb = attributesDb;
 		if (table.getContents() == null) {

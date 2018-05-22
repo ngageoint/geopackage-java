@@ -67,17 +67,16 @@ public class TileDao extends
 	/**
 	 * Constructor
 	 * 
-	 * @param database
 	 * @param db
 	 * @param tileDb
 	 * @param tileMatrixSet
 	 * @param tileMatrices
 	 * @param table
 	 */
-	public TileDao(String database, GeoPackageConnection db,
+	public TileDao(GeoPackageConnection db,
 			TileConnection tileDb, TileMatrixSet tileMatrixSet,
 			List<TileMatrix> tileMatrices, TileTable table) {
-		super(database, db, tileDb, table);
+		super(db, tileDb, table);
 
 		this.tileDb = tileDb;
 		this.tileMatrixSet = tileMatrixSet;
