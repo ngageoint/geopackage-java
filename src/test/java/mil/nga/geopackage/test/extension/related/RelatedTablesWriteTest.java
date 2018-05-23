@@ -1,19 +1,19 @@
-package mil.nga.geopackage.test.extension.related_tables;
+package mil.nga.geopackage.test.extension.related;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import org.junit.Test;
-
 import junit.framework.TestCase;
-import mil.nga.geopackage.extension.RelatedTablesExtension;
-import mil.nga.geopackage.extension.related_tables.ExtendedRelation;
-import mil.nga.geopackage.extension.related_tables.UserMappingRow;
+import mil.nga.geopackage.extension.related.ExtendedRelation;
+import mil.nga.geopackage.extension.related.RelatedTablesExtension;
+import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
+
+import org.junit.Test;
 
 /**
  * Test Related Tables Extension writing

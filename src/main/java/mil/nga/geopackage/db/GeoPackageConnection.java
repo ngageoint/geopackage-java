@@ -4,14 +4,11 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.j256.ormlite.support.ConnectionSource;
-
-import mil.nga.geopackage.user.ContentValues;
 
 /**
  * GeoPackage Connection wrapper
@@ -196,14 +193,16 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public String getPrimaryKeyColumnName(String tableName) {
+		return SQLUtils.getPrimaryKeyColumnName(connection, tableName);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public long insert(String tableName, Map<String, Object> values) {
-		ContentValues cv = new ContentValues();
-		Iterator<String> iter = values.keySet().iterator();
-		while(iter.hasNext()){
-			String next = iter.next();
-			cv.put(next, values.get(next));
-		}
-		return SQLUtils.insertOrThrow(this.getConnection(), tableName, cv);
+		return SQLUtils.insert(connection, tableName, values);
 	}
 
 }

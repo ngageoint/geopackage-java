@@ -12,7 +12,7 @@ import mil.nga.geopackage.manager.GeoPackageManager;
 import org.junit.After;
 
 /**
- * Abstract Test Case for Tile GeoPackage tests
+ * Abstract Test Case for loading a GeoPackage for tests
  *
  * @author osbornb
  */

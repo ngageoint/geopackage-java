@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -278,7 +280,7 @@ public class SQLUtils {
 
 		return result;
 	}
-	
+
 	/**
 	 * Execute a deletion
 	 * 
@@ -454,6 +456,64 @@ public class SQLUtils {
 		}
 
 		return id;
+	}
+
+	/**
+	 * Insert a row into the database
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param table
+	 *            table name
+	 * @param values
+	 *            map of fields and values
+	 * @return row id
+	 * @since 3.0.1
+	 */
+	public static long insert(Connection connection, String table,
+			Map<String, Object> values) {
+		ContentValues cv = new ContentValues();
+		Iterator<String> iter = values.keySet().iterator();
+		while (iter.hasNext()) {
+			String next = iter.next();
+			cv.put(next, values.get(next));
+		}
+		return insertOrThrow(connection, table, cv);
+	}
+
+	/**
+	 * Get the primary key of a table
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param tableName
+	 *            table name
+	 * @return the column name
+	 * @since 3.0.1
+	 */
+	public static String getPrimaryKeyColumnName(Connection connection,
+			String tableName) {
+		String result = null;
+		String sql = "PRAGMA table_info(" + CoreSQLUtils.quoteWrap(tableName)
+				+ ")";
+		ResultSet resultSet = query(connection, sql, null);
+		try {
+			while (resultSet.next()) {
+				if (resultSet.getInt("pk") == 1) {
+					result = resultSet.getString("name");
+					break;
+				}
+			}
+			resultSet.close();
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to query for the "
+					+ " primary key for table " + tableName, e);
+		}
+		if (result == null) {
+			throw new GeoPackageException("Found no "
+					+ " primary key for table " + tableName);
+		}
+		return result;
 	}
 
 	/**
