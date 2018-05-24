@@ -78,8 +78,10 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 				+ additionalColumns.size(), userMappingTable.getColumns()
 				.size());
 
+		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
 		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName,
 				relatedTableName, userMappingTable, relationshipName);
+		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));
 		TestCase.assertNotNull(extendedRelation);
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(1, extendedRelations.size());
@@ -142,6 +144,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		// 6. Remove relationship
 		rte.removeRelationship(baseTableName, relatedTableName,
 				relationshipName);
+		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(0, extendedRelations.size());
 		TestCase.assertFalse(geoPackage.getDatabase().tableExists(
