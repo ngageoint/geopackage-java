@@ -457,41 +457,6 @@ public class SQLUtils {
 	}
 
 	/**
-	 * Get the primary key of a table
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param tableName
-	 *            table name
-	 * @return the column name
-	 * @since 3.0.1
-	 */
-	public static String getPrimaryKeyColumnName(Connection connection,
-			String tableName) {
-		String result = null;
-		String sql = "PRAGMA table_info(" + CoreSQLUtils.quoteWrap(tableName)
-				+ ")";
-		ResultSet resultSet = query(connection, sql, null);
-		try {
-			while (resultSet.next()) {
-				if (resultSet.getInt("pk") == 1) {
-					result = resultSet.getString("name");
-					break;
-				}
-			}
-			resultSet.close();
-		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to query for the "
-					+ " primary key for table " + tableName, e);
-		}
-		if (result == null) {
-			throw new GeoPackageException("Found no "
-					+ " primary key for table " + tableName);
-		}
-		return result;
-	}
-
-	/**
 	 * Set the prepared statement arguments
 	 * 
 	 * @param statement

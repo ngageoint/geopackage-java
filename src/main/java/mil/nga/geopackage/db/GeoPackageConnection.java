@@ -188,12 +188,4 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 		return SQLUtils.query(connection, sql, args);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getPrimaryKeyColumnName(String tableName) {
-		return SQLUtils.getPrimaryKeyColumnName(connection, tableName);
-	}
-
 }

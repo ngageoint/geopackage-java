@@ -10,6 +10,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
+import mil.nga.geopackage.user.UserCoreTableReader;
 
 /**
  * Related Tables extension
@@ -34,6 +35,39 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	public RelatedTablesExtension(GeoPackage geoPackage) {
 		super(geoPackage);
 		connection = geoPackage.getConnection();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getPrimaryKeyColumnName(String tableName) {
+		String result = null;
+		String sql = "PRAGMA table_info(" + CoreSQLUtils.quoteWrap(tableName)
+				+ ")";
+		ResultSet resultSet = connection.query(sql, null);
+		try {
+			while (resultSet.next()) {
+				if (resultSet.getInt(UserCoreTableReader.PK) == 1) {
+					result = resultSet.getString(UserCoreTableReader.NAME);
+					break;
+				}
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to query for the "
+					+ " primary key for table " + tableName, e);
+		} finally {
+			try {
+				resultSet.close();
+			} catch (SQLException e) {
+				throw new GeoPackageException("Failed to close ResultSet", e);
+			}
+		}
+		if (result == null) {
+			throw new GeoPackageException("Found no primary key for table "
+					+ tableName);
+		}
+		return result;
 	}
 
 	/**
