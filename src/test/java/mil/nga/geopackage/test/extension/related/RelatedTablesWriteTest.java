@@ -7,6 +7,7 @@ import java.util.Collection;
 import junit.framework.TestCase;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
+import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
@@ -78,17 +79,18 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		while(relatedFrs.moveToNext()) {
 			relatedIds[inx++] = relatedFrs.getRow().getId();
 		}
+		UserMappingDao dao = rte.getUserMappingDao(mappingTableName);
 		UserMappingRow umr = null;
 		for (inx = 0; inx < 10; inx++){
-			umr = new UserMappingRow(
-					((int)Math.floor(Math.random() * baseCount)),
-					((int)Math.floor(Math.random() * relatedCount)));
-			rte.addMapping(extendedRelation, umr);// How do we test that this worked?
+			umr = dao.newRow();
+			umr.setBaseId(((int)Math.floor(Math.random() * baseCount)));
+			umr.setRelatedId(((int)Math.floor(Math.random() * relatedCount)));
+			dao.insert(umr); // How do we test that this worked?
 		}
 
 		// 8. Remove mappings (note: it is plausible and allowed 
 		// to have duplicate entries)
-		TestCase.assertTrue(rte.removeMapping(extendedRelation, umr) > 0);
+		TestCase.assertTrue(dao.delete(umr) > 0);
 
 		// 6. Remove relationship
 		rte.removeRelationship(baseTableName, relatedTableName, relationshipName);

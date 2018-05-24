@@ -15,6 +15,7 @@ import mil.nga.geopackage.db.GeoPackageConnection;
  * Related Tables extension
  * 
  * @author jyutzler
+ * @since 3.0.1
  */
 public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 
@@ -22,7 +23,7 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	 * GeoPackage connection
 	 */
 	private GeoPackageConnection connection;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -34,7 +35,34 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		super(geoPackage);
 		connection = geoPackage.getConnection();
 	}
-	
+
+	/**
+	 * Get an User Mapping DAO from a table name
+	 * 
+	 * @param tableName
+	 *            table name
+	 * @return user mapping dao
+	 */
+	public UserMappingDao getUserMappingDao(String tableName) {
+
+		if (tableName == null) {
+			throw new GeoPackageException(
+					"Non null table name is required to create "
+							+ UserMappingDao.class.getSimpleName());
+		}
+
+		// Read the existing table and create the dao
+		UserMappingTableReader tableReader = new UserMappingTableReader(
+				tableName);
+		UserMappingConnection userDb = new UserMappingConnection(connection);
+		final UserMappingTable userMappingTable = tableReader.readTable(userDb);
+		userDb.setTable(userMappingTable);
+		UserMappingDao dao = new UserMappingDao(getGeoPackage().getName(),
+				connection, userDb, userMappingTable);
+
+		return dao;
+	}
+
 	/**
 	 * 
 	 * @param extendedRelation
@@ -118,5 +146,5 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		}
 		return result;
 	}
-	
+
 }
