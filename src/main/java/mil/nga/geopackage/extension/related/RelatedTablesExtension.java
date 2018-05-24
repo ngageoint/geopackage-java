@@ -2,9 +2,8 @@ package mil.nga.geopackage.extension.related;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
@@ -71,10 +70,21 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	}
 
 	/**
-	 * Get an User Mapping DAO from a table name
+	 * Get a User Mapping DAO from an extended relation
+	 * 
+	 * @param extendedRelation
+	 *            extended relation
+	 * @return user mapping dao
+	 */
+	public UserMappingDao getUserMappingDao(ExtendedRelation extendedRelation) {
+		return getUserMappingDao(extendedRelation.getMappingTableName());
+	}
+
+	/**
+	 * Get a User Mapping DAO from a table name
 	 * 
 	 * @param tableName
-	 *            table name
+	 *            mapping table name
 	 * @return user mapping dao
 	 */
 	public UserMappingDao getUserMappingDao(String tableName) {
@@ -89,7 +99,7 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		UserMappingTableReader tableReader = new UserMappingTableReader(
 				tableName);
 		UserMappingConnection userDb = new UserMappingConnection(connection);
-		final UserMappingTable userMappingTable = tableReader.readTable(userDb);
+		UserMappingTable userMappingTable = tableReader.readTable(userDb);
 		userDb.setTable(userMappingTable);
 		UserMappingDao dao = new UserMappingDao(getGeoPackage().getName(),
 				connection, userDb, userMappingTable);
@@ -98,87 +108,89 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	}
 
 	/**
+	 * Get the related id mappings for the base id
 	 * 
 	 * @param extendedRelation
+	 *            extended relation
 	 * @param baseId
-	 * @return an array of IDs representing the matching related IDs
+	 *            base id
+	 * @return IDs representing the matching related IDs
 	 */
-	public long[] getMappingsForBase(ExtendedRelation extendedRelation,
+	public List<Long> getMappingsForBase(ExtendedRelation extendedRelation,
 			long baseId) {
-		Collection<Long> relatedIds = new HashSet<Long>();
-
-		String sql = "select "
-				+ CoreSQLUtils.quoteWrap(UserMappingTable.COLUMN_RELATED_ID)
-				+ " from "
-				+ CoreSQLUtils
-						.quoteWrap(extendedRelation.getMappingTableName())
-				+ " where "
-				+ CoreSQLUtils.quoteWrap(UserMappingTable.COLUMN_BASE_ID)
-				+ " = ?";
-
-		ResultSet resultSet = connection.query(sql,
-				new String[] { Long.toString(baseId) });
-		try {
-			while (resultSet.next()) {
-				relatedIds.add(Long.valueOf(resultSet.getLong(extendedRelation
-						.getMappingTable().getRelatedIdIndex())));
-			}
-			resultSet.close();
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to get mappings for relationship '"
-							+ extendedRelation.getMappingTableName()
-							+ "' between "
-							+ extendedRelation.getBaseTableName() + " and "
-							+ extendedRelation.getRelatedTableName(), e);
-		}
-
-		long[] result = new long[relatedIds.size()];
-		Iterator<Long> iter = relatedIds.iterator();
-		int inx = 0;
-		while (iter.hasNext()) {
-			result[inx++] = iter.next().longValue();
-		}
-		return result;
+		return getMappingsForBase(extendedRelation.getMappingTableName(),
+				baseId);
 	}
 
-	public long[] getMappingsForRelated(ExtendedRelation extendedRelation,
-			long relatedId) {
-		Collection<Long> baseIds = new HashSet<Long>();
+	/**
+	 * Get the related id mappings for the base id
+	 * 
+	 * @param tableName
+	 *            mapping table name
+	 * @param baseId
+	 *            base id
+	 * @return IDs representing the matching related IDs
+	 */
+	public List<Long> getMappingsForBase(String tableName, long baseId) {
 
-		String sql = "select "
-				+ CoreSQLUtils.quoteWrap(UserMappingTable.COLUMN_BASE_ID)
-				+ " from "
-				+ CoreSQLUtils
-						.quoteWrap(extendedRelation.getMappingTableName())
-				+ " where "
-				+ CoreSQLUtils.quoteWrap(UserMappingTable.COLUMN_RELATED_ID)
-				+ " = ?";
+		List<Long> relatedIds = new ArrayList<>();
 
-		ResultSet resultSet = connection.query(sql,
-				new String[] { Long.toString(relatedId) });
+		UserMappingDao userMappingDao = getUserMappingDao(tableName);
+		UserMappingResultSet resultSet = userMappingDao.queryForEq(
+				UserMappingTable.COLUMN_BASE_ID, baseId);
 		try {
-			while (resultSet.next()) {
-				baseIds.add(Long.valueOf(resultSet.getLong(extendedRelation
-						.getMappingTable().getRelatedIdIndex())));
+			while (resultSet.moveToNext()) {
+				UserMappingRow row = resultSet.getRow();
+				relatedIds.add(row.getRelatedId());
 			}
+		} finally {
 			resultSet.close();
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to get reverse mappings for relationship '"
-							+ extendedRelation.getMappingTableName()
-							+ "' between "
-							+ extendedRelation.getBaseTableName() + " and "
-							+ extendedRelation.getRelatedTableName(), e);
 		}
 
-		long[] result = new long[baseIds.size()];
-		Iterator<Long> iter = baseIds.iterator();
-		int inx = 0;
-		while (iter.hasNext()) {
-			result[inx++] = iter.next().longValue();
+		return relatedIds;
+	}
+
+	/**
+	 * Get the base id mappings for the related id
+	 * 
+	 * @param extendedRelation
+	 *            extended relation
+	 * @param relatedId
+	 *            related id
+	 * @return IDs representing the matching base IDs
+	 */
+	public List<Long> getMappingsForRelated(ExtendedRelation extendedRelation,
+			long relatedId) {
+		return getMappingsForRelated(extendedRelation.getMappingTableName(),
+				relatedId);
+	}
+
+	/**
+	 * Get the base id mappings for the related id
+	 * 
+	 * @param tableName
+	 *            mapping table name
+	 * @param relatedId
+	 *            related id
+	 * @return IDs representing the matching base IDs
+	 */
+	public List<Long> getMappingsForRelated(String tableName, long relatedId) {
+
+		List<Long> baseIds = new ArrayList<>();
+
+		UserMappingDao userMappingDao = getUserMappingDao(tableName);
+		UserMappingResultSet resultSet = userMappingDao.queryForEq(
+				UserMappingTable.COLUMN_RELATED_ID, relatedId);
+		try {
+			while (resultSet.moveToNext()) {
+				UserMappingRow row = resultSet.getRow();
+				baseIds.add(row.getBaseId());
+			}
+		} finally {
+			resultSet.close();
 		}
-		return result;
+
+		return baseIds;
 	}
 
 }
