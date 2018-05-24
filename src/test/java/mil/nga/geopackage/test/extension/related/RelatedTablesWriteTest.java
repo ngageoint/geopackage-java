@@ -85,9 +85,11 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 			umr = dao.newRow();
 			umr.setBaseId(((int)Math.floor(Math.random() * baseCount)));
 			umr.setRelatedId(((int)Math.floor(Math.random() * relatedCount)));
-			dao.insert(umr); // How do we test that this worked?
+			TestCase.assertTrue(dao.create(umr) > 0);
 		}
 
+		TestCase.assertEquals(10, dao.count());
+		
 		// 8. Remove mappings (note: it is plausible and allowed 
 		// to have duplicate entries)
 		TestCase.assertTrue(dao.delete(umr) > 0);
