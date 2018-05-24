@@ -14,6 +14,7 @@ import mil.nga.geopackage.db.DateConverter;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
+import mil.nga.geopackage.extension.related.RelationType;
 import mil.nga.geopackage.extension.related.UserMappingColumn;
 import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.extension.related.UserMappingResultSet;
@@ -68,7 +69,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		final String baseTableName = "geometry2d";
 		final String relatedTableName = "geometry3d";
 		final String mappingTableName = "g2d_3d";
-		final String relationshipName = "ggggg";
+		final RelationType relationType = RelationType.FEATURES;
 
 		List<UserMappingColumn> additionalColumns = createAdditionalUserMappingColumns();
 
@@ -80,7 +81,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
 		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
 		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName,
-				relatedTableName, userMappingTable, relationshipName);
+				relatedTableName, userMappingTable, relationType);
 		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));
 		TestCase.assertNotNull(extendedRelation);
 		extendedRelations = rte.getRelationships();
@@ -142,8 +143,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		TestCase.assertTrue(dao.deleteByIds(userMappingRow) > 0);
 
 		// 6. Remove relationship
-		rte.removeRelationship(baseTableName, relatedTableName,
-				relationshipName);
+		rte.removeRelationship(extendedRelation);
 		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(0, extendedRelations.size());
