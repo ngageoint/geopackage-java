@@ -50,7 +50,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
 		// 4. Get relationships
 		Collection<ExtendedRelation> extendedRelations = rte.getRelationships();
-		TestCase.assertEquals(0, extendedRelations.size());
+		TestCase.assertTrue(extendedRelations.isEmpty());
 		
 		// 5. Add relationship between "geometry2d" and "geometry3d"
 		final String baseTableName = "geometry2d";
@@ -58,6 +58,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		final String mappingTableName = "g2d_3d";
 		final String relationshipName = "ggggg";
 		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName, relatedTableName, mappingTableName, relationshipName);
+		TestCase.assertNotNull(extendedRelation);
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(1, extendedRelations.size());
 		TestCase.assertTrue(geoPackage.getDatabase().tableExists(mappingTableName));
@@ -72,6 +73,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		while(baseFrs.moveToNext()) {
 			baseIds[inx++] = baseFrs.getRow().getId();
 		}
+		baseFrs.close();
 		FeatureResultSet relatedFrs = relatedDao.queryForAll();
 		int relatedCount = relatedFrs.getCount();
 		long[] relatedIds = new long[relatedCount]; 
@@ -79,6 +81,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		while(relatedFrs.moveToNext()) {
 			relatedIds[inx++] = relatedFrs.getRow().getId();
 		}
+		relatedFrs.close();
 		UserMappingDao dao = rte.getUserMappingDao(mappingTableName);
 		UserMappingRow umr = null;
 		for (inx = 0; inx < 10; inx++){

@@ -2,10 +2,11 @@ package mil.nga.geopackage.test.extension.related;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.attributes.AttributesColumn;
@@ -28,8 +29,6 @@ import org.junit.Test;
  */
 public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 
-	private static final Logger log = Logger.getLogger(LoadGeoPackageTestCase.class
-			.getName());
 	/**
 	 * Constructor
 	 */
@@ -57,26 +56,45 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 		for (ExtendedRelation extendedRelation : extendedRelations) {
 			
 			// 9. get mappings by base ID
+			Map<Long, List<Long>> baseIdMappings = new HashMap<>();
 			FeatureDao baseDao = geoPackage.getFeatureDao(extendedRelation.getBaseTableName());
 			FeatureColumn pkColumn = baseDao.getTable().getPkColumn();
 			FeatureResultSet frs = baseDao.queryForAll();
 			while(frs.moveToNext()){
 				long baseId = frs.getLong(pkColumn.getIndex());
-				long[] relatedIds = rte.getMappingsForBase(extendedRelation, baseId);
-				log.log(Level.INFO, String.format("Found ids for %s: %s", baseId, Arrays.toString(relatedIds)));
+				List<Long> relatedIds = rte.getMappingsForBase(extendedRelation, baseId);
+				TestCase.assertFalse(relatedIds.isEmpty());
+				baseIdMappings.put(baseId, relatedIds);
 			}
 			frs.close();
 
 			// 10. get mappings by related ID
+			Map<Long, List<Long>> relatedIdMappings = new HashMap<>();
 			AttributesDao relatedDao = geoPackage.getAttributesDao(extendedRelation.getRelatedTableName());
 			AttributesColumn pkColumn2 = relatedDao.getTable().getPkColumn();
 			AttributesResultSet ars = relatedDao.queryForAll();
 			while(ars.moveToNext()){
 				long relatedId = ars.getLong(pkColumn2.getIndex());
-				long[] baseIds = rte.getMappingsForRelated(extendedRelation, relatedId);
-				log.log(Level.INFO, String.format("Found ids for %s: %s", relatedId, Arrays.toString(baseIds)));
+				List<Long> baseIds = rte.getMappingsForRelated(extendedRelation, relatedId);
+				TestCase.assertFalse(baseIds.isEmpty());
+				relatedIdMappings.put(relatedId, baseIds);
 			}
 			ars.close();
+			
+			// Verify the related ids map back to the base ids
+			for(Entry<Long, List<Long>> baseIdMap: baseIdMappings.entrySet()){
+				for(Long relatedId: baseIdMap.getValue()){
+					TestCase.assertTrue(relatedIdMappings.get(relatedId).contains(baseIdMap.getKey()));
+				}
+			}
+			
+			// Verify the base ids map back to the related ids
+			for(Entry<Long, List<Long>> relatedIdMap: relatedIdMappings.entrySet()){
+				for(Long baseId: relatedIdMap.getValue()){
+					TestCase.assertTrue(baseIdMappings.get(baseId).contains(relatedIdMap.getKey()));
+				}
+			}
+			
 		}
 	}
 }
