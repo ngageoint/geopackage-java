@@ -4,7 +4,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -195,14 +194,6 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	@Override
 	public String getPrimaryKeyColumnName(String tableName) {
 		return SQLUtils.getPrimaryKeyColumnName(connection, tableName);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public long insert(String tableName, Map<String, Object> values) {
-		return SQLUtils.insert(connection, tableName, values);
 	}
 
 }

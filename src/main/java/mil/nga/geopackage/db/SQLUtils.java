@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -456,29 +454,6 @@ public class SQLUtils {
 		}
 
 		return id;
-	}
-
-	/**
-	 * Insert a row into the database
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param table
-	 *            table name
-	 * @param values
-	 *            map of fields and values
-	 * @return row id
-	 * @since 3.0.1
-	 */
-	public static long insert(Connection connection, String table,
-			Map<String, Object> values) {
-		ContentValues cv = new ContentValues();
-		Iterator<String> iter = values.keySet().iterator();
-		while (iter.hasNext()) {
-			String next = iter.next();
-			cv.put(next, values.get(next));
-		}
-		return insertOrThrow(connection, table, cv);
 	}
 
 	/**
