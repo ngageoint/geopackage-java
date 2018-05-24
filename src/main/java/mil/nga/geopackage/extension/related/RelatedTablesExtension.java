@@ -70,6 +70,17 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void dropMappingTable(ExtendedRelation extendedRelation) {
+		UserMappingDao userMappingDao = getUserMappingDao(extendedRelation);
+		if (userMappingDao != null) {
+			userMappingDao.dropTable();
+		}
+	}
+
+	/**
 	 * Get a User Mapping DAO from an extended relation
 	 * 
 	 * @param extendedRelation
