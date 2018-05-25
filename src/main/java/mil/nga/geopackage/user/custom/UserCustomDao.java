@@ -36,6 +36,16 @@ public class UserCustomDao
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param dao
+	 *            user custom data access object
+	 */
+	protected UserCustomDao(UserCustomDao dao) {
+		this(dao.getDatabase(), dao.getDb(), dao.getUserDb(), dao.getTable());
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -59,6 +69,30 @@ public class UserCustomDao
 	 */
 	public UserCustomConnection getUserDb() {
 		return userDb;
+	}
+
+	/**
+	 * Read the database table and create a DAO
+	 * 
+	 * @param database
+	 *            database name
+	 * @param connection
+	 *            db connection
+	 * @param tableName
+	 *            table name
+	 * @return user custom DAO
+	 */
+	public static UserCustomDao readTable(String database,
+			GeoPackageConnection connection, String tableName) {
+
+		UserCustomTableReader tableReader = new UserCustomTableReader(tableName);
+		UserCustomConnection userDb = new UserCustomConnection(connection);
+		UserCustomTable userCustomTable = tableReader.readTable(userDb);
+		userDb.setTable(userCustomTable);
+		UserCustomDao dao = new UserCustomDao(database, connection, userDb,
+				userCustomTable);
+
+		return dao;
 	}
 
 }

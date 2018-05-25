@@ -1,11 +1,8 @@
 package mil.nga.geopackage.extension.related;
 
-import mil.nga.geopackage.db.GeoPackageConnection;
-import mil.nga.geopackage.user.custom.UserCustomConnection;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
 import mil.nga.geopackage.user.custom.UserCustomRow;
-import mil.nga.geopackage.user.custom.UserCustomTable;
 
 /**
  * User Mapping DAO for reading user mapping data tables
@@ -18,18 +15,11 @@ public class UserMappingDao extends UserCustomDao {
 	/**
 	 * Constructor
 	 * 
-	 * @param database
-	 *            database name
-	 * @param db
-	 *            connection
-	 * @param userDb
-	 *            user custom connection
-	 * @param table
-	 *            user custom table
+	 * @param dao
+	 *            user custom data access object
 	 */
-	public UserMappingDao(String database, GeoPackageConnection db,
-			UserCustomConnection userDb, UserCustomTable table) {
-		super(database, db, userDb, table);
+	public UserMappingDao(UserCustomDao dao) {
+		super(dao);
 	}
 
 	/**

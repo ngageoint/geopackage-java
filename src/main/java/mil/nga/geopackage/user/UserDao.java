@@ -38,6 +38,14 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public GeoPackageConnection getDb() {
+		return (GeoPackageConnection) super.getDb();
+	}
+
+	/**
 	 * Get the database connection
 	 * 
 	 * @return connection

@@ -10,10 +10,8 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.user.UserCoreTableReader;
-import mil.nga.geopackage.user.custom.UserCustomConnection;
+import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
-import mil.nga.geopackage.user.custom.UserCustomTable;
-import mil.nga.geopackage.user.custom.UserCustomTableReader;
 
 /**
  * Related Tables extension
@@ -111,12 +109,9 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		}
 
 		// Read the existing table and create the dao
-		UserCustomTableReader tableReader = new UserCustomTableReader(tableName);
-		UserCustomConnection userDb = new UserCustomConnection(connection);
-		UserCustomTable userCustomTable = tableReader.readTable(userDb);
-		userDb.setTable(userCustomTable);
-		UserMappingDao dao = new UserMappingDao(getGeoPackage().getName(),
-				connection, userDb, userCustomTable);
+		UserCustomDao userDao = UserCustomDao.readTable(getGeoPackage()
+				.getName(), connection, tableName);
+		UserMappingDao dao = new UserMappingDao(userDao);
 
 		return dao;
 	}
