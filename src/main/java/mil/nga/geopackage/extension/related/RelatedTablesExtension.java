@@ -10,6 +10,10 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.user.UserCoreTableReader;
+import mil.nga.geopackage.user.custom.UserCustomConnection;
+import mil.nga.geopackage.user.custom.UserCustomResultSet;
+import mil.nga.geopackage.user.custom.UserCustomTable;
+import mil.nga.geopackage.user.custom.UserCustomTableReader;
 
 /**
  * Related Tables extension
@@ -107,13 +111,12 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		}
 
 		// Read the existing table and create the dao
-		UserMappingTableReader tableReader = new UserMappingTableReader(
-				tableName);
-		UserMappingConnection userDb = new UserMappingConnection(connection);
-		UserMappingTable userMappingTable = tableReader.readTable(userDb);
-		userDb.setTable(userMappingTable);
+		UserCustomTableReader tableReader = new UserCustomTableReader(tableName);
+		UserCustomConnection userDb = new UserCustomConnection(connection);
+		UserCustomTable userCustomTable = tableReader.readTable(userDb);
+		userDb.setTable(userCustomTable);
 		UserMappingDao dao = new UserMappingDao(getGeoPackage().getName(),
-				connection, userDb, userMappingTable);
+				connection, userDb, userCustomTable);
 
 		return dao;
 	}
@@ -147,11 +150,11 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		List<Long> relatedIds = new ArrayList<>();
 
 		UserMappingDao userMappingDao = getUserMappingDao(tableName);
-		UserMappingResultSet resultSet = userMappingDao.queryForEq(
+		UserCustomResultSet resultSet = userMappingDao.queryForEq(
 				UserMappingTable.COLUMN_BASE_ID, baseId);
 		try {
 			while (resultSet.moveToNext()) {
-				UserMappingRow row = resultSet.getRow();
+				UserMappingRow row = userMappingDao.getRow(resultSet);
 				relatedIds.add(row.getRelatedId());
 			}
 		} finally {
@@ -190,11 +193,11 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		List<Long> baseIds = new ArrayList<>();
 
 		UserMappingDao userMappingDao = getUserMappingDao(tableName);
-		UserMappingResultSet resultSet = userMappingDao.queryForEq(
+		UserCustomResultSet resultSet = userMappingDao.queryForEq(
 				UserMappingTable.COLUMN_RELATED_ID, relatedId);
 		try {
 			while (resultSet.moveToNext()) {
-				UserMappingRow row = resultSet.getRow();
+				UserMappingRow row = userMappingDao.getRow(resultSet);
 				baseIds.add(row.getBaseId());
 			}
 		} finally {

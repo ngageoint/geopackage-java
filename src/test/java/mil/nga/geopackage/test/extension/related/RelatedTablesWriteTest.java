@@ -15,9 +15,7 @@ import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
 import mil.nga.geopackage.extension.related.RelationType;
-import mil.nga.geopackage.extension.related.UserMappingColumn;
 import mil.nga.geopackage.extension.related.UserMappingDao;
-import mil.nga.geopackage.extension.related.UserMappingResultSet;
 import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.extension.related.UserMappingTable;
 import mil.nga.geopackage.features.user.FeatureDao;
@@ -26,6 +24,9 @@ import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.user.UserCoreResultUtils;
+import mil.nga.geopackage.user.custom.UserCustomColumn;
+import mil.nga.geopackage.user.custom.UserCustomResultSet;
+import mil.nga.geopackage.user.custom.UserCustomTable;
 
 import org.junit.Test;
 
@@ -71,18 +72,17 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		final String mappingTableName = "g2d_3d";
 		final RelationType relationType = RelationType.FEATURES;
 
-		List<UserMappingColumn> additionalColumns = createAdditionalUserMappingColumns();
+		List<UserCustomColumn> additionalColumns = createAdditionalUserMappingColumns();
 
-		UserMappingTable userMappingTable = UserMappingTable.create(
+		UserCustomTable userCustomTable = UserMappingTable.create(
 				mappingTableName, additionalColumns);
 		TestCase.assertEquals(UserMappingTable.numRequiredColumns()
-				+ additionalColumns.size(), userMappingTable.getColumns()
-				.size());
+				+ additionalColumns.size(), userCustomTable.getColumns().size());
 
-		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
+		TestCase.assertFalse(rte.has(userCustomTable.getTableName()));
 		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName,
-				relatedTableName, userMappingTable, relationType);
-		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));
+				relatedTableName, userCustomTable, relationType);
+		TestCase.assertTrue(rte.has(userCustomTable.getTableName()));
 		TestCase.assertNotNull(extendedRelation);
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(1, extendedRelations.size());
@@ -116,21 +116,21 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 					* baseCount)));
 			userMappingRow.setRelatedId(((int) Math.floor(Math.random()
 					* relatedCount)));
-			populateUserMappingRow(userMappingTable, userMappingRow);
+			populateUserMappingRow(userCustomTable, userMappingRow);
 			TestCase.assertTrue(dao.create(userMappingRow) > 0);
 		}
 
 		TestCase.assertEquals(10, dao.count());
 
-		userMappingTable = dao.getTable();
-		String[] columns = userMappingTable.getColumnNames();
-		UserMappingResultSet resultSet = dao.queryForAll();
+		userCustomTable = dao.getTable();
+		String[] columns = userCustomTable.getColumnNames();
+		UserCustomResultSet resultSet = dao.queryForAll();
 		int count = resultSet.getCount();
 		TestCase.assertEquals(10, count);
 		int manualCount = 0;
 		while (resultSet.moveToNext()) {
 
-			UserMappingRow resultRow = resultSet.getRow();
+			UserMappingRow resultRow = dao.getRow(resultSet);
 			validateUserMappingRow(columns, resultRow);
 
 			manualCount++;
@@ -144,7 +144,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
 		// 6. Remove relationship
 		rte.removeRelationship(extendedRelation);
-		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
+		TestCase.assertFalse(rte.has(userCustomTable.getTableName()));
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(0, extendedRelations.size());
 		TestCase.assertFalse(geoPackage.getDatabase().tableExists(
@@ -160,28 +160,28 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 	 * 
 	 * @return additional user mapping columns
 	 */
-	private static List<UserMappingColumn> createAdditionalUserMappingColumns() {
+	private static List<UserCustomColumn> createAdditionalUserMappingColumns() {
 
-		List<UserMappingColumn> columns = new ArrayList<>();
+		List<UserCustomColumn> columns = new ArrayList<>();
 
 		int columnIndex = UserMappingTable.numRequiredColumns();
-		columns.add(UserMappingColumn.createColumn(columnIndex++, "test_text",
+		columns.add(UserCustomColumn.createColumn(columnIndex++, "test_text",
 				GeoPackageDataType.TEXT, false, ""));
-		columns.add(UserMappingColumn.createColumn(columnIndex++, "test_real",
+		columns.add(UserCustomColumn.createColumn(columnIndex++, "test_real",
 				GeoPackageDataType.REAL, false, null));
-		columns.add(UserMappingColumn.createColumn(columnIndex++,
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
 				"test_boolean", GeoPackageDataType.BOOLEAN, false, null));
-		columns.add(UserMappingColumn.createColumn(columnIndex++, "test_blob",
+		columns.add(UserCustomColumn.createColumn(columnIndex++, "test_blob",
 				GeoPackageDataType.BLOB, false, null));
-		columns.add(UserMappingColumn.createColumn(columnIndex++,
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
 				"test_integer", GeoPackageDataType.INTEGER, false, null));
-		columns.add(UserMappingColumn.createColumn(columnIndex++,
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
 				"test_text_limited", GeoPackageDataType.TEXT, 5L, false, null));
-		columns.add(UserMappingColumn.createColumn(columnIndex++,
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
 				"test_blob_limited", GeoPackageDataType.BLOB, 7L, false, null));
-		columns.add(UserMappingColumn.createColumn(columnIndex++, "test_date",
+		columns.add(UserCustomColumn.createColumn(columnIndex++, "test_date",
 				GeoPackageDataType.DATE, false, null));
-		columns.add(UserMappingColumn.createColumn(columnIndex++,
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
 				"test_datetime", GeoPackageDataType.DATETIME, false, null));
 
 		return columns;
@@ -195,11 +195,12 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 	 * @param userMappingRow
 	 *            user mapping row
 	 */
-	private static void populateUserMappingRow(
-			UserMappingTable userMappingTable, UserMappingRow userMappingRow) {
+	private static void populateUserMappingRow(UserCustomTable userCustomTable,
+			UserMappingRow userMappingRow) {
 
-		for (UserMappingColumn column : userMappingTable.getColumns()) {
-			if (!column.isBaseId() && !column.isRelatedId()) {
+		for (UserCustomColumn column : userCustomTable.getColumns()) {
+			if (!UserMappingTable.isBaseId(column)
+					&& !UserMappingTable.isRelatedId(column)) {
 
 				// Leave nullable columns null 20% of the time
 				if (!column.isNotNull()) {
@@ -279,7 +280,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		TestCase.assertFalse(userMappingRow.hasId());
 
 		for (int i = 0; i < userMappingRow.columnCount(); i++) {
-			UserMappingColumn column = userMappingRow.getTable().getColumns()
+			UserCustomColumn column = userMappingRow.getTable().getColumns()
 					.get(i);
 			GeoPackageDataType dataType = column.getDataType();
 			TestCase.assertEquals(i, column.getIndex());

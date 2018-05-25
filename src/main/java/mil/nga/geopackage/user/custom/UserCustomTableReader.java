@@ -1,4 +1,4 @@
-package mil.nga.geopackage.extension.related;
+package mil.nga.geopackage.user.custom;
 
 import java.util.List;
 
@@ -6,14 +6,14 @@ import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.user.UserTableReader;
 
 /**
- * Reads the metadata from an existing user mapping table
+ * Reads the metadata from an existing user custom table
  * 
  * @author osbornb
  * @since 3.0.1
  */
-public class UserMappingTableReader
+public class UserCustomTableReader
 		extends
-		UserTableReader<UserMappingColumn, UserMappingTable, UserMappingRow, UserMappingResultSet> {
+		UserTableReader<UserCustomColumn, UserCustomTable, UserCustomRow, UserCustomResultSet> {
 
 	/**
 	 * Constructor
@@ -21,7 +21,7 @@ public class UserMappingTableReader
 	 * @param tableName
 	 *            table name
 	 */
-	public UserMappingTableReader(String tableName) {
+	public UserCustomTableReader(String tableName) {
 		super(tableName);
 	}
 
@@ -29,16 +29,16 @@ public class UserMappingTableReader
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected UserMappingTable createTable(String tableName,
-			List<UserMappingColumn> columnList) {
-		return new UserMappingTable(tableName, columnList);
+	protected UserCustomTable createTable(String tableName,
+			List<UserCustomColumn> columnList) {
+		return new UserCustomTable(tableName, columnList);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected UserMappingColumn createColumn(UserMappingResultSet result,
+	protected UserCustomColumn createColumn(UserCustomResultSet result,
 			int index, String name, String type, Long max, boolean notNull,
 			int defaultValueIndex, boolean primaryKey) {
 
@@ -46,7 +46,7 @@ public class UserMappingTableReader
 
 		Object defaultValue = result.getValue(defaultValueIndex, dataType);
 
-		UserMappingColumn column = new UserMappingColumn(index, name, dataType,
+		UserCustomColumn column = new UserCustomColumn(index, name, dataType,
 				max, notNull, defaultValue, primaryKey);
 
 		return column;

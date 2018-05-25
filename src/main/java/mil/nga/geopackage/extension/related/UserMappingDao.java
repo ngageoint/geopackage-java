@@ -1,9 +1,11 @@
 package mil.nga.geopackage.extension.related;
 
-import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.GeoPackageConnection;
-import mil.nga.geopackage.user.UserDao;
+import mil.nga.geopackage.user.custom.UserCustomConnection;
+import mil.nga.geopackage.user.custom.UserCustomDao;
+import mil.nga.geopackage.user.custom.UserCustomResultSet;
+import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.geopackage.user.custom.UserCustomTable;
 
 /**
  * User Mapping DAO for reading user mapping data tables
@@ -11,37 +13,23 @@ import mil.nga.geopackage.user.UserDao;
  * @author osbornb
  * @since 3.0.1
  */
-public class UserMappingDao
-		extends
-		UserDao<UserMappingColumn, UserMappingTable, UserMappingRow, UserMappingResultSet> {
-
-	/**
-	 * User Mapping connection
-	 */
-	private final UserMappingConnection userMappingDb;
+public class UserMappingDao extends UserCustomDao {
 
 	/**
 	 * Constructor
 	 * 
 	 * @param database
+	 *            database name
 	 * @param db
-	 * @param userMappingDb
+	 *            connection
+	 * @param userDb
+	 *            user custom connection
 	 * @param table
+	 *            user custom table
 	 */
 	public UserMappingDao(String database, GeoPackageConnection db,
-			UserMappingConnection userMappingDb, UserMappingTable table) {
-		super(database, db, userMappingDb, table);
-
-		this.userMappingDb = userMappingDb;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public BoundingBox getBoundingBox() {
-		throw new GeoPackageException(
-				"Bounding Box not supported for User Mapping");
+			UserCustomConnection userDb, UserCustomTable table) {
+		super(database, db, userDb, table);
 	}
 
 	/**
@@ -53,12 +41,25 @@ public class UserMappingDao
 	}
 
 	/**
-	 * Get the User Mapping connection
+	 * Get the user mapping row from the current result set location
 	 * 
-	 * @return user mapping connection
+	 * @param resultSet
+	 *            result set
+	 * @return user mapping row
 	 */
-	public UserMappingConnection getUserMappingDb() {
-		return userMappingDb;
+	public UserMappingRow getRow(UserCustomResultSet resultSet) {
+		return getRow(resultSet.getRow());
+	}
+
+	/**
+	 * Get a user mapping row from the user custom row
+	 * 
+	 * @param row
+	 *            custom row
+	 * @return user mapping row
+	 */
+	public UserMappingRow getRow(UserCustomRow row) {
+		return new UserMappingRow(row);
 	}
 
 	/**
