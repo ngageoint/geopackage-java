@@ -1,8 +1,6 @@
 package mil.nga.geopackage.user.custom;
 
 import mil.nga.geopackage.user.UserRow;
-import mil.nga.geopackage.user.custom.UserCustomColumn;
-import mil.nga.geopackage.user.custom.UserCustomTable;
 
 /**
  * User Custom Row containing the values from a single cursor row
@@ -22,7 +20,8 @@ public class UserCustomRow extends UserRow<UserCustomColumn, UserCustomTable> {
 	 * @param values
 	 *            values
 	 */
-	UserCustomRow(UserCustomTable table, int[] columnTypes, Object[] values) {
+	public UserCustomRow(UserCustomTable table, int[] columnTypes,
+			Object[] values) {
 		super(table, columnTypes, values);
 	}
 
@@ -30,8 +29,9 @@ public class UserCustomRow extends UserRow<UserCustomColumn, UserCustomTable> {
 	 * Constructor to create an empty row
 	 * 
 	 * @param table
+	 *            user custom table
 	 */
-	protected UserCustomRow(UserCustomTable table) {
+	public UserCustomRow(UserCustomTable table) {
 		super(table);
 	}
 
@@ -43,6 +43,15 @@ public class UserCustomRow extends UserRow<UserCustomColumn, UserCustomTable> {
 	 */
 	public UserCustomRow(UserCustomRow userCustomRow) {
 		super(userCustomRow);
+	}
+
+	/**
+	 * Copy the row
+	 * 
+	 * @return row copy
+	 */
+	public UserCustomRow copy() {
+		return new UserCustomRow(this);
 	}
 
 }

@@ -35,6 +35,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 			UserConnection<TColumn, TTable, TRow, TResult> userDb, TTable table) {
 		super(database, db, userDb, table);
 		this.connection = db.getConnection();
+		userDb.setTable(table);
 	}
 
 	/**

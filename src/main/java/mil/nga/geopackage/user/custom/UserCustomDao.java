@@ -24,9 +24,13 @@ public class UserCustomDao
 	 * Constructor
 	 * 
 	 * @param database
+	 *            database name
 	 * @param db
+	 *            database connection
 	 * @param userDb
+	 *            user connection
 	 * @param table
+	 *            user custom table
 	 */
 	public UserCustomDao(String database, GeoPackageConnection db,
 			UserCustomConnection userDb, UserCustomTable table) {
@@ -41,8 +45,20 @@ public class UserCustomDao
 	 * @param dao
 	 *            user custom data access object
 	 */
-	protected UserCustomDao(UserCustomDao dao) {
-		this(dao.getDatabase(), dao.getDb(), dao.getUserDb(), dao.getTable());
+	public UserCustomDao(UserCustomDao dao) {
+		this(dao, dao.getTable());
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param dao
+	 *            user custom data access object
+	 * @param userCustomTable
+	 *            user custom table
+	 */
+	public UserCustomDao(UserCustomDao dao, UserCustomTable userCustomTable) {
+		this(dao.getDatabase(), dao.getDb(), dao.getUserDb(), userCustomTable);
 	}
 
 	/**
@@ -88,7 +104,6 @@ public class UserCustomDao
 		UserCustomTableReader tableReader = new UserCustomTableReader(tableName);
 		UserCustomConnection userDb = new UserCustomConnection(connection);
 		UserCustomTable userCustomTable = tableReader.readTable(userDb);
-		userDb.setTable(userCustomTable);
 		UserCustomDao dao = new UserCustomDao(database, connection, userDb,
 				userCustomTable);
 

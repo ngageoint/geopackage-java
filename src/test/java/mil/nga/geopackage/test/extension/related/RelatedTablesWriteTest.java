@@ -26,7 +26,6 @@ import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.user.UserCoreResultUtils;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
-import mil.nga.geopackage.user.custom.UserCustomTable;
 
 import org.junit.Test;
 
@@ -74,15 +73,29 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
 		List<UserCustomColumn> additionalColumns = createAdditionalUserMappingColumns();
 
-		UserCustomTable userCustomTable = UserMappingTable.create(
+		UserMappingTable userMappingTable = UserMappingTable.create(
 				mappingTableName, additionalColumns);
 		TestCase.assertEquals(UserMappingTable.numRequiredColumns()
-				+ additionalColumns.size(), userCustomTable.getColumns().size());
+				+ additionalColumns.size(), userMappingTable.getColumns()
+				.size());
+		UserCustomColumn baseIdColumn = userMappingTable.getBaseIdColumn();
+		TestCase.assertNotNull(baseIdColumn);
+		TestCase.assertTrue(baseIdColumn
+				.isNamed(UserMappingTable.COLUMN_BASE_ID));
+		TestCase.assertTrue(baseIdColumn.isNotNull());
+		TestCase.assertFalse(baseIdColumn.isPrimaryKey());
+		UserCustomColumn relatedIdColumn = userMappingTable
+				.getRelatedIdColumn();
+		TestCase.assertNotNull(relatedIdColumn);
+		TestCase.assertTrue(relatedIdColumn
+				.isNamed(UserMappingTable.COLUMN_RELATED_ID));
+		TestCase.assertTrue(relatedIdColumn.isNotNull());
+		TestCase.assertFalse(relatedIdColumn.isPrimaryKey());
 
-		TestCase.assertFalse(rte.has(userCustomTable.getTableName()));
+		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
 		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName,
-				relatedTableName, userCustomTable, relationType);
-		TestCase.assertTrue(rte.has(userCustomTable.getTableName()));
+				relatedTableName, userMappingTable, relationType);
+		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));
 		TestCase.assertNotNull(extendedRelation);
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(1, extendedRelations.size());
@@ -116,14 +129,14 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 					* baseCount)));
 			userMappingRow.setRelatedId(((int) Math.floor(Math.random()
 					* relatedCount)));
-			populateUserMappingRow(userCustomTable, userMappingRow);
+			populateUserMappingRow(userMappingTable, userMappingRow);
 			TestCase.assertTrue(dao.create(userMappingRow) > 0);
 		}
 
 		TestCase.assertEquals(10, dao.count());
 
-		userCustomTable = dao.getTable();
-		String[] columns = userCustomTable.getColumnNames();
+		userMappingTable = dao.getTable();
+		String[] columns = userMappingTable.getColumnNames();
 		UserCustomResultSet resultSet = dao.queryForAll();
 		int count = resultSet.getCount();
 		TestCase.assertEquals(10, count);
@@ -144,7 +157,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
 		// 6. Remove relationship
 		rte.removeRelationship(extendedRelation);
-		TestCase.assertFalse(rte.has(userCustomTable.getTableName()));
+		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
 		extendedRelations = rte.getRelationships();
 		TestCase.assertEquals(0, extendedRelations.size());
 		TestCase.assertFalse(geoPackage.getDatabase().tableExists(
@@ -195,12 +208,12 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 	 * @param userMappingRow
 	 *            user mapping row
 	 */
-	private static void populateUserMappingRow(UserCustomTable userCustomTable,
-			UserMappingRow userMappingRow) {
+	private static void populateUserMappingRow(
+			UserMappingTable userMappingTable, UserMappingRow userMappingRow) {
 
-		for (UserCustomColumn column : userCustomTable.getColumns()) {
-			if (!UserMappingTable.isBaseId(column)
-					&& !UserMappingTable.isRelatedId(column)) {
+		for (UserCustomColumn column : userMappingTable.getColumns()) {
+			if (!column.isNamed(UserMappingTable.COLUMN_BASE_ID)
+					&& !column.isNamed(UserMappingTable.COLUMN_RELATED_ID)) {
 
 				// Leave nullable columns null 20% of the time
 				if (!column.isNotNull()) {

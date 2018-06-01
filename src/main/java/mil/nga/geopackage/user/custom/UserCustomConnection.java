@@ -19,6 +19,7 @@ public class UserCustomConnection
 	 * Constructor
 	 * 
 	 * @param database
+	 *            database connection
 	 */
 	public UserCustomConnection(GeoPackageConnection database) {
 		super(database);

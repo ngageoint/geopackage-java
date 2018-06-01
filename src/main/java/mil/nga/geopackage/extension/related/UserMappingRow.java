@@ -2,7 +2,6 @@ package mil.nga.geopackage.extension.related;
 
 import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomRow;
-import mil.nga.geopackage.user.custom.UserCustomTable;
 
 /**
  * User Mapping Row containing the values from a single result set row
@@ -16,9 +15,9 @@ public class UserMappingRow extends UserCustomRow {
 	 * Constructor to create an empty row
 	 * 
 	 * @param table
-	 *            user custom table
+	 *            user mapping table
 	 */
-	UserMappingRow(UserCustomTable table) {
+	UserMappingRow(UserMappingTable table) {
 		super(table);
 	}
 
@@ -29,7 +28,26 @@ public class UserMappingRow extends UserCustomRow {
 	 *            user custom row
 	 */
 	public UserMappingRow(UserCustomRow userCustomRow) {
-		super(userCustomRow);
+		super(userCustomRow.getTable(), userCustomRow.getRowColumnTypes(),
+				userCustomRow.getValues());
+	}
+
+	/**
+	 * Copy Constructor
+	 * 
+	 * @param userMappingRow
+	 *            user mapping row to copy
+	 */
+	public UserMappingRow(UserMappingRow userMappingRow) {
+		super(userMappingRow);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserMappingTable getTable() {
+		return (UserMappingTable) super.getTable();
 	}
 
 	/**
@@ -38,7 +56,7 @@ public class UserMappingRow extends UserCustomRow {
 	 * @return base ID column index
 	 */
 	public int getBaseIdColumnIndex() {
-		return getTable().getColumnIndex(UserMappingTable.COLUMN_BASE_ID);
+		return getTable().getBaseIdColumnIndex();
 	}
 
 	/**
@@ -47,7 +65,7 @@ public class UserMappingRow extends UserCustomRow {
 	 * @return base ID column
 	 */
 	public UserCustomColumn getBaseIdColumn() {
-		return getTable().getColumn(UserMappingTable.COLUMN_BASE_ID);
+		return getTable().getBaseIdColumn();
 	}
 
 	/**
@@ -75,7 +93,7 @@ public class UserMappingRow extends UserCustomRow {
 	 * @return related ID column index
 	 */
 	public int getRelatedIdColumnIndex() {
-		return getTable().getColumnIndex(UserMappingTable.COLUMN_RELATED_ID);
+		return getTable().getRelatedIdColumnIndex();
 	}
 
 	/**
@@ -84,7 +102,7 @@ public class UserMappingRow extends UserCustomRow {
 	 * @return related ID column
 	 */
 	public UserCustomColumn getRelatedIdColumn() {
-		return getTable().getColumn(UserMappingTable.COLUMN_RELATED_ID);
+		return getTable().getRelatedIdColumn();
 	}
 
 	/**
@@ -104,6 +122,15 @@ public class UserMappingRow extends UserCustomRow {
 	 */
 	public void setRelatedId(long relatedId) {
 		setValue(getRelatedIdColumnIndex(), relatedId);
+	}
+
+	/**
+	 * Copy the row
+	 * 
+	 * @return row copy
+	 */
+	public UserMappingRow copy() {
+		return new UserMappingRow(this);
 	}
 
 }

@@ -149,7 +149,8 @@ public class FeatureUtils {
 				// Manually query for all and compare
 				Connection connection = dao.getConnection();
 				String sql = SQLiteQueryBuilder.buildQueryString(false,
-						dao.getTableName(), null, null, null, null, null, null, null);
+						dao.getTableName(), null, null, null, null, null, null,
+						null);
 				ResultSet resultSet = SQLUtils.query(connection, sql, null);
 				int resultSetCount = SQLUtils.count(connection, sql, null);
 				cursor = new FeatureResultSet(featureTable, resultSet,
@@ -307,13 +308,15 @@ public class FeatureUtils {
 				break;
 
 			case UserCoreResultUtils.FIELD_TYPE_STRING:
-				if(dataType == GeoPackageDataType.DATE || dataType == GeoPackageDataType.DATETIME){
+				if (dataType == GeoPackageDataType.DATE
+						|| dataType == GeoPackageDataType.DATETIME) {
 					TestCase.assertTrue(value instanceof Date);
 					Date date = (Date) value;
 					DateConverter converter = DateConverter.converter(dataType);
 					String dateString = converter.stringValue(date);
-					TestCase.assertEquals(date.getTime(), converter.dateValue(dateString).getTime());
-				}else{
+					TestCase.assertEquals(date.getTime(),
+							converter.dateValue(dateString).getTime());
+				} else {
 					TestCase.assertTrue(value instanceof String);
 				}
 				break;
@@ -599,8 +602,9 @@ public class FeatureUtils {
 								.getColumns()) {
 							if (!featureColumn.isPrimaryKey()) {
 
-								GeoPackageDataType dataType = featureColumn.getDataType();
-								
+								GeoPackageDataType dataType = featureColumn
+										.getDataType();
+
 								if (featureColumn.isGeometry()) {
 
 									boolean updateGeometry = true;
@@ -637,23 +641,30 @@ public class FeatureUtils {
 													.getIndex())) {
 
 									case UserCoreResultUtils.FIELD_TYPE_STRING:
-										if(dataType == GeoPackageDataType.DATE || dataType == GeoPackageDataType.DATETIME){
+										if (dataType == GeoPackageDataType.DATE
+												|| dataType == GeoPackageDataType.DATETIME) {
 											if (updatedDate == null) {
 												updatedDate = new Date();
 											}
-											DateConverter converter = DateConverter.converter(dataType);
-											if(Math.random() < .5){
+											DateConverter converter = DateConverter
+													.converter(dataType);
+											if (Math.random() < .5) {
 												featureRow.setValue(
-														featureColumn.getIndex(),
+														featureColumn
+																.getIndex(),
 														updatedDate);
-											}else{
-												featureRow.setValue(
-														featureColumn.getIndex(),
-														converter.stringValue(updatedDate));
+											} else {
+												featureRow
+														.setValue(
+																featureColumn
+																		.getIndex(),
+																converter
+																		.stringValue(updatedDate));
 											}
-										}else{
+										} else {
 											if (updatedString == null) {
-												updatedString = UUID.randomUUID()
+												updatedString = UUID
+														.randomUUID()
 														.toString();
 											}
 											if (featureColumn.getMax() != null) {
@@ -671,11 +682,13 @@ public class FeatureUtils {
 													}
 												}
 												featureRow.setValue(
-														featureColumn.getIndex(),
+														featureColumn
+																.getIndex(),
 														updatedLimitedString);
 											} else {
 												featureRow.setValue(
-														featureColumn.getIndex(),
+														featureColumn
+																.getIndex(),
 														updatedString);
 											}
 										}
@@ -825,30 +838,37 @@ public class FeatureUtils {
 									.getColumn(readColumnName);
 							if (!readFeatureColumn.isPrimaryKey()
 									&& !readFeatureColumn.isGeometry()) {
-								
-								GeoPackageDataType dataType = readFeatureColumn.getDataType();
-								
+
+								GeoPackageDataType dataType = readFeatureColumn
+										.getDataType();
+
 								switch (readRow
 										.getRowColumnType(readColumnName)) {
 								case UserCoreResultUtils.FIELD_TYPE_STRING:
-									if(dataType == GeoPackageDataType.DATE || dataType == GeoPackageDataType.DATETIME){
-										DateConverter converter = DateConverter.converter(dataType);
-										Object value = readRow.getValue(readFeatureColumn
-												.getIndex());
+									if (dataType == GeoPackageDataType.DATE
+											|| dataType == GeoPackageDataType.DATETIME) {
+										DateConverter converter = DateConverter
+												.converter(dataType);
+										Object value = readRow
+												.getValue(readFeatureColumn
+														.getIndex());
 										Date date = null;
-										if(value instanceof Date){
+										if (value instanceof Date) {
 											date = (Date) value;
-										}else{
-											date = converter.dateValue((String)value);
+										} else {
+											date = converter
+													.dateValue((String) value);
 										}
 										Date compareDate = updatedDate;
-										if(dataType == GeoPackageDataType.DATE){
-											compareDate = converter.dateValue(converter.stringValue(compareDate));
+										if (dataType == GeoPackageDataType.DATE) {
+											compareDate = converter
+													.dateValue(converter
+															.stringValue(compareDate));
 										}
 										TestCase.assertEquals(
 												compareDate.getTime(),
 												date.getTime());
-									}else{
+									} else {
 										if (readFeatureColumn.getMax() != null) {
 											TestCase.assertEquals(
 													updatedLimitedString,
@@ -1095,7 +1115,7 @@ public class FeatureUtils {
 					cursor.close();
 
 					// Test copied row
-					FeatureRow copyRow = new FeatureRow(queryFeatureRow2);
+					FeatureRow copyRow = queryFeatureRow2.copy();
 					for (FeatureColumn column : dao.getTable().getColumns()) {
 						if (column.getIndex() == queryFeatureRow2
 								.getGeometryColumnIndex()) {

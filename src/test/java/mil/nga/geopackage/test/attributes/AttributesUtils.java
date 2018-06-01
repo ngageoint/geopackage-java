@@ -86,7 +86,8 @@ public class AttributesUtils {
 				// Manually query for all and compare
 				Connection connection = dao.getConnection();
 				String sql = SQLiteQueryBuilder.buildQueryString(false,
-						dao.getTableName(), null, null, null, null, null, null, null);
+						dao.getTableName(), null, null, null, null, null, null,
+						null);
 				ResultSet resultSet = SQLUtils.query(connection, sql, null);
 				int resultSetCount = SQLUtils.count(connection, sql, null);
 				cursor = new AttributesResultSet(attributesTable, resultSet,
@@ -742,8 +743,7 @@ public class AttributesUtils {
 					cursor.close();
 
 					// Test copied row
-					AttributesRow copyRow = new AttributesRow(
-							queryAttributesRow2);
+					AttributesRow copyRow = queryAttributesRow2.copy();
 					for (AttributesColumn column : dao.getTable().getColumns()) {
 						if (column.getDataType() == GeoPackageDataType.BLOB) {
 							byte[] blob1 = (byte[]) queryAttributesRow2

@@ -212,4 +212,14 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 		setTileData(bytes);
 	}
 
+	/**
+	 * Copy the row
+	 * 
+	 * @return row copy
+	 * @since 3.0.1
+	 */
+	public TileRow copy() {
+		return new TileRow(this);
+	}
+
 }

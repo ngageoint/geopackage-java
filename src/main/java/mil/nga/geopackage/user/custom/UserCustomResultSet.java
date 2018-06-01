@@ -17,8 +17,11 @@ public class UserCustomResultSet extends
 	 * Constructor
 	 * 
 	 * @param table
+	 *            user custom table
 	 * @param resultSet
+	 *            result set
 	 * @param count
+	 *            result count
 	 */
 	public UserCustomResultSet(UserCustomTable table, ResultSet resultSet,
 			int count) {

@@ -19,7 +19,15 @@ public class UserMappingDao extends UserCustomDao {
 	 *            user custom data access object
 	 */
 	public UserMappingDao(UserCustomDao dao) {
-		super(dao);
+		super(dao, new UserMappingTable(dao.getTable()));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserMappingTable getTable() {
+		return (UserMappingTable) super.getTable();
 	}
 
 	/**

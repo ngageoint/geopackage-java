@@ -102,6 +102,16 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	}
 
 	/**
+	 * Copy the row
+	 * 
+	 * @return row copy
+	 * @since 3.0.1
+	 */
+	public FeatureRow copy() {
+		return new FeatureRow(this);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * 
 	 * Handles geometry columns
