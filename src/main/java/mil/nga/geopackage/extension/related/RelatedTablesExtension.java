@@ -94,6 +94,18 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	}
 
 	/**
+	 * Get a User Custom DAO from a table name
+	 * 
+	 * @param tableName
+	 *            table name
+	 * @return user custom dao
+	 */
+	public UserCustomDao getUserDao(String tableName) {
+		return UserCustomDao.readTable(getGeoPackage().getName(), connection,
+				tableName);
+	}
+
+	/**
 	 * Get a User Mapping DAO from a table name
 	 * 
 	 * @param tableName
@@ -102,15 +114,7 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	 */
 	public UserMappingDao getUserMappingDao(String tableName) {
 
-		if (tableName == null) {
-			throw new GeoPackageException(
-					"Non null table name is required to create "
-							+ UserMappingDao.class.getSimpleName());
-		}
-
-		// Read the existing table and create the dao
-		UserCustomDao userDao = UserCustomDao.readTable(getGeoPackage()
-				.getName(), connection, tableName);
+		UserCustomDao userDao = getUserDao(tableName);
 		UserMappingDao dao = new UserMappingDao(userDao);
 
 		return dao;

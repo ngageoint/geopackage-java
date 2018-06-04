@@ -1,5 +1,6 @@
 package mil.nga.geopackage.extension.related.media;
 
+import mil.nga.geopackage.extension.related.RelatedTablesExtension;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
 import mil.nga.geopackage.user.custom.UserCustomRow;
@@ -11,6 +12,34 @@ import mil.nga.geopackage.user.custom.UserCustomRow;
  * @since 3.0.1
  */
 public class MediaDao extends UserCustomDao {
+
+	/**
+	 * Get a related media table DAO
+	 * 
+	 * @param rte
+	 *            related tables extension
+	 * @param mediaTable
+	 *            media table
+	 * @return media DAO
+	 */
+	public static MediaDao getDao(RelatedTablesExtension rte,
+			MediaTable mediaTable) {
+		return getDao(rte, mediaTable.getTableName());
+	}
+
+	/**
+	 * Get a related media table DAO
+	 * 
+	 * @param rte
+	 *            related tables extension
+	 * @param tableName
+	 *            media table name
+	 * @return media DAO
+	 */
+	public static MediaDao getDao(RelatedTablesExtension rte, String tableName) {
+		UserCustomDao userDao = rte.getUserDao(tableName);
+		return new MediaDao(userDao);
+	}
 
 	/**
 	 * Constructor
