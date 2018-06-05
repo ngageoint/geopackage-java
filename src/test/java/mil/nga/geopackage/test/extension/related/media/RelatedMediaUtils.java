@@ -140,14 +140,24 @@ public class RelatedMediaUtils {
 		byte[] data = TestUtils.getTileBytes();
 		String contentType = "image/png";
 		int mediaCount = 2 + (int) (Math.random() * 9);
-		for (int i = 0; i < mediaCount; i++) {
+		long mediaRowId = 0;
+		// Create and insert the first mediaCount - 1 rows
+		for (int i = 0; i < mediaCount - 1; i++) {
 			MediaRow mediaRow = mediaDao.newRow();
 			mediaRow.setData(data);
 			mediaRow.setContentType(contentType);
 			RelatedTablesUtils.populateUserRow(mediaTable, mediaRow,
 					MediaTable.requiredColumns());
-			TestCase.assertTrue(mediaDao.create(mediaRow) > 0);
+			mediaRowId = mediaDao.create(mediaRow);
+			TestCase.assertTrue(mediaRowId > 0);
 		}
+		// Copy the last row insert and insert the final media row
+		MediaRow mediaRowToCopy = new MediaRow(
+				mediaDao.queryForIdRow(mediaRowId));
+		MediaRow mediaRowCopy = mediaRowToCopy.copy();
+		long copyMediaRowId = mediaDao.create(mediaRowCopy);
+		TestCase.assertTrue(copyMediaRowId > 0);
+		TestCase.assertEquals(mediaRowId + 1, copyMediaRowId);
 		TestCase.assertEquals(mediaCount, mediaDao.count());
 
 		// Build the Feature ids
