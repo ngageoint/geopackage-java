@@ -2,6 +2,7 @@ package mil.nga.geopackage.user.custom;
 
 import java.util.List;
 
+import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.user.UserTableReader;
 
@@ -42,7 +43,7 @@ public class UserCustomTableReader
 			int index, String name, String type, Long max, boolean notNull,
 			int defaultValueIndex, boolean primaryKey) {
 
-		GeoPackageDataType dataType = GeoPackageDataType.fromName(type);
+		GeoPackageDataType dataType = getDataType(type);
 
 		Object defaultValue = result.getValue(defaultValueIndex, dataType);
 
@@ -50,6 +51,37 @@ public class UserCustomTableReader
 				max, notNull, defaultValue, primaryKey);
 
 		return column;
+	}
+
+	/**
+	 * Read the table
+	 * 
+	 * @param connection
+	 *            GeoPackage connection
+	 * @param tableName
+	 *            table name
+	 * @return table
+	 */
+	public static UserCustomTable readTable(GeoPackageConnection connection,
+			String tableName) {
+		UserCustomConnection userDb = new UserCustomConnection(connection);
+		return readTable(userDb, tableName);
+	}
+
+	/**
+	 * Read the table
+	 * 
+	 * @param userConnection
+	 *            user connection
+	 * @param tableName
+	 *            table name
+	 * @return table
+	 */
+	public static UserCustomTable readTable(
+			UserCustomConnection userConnection, String tableName) {
+		UserCustomTableReader tableReader = new UserCustomTableReader(tableName);
+		UserCustomTable customTable = tableReader.readTable(userConnection);
+		return customTable;
 	}
 
 }

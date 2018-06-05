@@ -118,9 +118,9 @@ public class UserCustomDao
 	public static UserCustomDao readTable(String database,
 			GeoPackageConnection connection, String tableName) {
 
-		UserCustomTableReader tableReader = new UserCustomTableReader(tableName);
 		UserCustomConnection userDb = new UserCustomConnection(connection);
-		UserCustomTable userCustomTable = tableReader.readTable(userDb);
+		UserCustomTable userCustomTable = UserCustomTableReader.readTable(
+				userDb, tableName);
 		UserCustomDao dao = new UserCustomDao(database, connection, userDb,
 				userCustomTable);
 
