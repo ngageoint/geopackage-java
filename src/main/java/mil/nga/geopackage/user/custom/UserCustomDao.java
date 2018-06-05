@@ -88,6 +88,23 @@ public class UserCustomDao
 	}
 
 	/**
+	 * Get the count of the result set and close it
+	 * 
+	 * @param resultSet
+	 *            result set
+	 * @return count
+	 */
+	protected int count(UserCustomResultSet resultSet) {
+		int count = 0;
+		try {
+			count = resultSet.getCount();
+		} finally {
+			resultSet.close();
+		}
+		return count;
+	}
+
+	/**
 	 * Read the database table and create a DAO
 	 * 
 	 * @param database

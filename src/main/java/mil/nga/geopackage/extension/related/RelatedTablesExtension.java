@@ -9,6 +9,8 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
+import mil.nga.geopackage.extension.related.media.MediaDao;
+import mil.nga.geopackage.extension.related.media.MediaTable;
 import mil.nga.geopackage.user.UserCoreTableReader;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
@@ -72,28 +74,6 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void dropMappingTable(ExtendedRelation extendedRelation) {
-		UserMappingDao userMappingDao = getUserMappingDao(extendedRelation);
-		if (userMappingDao != null) {
-			userMappingDao.dropTable();
-		}
-	}
-
-	/**
-	 * Get a User Mapping DAO from an extended relation
-	 * 
-	 * @param extendedRelation
-	 *            extended relation
-	 * @return user mapping dao
-	 */
-	public UserMappingDao getUserMappingDao(ExtendedRelation extendedRelation) {
-		return getUserMappingDao(extendedRelation.getMappingTableName());
-	}
-
-	/**
 	 * Get a User Custom DAO from a table name
 	 * 
 	 * @param tableName
@@ -106,18 +86,60 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	}
 
 	/**
+	 * Get a User Mapping DAO from an extended relation
+	 * 
+	 * @param extendedRelation
+	 *            extended relation
+	 * @return user mapping dao
+	 */
+	public UserMappingDao getMappingDao(ExtendedRelation extendedRelation) {
+		return getMappingDao(extendedRelation.getMappingTableName());
+	}
+
+	/**
 	 * Get a User Mapping DAO from a table name
 	 * 
 	 * @param tableName
 	 *            mapping table name
 	 * @return user mapping dao
 	 */
-	public UserMappingDao getUserMappingDao(String tableName) {
+	public UserMappingDao getMappingDao(String tableName) {
+		return new UserMappingDao(getUserDao(tableName));
+	}
 
-		UserCustomDao userDao = getUserDao(tableName);
-		UserMappingDao dao = new UserMappingDao(userDao);
+	/**
+	 * Get a related media table DAO
+	 * 
+	 * @param mediaTable
+	 *            media table
+	 * @return media DAO
+	 */
+	public MediaDao getMediaDao(MediaTable mediaTable) {
+		return getMediaDao(mediaTable.getTableName());
+	}
 
-		return dao;
+	/**
+	 * Get a related media table DAO
+	 * 
+	 * @param extendedRelation
+	 *            extended relation
+	 * @return media DAO
+	 */
+	public MediaDao getMediaDao(ExtendedRelation extendedRelation) {
+		return getMediaDao(extendedRelation.getRelatedTableName());
+	}
+
+	/**
+	 * Get a related media table DAO
+	 * 
+	 * @param tableName
+	 *            media table name
+	 * @return media DAO
+	 */
+	public MediaDao getMediaDao(String tableName) {
+		MediaDao mediaDao = new MediaDao(getUserDao(tableName));
+		setContents(mediaDao.getTable());
+		return mediaDao;
 	}
 
 	/**
@@ -148,9 +170,8 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 
 		List<Long> relatedIds = new ArrayList<>();
 
-		UserMappingDao userMappingDao = getUserMappingDao(tableName);
-		UserCustomResultSet resultSet = userMappingDao.queryForEq(
-				UserMappingTable.COLUMN_BASE_ID, baseId);
+		UserMappingDao userMappingDao = getMappingDao(tableName);
+		UserCustomResultSet resultSet = userMappingDao.queryByBaseId(baseId);
 		try {
 			while (resultSet.moveToNext()) {
 				UserMappingRow row = userMappingDao.getRow(resultSet);
@@ -191,9 +212,9 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 
 		List<Long> baseIds = new ArrayList<>();
 
-		UserMappingDao userMappingDao = getUserMappingDao(tableName);
-		UserCustomResultSet resultSet = userMappingDao.queryForEq(
-				UserMappingTable.COLUMN_RELATED_ID, relatedId);
+		UserMappingDao userMappingDao = getMappingDao(tableName);
+		UserCustomResultSet resultSet = userMappingDao
+				.queryByRelatedId(relatedId);
 		try {
 			while (resultSet.moveToNext()) {
 				UserMappingRow row = userMappingDao.getRow(resultSet);

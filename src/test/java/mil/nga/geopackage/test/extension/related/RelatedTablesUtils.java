@@ -153,7 +153,6 @@ public class RelatedTablesUtils {
 	public static void validateUserRow(String[] columns, UserCustomRow userRow) {
 
 		TestCase.assertEquals(columns.length, userRow.columnCount());
-		TestCase.assertFalse(userRow.hasId());
 
 		for (int i = 0; i < userRow.columnCount(); i++) {
 			UserCustomColumn column = userRow.getTable().getColumns().get(i);

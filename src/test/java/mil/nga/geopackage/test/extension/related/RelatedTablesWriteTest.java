@@ -113,7 +113,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 			relatedIds[inx++] = relatedFrs.getRow().getId();
 		}
 		relatedFrs.close();
-		UserMappingDao dao = rte.getUserMappingDao(mappingTableName);
+		UserMappingDao dao = rte.getMappingDao(mappingTableName);
 		UserMappingRow userMappingRow = null;
 		for (inx = 0; inx < 10; inx++) {
 			userMappingRow = dao.newRow();

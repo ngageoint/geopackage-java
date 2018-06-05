@@ -7,6 +7,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -19,7 +20,6 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
-import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.sf.GeometryType;
 
 /**
@@ -237,16 +237,23 @@ public class GeoPackageTestUtils {
 		GeometryColumnsDao geometryColumnsDao = geoPackage
 				.getGeometryColumnsDao();
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
+		ContentsDao contentsDao = geoPackage.getContentsDao();
 
 		TestCase.assertTrue(geometryColumnsDao.isTableExists()
 				|| tileMatrixSetDao.isTableExists());
 
 		if (geometryColumnsDao.isTableExists()) {
 
+			TestCase.assertEquals(geoPackage.getFeatureTables().size(),
+					geometryColumnsDao.countOf());
 			for (String featureTable : geoPackage.getFeatureTables()) {
-				FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
-				featureDao.dropTable();
+				TestCase.assertTrue(geoPackage.isTable(featureTable));
+				TestCase.assertNotNull(contentsDao.queryForId(featureTable));
+				geoPackage.deleteTable(featureTable);
+				TestCase.assertFalse(geoPackage.isTable(featureTable));
+				TestCase.assertNull(contentsDao.queryForId(featureTable));
 			}
+			TestCase.assertEquals(0, geometryColumnsDao.countOf());
 
 			geoPackage.dropTable(GeometryColumns.TABLE_NAME);
 
@@ -259,10 +266,16 @@ public class GeoPackageTestUtils {
 			TestCase.assertTrue(tileMatrixSetDao.isTableExists());
 			TestCase.assertTrue(tileMatrixDao.isTableExists());
 
+			TestCase.assertEquals(geoPackage.getTileTables().size(),
+					tileMatrixSetDao.countOf());
 			for (String tileTable : geoPackage.getTileTables()) {
-				TileDao tileDao = geoPackage.getTileDao(tileTable);
-				tileDao.dropTable();
+				TestCase.assertTrue(geoPackage.isTable(tileTable));
+				TestCase.assertNotNull(contentsDao.queryForId(tileTable));
+				geoPackage.deleteTable(tileTable);
+				TestCase.assertFalse(geoPackage.isTable(tileTable));
+				TestCase.assertNull(contentsDao.queryForId(tileTable));
 			}
+			TestCase.assertEquals(0, tileMatrixSetDao.countOf());
 
 			geoPackage.dropTable(TileMatrix.TABLE_NAME);
 			geoPackage.dropTable(TileMatrixSet.TABLE_NAME);
@@ -270,6 +283,17 @@ public class GeoPackageTestUtils {
 			TestCase.assertFalse(tileMatrixSetDao.isTableExists());
 			TestCase.assertFalse(tileMatrixDao.isTableExists());
 		}
+
+		for (String attributeTable : geoPackage.getAttributesTables()) {
+
+			TestCase.assertTrue(geoPackage.isTable(attributeTable));
+			TestCase.assertNotNull(contentsDao.queryForId(attributeTable));
+			geoPackage.deleteTable(attributeTable);
+			TestCase.assertFalse(geoPackage.isTable(attributeTable));
+			TestCase.assertNull(contentsDao.queryForId(attributeTable));
+
+		}
+
 	}
 
 }

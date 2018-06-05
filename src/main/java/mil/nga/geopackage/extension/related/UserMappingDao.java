@@ -61,6 +61,145 @@ public class UserMappingDao extends UserCustomDao {
 	}
 
 	/**
+	 * Query by base id
+	 * 
+	 * @param userMappingRow
+	 *            user mapping row
+	 * @return result set
+	 */
+	public UserCustomResultSet queryByBaseId(UserMappingRow userMappingRow) {
+		return queryByBaseId(userMappingRow.getBaseId());
+	}
+
+	/**
+	 * Query by base id
+	 * 
+	 * @param baseId
+	 *            base id
+	 * @return result set
+	 */
+	public UserCustomResultSet queryByBaseId(long baseId) {
+		return queryForEq(UserMappingTable.COLUMN_BASE_ID, baseId);
+	}
+
+	/**
+	 * Count by base id
+	 * 
+	 * @param userMappingRow
+	 *            user mapping row
+	 * @return count
+	 */
+	public int countByBaseId(UserMappingRow userMappingRow) {
+		return countByBaseId(userMappingRow.getBaseId());
+	}
+
+	/**
+	 * Count by base id
+	 * 
+	 * @param baseId
+	 *            base id
+	 * @return count
+	 */
+	public int countByBaseId(long baseId) {
+		return count(queryByBaseId(baseId));
+	}
+
+	/**
+	 * Query by related id
+	 * 
+	 * @param userMappingRow
+	 *            user mapping row
+	 * @return result set
+	 */
+	public UserCustomResultSet queryByRelatedId(UserMappingRow userMappingRow) {
+		return queryByRelatedId(userMappingRow.getRelatedId());
+	}
+
+	/**
+	 * Query by related id
+	 * 
+	 * @param relatedId
+	 *            related id
+	 * @return result set
+	 */
+	public UserCustomResultSet queryByRelatedId(long relatedId) {
+		return queryForEq(UserMappingTable.COLUMN_RELATED_ID, relatedId);
+	}
+
+	/**
+	 * Count by related id
+	 * 
+	 * @param userMappingRow
+	 *            user mapping row
+	 * @return count
+	 */
+	public int countByRelatedId(UserMappingRow userMappingRow) {
+		return countByRelatedId(userMappingRow.getRelatedId());
+	}
+
+	/**
+	 * Count by related id
+	 * 
+	 * @param relatedId
+	 *            related id
+	 * @return count
+	 */
+	public int countByRelatedId(long relatedId) {
+		return count(queryByRelatedId(relatedId));
+	}
+
+	/**
+	 * Query by both base id and related id
+	 * 
+	 * @param userMappingRow
+	 *            user mapping row
+	 * @return result set
+	 */
+	public UserCustomResultSet queryByIds(UserMappingRow userMappingRow) {
+		return queryByIds(userMappingRow.getBaseId(),
+				userMappingRow.getRelatedId());
+	}
+
+	/**
+	 * Query by both base id and related id
+	 * 
+	 * @param baseId
+	 *            base id
+	 * @param relatedId
+	 *            related id
+	 * @return result set
+	 */
+	public UserCustomResultSet queryByIds(long baseId, long relatedId) {
+		return query(buildWhereIds(baseId, relatedId),
+				buildWhereIdsArgs(baseId, relatedId));
+	}
+
+	/**
+	 * Count by both base id and related id
+	 * 
+	 * @param userMappingRow
+	 *            user mapping row
+	 * @return count
+	 */
+	public int countByIds(UserMappingRow userMappingRow) {
+		return countByIds(userMappingRow.getBaseId(),
+				userMappingRow.getRelatedId());
+	}
+
+	/**
+	 * Count by both base id and related id
+	 * 
+	 * @param baseId
+	 *            base id
+	 * @param relatedId
+	 *            related id
+	 * @return count
+	 */
+	public int countByIds(long baseId, long relatedId) {
+		return count(queryByIds(baseId, relatedId));
+	}
+
+	/**
 	 * Delete user mappings by base id
 	 * 
 	 * @param userMappingRow
@@ -142,17 +281,40 @@ public class UserMappingDao extends UserCustomDao {
 	 * @return rows deleted
 	 */
 	public int deleteByIds(long baseId, long relatedId) {
+		return delete(buildWhereIds(baseId, relatedId),
+				buildWhereIdsArgs(baseId, relatedId));
+	}
+
+	/**
+	 * Build the where ids clause
+	 * 
+	 * @param baseId
+	 *            base id
+	 * @param relatedId
+	 *            related id
+	 * @return where clause
+	 */
+	private String buildWhereIds(long baseId, long relatedId) {
 
 		StringBuilder where = new StringBuilder();
 		where.append(buildWhere(UserMappingTable.COLUMN_BASE_ID, baseId));
 		where.append(" AND ");
 		where.append(buildWhere(UserMappingTable.COLUMN_RELATED_ID, relatedId));
 
-		String[] whereArgs = buildWhereArgs(new Object[] { baseId, relatedId });
+		return where.toString();
+	}
 
-		int deleted = delete(where.toString(), whereArgs);
-
-		return deleted;
+	/**
+	 * Build the where ids clause arguments
+	 * 
+	 * @param baseId
+	 *            base id
+	 * @param relatedId
+	 *            related id
+	 * @return where args
+	 */
+	private String[] buildWhereIdsArgs(long baseId, long relatedId) {
+		return buildWhereArgs(new Object[] { baseId, relatedId });
 	}
 
 }
