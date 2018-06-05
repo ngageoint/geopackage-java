@@ -8,10 +8,12 @@ import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.ExtendedRelationsDao;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
+import mil.nga.geopackage.extension.related.RelationType;
 import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.extension.related.UserMappingTable;
@@ -21,6 +23,8 @@ import mil.nga.geopackage.extension.related.media.MediaTable;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.geopackage.features.user.FeatureTable;
+import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.extension.related.RelatedTablesUtils;
 import mil.nga.geopackage.test.geom.GeoPackageGeometryDataUtils;
@@ -295,6 +299,100 @@ public class RelatedMediaUtils {
 				totalMapped += mappedIds.size();
 			}
 			featureResultSet.close();
+			TestCase.assertEquals(totalMappedCount, totalMapped);
+		}
+
+		// Get the relations starting from the media table
+		List<ExtendedRelation> mediaExtendedRelations = extendedRelationsDao
+				.getRelatedTableRelations(mediaTable.getTableName());
+		List<ExtendedRelation> mediaExtendedRelations2 = extendedRelationsDao
+				.getTableRelations(mediaTable.getTableName());
+		TestCase.assertEquals(1, mediaExtendedRelations.size());
+		TestCase.assertEquals(1, mediaExtendedRelations2.size());
+		TestCase.assertEquals(mediaExtendedRelations.get(0).getId(),
+				mediaExtendedRelations2.get(0).getId());
+		TestCase.assertTrue(extendedRelationsDao.getBaseTableRelations(
+				mediaTable.getTableName()).isEmpty());
+
+		// Test the media table relations
+		for (ExtendedRelation mediaRelation : featureExtendedRelations) {
+
+			// Test the relation
+			TestCase.assertTrue(mediaRelation.getId() >= 0);
+			TestCase.assertEquals(featureDao.getTableName(),
+					mediaRelation.getBaseTableName());
+			TestCase.assertEquals(
+					featureDao.getTable().getPkColumn().getName(),
+					mediaRelation.getBasePrimaryColumn());
+			TestCase.assertEquals(mediaDao.getTableName(),
+					mediaRelation.getRelatedTableName());
+			TestCase.assertEquals(mediaDao.getTable().getPkColumn().getName(),
+					mediaRelation.getRelatedPrimaryColumn());
+			TestCase.assertEquals(MediaTable.RELATION_TYPE.getName(),
+					mediaRelation.getRelationName());
+			TestCase.assertEquals(mappingTableName,
+					mediaRelation.getMappingTableName());
+
+			// Test the user mappings from the relation
+			UserMappingDao userMappingDao = rte.getMappingDao(mediaRelation);
+			int totalMappedCount = userMappingDao.count();
+			UserCustomResultSet mappingResultSet = userMappingDao.queryForAll();
+			while (mappingResultSet.moveToNext()) {
+				userMappingRow = userMappingDao.getRow(mappingResultSet);
+				TestCase.assertTrue(featureIds.contains(userMappingRow
+						.getBaseId()));
+				TestCase.assertTrue(mediaIds.contains(userMappingRow
+						.getRelatedId()));
+				RelatedTablesUtils.validateUserRow(mappingColumns,
+						userMappingRow);
+			}
+			mappingResultSet.close();
+
+			// Get and test the feature DAO
+			featureDao = geoPackage.getFeatureDao(featureDao.getTableName());
+			TestCase.assertNotNull(featureDao);
+			FeatureTable featureTable = featureDao.getTable();
+			TestCase.assertNotNull(featureTable);
+			Contents featureContents = featureDao.getGeometryColumns()
+					.getContents();
+			TestCase.assertNotNull(featureContents);
+			TestCase.assertEquals(ContentsDataType.FEATURES,
+					featureContents.getDataType());
+			TestCase.assertEquals(RelationType.FEATURES.getName(),
+					featureContents.getDataTypeString());
+			TestCase.assertEquals(featureTable.getTableName(),
+					featureContents.getTableName());
+			TestCase.assertNotNull(featureContents.getLastChange());
+
+			// Get and test the Feature Rows mapped to each Media Row
+			mediaResultSet = mediaDao.queryForAll();
+			int totalMapped = 0;
+			while (mediaResultSet.moveToNext()) {
+				MediaRow mediaRow = mediaDao.getRow(mediaResultSet);
+				List<Long> mappedIds = rte.getMappingsForRelated(mediaRelation,
+						mediaRow.getId());
+				for (long mappedId : mappedIds) {
+					FeatureRow featureRow = featureDao.queryForIdRow(mappedId);
+					TestCase.assertNotNull(featureRow);
+
+					TestCase.assertTrue(featureRow.hasId());
+					TestCase.assertTrue(featureRow.getId() >= 0);
+					TestCase.assertTrue(featureIds.contains(featureRow.getId()));
+					TestCase.assertTrue(mappedIds.contains(featureRow.getId()));
+					if (featureRow
+							.getValue(featureRow.getGeometryColumnIndex()) != null) {
+						GeoPackageGeometryData geometryData = featureRow
+								.getGeometry();
+						TestCase.assertNotNull(geometryData);
+						if (!geometryData.isEmpty()) {
+							TestCase.assertNotNull(geometryData.getGeometry());
+						}
+					}
+				}
+
+				totalMapped += mappedIds.size();
+			}
+			mediaResultSet.close();
 			TestCase.assertEquals(totalMappedCount, totalMapped);
 		}
 
