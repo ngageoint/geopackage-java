@@ -1,19 +1,18 @@
 package mil.nga.geopackage.extension.related;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.extension.related.media.MediaDao;
 import mil.nga.geopackage.extension.related.media.MediaTable;
-import mil.nga.geopackage.user.UserCoreTableReader;
+import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
+import mil.nga.geopackage.user.custom.UserCustomTable;
+import mil.nga.geopackage.user.custom.UserCustomTableReader;
 
 /**
  * Related Tables extension
@@ -45,32 +44,14 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	 */
 	@Override
 	public String getPrimaryKeyColumnName(String tableName) {
-		String result = null;
-		String sql = "PRAGMA table_info(" + CoreSQLUtils.quoteWrap(tableName)
-				+ ")";
-		ResultSet resultSet = connection.query(sql, null);
-		try {
-			while (resultSet.next()) {
-				if (resultSet.getInt(UserCoreTableReader.PK) == 1) {
-					result = resultSet.getString(UserCoreTableReader.NAME);
-					break;
-				}
-			}
-		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to query for the "
-					+ " primary key for table " + tableName, e);
-		} finally {
-			try {
-				resultSet.close();
-			} catch (SQLException e) {
-				throw new GeoPackageException("Failed to close ResultSet", e);
-			}
-		}
-		if (result == null) {
+		UserCustomTable table = UserCustomTableReader.readTable(connection,
+				tableName);
+		UserCustomColumn pkColumn = table.getPkColumn();
+		if (pkColumn == null) {
 			throw new GeoPackageException("Found no primary key for table "
 					+ tableName);
 		}
-		return result;
+		return pkColumn.getName();
 	}
 
 	/**
