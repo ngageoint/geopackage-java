@@ -11,14 +11,13 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageDataType;
-import mil.nga.geopackage.extension.related.DublinCoreType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.ExtendedRelationsDao;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
-import mil.nga.geopackage.extension.related.RelationType;
 import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.extension.related.UserMappingTable;
+import mil.nga.geopackage.extension.related.dublin.DublinCoreType;
 import mil.nga.geopackage.extension.related.media.MediaDao;
 import mil.nga.geopackage.extension.related.media.MediaRow;
 import mil.nga.geopackage.extension.related.media.MediaTable;
@@ -374,7 +373,7 @@ public class RelatedMediaUtils {
 			TestCase.assertNotNull(featureContents);
 			TestCase.assertEquals(ContentsDataType.FEATURES,
 					featureContents.getDataType());
-			TestCase.assertEquals(RelationType.FEATURES.getName(),
+			TestCase.assertEquals(ContentsDataType.FEATURES.getName(),
 					featureContents.getDataTypeString());
 			TestCase.assertEquals(featureTable.getTableName(),
 					featureContents.getTableName());
