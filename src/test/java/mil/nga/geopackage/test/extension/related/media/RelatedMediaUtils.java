@@ -50,6 +50,9 @@ public class RelatedMediaUtils {
 
 		// Choose a random feature table
 		List<String> featureTables = geoPackage.getFeatureTables();
+		if (featureTables.isEmpty()) {
+			return; // pass with no testing
+		}
 		final String baseTableName = featureTables
 				.get((int) (Math.random() * featureTables.size()));
 
@@ -329,7 +332,7 @@ public class RelatedMediaUtils {
 				mediaTable.getTableName()).isEmpty());
 
 		// Test the media table relations
-		for (ExtendedRelation mediaRelation : featureExtendedRelations) {
+		for (ExtendedRelation mediaRelation : mediaExtendedRelations) {
 
 			// Test the relation
 			TestCase.assertTrue(mediaRelation.getId() >= 0);

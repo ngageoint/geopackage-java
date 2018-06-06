@@ -228,6 +228,18 @@ public class RelatedTablesUtils {
 	public static void validateDublinCoreColumns(UserCustomRow userRow) {
 
 		validateDublinCoreColumn(userRow, DublinCoreType.DATE);
+		validateSimpleDublinCoreColumns(userRow);
+
+	}
+
+	/**
+	 * Validate a user row for expected simple Dublin Core Columns
+	 * 
+	 * @param userRow
+	 *            user custom row
+	 */
+	public static void validateSimpleDublinCoreColumns(UserCustomRow userRow) {
+
 		validateDublinCoreColumn(userRow, DublinCoreType.DESCRIPTION);
 		validateDublinCoreColumn(userRow, DublinCoreType.SOURCE);
 		validateDublinCoreColumn(userRow, DublinCoreType.TITLE);
