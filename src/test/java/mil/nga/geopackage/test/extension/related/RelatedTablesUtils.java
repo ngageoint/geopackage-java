@@ -11,6 +11,8 @@ import java.util.UUID;
 import junit.framework.TestCase;
 import mil.nga.geopackage.db.DateConverter;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.extension.related.DublinCoreMetadata;
+import mil.nga.geopackage.extension.related.DublinCoreType;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.user.UserCoreResultUtils;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
@@ -37,6 +39,22 @@ public class RelatedTablesUtils {
 		List<UserCustomColumn> columns = new ArrayList<>();
 
 		int columnIndex = startingIndex;
+
+		// Add Dublin Core Metadata term columns
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
+				DublinCoreType.DATE.getName(), GeoPackageDataType.DATETIME,
+				false, null));
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
+				DublinCoreType.DESCRIPTION.getName(), GeoPackageDataType.TEXT,
+				false, ""));
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
+				DublinCoreType.SOURCE.getName(), GeoPackageDataType.TEXT,
+				false, ""));
+		columns.add(UserCustomColumn.createColumn(columnIndex++,
+				DublinCoreType.TITLE.getName(), GeoPackageDataType.TEXT, false,
+				""));
+
+		// Add test columns for common data types, some with limits
 		columns.add(UserCustomColumn.createColumn(columnIndex++, "test_text",
 				GeoPackageDataType.TEXT, false, ""));
 		columns.add(UserCustomColumn.createColumn(columnIndex++, "test_real",
@@ -78,7 +96,8 @@ public class RelatedTablesUtils {
 			if (!skipColumnsSet.contains(column.getName())) {
 
 				// Leave nullable columns null 20% of the time
-				if (!column.isNotNull()) {
+				if (!column.isNotNull()
+						&& DublinCoreType.fromName(column.getName()) == null) {
 					if (Math.random() < 0.2) {
 						continue;
 					}
@@ -197,6 +216,48 @@ public class RelatedTablesUtils {
 
 			}
 		}
+
+	}
+
+	/**
+	 * Validate a user row for expected Dublin Core Columns
+	 * 
+	 * @param userRow
+	 *            user custom row
+	 */
+	public static void validateDublinCoreColumns(UserCustomRow userRow) {
+
+		validateDublinCoreColumn(userRow, DublinCoreType.DATE);
+		validateDublinCoreColumn(userRow, DublinCoreType.DESCRIPTION);
+		validateDublinCoreColumn(userRow, DublinCoreType.SOURCE);
+		validateDublinCoreColumn(userRow, DublinCoreType.TITLE);
+
+	}
+
+	/**
+	 * Validate a user row for expected Dublin Core Column
+	 * 
+	 * @param userRow
+	 *            user custom row
+	 * @param type
+	 *            Dublin Core Type
+	 */
+	public static void validateDublinCoreColumn(UserCustomRow userRow,
+			DublinCoreType type) {
+
+		UserCustomTable customTable = userRow.getTable();
+
+		TestCase.assertTrue(DublinCoreMetadata.hasColumn(userRow.getTable(),
+				type));
+		TestCase.assertTrue(DublinCoreMetadata.hasColumn(userRow, type));
+		UserCustomColumn column1 = DublinCoreMetadata.getColumn(customTable,
+				type);
+		UserCustomColumn column2 = DublinCoreMetadata.getColumn(userRow, type);
+		TestCase.assertNotNull(column1);
+		TestCase.assertNotNull(column2);
+		TestCase.assertEquals(column1, column2);
+		Object value = DublinCoreMetadata.getValue(userRow, type);
+		TestCase.assertNotNull(value);
 
 	}
 

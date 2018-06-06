@@ -11,6 +11,7 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.extension.related.DublinCoreType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.ExtendedRelationsDao;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
@@ -217,6 +218,7 @@ public class RelatedMediaUtils {
 			TestCase.assertTrue(featureIds.contains(resultRow.getBaseId()));
 			TestCase.assertTrue(mediaIds.contains(resultRow.getRelatedId()));
 			RelatedTablesUtils.validateUserRow(mappingColumns, resultRow);
+			RelatedTablesUtils.validateDublinCoreColumns(resultRow);
 
 			manualCount++;
 		}
@@ -269,6 +271,7 @@ public class RelatedMediaUtils {
 						.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
+				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
 			}
 			mappingResultSet.close();
 
@@ -299,6 +302,8 @@ public class RelatedMediaUtils {
 					TestCase.assertEquals(contentType,
 							mediaRow.getContentType());
 					RelatedTablesUtils.validateUserRow(mediaColumns, mediaRow);
+					RelatedTablesUtils.validateDublinCoreColumns(mediaRow);
+					validateDublinCoreColumns(mediaRow);
 					BufferedImage image = ImageUtils.getImage(mediaRow
 							.getData());
 					TestCase.assertNotNull(image);
@@ -355,6 +360,7 @@ public class RelatedMediaUtils {
 						.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
+				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
 			}
 			mappingResultSet.close();
 
@@ -449,6 +455,21 @@ public class RelatedMediaUtils {
 		TestCase.assertEquals(mediaTable.getTableName(),
 				contents.getTableName());
 		TestCase.assertNotNull(contents.getLastChange());
+	}
+
+	/**
+	 * Validate a media row for expected Dublin Core Columns
+	 * 
+	 * @param mediaRow
+	 *            media row
+	 */
+	public static void validateDublinCoreColumns(MediaRow mediaRow) {
+
+		RelatedTablesUtils.validateDublinCoreColumn(mediaRow,
+				DublinCoreType.IDENTIFIER);
+		RelatedTablesUtils.validateDublinCoreColumn(mediaRow,
+				DublinCoreType.FORMAT);
+
 	}
 
 }

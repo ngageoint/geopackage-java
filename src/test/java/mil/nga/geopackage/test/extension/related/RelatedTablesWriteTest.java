@@ -139,6 +139,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 			UserMappingRow resultRow = dao.getRow(resultSet);
 			TestCase.assertFalse(resultRow.hasId());
 			RelatedTablesUtils.validateUserRow(columns, resultRow);
+			RelatedTablesUtils.validateDublinCoreColumns(resultRow);
 
 			manualCount++;
 		}
