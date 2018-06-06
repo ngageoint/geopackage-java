@@ -8,6 +8,8 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.extension.related.media.MediaDao;
 import mil.nga.geopackage.extension.related.media.MediaTable;
+import mil.nga.geopackage.extension.related.simple.SimpleAttributesDao;
+import mil.nga.geopackage.extension.related.simple.SimpleAttributesTable;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
@@ -121,6 +123,44 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 		MediaDao mediaDao = new MediaDao(getUserDao(tableName));
 		setContents(mediaDao.getTable());
 		return mediaDao;
+	}
+
+	/**
+	 * Get a related simple attributes table DAO
+	 * 
+	 * @param simpleAttributesTable
+	 *            simple attributes table
+	 * @return simple attributes DAO
+	 */
+	public SimpleAttributesDao getSimpleAttributesDao(
+			SimpleAttributesTable simpleAttributesTable) {
+		return getSimpleAttributesDao(simpleAttributesTable.getTableName());
+	}
+
+	/**
+	 * Get a related simple attributes table DAO
+	 * 
+	 * @param extendedRelation
+	 *            extended relation
+	 * @return simple attributes DAO
+	 */
+	public SimpleAttributesDao getSimpleAttributesDao(
+			ExtendedRelation extendedRelation) {
+		return getSimpleAttributesDao(extendedRelation.getRelatedTableName());
+	}
+
+	/**
+	 * Get a related simple attributes table DAO
+	 * 
+	 * @param tableName
+	 *            simple attributes table name
+	 * @return simple attributes DAO
+	 */
+	public SimpleAttributesDao getSimpleAttributesDao(String tableName) {
+		SimpleAttributesDao simpleAttributesDao = new SimpleAttributesDao(
+				getUserDao(tableName));
+		setContents(simpleAttributesDao.getTable());
+		return simpleAttributesDao;
 	}
 
 	/**
