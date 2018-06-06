@@ -26,7 +26,7 @@ public class RelatedMediaCreateTest extends CreateGeoPackageTestCase {
 	 * @throws SQLException
 	 */
 	@Test
-	public void testMedia() throws SQLException {
+	public void testMedia() throws Exception {
 
 		RelatedMediaUtils.testMedia(geoPackage);
 

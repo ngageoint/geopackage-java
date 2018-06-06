@@ -1,5 +1,6 @@
 package mil.nga.geopackage.test.extension.related.media;
 
+import java.awt.image.BufferedImage;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.extension.related.RelatedTablesUtils;
 import mil.nga.geopackage.test.geom.GeoPackageGeometryDataUtils;
+import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
 
@@ -39,7 +41,7 @@ public class RelatedMediaUtils {
 	 * @param geoPackage
 	 * @throws SQLException
 	 */
-	public static void testMedia(GeoPackage geoPackage) throws SQLException {
+	public static void testMedia(GeoPackage geoPackage) throws Exception {
 
 		// Create a related tables extension
 		RelatedTablesExtension rte = new RelatedTablesExtension(geoPackage);
@@ -141,14 +143,17 @@ public class RelatedMediaUtils {
 		validateContents(mediaTable, mediaTable.getContents());
 
 		// Insert media table rows
-		byte[] data = TestUtils.getTileBytes();
+		byte[] mediaData = TestUtils.getTileBytes();
 		String contentType = "image/png";
+		BufferedImage mediaImage = ImageUtils.getImage(mediaData);
+		int imageWidth = mediaImage.getWidth();
+		int imageHeight = mediaImage.getHeight();
 		int mediaCount = 2 + (int) (Math.random() * 9);
 		long mediaRowId = 0;
 		// Create and insert the first mediaCount - 1 rows
 		for (int i = 0; i < mediaCount - 1; i++) {
 			MediaRow mediaRow = mediaDao.newRow();
-			mediaRow.setData(data);
+			mediaRow.setData(mediaData);
 			mediaRow.setContentType(contentType);
 			RelatedTablesUtils.populateUserRow(mediaTable, mediaRow,
 					MediaTable.requiredColumns());
@@ -289,11 +294,16 @@ public class RelatedMediaUtils {
 					TestCase.assertTrue(mediaRow.getId() >= 0);
 					TestCase.assertTrue(mediaIds.contains(mediaRow.getId()));
 					TestCase.assertTrue(mappedIds.contains(mediaRow.getId()));
-					GeoPackageGeometryDataUtils.compareByteArrays(data,
+					GeoPackageGeometryDataUtils.compareByteArrays(mediaData,
 							mediaRow.getData());
 					TestCase.assertEquals(contentType,
 							mediaRow.getContentType());
 					RelatedTablesUtils.validateUserRow(mediaColumns, mediaRow);
+					BufferedImage image = ImageUtils.getImage(mediaRow
+							.getData());
+					TestCase.assertNotNull(image);
+					TestCase.assertEquals(imageWidth, image.getWidth());
+					TestCase.assertEquals(imageHeight, image.getHeight());
 				}
 
 				totalMapped += mappedIds.size();
