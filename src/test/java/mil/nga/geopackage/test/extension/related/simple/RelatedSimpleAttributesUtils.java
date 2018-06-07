@@ -121,8 +121,8 @@ public class RelatedSimpleAttributesUtils {
 		ContentsDao contentsDao = geoPackage.getContentsDao();
 		TestCase.assertFalse(contentsDao.getTables().contains(
 				simpleTable.getTableName()));
-		ExtendedRelation extendedRelation = rte.createRelationship(
-				baseTableName, simpleTable, userMappingTable);
+		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName,
+				simpleTable, userMappingTable);
 		validateContents(simpleTable, simpleTable.getContents());
 		TestCase.assertTrue(rte.has());
 		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));
