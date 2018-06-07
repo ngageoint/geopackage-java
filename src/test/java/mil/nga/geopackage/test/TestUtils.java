@@ -572,6 +572,9 @@ public class TestUtils {
 	/**
 	 * Get the file
 	 * 
+	 * @param fileName
+	 *            file name
+	 * 
 	 * @return file
 	 */
 	public static File getTestFile(String fileName) {
@@ -585,6 +588,21 @@ public class TestUtils {
 		}
 		File file = resourcePath.toFile();
 		return file;
+	}
+
+	/**
+	 * Get the bytes of the file
+	 * 
+	 * @param fileName
+	 *            file name
+	 * @return file bytes
+	 */
+	public static byte[] getTestFileBytes(String fileName) {
+		try {
+			return GeoPackageIOUtils.fileBytes(getTestFile(fileName));
+		} catch (IOException e) {
+			throw new GeoPackageException("Failed to get test file bytes", e);
+		}
 	}
 
 	/**
