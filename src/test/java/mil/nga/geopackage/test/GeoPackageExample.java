@@ -40,6 +40,7 @@ import mil.nga.geopackage.extension.coverage.GriddedTileDao;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
+import mil.nga.geopackage.extension.related.RelationType;
 import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.extension.related.UserMappingTable;
@@ -1374,7 +1375,73 @@ public class GeoPackageExample {
 
 	private static void createRelatedTablesFeaturesExtension(
 			GeoPackage geoPackage) {
-		// TODO
+
+		createRelatedTablesFeaturesExtension(geoPackage, "point1", "polygon1");
+
+		createRelatedTablesFeaturesExtension(geoPackage, "point2", "line2");
+
+	}
+
+	private static void createRelatedTablesFeaturesExtension(
+			GeoPackage geoPackage, String tableName1, String tableName2) {
+
+		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
+				geoPackage);
+
+		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
+				.createAdditionalUserColumns(UserMappingTable
+						.numRequiredColumns());
+
+		UserMappingTable userMappingTable = UserMappingTable.create(tableName1
+				+ "_" + tableName2, additionalMappingColumns);
+		ExtendedRelation relation = relatedTables.addRelationship(tableName1,
+				tableName2, userMappingTable, RelationType.FEATURES);
+
+		insertRelatedTablesFeaturesExtensionRows(geoPackage, relation);
+	}
+
+	private static void insertRelatedTablesFeaturesExtensionRows(
+			GeoPackage geoPackage, ExtendedRelation relation) {
+
+		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
+				geoPackage);
+		UserMappingDao userMappingDao = relatedTables.getMappingDao(relation);
+
+		FeatureDao featureDao1 = geoPackage.getFeatureDao(relation
+				.getBaseTableName());
+		FeatureDao featureDao2 = geoPackage.getFeatureDao(relation
+				.getRelatedTableName());
+
+		FeatureResultSet featureResultSet1 = featureDao1.queryForAll();
+		while (featureResultSet1.moveToNext()) {
+
+			FeatureRow featureRow1 = featureResultSet1.getRow();
+			String featureName = featureRow1.getValue(TEXT_COLUMN).toString();
+
+			FeatureResultSet featureResultSet2 = featureDao2.queryForEq(
+					TEXT_COLUMN, featureName);
+			while (featureResultSet2.moveToNext()) {
+
+				FeatureRow featureRow2 = featureResultSet2.getRow();
+
+				UserMappingRow userMappingRow = userMappingDao.newRow();
+				userMappingRow.setBaseId(featureRow1.getId());
+				userMappingRow.setRelatedId(featureRow2.getId());
+				RelatedTablesUtils.populateUserRow(userMappingDao.getTable(),
+						userMappingRow, UserMappingTable.requiredColumns());
+				DublinCoreMetadata.setValue(userMappingRow,
+						DublinCoreType.TITLE, featureName);
+				DublinCoreMetadata.setValue(userMappingRow,
+						DublinCoreType.DESCRIPTION, featureName);
+				DublinCoreMetadata.setValue(userMappingRow,
+						DublinCoreType.SOURCE, featureName);
+				userMappingDao.create(userMappingRow);
+			}
+			featureResultSet2.close();
+
+		}
+		featureResultSet1.close();
+
 	}
 
 	private static void createRelatedTablesSimpleAttributesExtension(
