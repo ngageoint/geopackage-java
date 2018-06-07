@@ -122,7 +122,9 @@ public class GeoPackageExample {
 	private static final boolean CRS_WKT = true;
 	private static final boolean METADATA = true;
 	private static final boolean COVERAGE_DATA = true;
-	private static final boolean RELATED_TABLES = true;
+	private static final boolean RELATED_TABLES_MEDIA = true;
+	private static final boolean RELATED_TABLES_FEATURES = true;
+	private static final boolean RELATED_TABLES_SIMPLE_ATTRIBUTES = true;
 	private static final boolean GEOMETRY_INDEX = true;
 	private static final boolean FEATURE_TILE_LINK = true;
 
@@ -181,9 +183,16 @@ public class GeoPackageExample {
 				createRTreeSpatialIndexExtension(geoPackage);
 			}
 
-			System.out.println("Related Tables Extension: " + RELATED_TABLES);
-			if (RELATED_TABLES) {
-				createRelatedTablesExtension(geoPackage);
+			System.out.println("Related Tables Media Extension: "
+					+ RELATED_TABLES_MEDIA);
+			if (RELATED_TABLES_MEDIA) {
+				createRelatedTablesMediaExtension(geoPackage);
+			}
+
+			System.out.println("Related Tables Features Extension: "
+					+ RELATED_TABLES_FEATURES);
+			if (RELATED_TABLES_FEATURES) {
+				createRelatedTablesFeaturesExtension(geoPackage);
 			}
 
 		} else {
@@ -193,7 +202,10 @@ public class GeoPackageExample {
 			System.out.println("Non-Linear Geometry Types Extension: "
 					+ FEATURES);
 			System.out.println("RTree Spatial Index Extension: " + FEATURES);
-			System.out.println("Related Tables Extension: " + RELATED_TABLES);
+			System.out.println("Related Tables Media Extension: "
+					+ RELATED_TABLES_MEDIA);
+			System.out.println("Related Tables Features Extension: "
+					+ RELATED_TABLES_FEATURES);
 		}
 
 		System.out.println("Tiles: " + TILES);
@@ -213,6 +225,15 @@ public class GeoPackageExample {
 		System.out.println("Attributes: " + ATTRIBUTES);
 		if (ATTRIBUTES) {
 			createAttributes(geoPackage);
+
+			System.out.println("Related Tables Simple Attributes Extension: "
+					+ RELATED_TABLES_SIMPLE_ATTRIBUTES);
+			if (RELATED_TABLES_SIMPLE_ATTRIBUTES) {
+				createRelatedTablesSimpleAttributesExtension(geoPackage);
+			}
+		} else {
+			System.out.println("Related Tables Simple Attributes Extension: "
+					+ RELATED_TABLES_SIMPLE_ATTRIBUTES);
 		}
 
 		System.out.println("Metadata: " + METADATA);
@@ -1266,7 +1287,7 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createRelatedTablesExtension(GeoPackage geoPackage) {
+	private static void createRelatedTablesMediaExtension(GeoPackage geoPackage) {
 
 		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
 				geoPackage);
@@ -1286,9 +1307,9 @@ public class GeoPackageExample {
 		ExtendedRelation relation1 = relatedTables.addRelationship(tableName1,
 				mediaTable, userMappingTable1);
 
-		insertRelatedTablesExtensionRows(geoPackage, relation1, "BIT Systems%",
-				"BIT Systems", "BITSystems_Logo.png", "image/png",
-				"BIT Systems Logo", "http://www.bit-sys.com");
+		insertRelatedTablesMediaExtensionRows(geoPackage, relation1,
+				"BIT Systems%", "BIT Systems", "BITSystems_Logo.png",
+				"image/png", "BIT Systems Logo", "http://www.bit-sys.com");
 
 		String tableName2 = "geometry2";
 		UserMappingTable userMappingTable2 = UserMappingTable.create(tableName2
@@ -1296,17 +1317,19 @@ public class GeoPackageExample {
 		ExtendedRelation relation2 = relatedTables.addRelationship(tableName2,
 				mediaTable, userMappingTable2);
 
-		insertRelatedTablesExtensionRows(geoPackage, relation2, "NGA%", "NGA",
-				"NGA_Logo.png", "image/png", "NGA Logo", "http://www.nga.mil");
-		insertRelatedTablesExtensionRows(geoPackage, relation2, "NGA", "NGA",
-				"NGA.jpg", "image/jpeg", "Aerial View of NGA East",
+		insertRelatedTablesMediaExtensionRows(geoPackage, relation2, "NGA%",
+				"NGA", "NGA_Logo.png", "image/png", "NGA Logo",
+				"http://www.nga.mil");
+		insertRelatedTablesMediaExtensionRows(geoPackage, relation2, "NGA",
+				"NGA", "NGA.jpg", "image/jpeg", "Aerial View of NGA East",
 				"http://www.nga.mil");
 
 	}
 
-	private static void insertRelatedTablesExtensionRows(GeoPackage geoPackage,
-			ExtendedRelation relation, String query, String name, String file,
-			String contentType, String description, String source) {
+	private static void insertRelatedTablesMediaExtensionRows(
+			GeoPackage geoPackage, ExtendedRelation relation, String query,
+			String name, String file, String contentType, String description,
+			String source) {
 
 		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
 				geoPackage);
@@ -1347,6 +1370,16 @@ public class GeoPackageExample {
 			userMappingDao.create(userMappingRow);
 		}
 		featureResultSet.close();
+	}
+
+	private static void createRelatedTablesFeaturesExtension(
+			GeoPackage geoPackage) {
+		// TODO
+	}
+
+	private static void createRelatedTablesSimpleAttributesExtension(
+			GeoPackage geoPackage) {
+		// TODO
 	}
 
 }
