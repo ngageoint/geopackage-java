@@ -121,8 +121,8 @@ public class RelatedMediaUtils {
 		ContentsDao contentsDao = geoPackage.getContentsDao();
 		TestCase.assertFalse(contentsDao.getTables().contains(
 				mediaTable.getTableName()));
-		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName,
-				mediaTable, userMappingTable);
+		ExtendedRelation extendedRelation = rte.addMediaRelationship(
+				baseTableName, mediaTable, userMappingTable);
 		validateContents(mediaTable, mediaTable.getContents());
 		TestCase.assertTrue(rte.has());
 		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));

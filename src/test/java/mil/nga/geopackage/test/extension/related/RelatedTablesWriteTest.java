@@ -7,7 +7,6 @@ import java.util.List;
 import junit.framework.TestCase;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
-import mil.nga.geopackage.extension.related.RelationType;
 import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.extension.related.UserMappingTable;
@@ -57,7 +56,6 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		final String baseTableName = "geometry2d";
 		final String relatedTableName = "geometry3d";
 		final String mappingTableName = "g2d_3d";
-		final RelationType relationType = RelationType.FEATURES;
 
 		List<UserCustomColumn> additionalColumns = RelatedTablesUtils
 				.createAdditionalUserColumns(UserMappingTable
@@ -84,8 +82,8 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		TestCase.assertFalse(relatedIdColumn.isPrimaryKey());
 
 		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
-		ExtendedRelation extendedRelation = rte.addRelationship(baseTableName,
-				relatedTableName, userMappingTable, relationType);
+		ExtendedRelation extendedRelation = rte.addFeaturesRelationship(
+				baseTableName, relatedTableName, userMappingTable);
 		TestCase.assertTrue(rte.has());
 		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));
 		TestCase.assertNotNull(extendedRelation);

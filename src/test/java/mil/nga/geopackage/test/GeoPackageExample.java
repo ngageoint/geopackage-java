@@ -41,7 +41,6 @@ import mil.nga.geopackage.extension.coverage.GriddedTileDao;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
-import mil.nga.geopackage.extension.related.RelationType;
 import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.extension.related.UserMappingRow;
 import mil.nga.geopackage.extension.related.UserMappingTable;
@@ -1309,8 +1308,8 @@ public class GeoPackageExample {
 		String tableName1 = "geometry1";
 		UserMappingTable userMappingTable1 = UserMappingTable.create(tableName1
 				+ "_" + mediaTable.getTableName(), additionalMappingColumns);
-		ExtendedRelation relation1 = relatedTables.addRelationship(tableName1,
-				mediaTable, userMappingTable1);
+		ExtendedRelation relation1 = relatedTables.addMediaRelationship(
+				tableName1, mediaTable, userMappingTable1);
 
 		insertRelatedTablesMediaExtensionRows(geoPackage, relation1,
 				"BIT Systems%", "BIT Systems", "BITSystems_Logo.png",
@@ -1319,8 +1318,8 @@ public class GeoPackageExample {
 		String tableName2 = "geometry2";
 		UserMappingTable userMappingTable2 = UserMappingTable.create(tableName2
 				+ "_" + mediaTable.getTableName(), additionalMappingColumns);
-		ExtendedRelation relation2 = relatedTables.addRelationship(tableName2,
-				mediaTable, userMappingTable2);
+		ExtendedRelation relation2 = relatedTables.addMediaRelationship(
+				tableName2, mediaTable, userMappingTable2);
 
 		insertRelatedTablesMediaExtensionRows(geoPackage, relation2, "NGA%",
 				"NGA", "NGA_Logo.png", "image/png", "NGA Logo",
@@ -1398,8 +1397,8 @@ public class GeoPackageExample {
 
 		UserMappingTable userMappingTable = UserMappingTable.create(tableName1
 				+ "_" + tableName2, additionalMappingColumns);
-		ExtendedRelation relation = relatedTables.addRelationship(tableName1,
-				tableName2, userMappingTable, RelationType.FEATURES);
+		ExtendedRelation relation = relatedTables.addFeaturesRelationship(
+				tableName1, tableName2, userMappingTable);
 
 		insertRelatedTablesFeaturesExtensionRows(geoPackage, relation);
 	}
@@ -1467,8 +1466,9 @@ public class GeoPackageExample {
 						.numRequiredColumns());
 		UserMappingTable userMappingTable = UserMappingTable.create(tableName
 				+ "_" + simpleTable.getTableName(), additionalMappingColumns);
-		ExtendedRelation relation = relatedTables.addRelationship(tableName,
-				simpleTable, userMappingTable);
+		ExtendedRelation relation = relatedTables
+				.addSimpleAttributesRelationship(tableName, simpleTable,
+						userMappingTable);
 
 		SimpleAttributesDao simpleAttributesDao = relatedTables
 				.getSimpleAttributesDao(simpleTable);
