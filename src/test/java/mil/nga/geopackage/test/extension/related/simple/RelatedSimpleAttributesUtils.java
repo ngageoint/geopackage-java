@@ -148,6 +148,11 @@ public class RelatedSimpleAttributesUtils {
 				simpleTable.getTableName()));
 		validateContents(simpleTable,
 				contentsDao.queryForId(simpleTable.getTableName()));
+		TestCase.assertEquals(SimpleAttributesTable.RELATION_TYPE.getName(),
+				geoPackage.getTableType(simpleTable.getTableName()));
+		TestCase.assertTrue(geoPackage.isTableType(
+				SimpleAttributesTable.RELATION_TYPE.getName(),
+				simpleTable.getTableName()));
 
 		// Validate the simple attributes DAO
 		SimpleAttributesDao simpleDao = rte.getSimpleAttributesDao(simpleTable);

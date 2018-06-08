@@ -137,6 +137,10 @@ public class RelatedMediaUtils {
 				mediaTable.getTableName()));
 		validateContents(mediaTable,
 				contentsDao.queryForId(mediaTable.getTableName()));
+		TestCase.assertEquals(MediaTable.RELATION_TYPE.getName(),
+				geoPackage.getTableType(mediaTable.getTableName()));
+		TestCase.assertTrue(geoPackage.isTableType(
+				MediaTable.RELATION_TYPE.getName(), mediaTable.getTableName()));
 
 		// Validate the media DAO
 		MediaDao mediaDao = rte.getMediaDao(mediaTable);
