@@ -51,28 +51,38 @@ public class RelatedSimpleAttributesUtils {
 		final String baseTableName = attributesTables
 				.get((int) (Math.random() * attributesTables.size()));
 
-		// Validate that a Simple Attributes table can not be created with non
-		// simple columns
-		List<UserCustomColumn> nonSimpleUserColumns = RelatedTablesUtils
-				.createAdditionalUserColumns(SimpleAttributesTable
-						.numRequiredColumns());
+		// Validate nullable non simple columns
 		try {
-			SimpleAttributesTable.create("simple_table", nonSimpleUserColumns);
-			TestCase.fail("Simple Attributes Table created with non simple columns");
+			SimpleAttributesTable.create("simple_table", RelatedTablesUtils
+					.createAdditionalUserColumns(SimpleAttributesTable
+							.numRequiredColumns()));
+			TestCase.fail("Simple Attributes Table created with nullable non simple columns");
 		} catch (Exception e) {
 			// pass
 		}
-		// Populate and validate a simple attributes table
-		List<UserCustomColumn> simpleUserColumns = new ArrayList<>();
-		int columnIndex = SimpleAttributesTable.numRequiredColumns();
-		for (UserCustomColumn column : nonSimpleUserColumns) {
-			if (SimpleAttributesTable.isSimple(column)) {
-				simpleUserColumns.add(UserCustomColumn.createColumn(
-						columnIndex++, column.getName(), column.getDataType(),
-						column.getMax(), column.isNotNull(),
-						column.getDefaultValue()));
-			}
+		// Validate non nullable non simple columns
+		try {
+			SimpleAttributesTable.create("simple_table", RelatedTablesUtils
+					.createAdditionalUserColumns(
+							SimpleAttributesTable.numRequiredColumns(), true));
+			TestCase.fail("Simple Attributes Table created with non nullable non simple columns");
+		} catch (Exception e) {
+			// pass
 		}
+		// Validate nullable simple columns
+		try {
+			SimpleAttributesTable.create("simple_table", RelatedTablesUtils
+					.creatSimpleUserColumns(
+							SimpleAttributesTable.numRequiredColumns(), false));
+			TestCase.fail("Simple Attributes Table created with nullable simple columns");
+		} catch (Exception e) {
+			// pass
+		}
+
+		// Populate and validate a simple attributes table
+		List<UserCustomColumn> simpleUserColumns = RelatedTablesUtils
+				.creatSimpleUserColumns(SimpleAttributesTable
+						.numRequiredColumns());
 		SimpleAttributesTable simpleTable = SimpleAttributesTable.create(
 				"simple_table", simpleUserColumns);
 		String[] simpleColumns = simpleTable.getColumnNames();
