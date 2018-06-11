@@ -62,7 +62,7 @@ public class TestConstants {
 			+ GEO_PACKAGE_EXTENSION;
 
 	/**
-	 * Tiles 2 database file name, located in the test assets
+	 * Related Tables Extension database file name, located in the test assets
 	 */
 	public static final String RTE_DB_FILE_NAME = RTE_DB_NAME + "."
 			+ GEO_PACKAGE_EXTENSION;
