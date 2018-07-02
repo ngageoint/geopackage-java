@@ -34,13 +34,13 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 	}
 
 	/**
-	 * Test get tile
+	 * Test write relationships
 	 *
 	 * @throws SQLException
 	 * @throws IOException
 	 */
 	@Test
-	public void testGetRelationships() throws SQLException, IOException {
+	public void testWriteRelationships() throws SQLException, IOException {
 
 		RelatedTablesExtension rte = new RelatedTablesExtension(geoPackage);
 

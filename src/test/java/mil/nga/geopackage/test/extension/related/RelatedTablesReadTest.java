@@ -36,13 +36,13 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 	}
 
 	/**
-	 * Test get tile
+	 * Test read relationships
 	 *
 	 * @throws SQLException
 	 * @throws IOException
 	 */
 	@Test
-	public void testGetRelationships() throws SQLException, IOException {
+	public void testReadRelationships() throws SQLException, IOException {
 
 		// 1. has
 		RelatedTablesExtension rte = new RelatedTablesExtension(geoPackage);
