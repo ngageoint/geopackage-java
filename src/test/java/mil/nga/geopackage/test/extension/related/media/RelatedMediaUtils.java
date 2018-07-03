@@ -469,7 +469,7 @@ public class RelatedMediaUtils {
 	 * @param mediaRow
 	 *            media row
 	 */
-	public static void validateDublinCoreColumns(MediaRow mediaRow) {
+	private static void validateDublinCoreColumns(MediaRow mediaRow) {
 
 		RelatedTablesUtils.validateDublinCoreColumn(mediaRow,
 				DublinCoreType.IDENTIFIER);

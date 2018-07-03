@@ -1454,7 +1454,7 @@ public class GeoPackageExample {
 				geoPackage);
 
 		List<UserCustomColumn> simpleUserColumns = RelatedTablesUtils
-				.creatSimpleUserColumns(SimpleAttributesTable
+				.createSimpleUserColumns(SimpleAttributesTable
 						.numRequiredColumns());
 		SimpleAttributesTable simpleTable = SimpleAttributesTable.create(
 				"simple_attributes", simpleUserColumns);

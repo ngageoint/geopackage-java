@@ -72,7 +72,7 @@ public class RelatedSimpleAttributesUtils {
 		// Validate nullable simple columns
 		try {
 			SimpleAttributesTable.create("simple_table", RelatedTablesUtils
-					.creatSimpleUserColumns(
+					.createSimpleUserColumns(
 							SimpleAttributesTable.numRequiredColumns(), false));
 			TestCase.fail("Simple Attributes Table created with nullable simple columns");
 		} catch (Exception e) {
@@ -81,7 +81,7 @@ public class RelatedSimpleAttributesUtils {
 
 		// Populate and validate a simple attributes table
 		List<UserCustomColumn> simpleUserColumns = RelatedTablesUtils
-				.creatSimpleUserColumns(SimpleAttributesTable
+				.createSimpleUserColumns(SimpleAttributesTable
 						.numRequiredColumns());
 		SimpleAttributesTable simpleTable = SimpleAttributesTable.create(
 				"simple_table", simpleUserColumns);

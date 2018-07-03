@@ -94,12 +94,12 @@ public class RelatedTablesUtils {
 		return columns;
 	}
 
-	public static List<UserCustomColumn> creatSimpleUserColumns(
+	public static List<UserCustomColumn> createSimpleUserColumns(
 			int startingIndex) {
-		return creatSimpleUserColumns(startingIndex, true);
+		return createSimpleUserColumns(startingIndex, true);
 	}
 
-	public static List<UserCustomColumn> creatSimpleUserColumns(
+	public static List<UserCustomColumn> createSimpleUserColumns(
 			int startingIndex, boolean notNull) {
 
 		List<UserCustomColumn> simpleUserColumns = new ArrayList<>();
