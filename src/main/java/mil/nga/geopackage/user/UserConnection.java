@@ -12,9 +12,13 @@ import mil.nga.geopackage.db.SQLiteQueryBuilder;
  * connection types
  * 
  * @param <TColumn>
+ *            column type
  * @param <TTable>
+ *            table type
  * @param <TRow>
+ *            row type
  * @param <TResult>
+ *            result type
  * 
  * @author osbornb
  */
@@ -35,6 +39,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * Constructor
 	 * 
 	 * @param database
+	 *            GeoPackage connection
 	 */
 	protected UserConnection(GeoPackageConnection database) {
 		this.connection = database.getConnection();
@@ -53,6 +58,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * Set the table
 	 * 
 	 * @param table
+	 *            table
 	 */
 	public void setTable(TTable table) {
 		this.table = table;
@@ -62,7 +68,9 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * Create a result by wrapping the ResultSet
 	 * 
 	 * @param resultSet
+	 *            result set
 	 * @param count
+	 *            count
 	 * @return result
 	 */
 	protected abstract TResult createResult(ResultSet resultSet, int count);

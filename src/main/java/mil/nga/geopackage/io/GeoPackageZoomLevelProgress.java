@@ -12,7 +12,9 @@ public interface GeoPackageZoomLevelProgress extends GeoPackageProgress {
 	 * Set the max progress value for the zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @param max
+	 *            max
 	 */
 	public void setZoomLevelMax(int zoomLevel, int max);
 
@@ -20,7 +22,9 @@ public interface GeoPackageZoomLevelProgress extends GeoPackageProgress {
 	 * Add to the total progress at the zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @param progress
+	 *            progress
 	 */
 	public void addZoomLevelProgress(int zoomLevel, int progress);
 

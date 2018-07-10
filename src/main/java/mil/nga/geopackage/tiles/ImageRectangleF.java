@@ -31,9 +31,13 @@ public class ImageRectangleF {
 	 * Constructor
 	 * 
 	 * @param left
+	 *            left pixel
 	 * @param top
+	 *            top pixel
 	 * @param right
+	 *            right pixel
 	 * @param bottom
+	 *            bottom pixel
 	 */
 	public ImageRectangleF(float left, float top, float right, float bottom) {
 		this.left = left;
@@ -46,6 +50,7 @@ public class ImageRectangleF {
 	 * Constructor
 	 * 
 	 * @param rectangle
+	 *            image rectangle
 	 * @since 1.2.0
 	 */
 	public ImageRectangleF(ImageRectangleF rectangle) {
@@ -57,6 +62,7 @@ public class ImageRectangleF {
 	 * Constructor
 	 * 
 	 * @param rectangle
+	 *            image rectangle
 	 * @since 1.2.0
 	 */
 	public ImageRectangleF(ImageRectangle rectangle) {

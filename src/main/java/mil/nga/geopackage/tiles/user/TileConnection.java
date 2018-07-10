@@ -17,6 +17,7 @@ public class TileConnection extends
 	 * Constructor
 	 * 
 	 * @param database
+	 *            GeoPackage connection
 	 */
 	public TileConnection(GeoPackageConnection database) {
 		super(database);

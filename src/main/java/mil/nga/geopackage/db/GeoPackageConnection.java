@@ -45,7 +45,12 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	/**
 	 * Constructor
 	 *
+	 * @param file
+	 *            file
 	 * @param connection
+	 *            connection
+	 * @param connectionSource
+	 *            connection source
 	 */
 	public GeoPackageConnection(File file, Connection connection,
 			ConnectionSource connectionSource) {
@@ -180,7 +185,9 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * Perform a database query
 	 * 
 	 * @param sql
+	 *            sql statement
 	 * @param args
+	 *            arguments
 	 * @return result set
 	 * @since 1.1.2
 	 */

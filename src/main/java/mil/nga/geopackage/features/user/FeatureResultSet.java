@@ -18,8 +18,11 @@ public class FeatureResultSet extends
 	 * Constructor
 	 * 
 	 * @param table
+	 *            feature table
 	 * @param resultSet
+	 *            result set
 	 * @param count
+	 *            count
 	 */
 	public FeatureResultSet(FeatureTable table, ResultSet resultSet, int count) {
 		super(table, resultSet, count);

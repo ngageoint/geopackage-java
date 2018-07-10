@@ -96,6 +96,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 * Set the geometry data
 	 * 
 	 * @param geometryData
+	 *            geometry data
 	 */
 	public void setGeometry(GeoPackageGeometryData geometryData) {
 		setValue(getGeometryColumnIndex(), geometryData);

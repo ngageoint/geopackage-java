@@ -25,6 +25,7 @@ public class GeoPackageTextOutput {
 	 * Constructor
 	 * 
 	 * @param geoPackage
+	 *            GeoPackage
 	 */
 	public GeoPackageTextOutput(GeoPackage geoPackage) {
 		this.geoPackage = geoPackage;

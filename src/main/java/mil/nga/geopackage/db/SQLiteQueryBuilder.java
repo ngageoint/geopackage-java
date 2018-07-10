@@ -155,6 +155,10 @@ public class SQLiteQueryBuilder {
 	/**
 	 * Add the names that are non-null in columns to s, separating them with
 	 * commas.
+	 * 
+	 * @param s string builder
+	 * @param columns columns
+	 * @param columnsAs columns as
 	 */
 	public static void appendColumns(StringBuilder s, String[] columns,
 			String[] columnsAs) {

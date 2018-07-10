@@ -85,8 +85,11 @@ public class Progress implements GeoPackageZoomLevelProgress {
 	 * Constructor
 	 * 
 	 * @param title
+	 *            title
 	 * @param countFrequency
+	 *            count frequency
 	 * @param timeFrequency
+	 *            time frequency
 	 */
 	public Progress(String title, int countFrequency, int timeFrequency) {
 		this.title = title;
@@ -183,6 +186,7 @@ public class Progress implements GeoPackageZoomLevelProgress {
 	 * Get the max at the zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return max
 	 */
 	public Integer getZoomLevelMax(int zoomLevel) {
@@ -206,6 +210,7 @@ public class Progress implements GeoPackageZoomLevelProgress {
 	 * Get the total progress at the zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return progress
 	 */
 	public int getZoomLevelProgress(int zoomLevel) {

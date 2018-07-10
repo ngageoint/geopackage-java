@@ -75,6 +75,7 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 * Set the zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 */
 	public void setZoomLevel(long zoomLevel) {
 		setValue(getZoomLevelColumnIndex(), zoomLevel);
@@ -111,6 +112,7 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 * Set the tile column
 	 * 
 	 * @param tileColumn
+	 *            tile column
 	 */
 	public void setTileColumn(long tileColumn) {
 		setValue(getTileColumnColumnIndex(), tileColumn);
@@ -147,6 +149,7 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 * Set the tile row
 	 * 
 	 * @param tileRow
+	 *            tile row
 	 */
 	public void setTileRow(long tileRow) {
 		setValue(getTileRowColumnIndex(), tileRow);
@@ -183,6 +186,7 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 * Set the tile data
 	 * 
 	 * @param tileData
+	 *            tile data
 	 */
 	public void setTileData(byte[] tileData) {
 		setValue(getTileDataColumnIndex(), tileData);
@@ -193,6 +197,7 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 * 
 	 * @return image
 	 * @throws IOException
+	 *             upon failure
 	 */
 	public BufferedImage getTileDataImage() throws IOException {
 		BufferedImage image = ImageUtils.getImage(getTileData());
@@ -203,8 +208,11 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 	 * Set the tile data from an image
 	 * 
 	 * @param image
+	 *            image
 	 * @param imageFormat
+	 *            image format
 	 * @throws IOException
+	 *             upon failure
 	 */
 	public void setTileData(BufferedImage image, String imageFormat)
 			throws IOException {

@@ -68,11 +68,17 @@ public class TileDao extends
 	 * Constructor
 	 * 
 	 * @param database
+	 *            database
 	 * @param db
+	 *            GeoPackage connection
 	 * @param tileDb
+	 *            tile connection
 	 * @param tileMatrixSet
+	 *            tile matrix set
 	 * @param tileMatrices
+	 *            tile matrices
 	 * @param table
+	 *            tile table
 	 */
 	public TileDao(String database, GeoPackageConnection db,
 			TileConnection tileDb, TileMatrixSet tileMatrixSet,
@@ -217,6 +223,7 @@ public class TileDao extends
 	 * Get the tile matrix at the zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return tile matrix
 	 */
 	public TileMatrix getTileMatrix(long zoomLevel) {
@@ -245,8 +252,11 @@ public class TileDao extends
 	 * Query for a Tile
 	 * 
 	 * @param column
+	 *            column
 	 * @param row
+	 *            row
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return tile row
 	 */
 	public TileRow queryForTile(long column, long row, long zoomLevel) {
@@ -273,6 +283,7 @@ public class TileDao extends
 	 * Query for Tiles at a zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return tile cursor, should be closed
 	 */
 	public TileResultSet queryForTile(long zoomLevel) {
@@ -283,6 +294,7 @@ public class TileDao extends
 	 * Query for Tiles at a zoom level in descending row and column order
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return tile cursor, should be closed
 	 */
 	public TileResultSet queryForTileDescending(long zoomLevel) {
@@ -295,7 +307,9 @@ public class TileDao extends
 	 * Query for Tiles at a zoom level and column
 	 * 
 	 * @param column
+	 *            column
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return tile result set
 	 */
 	public TileResultSet queryForTilesInColumn(long column, long zoomLevel) {
@@ -311,7 +325,9 @@ public class TileDao extends
 	 * Query for Tiles at a zoom level and row
 	 * 
 	 * @param row
+	 *            row
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return tile result set
 	 */
 	public TileResultSet queryForTilesInRow(long row, long zoomLevel) {
@@ -514,6 +530,7 @@ public class TileDao extends
 	 * Query for the bounding
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return tile grid of tiles at the zoom level
 	 * @since 1.1.1
 	 */
@@ -539,8 +556,11 @@ public class TileDao extends
 	 * Delete a Tile
 	 * 
 	 * @param column
+	 *            column
 	 * @param row
+	 *            row
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return number deleted, should be 0 or 1
 	 */
 	public int deleteTile(long column, long row, long zoomLevel) {
@@ -567,6 +587,7 @@ public class TileDao extends
 	 * Count of Tiles at a zoom level
 	 * 
 	 * @param zoomLevel
+	 *            zoom level
 	 * @return count
 	 */
 	public int count(long zoomLevel) {

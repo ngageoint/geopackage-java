@@ -17,6 +17,7 @@ public class TileTableReader extends
 	 * Constructor
 	 * 
 	 * @param tableName
+	 *            table name
 	 */
 	public TileTableReader(String tableName) {
 		super(tableName);

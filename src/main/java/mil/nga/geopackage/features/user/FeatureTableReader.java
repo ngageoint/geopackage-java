@@ -25,6 +25,7 @@ public class FeatureTableReader
 	 * Constructor
 	 * 
 	 * @param geometryColumns
+	 *            geometry columns
 	 */
 	public FeatureTableReader(GeometryColumns geometryColumns) {
 		super(geometryColumns.getTableName());

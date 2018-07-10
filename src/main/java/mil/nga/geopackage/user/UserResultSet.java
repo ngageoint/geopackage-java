@@ -13,8 +13,11 @@ import mil.nga.geopackage.db.GeoPackageDataType;
  * indexed based and ResultSets are 1 indexed based.
  * 
  * @param <TColumn>
+ *            column type
  * @param <TTable>
+ *            table type
  * @param <TRow>
+ *            row type
  * 
  * @author osbornb
  */
@@ -43,6 +46,8 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 *            table
 	 * @param resultSet
 	 *            result set
+	 * @param count
+	 *            count
 	 */
 	protected UserResultSet(TTable table, ResultSet resultSet, int count) {
 		this.table = table;

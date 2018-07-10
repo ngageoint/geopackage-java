@@ -82,10 +82,15 @@ public class TileCreator {
 	 * Constructor
 	 *
 	 * @param tileDao
+	 *            tile dao
 	 * @param width
+	 *            request width
 	 * @param height
+	 *            request height
 	 * @param requestProjection
+	 *            request projection
 	 * @param imageFormat
+	 *            image format
 	 */
 	public TileCreator(TileDao tileDao, Integer width, Integer height,
 			Projection requestProjection, String imageFormat) {
@@ -118,7 +123,9 @@ public class TileCreator {
 	 * Constructor, use the tile tables image width and height as request size
 	 *
 	 * @param tileDao
+	 *            tile dao
 	 * @param imageFormat
+	 *            image format
 	 */
 	public TileCreator(TileDao tileDao, String imageFormat) {
 		this(tileDao, null, null, tileDao.getProjection(), imageFormat);
@@ -129,8 +136,11 @@ public class TileCreator {
 	 * and request as the specified projection
 	 *
 	 * @param tileDao
+	 *            tile dao
 	 * @param requestProjection
+	 *            request projection
 	 * @param imageFormat
+	 *            image format
 	 */
 	public TileCreator(TileDao tileDao, Projection requestProjection,
 			String imageFormat) {
@@ -142,6 +152,7 @@ public class TileCreator {
 	 * their original size
 	 *
 	 * @param tileDao
+	 *            tile dao
 	 */
 	public TileCreator(TileDao tileDao) {
 		this(tileDao, null, null, tileDao.getProjection(), null);

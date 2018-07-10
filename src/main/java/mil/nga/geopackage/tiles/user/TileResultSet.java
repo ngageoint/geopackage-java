@@ -16,8 +16,11 @@ public class TileResultSet extends
 	 * Constructor
 	 * 
 	 * @param table
+	 *            tile table
 	 * @param resultSet
+	 *            result set
 	 * @param count
+	 *            count
 	 */
 	public TileResultSet(TileTable table, ResultSet resultSet, int count) {
 		super(table, resultSet, count);

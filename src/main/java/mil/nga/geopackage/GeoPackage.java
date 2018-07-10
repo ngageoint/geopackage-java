@@ -95,7 +95,9 @@ public interface GeoPackage extends GeoPackageCore {
 	 * Perform a query on the database
 	 *
 	 * @param sql
+	 *            sql statement
 	 * @param args
+	 *            arguments
 	 * @return result set
 	 * @since 1.1.2
 	 */

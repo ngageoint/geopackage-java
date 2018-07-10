@@ -48,8 +48,11 @@ public class ImageUtils {
 	 * Create a buffered image for the dimensions and image format
 	 * 
 	 * @param width
+	 *            image width
 	 * @param height
+	 *            image height
 	 * @param imageFormat
+	 *            image format
 	 * @return image
 	 */
 	public static BufferedImage createBufferedImage(int width, int height,
@@ -76,6 +79,7 @@ public class ImageUtils {
 	 * transparent pixels as an empty image
 	 * 
 	 * @param image
+	 *            image
 	 * @return true if fully transparent
 	 */
 	public static boolean isFullyTransparent(BufferedImage image) {
@@ -98,8 +102,11 @@ public class ImageUtils {
 	 * Check if the pixel in the image at the x and y is transparent
 	 * 
 	 * @param image
+	 *            image
 	 * @param x
+	 *            x location
 	 * @param y
+	 *            y location
 	 * @return true if transparent
 	 */
 	public static boolean isTransparent(BufferedImage image, int x, int y) {
@@ -112,8 +119,10 @@ public class ImageUtils {
 	 * Get a buffered image of the image bytes
 	 * 
 	 * @param imageBytes
+	 *            image bytes
 	 * @return buffered image or null
 	 * @throws IOException
+	 *             upon failure
 	 * @since 1.1.2
 	 */
 	public static BufferedImage getImage(byte[] imageBytes) throws IOException {
@@ -140,6 +149,7 @@ public class ImageUtils {
 	 *            null or quality between 0.0 and 1.0
 	 * @return image bytes
 	 * @throws IOException
+	 *             upon failure
 	 * @since 1.1.2
 	 */
 	public static byte[] writeImageToBytes(BufferedImage image,
@@ -162,6 +172,7 @@ public class ImageUtils {
 	 *            image format name
 	 * @return image bytes
 	 * @throws IOException
+	 *             upon failure
 	 * @since 1.1.2
 	 */
 	public static byte[] writeImageToBytes(BufferedImage image,
@@ -228,6 +239,7 @@ public class ImageUtils {
 	 * Close quietly
 	 * 
 	 * @param closeable
+	 *            closeable
 	 * @since 1.1.2
 	 */
 	public static void closeQuietly(Closeable closeable) {

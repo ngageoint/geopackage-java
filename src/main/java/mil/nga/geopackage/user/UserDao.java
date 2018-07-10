@@ -9,9 +9,13 @@ import mil.nga.geopackage.db.SQLUtils;
  * Abstract User DAO for reading user tables
  * 
  * @param <TColumn>
+ *            column type
  * @param <TTable>
+ *            table type
  * @param <TRow>
+ *            row type
  * @param <TResult>
+ *            result type
  * 
  * @author osbornb
  */
@@ -27,9 +31,13 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * Constructor
 	 * 
 	 * @param database
+	 *            database
 	 * @param db
+	 *            GeoPackage connection
 	 * @param userDb
+	 *            user connection
 	 * @param table
+	 *            table
 	 */
 	protected UserDao(String database, GeoPackageConnection db,
 			UserConnection<TColumn, TTable, TRow, TResult> userDb, TTable table) {
@@ -82,8 +90,11 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * Update all rows matching the where clause with the provided values
 	 * 
 	 * @param values
+	 *            content values
 	 * @param whereClause
+	 *            where clause
 	 * @param whereArgs
+	 *            where arguments
 	 * @return updated count
 	 */
 	public int update(ContentValues values, String whereClause,
@@ -109,6 +120,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * Inserts a new row
 	 * 
 	 * @param values
+	 *            content values
 	 * @return row id, -1 on error
 	 */
 	public long insert(ContentValues values) {
@@ -119,6 +131,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * Inserts a new row
 	 * 
 	 * @param values
+	 *            content values
 	 * @return row id
 	 */
 	public long insertOrThrow(ContentValues values) {

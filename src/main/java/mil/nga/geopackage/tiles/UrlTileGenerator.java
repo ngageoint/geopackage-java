@@ -196,6 +196,7 @@ public class UrlTileGenerator extends TileGenerator {
 	 * Set the number of download attempts per tile
 	 * 
 	 * @param downloadAttempts
+	 *            download attempts per tile
 	 */
 	public void setDownloadAttempts(int downloadAttempts) {
 		this.downloadAttempts = downloadAttempts;

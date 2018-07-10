@@ -25,6 +25,7 @@ public class FeatureTileTableLinker extends FeatureTileTableCoreLinker {
 	 * Constructor
 	 * 
 	 * @param geoPackage
+	 *            GeoPackage
 	 */
 	public FeatureTileTableLinker(GeoPackage geoPackage) {
 		super(geoPackage);

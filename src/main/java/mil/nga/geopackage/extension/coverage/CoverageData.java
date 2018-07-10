@@ -25,6 +25,9 @@ import mil.nga.sf.proj.ProjectionTransform;
 /**
  * Tiled Gridded Coverage Data, abstract Common Encoding, Extension
  * 
+ * @param <TImage>
+ *            image type
+ * 
  * @author osbornb
  * @since 2.0.1
  */
@@ -44,6 +47,7 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 	 *            coverage data response height
 	 * @param requestProjection
 	 *            request projection
+	 * @return coverage data
 	 */
 	public static CoverageData<?> getCoverageData(GeoPackage geoPackage,
 			TileDao tileDao, Integer width, Integer height,
@@ -92,6 +96,7 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 	 *            GeoPackage
 	 * @param tileDao
 	 *            tile dao
+	 * @return coverage data
 	 */
 	public static CoverageData<?> getCoverageData(GeoPackage geoPackage,
 			TileDao tileDao) {
@@ -109,6 +114,7 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 	 *            tile dao
 	 * @param requestProjection
 	 *            request projection
+	 * @return coverage data
 	 */
 	public static CoverageData<?> getCoverageData(GeoPackage geoPackage,
 			TileDao tileDao, Projection requestProjection) {

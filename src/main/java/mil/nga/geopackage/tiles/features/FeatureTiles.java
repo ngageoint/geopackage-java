@@ -165,6 +165,7 @@ public abstract class FeatureTiles {
 	 * Constructor
 	 *
 	 * @param featureDao
+	 *            feature dao
 	 */
 	public FeatureTiles(FeatureDao featureDao) {
 		this.featureDao = featureDao;
@@ -239,6 +240,7 @@ public abstract class FeatureTiles {
 	 * Manually set the width and height draw overlap
 	 *
 	 * @param pixels
+	 *            pixels
 	 */
 	public void setDrawOverlap(float pixels) {
 		setWidthDrawOverlap(pixels);
@@ -258,6 +260,7 @@ public abstract class FeatureTiles {
 	 * Manually set the width draw overlap
 	 *
 	 * @param pixels
+	 *            pixels
 	 */
 	public void setWidthDrawOverlap(float pixels) {
 		widthOverlap = pixels;
@@ -276,6 +279,7 @@ public abstract class FeatureTiles {
 	 * Manually set the height draw overlap
 	 *
 	 * @param pixels
+	 *            pixels
 	 */
 	public void setHeightDrawOverlap(float pixels) {
 		heightOverlap = pixels;
@@ -312,6 +316,7 @@ public abstract class FeatureTiles {
 	 * Set the feature index
 	 *
 	 * @param featureIndex
+	 *            feature index
 	 */
 	public void setFeatureIndex(FeatureTableIndex featureIndex) {
 		this.featureIndex = featureIndex;
@@ -330,6 +335,7 @@ public abstract class FeatureTiles {
 	 * Set the tile width
 	 *
 	 * @param tileWidth
+	 *            tile width
 	 */
 	public void setTileWidth(int tileWidth) {
 		this.tileWidth = tileWidth;
@@ -348,6 +354,7 @@ public abstract class FeatureTiles {
 	 * Set the tile height
 	 *
 	 * @param tileHeight
+	 *            tile height
 	 */
 	public void setTileHeight(int tileHeight) {
 		this.tileHeight = tileHeight;
@@ -366,6 +373,7 @@ public abstract class FeatureTiles {
 	 * Set the compress format
 	 *
 	 * @param compressFormat
+	 *            compress format
 	 */
 	public void setCompressFormat(String compressFormat) {
 		this.compressFormat = compressFormat;
@@ -384,6 +392,7 @@ public abstract class FeatureTiles {
 	 * Set the point radius
 	 *
 	 * @param pointRadius
+	 *            point radius
 	 */
 	public void setPointRadius(float pointRadius) {
 		this.pointRadius = pointRadius;
@@ -402,6 +411,7 @@ public abstract class FeatureTiles {
 	 * Set point color
 	 * 
 	 * @param pointColor
+	 *            point color
 	 */
 	public void setPointColor(Color pointColor) {
 		this.pointColor = pointColor;
@@ -420,6 +430,7 @@ public abstract class FeatureTiles {
 	 * Set the point icon
 	 *
 	 * @param pointIcon
+	 *            point icon
 	 */
 	public void setPointIcon(FeatureTilePointIcon pointIcon) {
 		this.pointIcon = pointIcon;
@@ -438,6 +449,7 @@ public abstract class FeatureTiles {
 	 * Set line stroke width
 	 * 
 	 * @param lineStrokeWidth
+	 *            line stroke width
 	 */
 	public void setLineStrokeWidth(float lineStrokeWidth) {
 		this.lineStrokeWidth = lineStrokeWidth;
@@ -456,6 +468,7 @@ public abstract class FeatureTiles {
 	 * Set line color
 	 * 
 	 * @param lineColor
+	 *            line color
 	 */
 	public void setLineColor(Color lineColor) {
 		this.lineColor = lineColor;
@@ -474,6 +487,7 @@ public abstract class FeatureTiles {
 	 * Set polygon stroke width
 	 * 
 	 * @param polygonStrokeWidth
+	 *            polygon stroke width
 	 */
 	public void setPolygonStrokeWidth(float polygonStrokeWidth) {
 		this.polygonStrokeWidth = polygonStrokeWidth;
@@ -492,6 +506,7 @@ public abstract class FeatureTiles {
 	 * Set polygon color
 	 * 
 	 * @param polygonColor
+	 *            polygon color
 	 */
 	public void setPolygonColor(Color polygonColor) {
 		this.polygonColor = polygonColor;
@@ -510,6 +525,7 @@ public abstract class FeatureTiles {
 	 * Set the fill polygon
 	 *
 	 * @param fillPolygon
+	 *            fill polygon
 	 */
 	public void setFillPolygon(boolean fillPolygon) {
 		this.fillPolygon = fillPolygon;
@@ -528,6 +544,7 @@ public abstract class FeatureTiles {
 	 * Set polygon fill color
 	 * 
 	 * @param polygonFillColor
+	 *            polygon fill color
 	 */
 	public void setPolygonFillColor(Color polygonFillColor) {
 		this.polygonFillColor = polygonFillColor;
@@ -547,6 +564,7 @@ public abstract class FeatureTiles {
 	 * to create a single tile, the tile is not created.
 	 *
 	 * @param maxFeaturesPerTile
+	 *            max features per tile
 	 */
 	public void setMaxFeaturesPerTile(Integer maxFeaturesPerTile) {
 		this.maxFeaturesPerTile = maxFeaturesPerTile;
@@ -570,6 +588,7 @@ public abstract class FeatureTiles {
 	 * a single tile than the max at #getMaxFeaturesPerTile exist
 	 *
 	 * @param maxFeaturesTileDraw
+	 *            max features tile draw
 	 * @see CustomFeaturesTile
 	 * @see mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile custom
 	 *      features tile implementation
@@ -603,8 +622,11 @@ public abstract class FeatureTiles {
 	 * Draw the tile and get the bytes from the x, y, and zoom level
 	 *
 	 * @param x
+	 *            x coordinate
 	 * @param y
+	 *            y coordinate
 	 * @param zoom
+	 *            zoom level
 	 * @return tile bytes, or null
 	 */
 	public byte[] drawTileBytes(int x, int y, int zoom) {
@@ -630,8 +652,11 @@ public abstract class FeatureTiles {
 	 * Draw a tile image from the x, y, and zoom level
 	 *
 	 * @param x
+	 *            x coordinate
 	 * @param y
+	 *            y coordinate
 	 * @param zoom
+	 *            zoom level
 	 * @return tile image, or null
 	 */
 	public BufferedImage drawTile(int x, int y, int zoom) {
@@ -649,8 +674,11 @@ public abstract class FeatureTiles {
 	 * the tile location
 	 *
 	 * @param x
+	 *            x coordinate
 	 * @param y
+	 *            y coordinate
 	 * @param zoom
+	 *            zoom level
 	 * @return drawn image, or null
 	 */
 	public BufferedImage drawTileQueryIndex(int x, int y, int zoom) {
@@ -702,8 +730,11 @@ public abstract class FeatureTiles {
 	 * Query for feature result count in the x, y, and zoom
 	 *
 	 * @param x
+	 *            x coordinate
 	 * @param y
+	 *            y coordinate
 	 * @param zoom
+	 *            zoom level
 	 * @return feature count
 	 */
 	public long queryIndexedFeaturesCount(int x, int y, int zoom) {
@@ -722,6 +753,7 @@ public abstract class FeatureTiles {
 	 * Query for feature result count in the bounding box
 	 * 
 	 * @param webMercatorBoundingBox
+	 *            web mercator bounding box
 	 * @return count
 	 */
 	public long queryIndexedFeaturesCount(BoundingBox webMercatorBoundingBox) {
@@ -741,6 +773,7 @@ public abstract class FeatureTiles {
 	 * Query for feature results in the bounding box
 	 *
 	 * @param webMercatorBoundingBox
+	 *            web mercator bounding box
 	 * @return geometry index results
 	 */
 	public CloseableIterator<GeometryIndex> queryIndexedFeatures(
@@ -762,7 +795,8 @@ public abstract class FeatureTiles {
 	 * overlap
 	 * 
 	 * @param webMercatorBoundingBox
-	 * @return
+	 *            web mercator bounding box
+	 * @return bounding box
 	 */
 	protected BoundingBox expandBoundingBox(BoundingBox webMercatorBoundingBox) {
 
@@ -787,8 +821,11 @@ public abstract class FeatureTiles {
 	 * This could be very slow if there are a lot of features
 	 *
 	 * @param x
+	 *            x coordinate
 	 * @param y
+	 *            y coordinate
 	 * @param zoom
+	 *            zoom level
 	 * @return drawn image, or null
 	 */
 	public BufferedImage drawTileQueryAll(int x, int y, int zoom) {
@@ -897,7 +934,9 @@ public abstract class FeatureTiles {
 	 * @param zoom
 	 *            zoom level
 	 * @param webMercatorBoundingBox
+	 *            web mercator bounding box
 	 * @param results
+	 *            results
 	 * @return image
 	 * @since 2.0.0
 	 */
@@ -911,7 +950,9 @@ public abstract class FeatureTiles {
 	 * @param zoom
 	 *            zoom level
 	 * @param webMercatorBoundingBox
+	 *            web mercator bounding box
 	 * @param resultSet
+	 *            feature result set
 	 * @return image
 	 * @since 2.0.0
 	 */
@@ -924,7 +965,9 @@ public abstract class FeatureTiles {
 	 * @param zoom
 	 *            zoom level
 	 * @param webMercatorBoundingBox
+	 *            web mercator bounding box
 	 * @param featureRow
+	 *            feature row
 	 * @return image
 	 * @since 2.0.0
 	 */

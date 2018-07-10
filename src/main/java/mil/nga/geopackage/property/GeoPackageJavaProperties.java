@@ -30,6 +30,7 @@ public class GeoPackageJavaProperties {
 	 * Get a required property by key
 	 * 
 	 * @param key
+	 *            key
 	 * @return property value
 	 */
 	public static String getProperty(String key) {
@@ -40,7 +41,9 @@ public class GeoPackageJavaProperties {
 	 * Get a property by key
 	 * 
 	 * @param key
+	 *            key
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static synchronized String getProperty(String key, boolean required) {
@@ -58,7 +61,9 @@ public class GeoPackageJavaProperties {
 	 * Get a required property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @return property value
 	 */
 	public static String getProperty(String base, String property) {
@@ -69,8 +74,11 @@ public class GeoPackageJavaProperties {
 	 * Get a property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static synchronized String getProperty(String base, String property,
@@ -83,6 +91,7 @@ public class GeoPackageJavaProperties {
 	 * Get a required integer property by key
 	 * 
 	 * @param key
+	 *            key
 	 * @return property value
 	 */
 	public static int getIntegerProperty(String key) {
@@ -93,7 +102,9 @@ public class GeoPackageJavaProperties {
 	 * Get an integer property by key
 	 * 
 	 * @param key
+	 *            key
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Integer getIntegerProperty(String key, boolean required) {
@@ -109,7 +120,9 @@ public class GeoPackageJavaProperties {
 	 * Get a required integer property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @return property value
 	 */
 	public static int getIntegerProperty(String base, String property) {
@@ -120,8 +133,11 @@ public class GeoPackageJavaProperties {
 	 * Get an integer property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Integer getIntegerProperty(String base, String property,
@@ -134,6 +150,7 @@ public class GeoPackageJavaProperties {
 	 * Get a required float by key
 	 * 
 	 * @param key
+	 *            key
 	 * @return property value
 	 */
 	public static float getFloatProperty(String key) {
@@ -144,7 +161,9 @@ public class GeoPackageJavaProperties {
 	 * Get a float by key
 	 * 
 	 * @param key
+	 *            key
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Float getFloatProperty(String key, boolean required) {
@@ -160,7 +179,9 @@ public class GeoPackageJavaProperties {
 	 * Get a required float property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @return property value
 	 */
 	public static float getFloatProperty(String base, String property) {
@@ -171,8 +192,11 @@ public class GeoPackageJavaProperties {
 	 * Get a float property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Float getFloatProperty(String base, String property,
@@ -185,6 +209,7 @@ public class GeoPackageJavaProperties {
 	 * Get a required boolean by key
 	 * 
 	 * @param key
+	 *            key
 	 * @return property value
 	 */
 	public static boolean getBooleanProperty(String key) {
@@ -195,7 +220,9 @@ public class GeoPackageJavaProperties {
 	 * Get a boolean by key
 	 * 
 	 * @param key
+	 *            key
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Boolean getBooleanProperty(String key, boolean required) {
@@ -211,7 +238,9 @@ public class GeoPackageJavaProperties {
 	 * Get a required boolean property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @return property value
 	 */
 	public static boolean getBooleanProperty(String base, String property) {
@@ -222,8 +251,11 @@ public class GeoPackageJavaProperties {
 	 * Get a boolean property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Boolean getBooleanProperty(String base, String property,
@@ -236,6 +268,7 @@ public class GeoPackageJavaProperties {
 	 * Get a required color by key
 	 * 
 	 * @param key
+	 *            key
 	 * @return property value
 	 */
 	public static Color getColorProperty(String key) {
@@ -246,7 +279,9 @@ public class GeoPackageJavaProperties {
 	 * Get a color by key
 	 * 
 	 * @param key
+	 *            key
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Color getColorProperty(String key, boolean required) {
@@ -276,7 +311,9 @@ public class GeoPackageJavaProperties {
 	 * Get a required color property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @return property value
 	 */
 	public static Color getColorProperty(String base, String property) {
@@ -287,8 +324,11 @@ public class GeoPackageJavaProperties {
 	 * Get a float property by base property and property name
 	 * 
 	 * @param base
+	 *            base property
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return property value
 	 */
 	public static Color getColorProperty(String base, String property,

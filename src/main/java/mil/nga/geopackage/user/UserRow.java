@@ -9,7 +9,9 @@ import mil.nga.geopackage.db.DateConverter;
  * User Row containing the values from a single Result Set row
  * 
  * @param <TColumn>
+ *            column type
  * @param <TTable>
+ *            table type
  * 
  * @author osbornb
  */
@@ -20,8 +22,11 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	 * Constructor
 	 * 
 	 * @param table
+	 *            table
 	 * @param columnTypes
+	 *            column types
 	 * @param values
+	 *            values
 	 */
 	protected UserRow(TTable table, int[] columnTypes, Object[] values) {
 		super(table, columnTypes, values);
@@ -31,6 +36,7 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	 * Constructor to create an empty row
 	 * 
 	 * @param table
+	 *            table
 	 */
 	protected UserRow(TTable table) {
 		super(table);
@@ -78,8 +84,11 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	 * Map the column to the content values
 	 * 
 	 * @param contentValues
+	 *            content values
 	 * @param column
+	 *            column
 	 * @param value
+	 *            value
 	 */
 	protected void columnToContentValue(ContentValues contentValues,
 			TColumn column, Object value) {

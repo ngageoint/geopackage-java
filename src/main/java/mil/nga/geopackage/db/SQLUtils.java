@@ -28,7 +28,9 @@ public class SQLUtils {
 	 * Execute the SQL
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param sql
+	 *            sql statement
 	 */
 	public static void execSQL(Connection connection, String sql) {
 		Statement statement = null;
@@ -48,8 +50,11 @@ public class SQLUtils {
 	 * Query for results
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param sql
+	 *            sql statement
 	 * @param selectionArgs
+	 *            selection arguments
 	 * @return result set
 	 */
 	public static ResultSet query(Connection connection, String sql,
@@ -78,8 +83,11 @@ public class SQLUtils {
 	 * Attempt to count the results of the query
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param sql
+	 *            sql statement
 	 * @param selectionArgs
+	 *            selection arguments
 	 * @return count if known, -1 if not able to determine
 	 */
 	public static int count(Connection connection, String sql,
@@ -102,9 +110,13 @@ public class SQLUtils {
 	 * Get the query count
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param table
+	 *            table name
 	 * @param where
+	 *            where clause
 	 * @param args
+	 *            where arguments
 	 * @return count
 	 */
 	public static int count(Connection connection, String table, String where,
@@ -126,10 +138,15 @@ public class SQLUtils {
 	 * Get the min query result
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param table
+	 *            table name
 	 * @param column
+	 *            column name
 	 * @param where
+	 *            where clause
 	 * @param args
+	 *            where arguments
 	 * @return min or null
 	 * @since 1.1.1
 	 */
@@ -157,10 +174,15 @@ public class SQLUtils {
 	 * Get the max query result
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param table
+	 *            table name
 	 * @param column
+	 *            column name
 	 * @param where
+	 *            where clause
 	 * @param args
+	 *            where arguments
 	 * @return max or null
 	 * @since 1.1.1
 	 */
@@ -219,8 +241,11 @@ public class SQLUtils {
 	 * Query the SQL for a single result string
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param sql
+	 *            sql statement
 	 * @param args
+	 *            arguments
 	 * @return string result, null if no result
 	 * @since 1.1.9
 	 */
@@ -251,8 +276,11 @@ public class SQLUtils {
 	 * Query the SQL for a single result int
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param sql
+	 *            sql statement
 	 * @param args
+	 *            arguments
 	 * @return integer result, null if no result
 	 * @since 1.2.1
 	 */
@@ -283,9 +311,13 @@ public class SQLUtils {
 	 * Execute a deletion
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param table
+	 *            table name
 	 * @param where
+	 *            where clause
 	 * @param args
+	 *            where arguments
 	 * @return deleted count
 	 */
 	public static int delete(Connection connection, String table, String where,
@@ -318,10 +350,15 @@ public class SQLUtils {
 	 * Update table rows
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param table
+	 *            table name
 	 * @param values
+	 *            content values
 	 * @param whereClause
+	 *            where clause
 	 * @param whereArgs
+	 *            where arguments
 	 * @return updated count
 	 */
 	public static int update(Connection connection, String table,
@@ -374,8 +411,11 @@ public class SQLUtils {
 	 * Insert a new row
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param table
+	 *            table name
 	 * @param values
+	 *            content values
 	 * @return row id or -1 on an exception
 	 */
 	public static long insert(Connection connection, String table,
@@ -393,8 +433,11 @@ public class SQLUtils {
 	 * Insert a new row
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param table
+	 *            table name
 	 * @param values
+	 *            content values
 	 * @return row id
 	 */
 	public static long insertOrThrow(Connection connection, String table,
@@ -460,8 +503,11 @@ public class SQLUtils {
 	 * Set the prepared statement arguments
 	 * 
 	 * @param statement
+	 *            prepared statement
 	 * @param selectionArgs
+	 *            selection arguments
 	 * @throws SQLException
+	 *             upon failure
 	 */
 	public static void setArguments(PreparedStatement statement,
 			Object[] selectionArgs) throws SQLException {
@@ -476,7 +522,9 @@ public class SQLUtils {
 	 * Close the statement
 	 * 
 	 * @param statement
+	 *            statement
 	 * @param sql
+	 *            sql statement
 	 */
 	public static void closeStatement(Statement statement, String sql) {
 		if (statement != null) {
@@ -493,7 +541,9 @@ public class SQLUtils {
 	 * Close the ResultSet
 	 * 
 	 * @param resultSet
+	 *            result set
 	 * @param sql
+	 *            sql statement
 	 */
 	public static void closeResultSet(ResultSet resultSet, String sql) {
 		if (resultSet != null) {
@@ -511,7 +561,9 @@ public class SQLUtils {
 	 * ResultSets as well
 	 * 
 	 * @param resultSet
+	 *            result set
 	 * @param sql
+	 *            sql statement
 	 */
 	public static void closeResultSetStatement(ResultSet resultSet, String sql) {
 		if (resultSet != null) {

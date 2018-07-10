@@ -55,6 +55,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * Constructor
 	 *
 	 * @param featureDao
+	 *            feature dao
 	 */
 	public DefaultFeatureTiles(FeatureDao featureDao) {
 		super(featureDao);

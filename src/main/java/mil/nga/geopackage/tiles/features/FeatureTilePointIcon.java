@@ -39,6 +39,7 @@ public class FeatureTilePointIcon {
 	 * Constructor
 	 *
 	 * @param icon
+	 *            icon image
 	 */
 	public FeatureTilePointIcon(BufferedImage icon) {
 		this.icon = icon;
@@ -103,6 +104,7 @@ public class FeatureTilePointIcon {
 	 * Set the x offset
 	 *
 	 * @param xOffset
+	 *            x offset
 	 */
 	public void setXOffset(float xOffset) {
 		this.xOffset = xOffset;
@@ -121,6 +123,7 @@ public class FeatureTilePointIcon {
 	 * Set the y offset
 	 *
 	 * @param yOffset
+	 *            y offset
 	 */
 	public void setYOffset(float yOffset) {
 		this.yOffset = yOffset;

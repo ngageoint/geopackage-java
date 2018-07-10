@@ -262,6 +262,7 @@ public class NumberFeaturesTile implements CustomFeaturesTile {
 	 * 0.0 and 1.0
 	 *
 	 * @param circlePaddingPercentage
+	 *            circle padding percentage
 	 */
 	public void setCirclePaddingPercentage(float circlePaddingPercentage) {
 		if (circlePaddingPercentage < 0.0 || circlePaddingPercentage > 1.0) {
@@ -342,6 +343,7 @@ public class NumberFeaturesTile implements CustomFeaturesTile {
 	 * Set the draw unindexed tiles option
 	 *
 	 * @param drawUnindexedTiles
+	 *            draw unindexed tiles flag
 	 */
 	public void setDrawUnindexedTiles(boolean drawUnindexedTiles) {
 		this.drawUnindexedTiles = drawUnindexedTiles;

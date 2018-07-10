@@ -21,7 +21,9 @@ public class ContentValues {
 	 * Put a key value pair
 	 * 
 	 * @param key
+	 *            key
 	 * @param value
+	 *            value
 	 */
 	public void put(String key, Object value) {
 		values.put(key, value);
@@ -31,6 +33,7 @@ public class ContentValues {
 	 * Put a key null value
 	 * 
 	 * @param key
+	 *            key
 	 */
 	public void putNull(String key) {
 		values.put(key, null);
@@ -49,6 +52,7 @@ public class ContentValues {
 	 * Get the value of the key
 	 * 
 	 * @param key
+	 *            key
 	 * @return value
 	 */
 	public Object get(String key) {
@@ -77,6 +81,7 @@ public class ContentValues {
 	 * Get the key value as a string
 	 * 
 	 * @param key
+	 *            key
 	 * @return string value
 	 */
 	public String getAsString(String key) {

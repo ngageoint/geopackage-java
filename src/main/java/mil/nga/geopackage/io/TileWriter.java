@@ -100,6 +100,9 @@ public class TileWriter {
 	 * Main method to write tiles from a GeoPackage
 	 * 
 	 * @param args
+	 *            arguments
+	 * @throws Exception
+	 *             upon failure
 	 */
 	public static void main(String[] args) throws Exception {
 
@@ -263,6 +266,7 @@ public class TileWriter {
 	 * @param rawImage
 	 *            use raw image flag
 	 * @throws IOException
+	 *             upon failure
 	 * @since 1.2.0
 	 */
 	public static void writeTiles(File geoPackageFile, String tileTable,
@@ -299,6 +303,7 @@ public class TileWriter {
 	 * @param rawImage
 	 *            use raw image flag
 	 * @throws IOException
+	 *             upon failure
 	 * @since 1.2.0
 	 */
 	public static void writeTiles(GeoPackage geoPackage, String tileTable,

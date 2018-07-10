@@ -35,8 +35,11 @@ public class GeoPackageTile {
 	 * Constructor
 	 *
 	 * @param width
+	 *            tile width
 	 * @param height
+	 *            tile height
 	 * @param image
+	 *            tile image
 	 */
 	public GeoPackageTile(int width, int height, BufferedImage image) {
 		this.width = width;
@@ -48,8 +51,11 @@ public class GeoPackageTile {
 	 * Constructor
 	 *
 	 * @param width
+	 *            tile width
 	 * @param height
+	 *            tile height
 	 * @param data
+	 *            tile data
 	 */
 	public GeoPackageTile(int width, int height, byte[] data) {
 		this.width = width;

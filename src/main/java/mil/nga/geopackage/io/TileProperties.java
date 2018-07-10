@@ -87,6 +87,7 @@ public class TileProperties {
 	 * Constructor
 	 * 
 	 * @param directory
+	 *            file directory
 	 */
 	public TileProperties(File directory) {
 		this.propertiesFile = new File(directory, GEOPACKAGE_PROPERTIES_FILE);
@@ -127,7 +128,9 @@ public class TileProperties {
 	 * Get the Integer property
 	 * 
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return integer property
 	 */
 	public Integer getIntegerProperty(String property, boolean required) {
@@ -149,7 +152,9 @@ public class TileProperties {
 	 * Get the Double property
 	 * 
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return double property
 	 */
 	public Double getDoubleProperty(String property, boolean required) {
@@ -171,7 +176,9 @@ public class TileProperties {
 	 * Get the String property
 	 * 
 	 * @param property
+	 *            property
 	 * @param required
+	 *            required flag
 	 * @return string property
 	 */
 	public String getProperty(String property, boolean required) {
@@ -193,6 +200,7 @@ public class TileProperties {
 	 * Write the properties file using the tile dao
 	 * 
 	 * @param tileDao
+	 *            tile dao
 	 */
 	public void writeFile(TileDao tileDao) {
 		try {
@@ -231,6 +239,7 @@ public class TileProperties {
 	 * Get the matrix width property for the zoom level
 	 * 
 	 * @param zoom
+	 *            zoom
 	 * @return matrix width property
 	 */
 	public static String getMatrixWidthProperty(long zoom) {
@@ -241,6 +250,7 @@ public class TileProperties {
 	 * Get the matrix width property for the zoom level
 	 * 
 	 * @param zoom
+	 *            zoom
 	 * @return matrix width property
 	 */
 	public static String getMatrixWidthProperty(String zoom) {
@@ -252,6 +262,7 @@ public class TileProperties {
 	 * Get the matrix height property for the zoom level
 	 * 
 	 * @param zoom
+	 *            zoom
 	 * @return matrix height property
 	 */
 	public static String getMatrixHeightProperty(long zoom) {
@@ -262,6 +273,7 @@ public class TileProperties {
 	 * Get the matrix height property for the zoom level
 	 * 
 	 * @param zoom
+	 *            zoom
 	 * @return matrix height property
 	 */
 	public static String getMatrixHeightProperty(String zoom) {

@@ -4,7 +4,13 @@ package mil.nga.geopackage.user;
  * Reads the metadata from an existing user table
  * 
  * @param <TColumn>
+ *            column type
  * @param <TTable>
+ *            table type
+ * @param <TRow>
+ *            row type
+ * @param <TResult>
+ *            result type
  * 
  * @author osbornb
  */
@@ -15,6 +21,7 @@ public abstract class UserTableReader<TColumn extends UserColumn, TTable extends
 	 * Constructor
 	 * 
 	 * @param tableName
+	 *            table name
 	 */
 	protected UserTableReader(String tableName) {
 		super(tableName);

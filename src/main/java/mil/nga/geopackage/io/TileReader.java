@@ -92,6 +92,9 @@ public class TileReader {
 	 * Main method to read tiles from the file system into a GeoPackage
 	 * 
 	 * @param args
+	 *            arguments
+	 * @throws Exception
+	 *             upon failure
 	 */
 	public static void main(String[] args) throws Exception {
 
@@ -185,7 +188,9 @@ public class TileReader {
 	 * @param rawImage
 	 *            use raw image flag
 	 * @throws IOException
+	 *             upon failure
 	 * @throws SQLException
+	 *             upon failure
 	 */
 	public static void readTiles(File geoPackageFile, String tileTable,
 			File directory, String imageFormat, TileFormatType tileType,
@@ -226,7 +231,9 @@ public class TileReader {
 	 * @param rawImage
 	 *            use raw image flag
 	 * @throws IOException
+	 *             upon failure
 	 * @throws SQLException
+	 *             upon failure
 	 */
 	public static void readTiles(GeoPackage geoPackage, String tileTable,
 			File directory, String imageFormat, TileFormatType tileType,

@@ -65,6 +65,7 @@ public class FeatureTileGenerator extends TileGenerator {
 	 * Set the link tables flag
 	 * 
 	 * @param linkTables
+	 *            link tables flag
 	 * @since 1.1.6
 	 */
 	public void setLinkTables(boolean linkTables) {
