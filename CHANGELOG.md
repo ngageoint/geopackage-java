@@ -6,7 +6,15 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 3.0.1 (TBD)
 
-* TBD
+* geopackage-core version 3.0.1
+* Related Tables Extension support
+* User row copy methods
+* User DAO support for id-less schemas
+* Custom User connection, DAO, result set, row, and table reader implementations
+* Javadoc warning fixes
+* ormlite-jdbc version 5.1
+* sqlite-jdbc version 3.23.1
+* maven and sonatype plugin version updates
 
 ## [3.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.0.0) (05-17-2018)
 
