@@ -10,8 +10,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## [3.0.1](https://github.com/ngageoint/geopackage-java/releases/tag/3.0.1) (07-13-2018)
 
-* geopackage-core version 3.0.1 (DRAFT version 0.1)
-* Related Tables Extension support
+* geopackage-core version 3.0.1
+* Related Tables Extension support (DRAFT version 0.1)
 * User row copy methods
 * User DAO support for id-less schemas
 * Custom User connection, DAO, result set, row, and table reader implementations
