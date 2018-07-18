@@ -25,6 +25,7 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.db.DateConverter;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.GeometryExtensions;
@@ -39,6 +40,8 @@ import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
 import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.extension.coverage.GriddedTileDao;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
+import mil.nga.geopackage.extension.properties.PropertiesExtension;
+import mil.nga.geopackage.extension.properties.PropertyNames;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
 import mil.nga.geopackage.extension.related.UserMappingDao;
@@ -131,6 +134,7 @@ public class GeoPackageExample {
 	private static final boolean RELATED_TABLES_SIMPLE_ATTRIBUTES = true;
 	private static final boolean GEOMETRY_INDEX = true;
 	private static final boolean FEATURE_TILE_LINK = true;
+	private static final boolean PROPERTIES = true;
 
 	private static final String ID_COLUMN = "id";
 	private static final String GEOMETRY_COLUMN = "geometry";
@@ -144,6 +148,16 @@ public class GeoPackageExample {
 	private static final String DATE_COLUMN = "date";
 	private static final String DATETIME_COLUMN = "datetime";
 
+	/**
+	 * Main method to create the GeoPackage example file
+	 * 
+	 * @param args
+	 *            arguments
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
 	public static void main(String[] args) throws SQLException, IOException {
 
 		System.out.println("Creating: " + GEOPACKAGE_FILE);
@@ -248,6 +262,11 @@ public class GeoPackageExample {
 		System.out.println("Coverage Data: " + COVERAGE_DATA);
 		if (COVERAGE_DATA) {
 			createCoverageDataExtension(geoPackage);
+		}
+
+		System.out.println("Properties: " + PROPERTIES);
+		if (PROPERTIES) {
+			createPropertiesExtension(geoPackage);
 		}
 
 		geoPackage.close();
@@ -1535,6 +1554,43 @@ public class GeoPackageExample {
 			userMappingDao.create(userMappingRow);
 		}
 		attributesResultSet.close();
+
+	}
+
+	private static void createPropertiesExtension(GeoPackage geoPackage) {
+
+		PropertiesExtension properties = new PropertiesExtension(geoPackage);
+		properties.getOrCreate();
+
+		String dateTime = DateConverter.dateTimeConverter().stringValue(
+				new Date());
+
+		properties.addValue(PropertyNames.TITLE, "GeoPackage Java Example");
+		properties.addValue(PropertyNames.VERSION, "3.0.2");
+		properties.addValue(PropertyNames.CREATOR, "NGA");
+		properties.addValue(PropertyNames.PUBLISHER, "NGA");
+		properties.addValue(PropertyNames.CONTRIBUTOR, "Brian Osborn");
+		properties.addValue(PropertyNames.CONTRIBUTOR, "Dan Barela");
+		properties.addValue(PropertyNames.CREATED, dateTime);
+		properties.addValue(PropertyNames.DATE, dateTime);
+		properties.addValue(PropertyNames.MODIFIED, dateTime);
+		properties
+				.addValue(
+						PropertyNames.DESCRIPTION,
+						"GeoPackage example created by http://github.com/ngageoint/geopackage-java/blob/master/src/test/java/mil/nga/geopackage/test/GeoPackageExample.java");
+		properties.addValue(PropertyNames.IDENTIFIER, "geopackage-java");
+		properties.addValue(PropertyNames.LICENSE, "MIT");
+		properties
+				.addValue(
+						PropertyNames.SOURCE,
+						"http://github.com/ngageoint/GeoPackage/blob/master/docs/examples/java/example.gpkg");
+		properties.addValue(PropertyNames.SUBJECT, "Examples");
+		properties.addValue(PropertyNames.TYPE, "Examples");
+		properties.addValue(PropertyNames.URI,
+				"http://github.com/ngageoint/geopackage-java");
+		properties.addValue(PropertyNames.TAG, "NGA");
+		properties.addValue(PropertyNames.TAG, "Example");
+		properties.addValue(PropertyNames.TAG, "BIT Systems");
 
 	}
 
