@@ -1,4 +1,4 @@
-package mil.nga.geopackage.extension;
+package mil.nga.geopackage.extension.properties;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.attributes.AttributesDao;
