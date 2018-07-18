@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -179,6 +180,22 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	@Override
 	public Integer querySingleIntResult(String sql, String[] args) {
 		return SQLUtils.querySingleIntResult(connection, sql, args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object querySingleObjectResult(String sql, String[] args) {
+		return SQLUtils.querySingleObjectResult(connection, sql, args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleColumnResults(String sql, String[] args) {
+		return SQLUtils.querySingleColumnResults(connection, sql, args);
 	}
 
 	/**

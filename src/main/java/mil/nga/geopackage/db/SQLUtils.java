@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -305,6 +307,72 @@ public class SQLUtils {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Query the SQL for a single result object
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @return string result, null if no result
+	 * @since 3.0.2
+	 */
+	public static Object querySingleObjectResult(Connection connection,
+			String sql, String[] args) {
+
+		ResultSet resultSet = query(connection, sql, args);
+
+		Object result = null;
+		try {
+			if (resultSet.next()) {
+				result = resultSet.getObject(1);
+			} else {
+				throw new GeoPackageException(
+						"Failed to query for single result. SQL: " + sql);
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to query for single result. SQL: " + sql, e);
+		} finally {
+			closeResultSetStatement(resultSet, sql);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Query for values from a single column
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @return 3.0.2
+	 */
+	public static List<Object> querySingleColumnResults(Connection connection,
+			String sql, String[] args) {
+
+		ResultSet resultSet = query(connection, sql, args);
+
+		List<Object> results = new ArrayList<>();
+		try {
+			while (resultSet.next()) {
+				results.add(resultSet.getObject(1));
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to query for single column result. SQL: " + sql, e);
+		} finally {
+			closeResultSetStatement(resultSet, sql);
+		}
+
+		return results;
 	}
 
 	/**
