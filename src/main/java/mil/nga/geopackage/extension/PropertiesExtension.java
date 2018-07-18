@@ -16,6 +16,9 @@ public class PropertiesExtension
 		extends
 		PropertiesCoreExtension<AttributesRow, AttributesResultSet, AttributesDao> {
 
+	/**
+	 * GeoPackage
+	 */
 	private final GeoPackage geoPackage;
 
 	/**
@@ -29,11 +32,17 @@ public class PropertiesExtension
 		this.geoPackage = geoPackage;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected AttributesDao getDao() {
 		return geoPackage.getAttributesDao(TABLE_NAME);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected AttributesRow newRow() {
 		return getDao().newRow();
