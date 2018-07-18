@@ -1,7 +1,9 @@
 package mil.nga.geopackage.test.extension.properties;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.extension.Extensions;
@@ -106,6 +108,83 @@ public class PropertiesExtensionTest extends CreateGeoPackageTestCase {
 		TestCase.assertFalse(extension.has());
 		TestCase.assertFalse(geoPackage.isTable(PropertiesExtension.TABLE_NAME));
 
+	}
+
+	/**
+	 * Test property names
+	 */
+	@Test
+	public void testPropertyNames() {
+
+		PropertiesExtension extension = new PropertiesExtension(geoPackage);
+		extension.getOrCreate();
+
+		int count = 0;
+
+		count += testPropertyName(extension, PropertyNames.CONTRIBUTOR);
+		count += testPropertyName(extension, PropertyNames.COVERAGE);
+		count += testPropertyName(extension, PropertyNames.CREATED);
+		count += testPropertyName(extension, PropertyNames.CREATOR);
+		count += testPropertyName(extension, PropertyNames.DATE);
+		count += testPropertyName(extension, PropertyNames.DESCRIPTION);
+		count += testPropertyName(extension, PropertyNames.IDENTIFIER);
+		count += testPropertyName(extension, PropertyNames.LICENSE);
+		count += testPropertyName(extension, PropertyNames.MODIFIED);
+		count += testPropertyName(extension, PropertyNames.PUBLISHER);
+		count += testPropertyName(extension, PropertyNames.REFERENCES);
+		count += testPropertyName(extension, PropertyNames.RELATION);
+		count += testPropertyName(extension, PropertyNames.SOURCE);
+		count += testPropertyName(extension, PropertyNames.SPATIAL);
+		count += testPropertyName(extension, PropertyNames.SUBJECT);
+		count += testPropertyName(extension, PropertyNames.TAG);
+		count += testPropertyName(extension, PropertyNames.TEMPORAL);
+		count += testPropertyName(extension, PropertyNames.TITLE);
+		count += testPropertyName(extension, PropertyNames.TYPE);
+		count += testPropertyName(extension, PropertyNames.URI);
+		count += testPropertyName(extension, PropertyNames.VALID);
+		count += testPropertyName(extension, PropertyNames.VERSION);
+
+		TestCase.assertEquals(22, extension.numProperties());
+		TestCase.assertEquals(count, extension.numValues());
+
+		TestCase.assertEquals(count, extension.deleteAll());
+
+		TestCase.assertEquals(0, extension.numProperties());
+		TestCase.assertEquals(0, extension.numValues());
+
+		extension.removeExtension();
+		TestCase.assertFalse(extension.has());
+	}
+
+	private int testPropertyName(PropertiesExtension extension, String property) {
+
+		TestCase.assertFalse(extension.hasProperty(property));
+
+		int count = 1;
+		if (Math.random() < .5) {
+			count = 1 + (int) (10 * Math.random());
+		}
+
+		Set<String> values = new HashSet<>();
+		for (int i = 0; i < count; i++) {
+			String value = UUID.randomUUID().toString();
+			values.add(value);
+			extension.addValue(property, value);
+		}
+
+		TestCase.assertTrue(extension.hasProperty(property));
+		TestCase.assertEquals(count, extension.numValues(property));
+		TestCase.assertEquals(count == 1, extension.hasSingleValue(property));
+		TestCase.assertTrue(extension.hasValues(property));
+
+		List<String> propertyValues = extension.getValues(property);
+		TestCase.assertEquals(values.size(), propertyValues.size());
+		for (String value : propertyValues) {
+			TestCase.assertTrue(values.contains(value));
+			TestCase.assertTrue(extension.hasValue(property, value));
+		}
+
+		return count;
 	}
 
 }
