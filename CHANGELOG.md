@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 3.0.2 (TBD)
 
-* TBD
+* geopackage-core version 3.0.2
+* Properties Extension for saving GeoPackage metadata in the file
+* Additional SQL Utils query methods and null query result method fixes
+* Additional GeoPackage Connection query methods
 
 ## [3.0.1](https://github.com/ngageoint/geopackage-java/releases/tag/3.0.1) (07-13-2018)
 
