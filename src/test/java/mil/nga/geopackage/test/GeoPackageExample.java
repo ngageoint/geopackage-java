@@ -220,10 +220,9 @@ public class GeoPackageExample {
 			System.out.println("Non-Linear Geometry Types Extension: "
 					+ FEATURES);
 			System.out.println("RTree Spatial Index Extension: " + FEATURES);
-			System.out.println("Related Tables Media Extension: "
-					+ RELATED_TABLES_MEDIA);
-			System.out.println("Related Tables Features Extension: "
-					+ RELATED_TABLES_FEATURES);
+			System.out.println("Related Tables Media Extension: " + FEATURES);
+			System.out
+					.println("Related Tables Features Extension: " + FEATURES);
 		}
 
 		System.out.println("Tiles: " + TILES);
@@ -251,7 +250,7 @@ public class GeoPackageExample {
 			}
 		} else {
 			System.out.println("Related Tables Simple Attributes Extension: "
-					+ RELATED_TABLES_SIMPLE_ATTRIBUTES);
+					+ ATTRIBUTES);
 		}
 
 		System.out.println("Metadata: " + METADATA);
