@@ -260,9 +260,6 @@ public class SQLUtils {
 		try {
 			if (resultSet.next()) {
 				result = resultSet.getString(1);
-			} else {
-				throw new GeoPackageException(
-						"Failed to query for single result. SQL: " + sql);
 			}
 		} catch (SQLException e) {
 			throw new GeoPackageException(
@@ -295,9 +292,6 @@ public class SQLUtils {
 		try {
 			if (resultSet.next()) {
 				result = resultSet.getInt(1);
-			} else {
-				throw new GeoPackageException(
-						"Failed to query for single result. SQL: " + sql);
 			}
 		} catch (SQLException e) {
 			throw new GeoPackageException(
@@ -330,9 +324,6 @@ public class SQLUtils {
 		try {
 			if (resultSet.next()) {
 				result = resultSet.getObject(1);
-			} else {
-				throw new GeoPackageException(
-						"Failed to query for single result. SQL: " + sql);
 			}
 		} catch (SQLException e) {
 			throw new GeoPackageException(
@@ -372,6 +363,25 @@ public class SQLUtils {
 			closeResultSetStatement(resultSet, sql);
 		}
 
+		return results;
+	}
+
+	/**
+	 * Query for values from a single column
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @return 3.0.2
+	 */
+	public static List<String> querySingleColumnStringResults(
+			Connection connection, String sql, String[] args) {
+		@SuppressWarnings("unchecked")
+		List<String> results = (List<String>) (Object) querySingleColumnResults(
+				connection, sql, args);
 		return results;
 	}
 

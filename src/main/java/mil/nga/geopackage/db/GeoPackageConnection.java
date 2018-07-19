@@ -186,14 +186,34 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<String> querySingleColumnStringResults(String sql, String[] args) {
+		return SQLUtils.querySingleColumnStringResults(connection, sql, args);
+	}
+
+	/**
+	 * Query for a single result object
+	 * 
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            sql arguments
+	 * @return single result object
+	 * @since 3.0.2
+	 */
 	public Object querySingleObjectResult(String sql, String[] args) {
 		return SQLUtils.querySingleObjectResult(connection, sql, args);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Query for values from a single column
+	 * 
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            sql arguments
+	 * @return single column values
+	 * @since 3.0.2
 	 */
-	@Override
 	public List<Object> querySingleColumnResults(String sql, String[] args) {
 		return SQLUtils.querySingleColumnResults(connection, sql, args);
 	}
