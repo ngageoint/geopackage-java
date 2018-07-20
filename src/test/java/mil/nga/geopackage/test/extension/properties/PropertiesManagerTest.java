@@ -192,6 +192,20 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertEquals(numTagged, manager.hasProperty(PropertyNames.TAG)
 				.size());
 
+		// missingProperty
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT, manager
+				.missingProperty(PropertyNames.TITLE).size());
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT, manager
+				.missingProperty(PropertyNames.IDENTIFIER).size());
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT, manager
+				.missingProperty(EVEN_PROPERTY).size());
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT
+				+ GEOPACKAGE_WITH_PROPERTIES_COUNT / 2, manager
+				.missingProperty(ODD_PROPERTY).size());
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT
+				+ (GEOPACKAGE_WITH_PROPERTIES_COUNT - numTagged), manager
+				.missingProperty(PropertyNames.TAG).size());
+
 		// numValues
 		TestCase.assertEquals(GEOPACKAGE_WITH_PROPERTIES_COUNT,
 				manager.numValues(PropertyNames.TITLE));
@@ -270,6 +284,33 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertEquals(0,
 				manager.hasValue(PropertyNames.CREATOR, CREATOR).size());
 
+		// missingValue
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT
+				+ GEOPACKAGE_WITH_PROPERTIES_COUNT / 2,
+				manager.missingValue(EVEN_PROPERTY, Boolean.TRUE.toString())
+						.size());
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT
+				+ GEOPACKAGE_WITH_PROPERTIES_COUNT / 2,
+				manager.missingValue(EVEN_PROPERTY, Boolean.FALSE.toString())
+						.size());
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT
+				+ GEOPACKAGE_WITH_PROPERTIES_COUNT / 2,
+				manager.missingValue(ODD_PROPERTY, Boolean.TRUE.toString())
+						.size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(ODD_PROPERTY, Boolean.FALSE.toString())
+						.size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - COLOR_RED_COUNT, manager
+				.missingValue(PropertyNames.TAG, COLOR_RED).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - COLOR_GREEN_COUNT, manager
+				.missingValue(PropertyNames.TAG, COLOR_GREEN).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - COLOR_BLUE_COUNT, manager
+				.missingValue(PropertyNames.TAG, COLOR_BLUE).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.TAG, "Yellow").size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.CREATOR, CREATOR).size());
+
 		// Add a property value to all GeoPackages
 		TestCase.assertEquals(GEOPACKAGE_COUNT,
 				manager.addValue(PropertyNames.CREATOR, CREATOR));
@@ -279,12 +320,16 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertTrue(properties.contains(PropertyNames.CREATOR));
 		TestCase.assertEquals(GEOPACKAGE_COUNT,
 				manager.hasProperty(PropertyNames.CREATOR).size());
+		TestCase.assertEquals(0, manager.missingProperty(PropertyNames.CREATOR)
+				.size());
 		TestCase.assertEquals(1, manager.numValues(PropertyNames.CREATOR));
 		TestCase.assertTrue(manager.hasValues(PropertyNames.CREATOR));
 		TestCase.assertTrue(manager.getValues(PropertyNames.CREATOR).contains(
 				CREATOR));
 		TestCase.assertEquals(GEOPACKAGE_COUNT,
 				manager.hasValue(PropertyNames.CREATOR, CREATOR).size());
+		TestCase.assertEquals(0,
+				manager.missingValue(PropertyNames.CREATOR, CREATOR).size());
 
 		// Add a property value to a single GeoPackage
 		TestCase.assertFalse(manager.addValue(GEOPACKAGE_NAME
@@ -298,15 +343,44 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertTrue(properties.contains(PropertyNames.CONTRIBUTOR));
 		TestCase.assertEquals(1, manager.hasProperty(PropertyNames.CONTRIBUTOR)
 				.size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - 1,
+				manager.missingProperty(PropertyNames.CONTRIBUTOR).size());
 		TestCase.assertEquals(1, manager.numValues(PropertyNames.CONTRIBUTOR));
 		TestCase.assertTrue(manager.hasValues(PropertyNames.CONTRIBUTOR));
 		TestCase.assertTrue(manager.getValues(PropertyNames.CONTRIBUTOR)
 				.contains(CREATOR));
 		TestCase.assertEquals(1,
 				manager.hasValue(PropertyNames.CONTRIBUTOR, CREATOR).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - 1,
+				manager.missingValue(PropertyNames.CONTRIBUTOR, CREATOR).size());
+
+		// Add an identifier to GeoPackages without one, one at a time
+		List<GeoPackage> missingIdentifiers = manager
+				.missingProperty(PropertyNames.IDENTIFIER);
+		TestCase.assertEquals(GEOPACKAGE_WITHOUT_PROPERTIES_COUNT,
+				missingIdentifiers.size());
+		int indentifierIndex = 100;
+		for (GeoPackage missingIdentifierGeoPackage : missingIdentifiers) {
+			TestCase.assertTrue(manager.addValue(
+					missingIdentifierGeoPackage.getName(),
+					PropertyNames.IDENTIFIER,
+					Integer.toString(indentifierIndex++)));
+		}
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.hasProperty(PropertyNames.IDENTIFIER).size());
+		TestCase.assertEquals(0,
+				manager.missingProperty(PropertyNames.IDENTIFIER).size());
+
+		// Add an identifier to GeoPackages without one, all at once
+		TestCase.assertEquals(GEOPACKAGE_COUNT - 1,
+				manager.addValue(PropertyNames.CONTRIBUTOR, CREATOR));
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.hasProperty(PropertyNames.CONTRIBUTOR).size());
+		TestCase.assertEquals(0,
+				manager.missingProperty(PropertyNames.CONTRIBUTOR).size());
 
 		// Delete a property from all GeoPackages
-		TestCase.assertEquals(GEOPACKAGE_WITH_PROPERTIES_COUNT,
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
 				manager.deleteProperty(PropertyNames.IDENTIFIER));
 		TestCase.assertEquals(--numProperties, manager.numProperties());
 		properties = manager.getProperties();
@@ -314,12 +388,16 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertFalse(properties.contains(PropertyNames.IDENTIFIER));
 		TestCase.assertEquals(0, manager.hasProperty(PropertyNames.IDENTIFIER)
 				.size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingProperty(PropertyNames.IDENTIFIER).size());
 		TestCase.assertEquals(0, manager.numValues(PropertyNames.IDENTIFIER));
 		TestCase.assertFalse(manager.hasValues(PropertyNames.IDENTIFIER));
 		TestCase.assertEquals(0, manager.getValues(PropertyNames.IDENTIFIER)
 				.size());
 		TestCase.assertEquals(0, manager
 				.hasValue(PropertyNames.IDENTIFIER, "1").size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.IDENTIFIER, "1").size());
 
 		// Delete a property from a single GeoPackage
 		TestCase.assertTrue(manager.deleteProperty(GEOPACKAGE_NAME + "1",
@@ -330,12 +408,16 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertTrue(properties.contains(PropertyNames.TAG));
 		TestCase.assertEquals(--numTagged,
 				manager.hasProperty(PropertyNames.TAG).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - numTagged, manager
+				.missingProperty(PropertyNames.TAG).size());
 		TestCase.assertEquals(3, manager.numValues(PropertyNames.TAG));
 		TestCase.assertTrue(manager.hasValues(PropertyNames.TAG));
 		TestCase.assertTrue(manager.getValues(PropertyNames.TAG).contains(
 				COLOR_RED));
 		TestCase.assertEquals(COLOR_RED_COUNT - 1,
 				manager.hasValue(PropertyNames.TAG, COLOR_RED).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - (COLOR_RED_COUNT - 1), manager
+				.missingValue(PropertyNames.TAG, COLOR_RED).size());
 
 		// Delete a property value from all GeoPackages
 		TestCase.assertEquals(COLOR_RED_COUNT - 1,
@@ -346,6 +428,8 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertTrue(properties.contains(PropertyNames.TAG));
 		TestCase.assertEquals(--numTagged,
 				manager.hasProperty(PropertyNames.TAG).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - numTagged, manager
+				.missingProperty(PropertyNames.TAG).size());
 		TestCase.assertEquals(2, manager.numValues(PropertyNames.TAG));
 		TestCase.assertTrue(manager.hasValues(PropertyNames.TAG));
 		TestCase.assertFalse(manager.getValues(PropertyNames.TAG).contains(
@@ -356,6 +440,8 @@ public class PropertiesManagerTest extends BaseTestCase {
 				.size());
 		TestCase.assertEquals(COLOR_GREEN_COUNT - 1,
 				manager.hasValue(PropertyNames.TAG, COLOR_GREEN).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.TAG, COLOR_RED).size());
 
 		// Delete a property value from a single GeoPackage
 		TestCase.assertTrue(manager.deleteValue(GEOPACKAGE_NAME
@@ -366,12 +452,16 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertTrue(properties.contains(PropertyNames.TAG));
 		TestCase.assertEquals(--numTagged,
 				manager.hasProperty(PropertyNames.TAG).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - numTagged, manager
+				.missingProperty(PropertyNames.TAG).size());
 		TestCase.assertEquals(2, manager.numValues(PropertyNames.TAG));
 		TestCase.assertTrue(manager.hasValues(PropertyNames.TAG));
 		TestCase.assertTrue(manager.getValues(PropertyNames.TAG).contains(
 				COLOR_GREEN));
 		TestCase.assertEquals(COLOR_GREEN_COUNT - 2,
 				manager.hasValue(PropertyNames.TAG, COLOR_GREEN).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT - (COLOR_GREEN_COUNT - 2),
+				manager.missingValue(PropertyNames.TAG, COLOR_GREEN).size());
 
 		// Delete all properties from a single GeoPackage
 		TestCase.assertTrue(manager.deleteAll(GEOPACKAGE_NAME + 2));
@@ -381,6 +471,9 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertTrue(properties.contains(PropertyNames.TITLE));
 		TestCase.assertEquals(GEOPACKAGE_WITH_PROPERTIES_COUNT - 1, manager
 				.hasProperty(PropertyNames.TITLE).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT
+				- (GEOPACKAGE_WITH_PROPERTIES_COUNT - 1), manager
+				.missingProperty(PropertyNames.TITLE).size());
 		TestCase.assertEquals(GEOPACKAGE_WITH_PROPERTIES_COUNT - 1,
 				manager.numValues(PropertyNames.TITLE));
 		TestCase.assertTrue(manager.hasValues(PropertyNames.TITLE));
@@ -394,6 +487,9 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertEquals(1,
 				manager.hasValue(PropertyNames.TITLE, GEOPACKAGE_NAME + 3)
 						.size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.TITLE, GEOPACKAGE_NAME + 2)
+						.size());
 
 		// Remove the extension from a single GeoPackage
 		manager.removeExtension(GEOPACKAGE_NAME + 4);
@@ -403,6 +499,9 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertTrue(properties.contains(PropertyNames.TITLE));
 		TestCase.assertEquals(GEOPACKAGE_WITH_PROPERTIES_COUNT - 2, manager
 				.hasProperty(PropertyNames.TITLE).size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT
+				- (GEOPACKAGE_WITH_PROPERTIES_COUNT - 2), manager
+				.missingProperty(PropertyNames.TITLE).size());
 		TestCase.assertEquals(GEOPACKAGE_WITH_PROPERTIES_COUNT - 2,
 				manager.numValues(PropertyNames.TITLE));
 		TestCase.assertTrue(manager.hasValues(PropertyNames.TITLE));
@@ -416,28 +515,41 @@ public class PropertiesManagerTest extends BaseTestCase {
 		TestCase.assertEquals(1,
 				manager.hasValue(PropertyNames.TITLE, GEOPACKAGE_NAME + 3)
 						.size());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.TITLE, GEOPACKAGE_NAME + 4)
+						.size());
 
 		// Delete all properties from all GeoPackages
 		TestCase.assertEquals(GEOPACKAGE_COUNT - 2, manager.deleteAll());
 		TestCase.assertEquals(0, manager.numProperties());
 		TestCase.assertTrue(manager.getProperties().isEmpty());
 		TestCase.assertTrue(manager.hasProperty(PropertyNames.TITLE).isEmpty());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingProperty(PropertyNames.TITLE).size());
 		TestCase.assertEquals(0, manager.numValues(PropertyNames.TITLE));
 		TestCase.assertFalse(manager.hasValues(PropertyNames.TITLE));
 		TestCase.assertTrue(manager.getValues(PropertyNames.TITLE).isEmpty());
 		TestCase.assertTrue(manager.hasValue(PropertyNames.TITLE,
 				GEOPACKAGE_NAME + 3).isEmpty());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.TITLE, GEOPACKAGE_NAME + 3)
+						.size());
 
 		// Remove the extension from all GeoPackages
 		manager.removeExtension();
 		TestCase.assertEquals(0, manager.numProperties());
 		TestCase.assertTrue(manager.getProperties().isEmpty());
 		TestCase.assertTrue(manager.hasProperty(PropertyNames.TITLE).isEmpty());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingProperty(PropertyNames.TITLE).size());
 		TestCase.assertEquals(0, manager.numValues(PropertyNames.TITLE));
 		TestCase.assertFalse(manager.hasValues(PropertyNames.TITLE));
 		TestCase.assertTrue(manager.getValues(PropertyNames.TITLE).isEmpty());
 		TestCase.assertTrue(manager.hasValue(PropertyNames.TITLE,
 				GEOPACKAGE_NAME + 3).isEmpty());
+		TestCase.assertEquals(GEOPACKAGE_COUNT,
+				manager.missingValue(PropertyNames.TITLE, GEOPACKAGE_NAME + 3)
+						.size());
 
 	}
 }
