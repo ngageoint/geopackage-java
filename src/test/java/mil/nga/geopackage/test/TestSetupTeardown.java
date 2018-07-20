@@ -105,8 +105,27 @@ public class TestSetupTeardown {
 	public static GeoPackage setUpCreate(File directory, boolean features,
 			boolean allowEmptyFeatures, boolean tiles) throws SQLException,
 			IOException {
+		return setUpCreate(directory, TestConstants.TEST_DB_FILE_NAME,
+				features, allowEmptyFeatures, tiles);
+	}
 
-		File dbFile = new File(directory, TestConstants.TEST_DB_FILE_NAME);
+	/**
+	 * Set up the create database
+	 * 
+	 * @param directory
+	 * @param name
+	 * @param features
+	 * @param allowEmptyFeatures
+	 * @param tiles
+	 * @return GeoPackage
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	public static GeoPackage setUpCreate(File directory, String name,
+			boolean features, boolean allowEmptyFeatures, boolean tiles)
+			throws SQLException, IOException {
+
+		File dbFile = new File(directory, name);
 
 		// Create
 		assertTrue("Database failed to create",
