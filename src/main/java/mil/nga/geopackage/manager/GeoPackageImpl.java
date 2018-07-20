@@ -52,14 +52,18 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	/**
 	 * Constructor
 	 *
+	 * @param name
+	 *            GeoPackage name
 	 * @param file
+	 *            GeoPackage file
 	 * @param database
+	 *            connection
 	 * @param tableCreator
+	 *            table creator
 	 */
-	GeoPackageImpl(File file, GeoPackageConnection database,
+	GeoPackageImpl(String name, File file, GeoPackageConnection database,
 			GeoPackageTableCreator tableCreator) {
-		super(file.getName(), file.getAbsolutePath(), database, tableCreator,
-				true);
+		super(name, file.getAbsolutePath(), database, tableCreator, true);
 		this.database = database;
 	}
 

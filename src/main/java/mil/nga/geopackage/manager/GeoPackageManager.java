@@ -6,9 +6,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageTableCreator;
+import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
@@ -38,8 +40,13 @@ public class GeoPackageManager {
 
 		boolean created = false;
 
-		// Validate the file extension
-		GeoPackageValidate.validateGeoPackageExtension(file);
+		// Validate or add the file extension
+		if (GeoPackageIOUtils.hasFileExtension(file)) {
+			GeoPackageValidate.validateGeoPackageExtension(file);
+		} else {
+			file = GeoPackageIOUtils.addFileExtension(file,
+					GeoPackageConstants.GEOPACKAGE_EXTENSION);
+		}
 
 		if (file.exists()) {
 			throw new GeoPackageException("GeoPackage already exists: "
@@ -72,9 +79,28 @@ public class GeoPackageManager {
 	 * @return GeoPackage
 	 */
 	public static GeoPackage open(File file) {
+		return open(file.getName(), file);
+	}
 
-		// Validate the file extension
-		GeoPackageValidate.validateGeoPackageExtension(file);
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage name
+	 * @param file
+	 *            GeoPackage file
+	 * @return GeoPackage
+	 * @since 3.0.2
+	 */
+	public static GeoPackage open(String name, File file) {
+
+		// Validate or add the file extension
+		if (GeoPackageIOUtils.hasFileExtension(file)) {
+			GeoPackageValidate.validateGeoPackageExtension(file);
+		} else {
+			file = GeoPackageIOUtils.addFileExtension(file,
+					GeoPackageConstants.GEOPACKAGE_EXTENSION);
+		}
 
 		// Create the GeoPackage Connection and table creator
 		GeoPackageConnection connection = connect(file);
@@ -82,7 +108,7 @@ public class GeoPackageManager {
 				connection);
 
 		// Create a GeoPackage
-		GeoPackage geoPackage = new GeoPackageImpl(file, connection,
+		GeoPackage geoPackage = new GeoPackageImpl(name, file, connection,
 				tableCreator);
 
 		// Validate the GeoPackage has the minimum required tables
