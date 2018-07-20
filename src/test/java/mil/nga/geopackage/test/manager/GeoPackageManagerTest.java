@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageConstants;
+import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.test.BaseTestCase;
 import mil.nga.geopackage.test.TestConstants;
@@ -107,12 +109,18 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		File testFolder = folder.newFolder();
 		File dbFile = new File(testFolder, TestConstants.TEST_DB_NAME);
 
-		try {
-			GeoPackageManager.create(dbFile);
-			fail("No extension did not fail");
-		} catch (Exception e) {
-			// Expected
-		}
+		// Create
+		assertTrue("Database failed to create",
+				GeoPackageManager.create(dbFile));
+		assertTrue(
+				"Database does not exist",
+				GeoPackageIOUtils.addFileExtension(dbFile,
+						GeoPackageConstants.GEOPACKAGE_EXTENSION).exists());
+
+		// Open
+		GeoPackage geoPackage = GeoPackageManager.open(dbFile);
+		assertNotNull("Failed to open database", geoPackage);
+		geoPackage.close();
 	}
 
 	/**
