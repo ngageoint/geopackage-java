@@ -3,6 +3,7 @@ package mil.nga.geopackage.extension.properties;
 import java.util.Collection;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageCache;
 
 /**
  * Properties Manager, utilizes the Properties Extension on a collection of
@@ -38,6 +39,16 @@ public class PropertiesManager extends PropertiesManagerCore<GeoPackage> {
 	 */
 	public PropertiesManager(Collection<GeoPackage> geoPackages) {
 		super(geoPackages);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param cache
+	 *            GeoPackage cache
+	 */
+	public PropertiesManager(GeoPackageCache cache) {
+		super(cache);
 	}
 
 	/**
