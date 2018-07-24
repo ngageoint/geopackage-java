@@ -72,9 +72,7 @@ public class PropertiesManagerTest extends BaseTestCase {
 		int i = 1;
 		for (String geoPackageFile : geoPackageFiles) {
 			String name = GEOPACKAGE_NAME + i++;
-			GeoPackage geoPackage = cache.getOrOpen(name, new File(
-					geoPackageFile));
-			cache.add(geoPackage);
+			cache.getOrOpen(name, new File(geoPackageFile));
 		}
 
 		PropertiesManager manager = new PropertiesManager(cache);
@@ -159,13 +157,14 @@ public class PropertiesManagerTest extends BaseTestCase {
 		int numTagged = 7;
 
 		// getNames
-		Set<String> names = manager.getNames();
+		Set<String> names = manager.getGeoPackageNames();
 		TestCase.assertEquals(GEOPACKAGE_COUNT, names.size());
 		for (int i = 1; i <= names.size(); i++) {
 			String name = GEOPACKAGE_NAME + i;
 			TestCase.assertTrue(names.contains(name));
 			TestCase.assertNotNull(manager.getGeoPackage(name));
 		}
+		TestCase.assertEquals(GEOPACKAGE_COUNT, manager.numGeoPackages());
 
 		// numProperties
 		TestCase.assertEquals(numProperties, manager.numProperties());
@@ -550,5 +549,8 @@ public class PropertiesManagerTest extends BaseTestCase {
 				manager.missingValue(PropertyNames.TITLE, GEOPACKAGE_NAME + 3)
 						.size());
 
+		// Close the GeoPackages
+		manager.closeGeoPackages();
+		TestCase.assertEquals(0, manager.numGeoPackages());
 	}
 }
