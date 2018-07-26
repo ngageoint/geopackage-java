@@ -8,8 +8,11 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * geopackage-core version 3.0.2
 * Properties Extension for saving GeoPackage metadata in the file
+* Properties Manager for using the Properties Extension on multiple open GeoPackages
 * Additional SQL Utils query methods and null query result method fixes
 * Additional GeoPackage Connection query methods
+* GeoPackageCache implementation
+* GeoPackageManager automatically adds extension as needed
 
 ## [3.0.1](https://github.com/ngageoint/geopackage-java/releases/tag/3.0.1) (07-13-2018)
 
