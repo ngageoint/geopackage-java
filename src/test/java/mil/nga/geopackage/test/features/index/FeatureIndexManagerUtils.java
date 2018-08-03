@@ -7,6 +7,8 @@ import java.util.List;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.index.FeatureIndexType;
@@ -14,8 +16,11 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.schema.TableColumnKey;
+import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.io.TestGeoPackageProgress;
 import mil.nga.sf.GeometryEnvelope;
+import mil.nga.sf.GeometryType;
 import mil.nga.sf.Point;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
@@ -31,7 +36,7 @@ import mil.nga.sf.util.GeometryEnvelopeBuilder;
 public class FeatureIndexManagerUtils {
 
 	/**
-	 * Test read
+	 * Test index
 	 *
 	 * @param geoPackage
 	 *            GeoPackage
@@ -298,6 +303,102 @@ public class FeatureIndexManagerUtils {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Test read
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
+	public static void testLargeIndex(GeoPackage geoPackage)
+			throws SQLException {
+
+		GeometryColumns geometryColumns = new GeometryColumns();
+		geometryColumns.setId(new TableColumnKey("large_index", "geom"));
+		geometryColumns.setGeometryType(GeometryType.POLYGON);
+		geometryColumns.setZ((byte) 0);
+		geometryColumns.setM((byte) 0);
+
+		BoundingBox boundingBox = new BoundingBox(-180, -90, 180, 90);
+
+		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
+				.getOrCreateCode(ProjectionConstants.AUTHORITY_EPSG,
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		geometryColumns = geoPackage.createFeatureTableWithMetadata(
+				geometryColumns, boundingBox, srs.getId());
+
+		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
+
+		int numFeatures = 5000; // TODO
+		System.out.println("Features: " + numFeatures);
+		TestUtils.addRowsToFeatureTable(geoPackage, geometryColumns,
+				featureDao.getTable(), numFeatures, false, false, false);
+
+		GeometryEnvelope envelope = null;
+		FeatureResultSet resultSet = featureDao.queryForAll();
+		while (resultSet.moveToNext()) {
+			FeatureRow featureRow = resultSet.getRow();
+			GeometryEnvelope rowEnvelope = featureRow.getGeometryEnvelope();
+			if (envelope == null) {
+				envelope = rowEnvelope;
+			} else if (rowEnvelope != null) {
+				envelope = envelope.union(rowEnvelope);
+			}
+		}
+		resultSet.close();
+
+		testLargeIndex(geoPackage, FeatureIndexType.GEOPACKAGE, featureDao,
+				envelope);
+		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao, envelope);
+	}
+
+	private static void testLargeIndex(GeoPackage geoPackage,
+			FeatureIndexType type, FeatureDao featureDao,
+			GeometryEnvelope envelope) {
+
+		System.out.println();
+		System.out.println("-------------------------------------");
+		System.out.println("Type: " + type);
+		System.out.println("-------------------------------------");
+		System.out.println();
+
+		int featureCount = featureDao.count();
+
+		FeatureIndexManager featureIndexManager = new FeatureIndexManager(
+				geoPackage, featureDao);
+		featureIndexManager.setIndexLocation(type);
+		featureIndexManager.deleteAllIndexes();
+
+		Date before = new Date();
+		int indexCount = featureIndexManager.index();
+		System.out.println("Index: "
+				+ (new Date().getTime() - before.getTime()) + " ms");
+		TestCase.assertEquals(featureCount, indexCount);
+
+		TestCase.assertTrue(featureIndexManager.isIndexed());
+		before = new Date();
+		TestCase.assertEquals(featureCount, featureIndexManager.count());
+		System.out.println("Count: "
+				+ (new Date().getTime() - before.getTime()) + " ms");
+
+		before = new Date();
+		long fullCount = featureIndexManager.count(envelope);
+		System.out.println("Full Envelope Count: "
+				+ (new Date().getTime() - before.getTime()) + " ms");
+		TestCase.assertEquals(featureCount, fullCount);
+
+		before = new Date();
+		FeatureIndexResults results = featureIndexManager.query(envelope);
+		System.out.println("Full Envelope Query: "
+				+ (new Date().getTime() - before.getTime()) + " ms");
+		TestCase.assertEquals(featureCount, results.count());
+		results.close();
+
+		// TODO
+
 	}
 
 }

@@ -33,4 +33,17 @@ public class FeatureIndexManagerImportTest extends ImportGeoPackageTestCase {
 
 	}
 
+	/**
+	 * Test large index
+	 *
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testLargeIndex() throws SQLException {
+
+		FeatureIndexManagerUtils.testLargeIndex(geoPackage);
+
+	}
+
 }
