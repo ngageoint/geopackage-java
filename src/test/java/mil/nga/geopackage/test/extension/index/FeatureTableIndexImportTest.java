@@ -25,6 +25,9 @@ public class FeatureTableIndexImportTest extends ImportGeoPackageTestCase {
 	 * Test index
 	 * 
 	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
 	public void testIndex() throws SQLException, IOException {
@@ -37,6 +40,7 @@ public class FeatureTableIndexImportTest extends ImportGeoPackageTestCase {
 	 * Test delete all table indices
 	 * 
 	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
 	public void testDeleteAll() throws SQLException {
