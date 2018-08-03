@@ -6,10 +6,12 @@ import java.util.logging.Logger;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.GeoPackageConnection;
+import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.sf.Geometry;
+import mil.nga.geopackage.user.custom.UserCustomConnection;
+import mil.nga.geopackage.user.custom.UserCustomDao;
+import mil.nga.geopackage.user.custom.UserCustomTable;
 import mil.nga.sf.GeometryEnvelope;
-import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 import org.sqlite.Function;
 
@@ -28,11 +30,6 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 			.getLogger(RTreeIndexExtension.class.getName());
 
 	/**
-	 * GeoPackage connection
-	 */
-	private GeoPackageConnection connection;
-
-	/**
 	 * Constructor
 	 * 
 	 * @param geoPackage
@@ -40,7 +37,45 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 */
 	public RTreeIndexExtension(GeoPackage geoPackage) {
 		super(geoPackage);
-		connection = geoPackage.getConnection();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public GeoPackage getGeoPackage() {
+		return (GeoPackage) super.getGeoPackage();
+	}
+
+	/**
+	 * Get a RTree Index Table DAO for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @return RTree Index Table DAO
+	 * @since 3.0.3
+	 */
+	public RTreeIndexTableDao getTableDao(String featureTable) {
+		return getTableDao(getGeoPackage().getFeatureDao(featureTable));
+	}
+
+	/**
+	 * Get a RTree Index Table DAO for the feature dao
+	 * 
+	 * @param featureDao
+	 *            feature DAO
+	 * @return RTree Index Table DAO
+	 * @since 3.0.3
+	 */
+	public RTreeIndexTableDao getTableDao(FeatureDao featureDao) {
+
+		GeoPackageConnection connection = getGeoPackage().getConnection();
+		UserCustomConnection userDb = new UserCustomConnection(connection);
+		UserCustomTable userCustomTable = getRTreeTable(featureDao.getTable());
+		UserCustomDao userCustomDao = new UserCustomDao(geoPackage.getName(),
+				connection, userDb, userCustomTable);
+
+		return new RTreeIndexTableDao(this, userCustomDao, featureDao);
 	}
 
 	/**
@@ -51,7 +86,12 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 		createFunction(MIN_X_FUNCTION, new GeometryFunction() {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
-				return getEnvelope(data).getMinX();
+				Object value = null;
+				GeometryEnvelope envelope = getEnvelope(data);
+				if (envelope != null) {
+					value = envelope.getMinX();
+				}
+				return value;
 			}
 		});
 	}
@@ -64,7 +104,12 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 		createFunction(MAX_X_FUNCTION, new GeometryFunction() {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
-				return getEnvelope(data).getMaxX();
+				Object value = null;
+				GeometryEnvelope envelope = getEnvelope(data);
+				if (envelope != null) {
+					value = envelope.getMaxX();
+				}
+				return value;
 			}
 		});
 	}
@@ -77,7 +122,12 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 		createFunction(MIN_Y_FUNCTION, new GeometryFunction() {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
-				return getEnvelope(data).getMinY();
+				Object value = null;
+				GeometryEnvelope envelope = getEnvelope(data);
+				if (envelope != null) {
+					value = envelope.getMinY();
+				}
+				return value;
 			}
 		});
 	}
@@ -90,7 +140,12 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 		createFunction(MAX_Y_FUNCTION, new GeometryFunction() {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
-				return getEnvelope(data).getMaxY();
+				Object value = null;
+				GeometryEnvelope envelope = getEnvelope(data);
+				if (envelope != null) {
+					value = envelope.getMaxY();
+				}
+				return value;
 			}
 		});
 	}
@@ -110,30 +165,6 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	}
 
 	/**
-	 * Get or build a geometry envelope from the Geometry Data
-	 * 
-	 * @param data
-	 *            geometry data
-	 * @return geometry envelope
-	 */
-	private GeometryEnvelope getEnvelope(GeoPackageGeometryData data) {
-		GeometryEnvelope envelope = null;
-		if (data != null) {
-			envelope = data.getEnvelope();
-			if (envelope == null) {
-				Geometry geometry = data.getGeometry();
-				if (geometry != null) {
-					envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
-				}
-			}
-		}
-		if (envelope == null) {
-			envelope = new GeometryEnvelope();
-		}
-		return envelope;
-	}
-
-	/**
 	 * Create the function for the connection
 	 * 
 	 * @param name
@@ -143,7 +174,8 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 */
 	private void createFunction(String name, GeometryFunction function) {
 		try {
-			Function.create(connection.getConnection(), name, function);
+			Function.create(getGeoPackage().getConnection().getConnection(),
+					name, function);
 		} catch (SQLException e) {
 			log.log(Level.SEVERE, "Failed to create function: " + name, e);
 		}
