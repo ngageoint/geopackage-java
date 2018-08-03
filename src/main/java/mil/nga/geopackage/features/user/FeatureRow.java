@@ -7,6 +7,8 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.user.ContentValues;
 import mil.nga.geopackage.user.UserRow;
+import mil.nga.sf.Geometry;
+import mil.nga.sf.GeometryEnvelope;
 
 /**
  * Feature Row containing the values from a single cursor row
@@ -100,6 +102,36 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 */
 	public void setGeometry(GeoPackageGeometryData geometryData) {
 		setValue(getGeometryColumnIndex(), geometryData);
+	}
+
+	/**
+	 * Get the simple features geometry value
+	 * 
+	 * @return geometry
+	 * @since 3.0.3
+	 */
+	public Geometry getGeometryValue() {
+		GeoPackageGeometryData data = getGeometry();
+		Geometry geometry = null;
+		if (data != null) {
+			geometry = data.getGeometry();
+		}
+		return geometry;
+	}
+
+	/**
+	 * Get the geometry envelope
+	 * 
+	 * @return geometry envelope
+	 * @since 3.0.3
+	 */
+	public GeometryEnvelope getGeometryEnvelope() {
+		GeoPackageGeometryData data = getGeometry();
+		GeometryEnvelope envelope = null;
+		if (data != null) {
+			envelope = data.getOrBuildEnvelope();
+		}
+		return envelope;
 	}
 
 	/**

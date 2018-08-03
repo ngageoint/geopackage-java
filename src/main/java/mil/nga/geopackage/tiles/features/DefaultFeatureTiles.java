@@ -33,7 +33,6 @@ import mil.nga.sf.PolyhedralSurface;
 import mil.nga.sf.TIN;
 import mil.nga.sf.Triangle;
 import mil.nga.sf.proj.ProjectionTransform;
-import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 import com.j256.ormlite.dao.CloseableIterator;
 
@@ -197,11 +196,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 				Geometry geometry = geomData.getGeometry();
 				if (geometry != null) {
 
-					GeometryEnvelope envelope = geomData.getEnvelope();
-					if (envelope == null) {
-						envelope = GeometryEnvelopeBuilder
-								.buildEnvelope(geometry);
-					}
+					GeometryEnvelope envelope = geomData.getOrBuildEnvelope();
 					BoundingBox geometryBoundingBox = new BoundingBox(envelope);
 					BoundingBox transformedBoundingBox = geometryBoundingBox
 							.transform(transform);
