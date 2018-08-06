@@ -2,6 +2,7 @@ package mil.nga.geopackage.extension.index;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,32 +99,47 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	@Override
 	protected int indexTable(final TableIndex tableIndex) {
 
-		int count;
+		int count = 0;
 
-		try {
-			// Iterate through each row and index as a single transaction
-			ConnectionSource connectionSource = getGeoPackage().getDatabase()
-					.getConnectionSource();
-			count = TransactionManager.callInTransaction(connectionSource,
-					new Callable<Integer>() {
-						public Integer call() throws Exception {
+		final AtomicLong lastId = new AtomicLong(-1);
+		int chunkCount = 0;
 
-							FeatureResultSet resultSet = featureDao
-									.queryForAll();
+		while (chunkCount >= 0) {
 
-							int count = indexRows(tableIndex, resultSet);
+			lastId.incrementAndGet();
 
-							// Update the last indexed time
-							if (progress == null || progress.isActive()) {
-								updateLastIndexed();
+			try {
+				// Iterate through each row and index as a single transaction
+				ConnectionSource connectionSource = getGeoPackage()
+						.getDatabase().getConnectionSource();
+				chunkCount = TransactionManager.callInTransaction(
+						connectionSource, new Callable<Integer>() {
+							public Integer call() throws Exception {
+
+								FeatureResultSet resultSet = featureDao
+										.queryForChunk(lastId.longValue(),
+												chunkLimit);
+								int count = indexRows(tableIndex, resultSet,
+										lastId);
+
+								return count;
 							}
-							return count;
-						}
-					});
-		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to Index Table. GeoPackage: "
-					+ getGeoPackage().getName() + ", Table: " + getTableName(),
-					e);
+						});
+				if (chunkCount > 0) {
+					count += chunkCount;
+				}
+			} catch (SQLException e) {
+				throw new GeoPackageException(
+						"Failed to Index Table. GeoPackage: "
+								+ getGeoPackage().getName() + ", Table: "
+								+ getTableName(), e);
+			}
+
+		}
+
+		// Update the last indexed time
+		if (progress == null || progress.isActive()) {
+			updateLastIndexed();
 		}
 
 		return count;
@@ -136,19 +152,24 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            table index
 	 * @param resultSet
 	 *            feature result
-	 * @return count
+	 * @return count, -1 if no results or canceled
 	 */
-	private int indexRows(TableIndex tableIndex, FeatureResultSet resultSet) {
+	private int indexRows(TableIndex tableIndex, FeatureResultSet resultSet,
+			AtomicLong lastId) {
 
-		int count = 0;
+		int count = -1;
 
 		try {
 			while ((progress == null || progress.isActive())
 					&& resultSet.moveToNext()) {
+				if (count < 0) {
+					count++;
+				}
 				try {
 					FeatureRow row = resultSet.getRow();
-					boolean indexed = index(tableIndex, row.getId(),
-							row.getGeometry());
+					long id = row.getId();
+					lastId.set(id);
+					boolean indexed = index(tableIndex, id, row.getGeometry());
 					if (indexed) {
 						count++;
 					}
