@@ -1,6 +1,7 @@
 package mil.nga.geopackage.test.features.index;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.io.TestGeoPackageProgress;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.Point;
@@ -310,10 +312,12 @@ public class FeatureIndexManagerUtils {
 	 *
 	 * @param geoPackage
 	 *            GeoPackage
+	 * @param numFeatures
+	 *            num features
 	 * @throws SQLException
 	 *             upon error
 	 */
-	public static void testLargeIndex(GeoPackage geoPackage)
+	public static void testLargeIndex(GeoPackage geoPackage, int numFeatures)
 			throws SQLException {
 
 		GeometryColumns geometryColumns = new GeometryColumns();
@@ -332,8 +336,11 @@ public class FeatureIndexManagerUtils {
 
 		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
 
-		int numFeatures = 5000; // TODO
+		System.out.println();
+		System.out.println("+++++++++++++++++++++++++++++++++++++");
+		System.out.println("Large Index Test");
 		System.out.println("Features: " + numFeatures);
+		System.out.println("+++++++++++++++++++++++++++++++++++++");
 		TestUtils.addRowsToFeatureTable(geoPackage, geometryColumns,
 				featureDao.getTable(), numFeatures, false, false, false);
 
@@ -350,14 +357,66 @@ public class FeatureIndexManagerUtils {
 		}
 		resultSet.close();
 
+		List<FeatureIndexTestEnvelope> envelopes = createEnvelopes(envelope);
+
+		resultSet = featureDao.queryForAll();
+		while (resultSet.moveToNext()) {
+			FeatureRow featureRow = resultSet.getRow();
+			GeometryEnvelope rowEnvelope = featureRow.getGeometryEnvelope();
+			if (rowEnvelope != null) {
+				BoundingBox rowBoundingBox = new BoundingBox(rowEnvelope);
+				for (FeatureIndexTestEnvelope testEnvelope : envelopes) {
+					if (TileBoundingBoxUtils.overlap(rowBoundingBox,
+							new BoundingBox(testEnvelope.envelope), true) != null) {
+						testEnvelope.count++;
+					}
+				}
+			}
+		}
+		resultSet.close();
+
 		testLargeIndex(geoPackage, FeatureIndexType.GEOPACKAGE, featureDao,
-				envelope);
-		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao, envelope);
+				envelopes);
+		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao,
+				envelopes);
+	}
+
+	private static List<FeatureIndexTestEnvelope> createEnvelopes(
+			GeometryEnvelope envelope) {
+		List<FeatureIndexTestEnvelope> envelopes = new ArrayList<>();
+		for (int percentage = 100; percentage >= 0; percentage -= 10) {
+			envelopes.add(createEnvelope(envelope, percentage));
+		}
+		return envelopes;
+	}
+
+	private static FeatureIndexTestEnvelope createEnvelope(
+			GeometryEnvelope envelope, int percentage) {
+
+		float percentageRatio = percentage / 100.0f;
+
+		FeatureIndexTestEnvelope testEnvelope = new FeatureIndexTestEnvelope();
+
+		double width = envelope.getMaxX() - envelope.getMinX();
+		double height = envelope.getMaxY() - envelope.getMinY();
+
+		double minX = envelope.getMinX()
+				+ (Math.random() * width * (1.0 - percentageRatio));
+		double minY = envelope.getMinY()
+				+ (Math.random() * height * (1.0 - percentageRatio));
+
+		double maxX = minX + (width * percentageRatio);
+		double maxY = minY + (height * percentageRatio);
+
+		testEnvelope.envelope = new GeometryEnvelope(minX, minY, maxX, maxY);
+		testEnvelope.percentage = percentage;
+
+		return testEnvelope;
 	}
 
 	private static void testLargeIndex(GeoPackage geoPackage,
 			FeatureIndexType type, FeatureDao featureDao,
-			GeometryEnvelope envelope) {
+			List<FeatureIndexTestEnvelope> envelopes) {
 
 		System.out.println();
 		System.out.println("-------------------------------------");
@@ -381,24 +440,70 @@ public class FeatureIndexManagerUtils {
 		TestCase.assertTrue(featureIndexManager.isIndexed());
 		before = new Date();
 		TestCase.assertEquals(featureCount, featureIndexManager.count());
-		System.out.println("Count: "
+		System.out.println("Count Query: "
 				+ (new Date().getTime() - before.getTime()) + " ms");
 
-		before = new Date();
-		long fullCount = featureIndexManager.count(envelope);
-		System.out.println("Full Envelope Count: "
-				+ (new Date().getTime() - before.getTime()) + " ms");
-		TestCase.assertEquals(featureCount, fullCount);
+		for (FeatureIndexTestEnvelope testEnvelope : envelopes) {
 
-		before = new Date();
-		FeatureIndexResults results = featureIndexManager.query(envelope);
-		System.out.println("Full Envelope Query: "
-				+ (new Date().getTime() - before.getTime()) + " ms");
-		TestCase.assertEquals(featureCount, results.count());
-		results.close();
+			String percentage = Integer.toString(testEnvelope.percentage);
+			GeometryEnvelope envelope = testEnvelope.envelope;
+			int expectedCount = testEnvelope.count;
 
-		// TODO
+			System.out
+					.println(percentage + "% Feature Count: " + expectedCount);
+
+			before = new Date();
+			long fullCount = featureIndexManager.count(envelope);
+			System.out.println(percentage + "% Envelope Count Query: "
+					+ (new Date().getTime() - before.getTime()) + " ms");
+			TestCase.assertEquals(expectedCount, fullCount);
+
+			before = new Date();
+			FeatureIndexResults results = featureIndexManager.query(envelope);
+			System.out.println(percentage + "% Envelope Query: "
+					+ (new Date().getTime() - before.getTime()) + " ms");
+			TestCase.assertEquals(expectedCount, results.count());
+			results.close();
+
+			BoundingBox boundingBox = new BoundingBox(envelope);
+			before = new Date();
+			fullCount = featureIndexManager.count(boundingBox);
+			System.out.println(percentage + "% Bounding Box Count Query: "
+					+ (new Date().getTime() - before.getTime()) + " ms");
+			TestCase.assertEquals(expectedCount, fullCount);
+
+			before = new Date();
+			results = featureIndexManager.query(boundingBox);
+			System.out.println(percentage + "% Bounding Box Query: "
+					+ (new Date().getTime() - before.getTime()) + " ms");
+			TestCase.assertEquals(expectedCount, results.count());
+			results.close();
+
+			Projection projection = featureDao.getProjection();
+			Projection webMercatorProjection = ProjectionFactory.getProjection(
+					ProjectionConstants.AUTHORITY_EPSG,
+					ProjectionConstants.EPSG_WEB_MERCATOR);
+			ProjectionTransform transformToWebMercator = projection
+					.getTransformation(webMercatorProjection);
+
+			BoundingBox webMercatorBoundingBox = boundingBox
+					.transform(transformToWebMercator);
+			before = new Date();
+			fullCount = featureIndexManager.count(webMercatorBoundingBox,
+					webMercatorProjection);
+			System.out.println(percentage
+					+ "% Projected Bounding Box Count Query: "
+					+ (new Date().getTime() - before.getTime()) + " ms");
+			TestCase.assertEquals(expectedCount, fullCount);
+
+			before = new Date();
+			results = featureIndexManager.query(webMercatorBoundingBox,
+					webMercatorProjection);
+			System.out.println(percentage + "% Projected Bounding Box Query: "
+					+ (new Date().getTime() - before.getTime()) + " ms");
+			TestCase.assertEquals(expectedCount, results.count());
+			results.close();
+		}
 
 	}
-
 }

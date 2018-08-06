@@ -42,7 +42,7 @@ public class FeatureIndexManagerCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testLargeIndex() throws SQLException {
 
-		FeatureIndexManagerUtils.testLargeIndex(geoPackage);
+		FeatureIndexManagerUtils.testLargeIndex(geoPackage, 20000);
 
 	}
 
