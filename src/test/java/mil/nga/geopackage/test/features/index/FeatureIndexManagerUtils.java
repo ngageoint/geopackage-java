@@ -346,7 +346,7 @@ public class FeatureIndexManagerUtils {
 		TestUtils.addRowsToFeatureTable(geoPackage, geometryColumns,
 				featureDao.getTable(), numFeatures, false, false, false);
 
-		testLargeIndex(geoPackage, featureTable, true, true);
+		testLargeIndex(geoPackage, featureTable, true, false);
 	}
 
 	/**
