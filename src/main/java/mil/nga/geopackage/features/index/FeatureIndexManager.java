@@ -156,7 +156,9 @@ public class FeatureIndexManager {
 		// Create a new query order set
 		Set<FeatureIndexType> queryOrder = new LinkedHashSet<>();
 		for (FeatureIndexType type : types) {
-			queryOrder.add(type);
+			if (type != FeatureIndexType.NONE) {
+				queryOrder.add(type);
+			}
 		}
 		// Add any locations not provided to this method
 		queryOrder.addAll(indexLocationQueryOrder);

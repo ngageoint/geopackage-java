@@ -1,5 +1,6 @@
 package mil.nga.geopackage.test.features.index;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.io.TestGeoPackageProgress;
@@ -309,7 +311,7 @@ public class FeatureIndexManagerUtils {
 	}
 
 	/**
-	 * Test read
+	 * Test large index
 	 *
 	 * @param geoPackage
 	 *            GeoPackage
@@ -321,8 +323,10 @@ public class FeatureIndexManagerUtils {
 	public static void testLargeIndex(GeoPackage geoPackage, int numFeatures)
 			throws SQLException {
 
+		String featureTable = "large_index";
+
 		GeometryColumns geometryColumns = new GeometryColumns();
-		geometryColumns.setId(new TableColumnKey("large_index", "geom"));
+		geometryColumns.setId(new TableColumnKey(featureTable, "geom"));
 		geometryColumns.setGeometryType(GeometryType.POLYGON);
 		geometryColumns.setZ((byte) 0);
 		geometryColumns.setM((byte) 0);
@@ -338,12 +342,63 @@ public class FeatureIndexManagerUtils {
 		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
 
 		System.out.println();
-		System.out.println("+++++++++++++++++++++++++++++++++++++");
-		System.out.println("Large Index Test");
-		System.out.println("Features: " + numFeatures);
-		System.out.println("+++++++++++++++++++++++++++++++++++++");
+		System.out.println("Inserting Feature Rows: " + numFeatures);
 		TestUtils.addRowsToFeatureTable(geoPackage, geometryColumns,
 				featureDao.getTable(), numFeatures, false, false, false);
+
+		testLargeIndex(geoPackage, featureTable);
+	}
+
+	/**
+	 * Main method to test a GeoPackage file for query times
+	 * 
+	 * @param args
+	 *            arguments
+	 * @throws Exception
+	 *             upon error
+	 */
+	public static void main(String[] args) throws Exception {
+		File file = new File(
+				"/path/name.gpkg");
+		GeoPackage geoPackage = GeoPackageManager.open(file);
+		testLargeIndex(geoPackage);
+	}
+
+	/**
+	 * Test large index
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
+	public static void testLargeIndex(GeoPackage geoPackage)
+			throws SQLException {
+		for (String featureTable : geoPackage.getFeatureTables()) {
+			testLargeIndex(geoPackage, featureTable);
+		}
+	}
+
+	/**
+	 * Test large index
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureTable
+	 *            feature table
+	 * @throws SQLException
+	 *             upon error
+	 */
+	public static void testLargeIndex(GeoPackage geoPackage, String featureTable)
+			throws SQLException {
+
+		FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+
+		System.out.println();
+		System.out.println("+++++++++++++++++++++++++++++++++++++");
+		System.out.println("Large Index Test");
+		System.out.println("Features: " + featureDao.count());
+		System.out.println("+++++++++++++++++++++++++++++++++++++");
 
 		GeometryEnvelope envelope = null;
 		FeatureResultSet resultSet = featureDao.queryForAll();
@@ -380,7 +435,7 @@ public class FeatureIndexManagerUtils {
 				envelopes);
 		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao,
 				envelopes);
-		testLargeIndex(geoPackage, null, featureDao, envelopes);
+		testLargeIndex(geoPackage, FeatureIndexType.NONE, featureDao, envelopes);
 	}
 
 	private static List<FeatureIndexTestEnvelope> createEnvelopes(
@@ -416,13 +471,13 @@ public class FeatureIndexManagerUtils {
 		return testEnvelope;
 	}
 
-	private static TestTimer[] testLargeIndex(GeoPackage geoPackage,
+	private static void testLargeIndex(GeoPackage geoPackage,
 			FeatureIndexType type, FeatureDao featureDao,
 			List<FeatureIndexTestEnvelope> envelopes) {
 
 		System.out.println();
 		System.out.println("-------------------------------------");
-		System.out.println("Type: " + (type != null ? type : "None"));
+		System.out.println("Type: " + type);
 		System.out.println("-------------------------------------");
 		System.out.println();
 
@@ -436,7 +491,7 @@ public class FeatureIndexManagerUtils {
 		TestTimer timerQuery = new FeatureIndexManagerUtils().new TestTimer();
 		TestTimer timerCount = new FeatureIndexManagerUtils().new TestTimer();
 
-		if (type != null) {
+		if (type != FeatureIndexType.NONE) {
 			timerQuery.start();
 			int indexCount = featureIndexManager.index();
 			timerQuery.end("Index");
@@ -515,7 +570,6 @@ public class FeatureIndexManagerUtils {
 		System.out.println("Average Query: " + timerQuery.averageString()
 				+ " ms");
 
-		return new TestTimer[] { timerCount, timerQuery };
 	}
 
 	private class TestTimer {
