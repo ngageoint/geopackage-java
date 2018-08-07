@@ -346,7 +346,7 @@ public class FeatureIndexManagerUtils {
 		TestUtils.addRowsToFeatureTable(geoPackage, geometryColumns,
 				featureDao.getTable(), numFeatures, false, false, false);
 
-		testLargeIndex(geoPackage, featureTable);
+		testLargeIndex(geoPackage, featureTable, true, true);
 	}
 
 	/**
@@ -361,7 +361,9 @@ public class FeatureIndexManagerUtils {
 		File file = new File(
 				"/path/name.gpkg");
 		GeoPackage geoPackage = GeoPackageManager.open(file);
-		testLargeIndex(geoPackage);
+		boolean compareProjectionCounts = true;
+		boolean verbose = true;
+		testLargeIndex(geoPackage, compareProjectionCounts, verbose);
 	}
 
 	/**
@@ -369,13 +371,19 @@ public class FeatureIndexManagerUtils {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
+	 * @param compareProjectionCounts
+	 *            compare projection counts and query counts
+	 * @param verbose
+	 *            verbose printing
 	 * @throws SQLException
 	 *             upon error
 	 */
-	public static void testLargeIndex(GeoPackage geoPackage)
+	public static void testLargeIndex(GeoPackage geoPackage,
+			boolean compareProjectionCounts, boolean verbose)
 			throws SQLException {
 		for (String featureTable : geoPackage.getFeatureTables()) {
-			testLargeIndex(geoPackage, featureTable);
+			testLargeIndex(geoPackage, featureTable, compareProjectionCounts,
+					verbose);
 		}
 	}
 
@@ -386,11 +394,16 @@ public class FeatureIndexManagerUtils {
 	 *            GeoPackage
 	 * @param featureTable
 	 *            feature table
+	 * @param compareProjectionCounts
+	 *            compare projection counts and query counts
+	 * @param verbose
+	 *            verbose printing
 	 * @throws SQLException
 	 *             upon error
 	 */
-	public static void testLargeIndex(GeoPackage geoPackage, String featureTable)
-			throws SQLException {
+	public static void testLargeIndex(GeoPackage geoPackage,
+			String featureTable, boolean compareProjectionCounts,
+			boolean verbose) throws SQLException {
 
 		FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 
@@ -432,10 +445,11 @@ public class FeatureIndexManagerUtils {
 		resultSet.close();
 
 		testLargeIndex(geoPackage, FeatureIndexType.GEOPACKAGE, featureDao,
-				envelopes);
+				envelopes, compareProjectionCounts, verbose);
 		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao,
-				envelopes);
-		testLargeIndex(geoPackage, FeatureIndexType.NONE, featureDao, envelopes);
+				envelopes, compareProjectionCounts, verbose);
+		testLargeIndex(geoPackage, FeatureIndexType.NONE, featureDao,
+				envelopes, compareProjectionCounts, verbose);
 	}
 
 	private static List<FeatureIndexTestEnvelope> createEnvelopes(
@@ -473,7 +487,8 @@ public class FeatureIndexManagerUtils {
 
 	private static void testLargeIndex(GeoPackage geoPackage,
 			FeatureIndexType type, FeatureDao featureDao,
-			List<FeatureIndexTestEnvelope> envelopes) {
+			List<FeatureIndexTestEnvelope> envelopes,
+			boolean compareProjectionCounts, boolean verbose) {
 
 		System.out.println();
 		System.out.println("-------------------------------------");
@@ -490,6 +505,7 @@ public class FeatureIndexManagerUtils {
 
 		TestTimer timerQuery = new FeatureIndexManagerUtils().new TestTimer();
 		TestTimer timerCount = new FeatureIndexManagerUtils().new TestTimer();
+		timerCount.print = verbose;
 
 		if (type != FeatureIndexType.NONE) {
 			timerQuery.start();
@@ -509,14 +525,18 @@ public class FeatureIndexManagerUtils {
 		timerQuery.reset();
 		timerCount.reset();
 
+		timerQuery.print = timerCount.print;
+
 		for (FeatureIndexTestEnvelope testEnvelope : envelopes) {
 
 			String percentage = Integer.toString(testEnvelope.percentage);
 			GeometryEnvelope envelope = testEnvelope.envelope;
 			int expectedCount = testEnvelope.count;
 
-			System.out
-					.println(percentage + "% Feature Count: " + expectedCount);
+			if (verbose) {
+				System.out.println(percentage + "% Feature Count: "
+						+ expectedCount);
+			}
 
 			timerCount.start();
 			long fullCount = featureIndexManager.count(envelope);
@@ -554,13 +574,17 @@ public class FeatureIndexManagerUtils {
 			fullCount = featureIndexManager.count(webMercatorBoundingBox,
 					webMercatorProjection);
 			timerCount.end(percentage + "% Projected Bounding Box Count Query");
-			TestCase.assertEquals(expectedCount, fullCount);
+			if (compareProjectionCounts) {
+				TestCase.assertEquals(expectedCount, fullCount);
+			}
 
 			timerQuery.start();
 			results = featureIndexManager.query(webMercatorBoundingBox,
 					webMercatorProjection);
 			timerQuery.end(percentage + "% Projected Bounding Box Query");
-			TestCase.assertEquals(expectedCount, results.count());
+			if (compareProjectionCounts) {
+				TestCase.assertEquals(expectedCount, results.count());
+			}
 			results.close();
 		}
 
@@ -577,6 +601,7 @@ public class FeatureIndexManagerUtils {
 		int count = 0;
 		long totalTime = 0;
 		Date before;
+		boolean print = true;
 
 		/**
 		 * Start the timer
@@ -596,7 +621,9 @@ public class FeatureIndexManagerUtils {
 			count++;
 			totalTime += time;
 			before = null;
-			System.out.println(output + ": " + time + " ms");
+			if (print) {
+				System.out.println(output + ": " + time + " ms");
+			}
 		}
 
 		/**
