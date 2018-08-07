@@ -10,7 +10,6 @@ import mil.nga.geopackage.user.custom.UserCustomResultSet;
 import mil.nga.geopackage.user.custom.UserCustomRow;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * RTree Index Table DAO for reading geometry index ranges
@@ -50,6 +49,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 		super(dao, dao.getTable());
 		this.rTree = rTree;
 		this.featureDao = featureDao;
+		this.projection = featureDao.getProjection();
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 */
 	public UserCustomResultSet query(BoundingBox boundingBox,
 			Projection projection) {
-		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
+		BoundingBox featureBoundingBox = projectBoundingBox(boundingBox,
 				projection);
 		return query(featureBoundingBox);
 	}
@@ -234,7 +234,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @return count
 	 */
 	public long count(BoundingBox boundingBox, Projection projection) {
-		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
+		BoundingBox featureBoundingBox = projectBoundingBox(boundingBox,
 				projection);
 		return count(featureBoundingBox);
 	}
@@ -247,10 +247,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @return results
 	 */
 	public UserCustomResultSet query(GeometryEnvelope envelope) {
-		validateRTree();
-		String where = buildWhere(envelope);
-		String[] whereArgs = buildWhereArgs(envelope);
-		return query(where, whereArgs);
+		return query(envelope.getMinX(), envelope.getMinY(),
+				envelope.getMaxX(), envelope.getMaxY());
 	}
 
 	/**
@@ -261,10 +259,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @return count
 	 */
 	public long count(GeometryEnvelope envelope) {
-		validateRTree();
-		String where = buildWhere(envelope);
-		String[] whereArgs = buildWhereArgs(envelope);
-		return count(where, whereArgs);
+		return count(envelope.getMinX(), envelope.getMinY(),
+				envelope.getMaxX(), envelope.getMaxY());
 	}
 
 	/**
@@ -320,30 +316,6 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
-	 * Build a where clause from the geometry envelope
-	 * 
-	 * @param envelope
-	 *            geometry envelope
-	 * @return where clause
-	 */
-	private String buildWhere(GeometryEnvelope envelope) {
-		return buildWhere(envelope.getMinX(), envelope.getMinY(),
-				envelope.getMaxX(), envelope.getMaxY());
-	}
-
-	/**
-	 * Build where arguments from the geometry envelope
-	 * 
-	 * @param envelope
-	 *            geometry envelope
-	 * @return where clause args
-	 */
-	private String[] buildWhereArgs(GeometryEnvelope envelope) {
-		return buildWhereArgs(envelope.getMinX(), envelope.getMinY(),
-				envelope.getMaxX(), envelope.getMaxY());
-	}
-
-	/**
 	 * Build a where clause from the bounds for overlapping ranges
 	 * 
 	 * @param minX
@@ -387,25 +359,6 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	private String[] buildWhereArgs(double minX, double minY, double maxX,
 			double maxY) {
 		return buildWhereArgs(new Object[] { maxX, maxY, minX, minY });
-	}
-
-	/**
-	 * Get the bounding box in the feature projection from the bounding box in
-	 * the provided projection
-	 * 
-	 * @param boundingBox
-	 *            bounding box
-	 * @param projection
-	 *            projection
-	 * @return feature projected bounding box
-	 */
-	private BoundingBox getFeatureBoundingBox(BoundingBox boundingBox,
-			Projection projection) {
-		ProjectionTransform projectionTransform = projection
-				.getTransformation(featureDao.getProjection());
-		BoundingBox featureBoundingBox = boundingBox
-				.transform(projectionTransform);
-		return featureBoundingBox;
 	}
 
 }

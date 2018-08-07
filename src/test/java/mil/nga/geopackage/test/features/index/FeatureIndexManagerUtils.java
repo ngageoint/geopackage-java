@@ -1,6 +1,7 @@
 package mil.nga.geopackage.test.features.index;
 
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -379,6 +380,7 @@ public class FeatureIndexManagerUtils {
 				envelopes);
 		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao,
 				envelopes);
+		testLargeIndex(geoPackage, null, featureDao, envelopes);
 	}
 
 	private static List<FeatureIndexTestEnvelope> createEnvelopes(
@@ -414,13 +416,13 @@ public class FeatureIndexManagerUtils {
 		return testEnvelope;
 	}
 
-	private static void testLargeIndex(GeoPackage geoPackage,
+	private static TestTimer[] testLargeIndex(GeoPackage geoPackage,
 			FeatureIndexType type, FeatureDao featureDao,
 			List<FeatureIndexTestEnvelope> envelopes) {
 
 		System.out.println();
 		System.out.println("-------------------------------------");
-		System.out.println("Type: " + type);
+		System.out.println("Type: " + (type != null ? type : "None"));
 		System.out.println("-------------------------------------");
 		System.out.println();
 
@@ -431,17 +433,26 @@ public class FeatureIndexManagerUtils {
 		featureIndexManager.setIndexLocation(type);
 		featureIndexManager.deleteAllIndexes();
 
-		Date before = new Date();
-		int indexCount = featureIndexManager.index();
-		System.out.println("Index: "
-				+ (new Date().getTime() - before.getTime()) + " ms");
-		TestCase.assertEquals(featureCount, indexCount);
+		TestTimer timerQuery = new FeatureIndexManagerUtils().new TestTimer();
+		TestTimer timerCount = new FeatureIndexManagerUtils().new TestTimer();
 
-		TestCase.assertTrue(featureIndexManager.isIndexed());
-		before = new Date();
+		if (type != null) {
+			timerQuery.start();
+			int indexCount = featureIndexManager.index();
+			timerQuery.end("Index");
+			TestCase.assertEquals(featureCount, indexCount);
+
+			TestCase.assertTrue(featureIndexManager.isIndexed());
+		} else {
+			TestCase.assertFalse(featureIndexManager.isIndexed());
+		}
+
+		timerCount.start();
 		TestCase.assertEquals(featureCount, featureIndexManager.count());
-		System.out.println("Count Query: "
-				+ (new Date().getTime() - before.getTime()) + " ms");
+		timerCount.end("Count Query");
+
+		timerQuery.reset();
+		timerCount.reset();
 
 		for (FeatureIndexTestEnvelope testEnvelope : envelopes) {
 
@@ -452,30 +463,26 @@ public class FeatureIndexManagerUtils {
 			System.out
 					.println(percentage + "% Feature Count: " + expectedCount);
 
-			before = new Date();
+			timerCount.start();
 			long fullCount = featureIndexManager.count(envelope);
-			System.out.println(percentage + "% Envelope Count Query: "
-					+ (new Date().getTime() - before.getTime()) + " ms");
+			timerCount.end(percentage + "% Envelope Count Query");
 			TestCase.assertEquals(expectedCount, fullCount);
 
-			before = new Date();
+			timerQuery.start();
 			FeatureIndexResults results = featureIndexManager.query(envelope);
-			System.out.println(percentage + "% Envelope Query: "
-					+ (new Date().getTime() - before.getTime()) + " ms");
+			timerQuery.end(percentage + "% Envelope Query");
 			TestCase.assertEquals(expectedCount, results.count());
 			results.close();
 
 			BoundingBox boundingBox = new BoundingBox(envelope);
-			before = new Date();
+			timerCount.start();
 			fullCount = featureIndexManager.count(boundingBox);
-			System.out.println(percentage + "% Bounding Box Count Query: "
-					+ (new Date().getTime() - before.getTime()) + " ms");
+			timerCount.end(percentage + "% Bounding Box Count Query");
 			TestCase.assertEquals(expectedCount, fullCount);
 
-			before = new Date();
+			timerQuery.start();
 			results = featureIndexManager.query(boundingBox);
-			System.out.println(percentage + "% Bounding Box Query: "
-					+ (new Date().getTime() - before.getTime()) + " ms");
+			timerQuery.end(percentage + "% Bounding Box Query");
 			TestCase.assertEquals(expectedCount, results.count());
 			results.close();
 
@@ -488,22 +495,84 @@ public class FeatureIndexManagerUtils {
 
 			BoundingBox webMercatorBoundingBox = boundingBox
 					.transform(transformToWebMercator);
-			before = new Date();
+			timerCount.start();
 			fullCount = featureIndexManager.count(webMercatorBoundingBox,
 					webMercatorProjection);
-			System.out.println(percentage
-					+ "% Projected Bounding Box Count Query: "
-					+ (new Date().getTime() - before.getTime()) + " ms");
+			timerCount.end(percentage + "% Projected Bounding Box Count Query");
 			TestCase.assertEquals(expectedCount, fullCount);
 
-			before = new Date();
+			timerQuery.start();
 			results = featureIndexManager.query(webMercatorBoundingBox,
 					webMercatorProjection);
-			System.out.println(percentage + "% Projected Bounding Box Query: "
-					+ (new Date().getTime() - before.getTime()) + " ms");
+			timerQuery.end(percentage + "% Projected Bounding Box Query");
 			TestCase.assertEquals(expectedCount, results.count());
 			results.close();
 		}
 
+		System.out.println();
+		System.out.println("Average Count: " + timerCount.averageString()
+				+ " ms");
+		System.out.println("Average Query: " + timerQuery.averageString()
+				+ " ms");
+
+		return new TestTimer[] { timerCount, timerQuery };
 	}
+
+	private class TestTimer {
+
+		int count = 0;
+		long totalTime = 0;
+		Date before;
+
+		/**
+		 * Start the timer
+		 */
+		public void start() {
+			before = new Date();
+		}
+
+		/**
+		 * End the timer and print the output
+		 * 
+		 * @param output
+		 *            output string
+		 */
+		public void end(String output) {
+			long time = new Date().getTime() - before.getTime();
+			count++;
+			totalTime += time;
+			before = null;
+			System.out.println(output + ": " + time + " ms");
+		}
+
+		/**
+		 * Get the average request time
+		 * 
+		 * @return average milliseconds
+		 */
+		public double average() {
+			return (double) totalTime / count;
+		}
+
+		/**
+		 * Get the average request time as a string
+		 * 
+		 * @return average milliseconds
+		 */
+		public String averageString() {
+			DecimalFormat formatter = new DecimalFormat("#.00");
+			return formatter.format(average());
+		}
+
+		/**
+		 * Reset the timer
+		 */
+		public void reset() {
+			count = 0;
+			totalTime = 0;
+			before = null;
+		}
+
+	}
+
 }

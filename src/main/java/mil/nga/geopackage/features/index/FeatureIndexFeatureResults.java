@@ -2,40 +2,30 @@ package mil.nga.geopackage.features.index;
 
 import java.util.Iterator;
 
-import mil.nga.geopackage.extension.RTreeIndexTableDao;
+import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
-import mil.nga.geopackage.user.custom.UserCustomResultSet;
 
 /**
- * Iterable Feature Index Results to iterate on feature rows retrieved from
- * RTree results
+ * Iterable Feature Index Results to iterate on feature results from a feature
+ * DAO
  *
  * @author osbornb
  * @since 3.0.3
  */
-public class FeatureIndexRTreeResults implements FeatureIndexResults {
-
-	/**
-	 * RTree Index Table DAO
-	 */
-	private final RTreeIndexTableDao dao;
+public class FeatureIndexFeatureResults implements FeatureIndexResults {
 
 	/**
 	 * Result Set
 	 */
-	private final UserCustomResultSet resultSet;
+	private final FeatureResultSet resultSet;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param dao
-	 *            RTree Index Table DAO
 	 * @param resultSet
 	 *            result set
 	 */
-	public FeatureIndexRTreeResults(RTreeIndexTableDao dao,
-			UserCustomResultSet resultSet) {
-		this.dao = dao;
+	public FeatureIndexFeatureResults(FeatureResultSet resultSet) {
 		this.resultSet = resultSet;
 	}
 
@@ -59,7 +49,7 @@ public class FeatureIndexRTreeResults implements FeatureIndexResults {
 			 */
 			@Override
 			public FeatureRow next() {
-				return dao.getFeatureRow(resultSet);
+				return resultSet.getRow();
 			}
 
 			/**
