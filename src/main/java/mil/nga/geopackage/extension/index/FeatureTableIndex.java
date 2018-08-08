@@ -152,6 +152,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            table index
 	 * @param resultSet
 	 *            feature result
+	 * @param lastId
+	 *            updated to the last id indexed
 	 * @return count, -1 if no results or canceled
 	 */
 	private int indexRows(TableIndex tableIndex, FeatureResultSet resultSet,

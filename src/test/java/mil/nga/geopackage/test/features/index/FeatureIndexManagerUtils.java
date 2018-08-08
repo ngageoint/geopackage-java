@@ -594,6 +594,7 @@ public class FeatureIndexManagerUtils {
 		System.out.println("Average Query: " + timerQuery.averageString()
 				+ " ms");
 
+		featureIndexManager.close();
 	}
 
 	private class TestTimer {
