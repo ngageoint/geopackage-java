@@ -1,6 +1,5 @@
 package mil.nga.geopackage.db;
 
-import java.util.regex.Pattern;
 
 /**
  * Sections taken from android.database.sqlite.SQLiteQueryBuilder in the Android
@@ -21,9 +20,6 @@ import java.util.regex.Pattern;
  * the License.
  */
 public class SQLiteQueryBuilder {
-
-	private static final Pattern sLimitPattern = Pattern
-			.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?");
 
 	/**
 	 * Build an SQL query string from the given clauses.
@@ -112,9 +108,6 @@ public class SQLiteQueryBuilder {
 		if (isEmpty(groupBy) && !isEmpty(having)) {
 			throw new IllegalArgumentException(
 					"HAVING clauses are only permitted when using a groupBy clause");
-		}
-		if (!isEmpty(limit) && !sLimitPattern.matcher(limit).matches()) {
-			throw new IllegalArgumentException("invalid LIMIT clauses:" + limit);
 		}
 
 		StringBuilder query = new StringBuilder(120);
