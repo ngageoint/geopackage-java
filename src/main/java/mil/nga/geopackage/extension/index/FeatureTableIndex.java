@@ -2,7 +2,6 @@ package mil.nga.geopackage.extension.index;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -101,12 +100,12 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 
 		int count = 0;
 
-		final AtomicLong lastId = new AtomicLong(-1);
+		long offset = 0;
 		int chunkCount = 0;
 
 		while (chunkCount >= 0) {
 
-			lastId.incrementAndGet();
+			final long chunkOffset = offset;
 
 			try {
 				// Iterate through each row and index as a single transaction
@@ -117,10 +116,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 							public Integer call() throws Exception {
 
 								FeatureResultSet resultSet = featureDao
-										.queryForChunk(lastId.longValue(),
-												chunkLimit);
-								int count = indexRows(tableIndex, resultSet,
-										lastId);
+										.queryForChunk(chunkLimit, chunkOffset);
+								int count = indexRows(tableIndex, resultSet);
 
 								return count;
 							}
@@ -135,6 +132,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 								+ getTableName(), e);
 			}
 
+			offset += chunkLimit;
 		}
 
 		// Update the last indexed time
@@ -152,12 +150,9 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            table index
 	 * @param resultSet
 	 *            feature result
-	 * @param lastId
-	 *            updated to the last id indexed
 	 * @return count, -1 if no results or canceled
 	 */
-	private int indexRows(TableIndex tableIndex, FeatureResultSet resultSet,
-			AtomicLong lastId) {
+	private int indexRows(TableIndex tableIndex, FeatureResultSet resultSet) {
 
 		int count = -1;
 
@@ -169,9 +164,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 				}
 				try {
 					FeatureRow row = resultSet.getRow();
-					long id = row.getId();
-					lastId.set(id);
-					boolean indexed = index(tableIndex, id, row.getGeometry());
+					boolean indexed = index(tableIndex, row.getId(),
+							row.getGeometry());
 					if (indexed) {
 						count++;
 					}
