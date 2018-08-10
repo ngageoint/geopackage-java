@@ -103,7 +103,7 @@ public class SQLUtils {
 			sql = "select count(*)" + sql.substring(index);
 		}
 
-		int count = singleResultQuery(connection, sql, selectionArgs);
+		int count = singleResultQuery(connection, sql, selectionArgs, true);
 
 		return count;
 	}
@@ -131,7 +131,7 @@ public class SQLUtils {
 		}
 		String sql = countQuery.toString();
 
-		int count = singleResultQuery(connection, sql, args);
+		int count = singleResultQuery(connection, sql, args, true);
 
 		return count;
 	}
@@ -166,7 +166,7 @@ public class SQLUtils {
 			}
 			String sql = minQuery.toString();
 
-			min = singleResultQuery(connection, sql, args);
+			min = singleResultQuery(connection, sql, args, false);
 		}
 
 		return min;
@@ -202,7 +202,7 @@ public class SQLUtils {
 			}
 			String sql = maxQuery.toString();
 
-			max = singleResultQuery(connection, sql, args);
+			max = singleResultQuery(connection, sql, args, false);
 		}
 
 		return max;
@@ -212,12 +212,17 @@ public class SQLUtils {
 	 * Query the SQL for a single integer result
 	 * 
 	 * @param connection
+	 *            connection
 	 * @param sql
+	 *            sql
 	 * @param args
+	 *            query arguments
+	 * @param allowEmptyResults
+	 *            true to accept empty results as a 0 return
 	 * @return Integer result, null if no result
 	 */
 	private static int singleResultQuery(Connection connection, String sql,
-			String[] args) {
+			String[] args, boolean allowEmptyResults) {
 
 		ResultSet resultSet = query(connection, sql, args);
 
@@ -225,7 +230,7 @@ public class SQLUtils {
 		try {
 			if (resultSet.next()) {
 				result = resultSet.getInt(1);
-			} else {
+			} else if (!allowEmptyResults) {
 				throw new GeoPackageException(
 						"Failed to query for single result. SQL: " + sql);
 			}
