@@ -391,6 +391,84 @@ public class SQLUtils {
 	}
 
 	/**
+	 * Query for string values
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @return 3.0.3
+	 */
+	public static List<String[]> queryStringResults(Connection connection,
+			String sql, String[] args) {
+		return queryStringResults(connection, sql, args, null);
+	}
+
+	/**
+	 * Query for string values in a single (first) row
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @return 3.0.3
+	 */
+	public static String[] querySingleRowStringResults(Connection connection,
+			String sql, String[] args) {
+		List<String[]> results = queryStringResults(connection, sql, args, 1);
+		String[] singleRow = null;
+		if (!results.isEmpty()) {
+			singleRow = results.get(0);
+		}
+		return singleRow;
+	}
+
+	/**
+	 * Query for string values
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param limit
+	 *            result row limit
+	 * @return 3.0.3
+	 */
+	public static List<String[]> queryStringResults(Connection connection,
+			String sql, String[] args, Integer limit) {
+
+		ResultSet resultSet = query(connection, sql, args);
+
+		List<String[]> results = new ArrayList<>();
+		try {
+			int columns = resultSet.getMetaData().getColumnCount();
+			while (resultSet.next()) {
+				String[] row = new String[columns];
+				for (int i = 0; i < columns; i++) {
+					row[i] = resultSet.getString(i + 1);
+				}
+				results.add(row);
+				if (limit != null && results.size() >= limit) {
+					break;
+				}
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to query for string results. SQL: " + sql, e);
+		} finally {
+			closeResultSetStatement(resultSet, sql);
+		}
+
+		return results;
+	}
+
+	/**
 	 * Execute a deletion
 	 * 
 	 * @param connection

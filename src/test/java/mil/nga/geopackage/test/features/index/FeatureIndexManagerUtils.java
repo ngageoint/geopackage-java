@@ -358,8 +358,7 @@ public class FeatureIndexManagerUtils {
 	 *             upon error
 	 */
 	public static void main(String[] args) throws Exception {
-		File file = new File(
-				"/path/name.gpkg");
+		File file = new File("/path/name.gpkg");
 		GeoPackage geoPackage = GeoPackageManager.open(file);
 		boolean compareProjectionCounts = true;
 		boolean verbose = true;
@@ -445,11 +444,11 @@ public class FeatureIndexManagerUtils {
 		resultSet.close();
 
 		testLargeIndex(geoPackage, FeatureIndexType.GEOPACKAGE, featureDao,
-				envelopes, compareProjectionCounts, verbose);
+				envelopes, .0000000001, compareProjectionCounts, verbose);
 		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao,
-				envelopes, compareProjectionCounts, verbose);
+				envelopes, .0001, compareProjectionCounts, verbose);
 		testLargeIndex(geoPackage, FeatureIndexType.NONE, featureDao,
-				envelopes, compareProjectionCounts, verbose);
+				envelopes, .0000000001, compareProjectionCounts, verbose);
 	}
 
 	private static List<FeatureIndexTestEnvelope> createEnvelopes(
@@ -487,7 +486,7 @@ public class FeatureIndexManagerUtils {
 
 	private static void testLargeIndex(GeoPackage geoPackage,
 			FeatureIndexType type, FeatureDao featureDao,
-			List<FeatureIndexTestEnvelope> envelopes,
+			List<FeatureIndexTestEnvelope> envelopes, double precision,
 			boolean compareProjectionCounts, boolean verbose) {
 
 		System.out.println();
@@ -521,6 +520,48 @@ public class FeatureIndexManagerUtils {
 		timerCount.start();
 		TestCase.assertEquals(featureCount, featureIndexManager.count());
 		timerCount.end("Count Query");
+
+		Projection projection = featureDao.getProjection();
+		Projection webMercatorProjection = ProjectionFactory.getProjection(
+				ProjectionConstants.AUTHORITY_EPSG,
+				ProjectionConstants.EPSG_WEB_MERCATOR);
+		ProjectionTransform transformToWebMercator = projection
+				.getTransformation(webMercatorProjection);
+		ProjectionTransform transformToProjection = webMercatorProjection
+				.getTransformation(projection);
+
+		timerCount.start();
+		BoundingBox bounds = featureIndexManager.bounds();
+		timerCount.end("Bounds Query");
+		TestCase.assertNotNull(bounds);
+		FeatureIndexTestEnvelope firstEnvelope = envelopes.get(0);
+		BoundingBox firstBounds = new BoundingBox(firstEnvelope.envelope);
+
+		TestCase.assertEquals(firstBounds.getMinLongitude(),
+				bounds.getMinLongitude(), precision);
+		TestCase.assertEquals(firstBounds.getMinLatitude(),
+				bounds.getMinLatitude(), precision);
+		TestCase.assertEquals(firstBounds.getMaxLongitude(),
+				bounds.getMaxLongitude(), precision);
+		TestCase.assertEquals(firstBounds.getMaxLatitude(),
+				bounds.getMaxLatitude(), precision);
+
+		timerCount.start();
+		BoundingBox projectedBounds = featureIndexManager
+				.bounds(webMercatorProjection);
+		timerCount.end("Bounds Projection Query");
+		TestCase.assertNotNull(projectedBounds);
+		BoundingBox reprojectedBounds = projectedBounds
+				.transform(transformToProjection);
+
+		TestCase.assertEquals(reprojectedBounds.getMinLongitude(),
+				bounds.getMinLongitude(), precision);
+		TestCase.assertEquals(reprojectedBounds.getMinLatitude(),
+				bounds.getMinLatitude(), precision);
+		TestCase.assertEquals(reprojectedBounds.getMaxLongitude(),
+				bounds.getMaxLongitude(), precision);
+		TestCase.assertEquals(reprojectedBounds.getMaxLatitude(),
+				bounds.getMaxLatitude(), precision);
 
 		timerQuery.reset();
 		timerCount.reset();
@@ -560,13 +601,6 @@ public class FeatureIndexManagerUtils {
 			timerQuery.end(percentage + "% Bounding Box Query");
 			TestCase.assertEquals(expectedCount, results.count());
 			results.close();
-
-			Projection projection = featureDao.getProjection();
-			Projection webMercatorProjection = ProjectionFactory.getProjection(
-					ProjectionConstants.AUTHORITY_EPSG,
-					ProjectionConstants.EPSG_WEB_MERCATOR);
-			ProjectionTransform transformToWebMercator = projection
-					.getTransformation(webMercatorProjection);
 
 			BoundingBox webMercatorBoundingBox = boundingBox
 					.transform(transformToWebMercator);
