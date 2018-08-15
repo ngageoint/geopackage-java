@@ -2,8 +2,8 @@ package mil.nga.geopackage.features.user;
 
 import java.sql.ResultSet;
 
+import mil.nga.geopackage.db.ResultUtils;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.geopackage.user.UserCoreResultUtils;
 import mil.nga.geopackage.user.UserResultSet;
 
 /**
@@ -64,7 +64,7 @@ public class FeatureResultSet extends
 		int columnIndex = getTable().getGeometryColumnIndex();
 		int type = getType(columnIndex);
 
-		if (type != UserCoreResultUtils.FIELD_TYPE_NULL) {
+		if (type != ResultUtils.FIELD_TYPE_NULL) {
 			byte[] geometryBytes = getBlob(columnIndex);
 
 			if (geometryBytes != null) {

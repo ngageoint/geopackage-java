@@ -1,5 +1,7 @@
 package mil.nga.geopackage.extension;
 
+import java.util.List;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.features.user.FeatureDao;
@@ -193,15 +195,14 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @return bounding box
 	 */
 	public BoundingBox bounds() {
-		String[] values = querySingleRowStringResults(
+		List<Double> values = querySingleRowTypedResults(
 				"SELECT MIN(" + RTreeIndexExtension.COLUMN_MIN_X + "), MIN("
 						+ RTreeIndexExtension.COLUMN_MIN_Y + "), MAX("
 						+ RTreeIndexExtension.COLUMN_MAX_X + "), MAX("
 						+ RTreeIndexExtension.COLUMN_MAX_Y + ") FROM "
 						+ getTableName(), null);
-		BoundingBox boundingBox = new BoundingBox(Double.valueOf(values[0]),
-				Double.valueOf(values[1]), Double.valueOf(values[2]),
-				Double.valueOf(values[3]));
+		BoundingBox boundingBox = new BoundingBox(values.get(0), values.get(1),
+				values.get(2), values.get(3));
 		return boundingBox;
 	}
 

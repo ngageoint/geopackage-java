@@ -42,6 +42,7 @@ import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
 import mil.nga.sf.Point;
 import mil.nga.sf.Polygon;
+import mil.nga.sf.proj.ProjectionConstants;
 
 /**
  * Test utility methods
@@ -332,7 +333,9 @@ public class TestUtils {
 	public static Point createPoint(boolean hasZ, boolean hasM) {
 
 		double x = Math.random() * 180.0 * (Math.random() < .5 ? 1 : -1);
-		double y = Math.random() * 90.0 * (Math.random() < .5 ? 1 : -1);
+		double y = Math.random()
+				* ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE
+				* (Math.random() < .5 ? 1 : -1);
 
 		Point point = new Point(hasZ, hasM, x, y);
 

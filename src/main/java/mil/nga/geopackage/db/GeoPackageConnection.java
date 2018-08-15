@@ -170,77 +170,321 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String querySingleStringResult(String sql, String[] args) {
-		return SQLUtils.querySingleStringResult(connection, sql, args);
+	public Object querySingleResult(String sql, String[] args) {
+		return SQLUtils.querySingleResult(connection, sql, args);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Integer querySingleIntResult(String sql, String[] args) {
-		return SQLUtils.querySingleIntResult(connection, sql, args);
+	public <T> T querySingleTypedResult(String sql, String[] args) {
+		@SuppressWarnings("unchecked")
+		T result = (T) querySingleResult(sql, args);
+		return result;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String> querySingleColumnStringResults(String sql, String[] args) {
-		return SQLUtils.querySingleColumnStringResults(connection, sql, args);
+	public Object querySingleResult(String sql, String[] args,
+			GeoPackageDataType dataType) {
+		return SQLUtils.querySingleResult(connection, sql, args, dataType);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String[]> queryStringResults(String sql, String[] args) {
-		return SQLUtils.queryStringResults(connection, sql, args);
+	public <T> T querySingleTypedResult(String sql, String[] args,
+			GeoPackageDataType dataType) {
+		@SuppressWarnings("unchecked")
+		T result = (T) querySingleResult(sql, args, dataType);
+		return result;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String[] querySingleRowStringResults(String sql, String[] args) {
-		return SQLUtils.querySingleRowStringResults(connection, sql, args);
+	public Object querySingleResult(String sql, String[] args, int column) {
+		return SQLUtils.querySingleResult(connection, sql, args, column);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String[]> queryStringResults(String sql, String[] args,
-			Integer limit) {
-		return SQLUtils.queryStringResults(connection, sql, args, limit);
+	public <T> T querySingleTypedResult(String sql, String[] args, int column) {
+		@SuppressWarnings("unchecked")
+		T result = (T) querySingleResult(sql, args, column);
+		return result;
 	}
 
 	/**
-	 * Query for a single result object
-	 * 
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            sql arguments
-	 * @return single result object
-	 * @since 3.0.2
+	 * {@inheritDoc}
 	 */
-	public Object querySingleObjectResult(String sql, String[] args) {
-		return SQLUtils.querySingleObjectResult(connection, sql, args);
+	@Override
+	public Object querySingleResult(String sql, String[] args, int column,
+			GeoPackageDataType dataType) {
+		return SQLUtils.querySingleResult(connection, sql, args, column,
+				dataType);
 	}
 
 	/**
-	 * Query for values from a single column
-	 * 
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            sql arguments
-	 * @return single column values
-	 * @since 3.0.2
+	 * {@inheritDoc}
 	 */
+	@Override
+	public <T> T querySingleTypedResult(String sql, String[] args, int column,
+			GeoPackageDataType dataType) {
+		@SuppressWarnings("unchecked")
+		T result = (T) querySingleResult(sql, args, column, dataType);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Object> querySingleColumnResults(String sql, String[] args) {
 		return SQLUtils.querySingleColumnResults(connection, sql, args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleColumnTypedResults(String sql, String[] args) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleColumnResults(sql, args);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleColumnResults(String sql, String[] args,
+			GeoPackageDataType dataType) {
+		return SQLUtils.querySingleColumnResults(connection, sql, args,
+				dataType);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleColumnTypedResults(String sql, String[] args,
+			GeoPackageDataType dataType) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleColumnResults(sql, args, dataType);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleColumnResults(String sql, String[] args,
+			int column) {
+		return SQLUtils.querySingleColumnResults(connection, sql, args, column);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleColumnTypedResults(String sql, String[] args,
+			int column) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleColumnResults(sql, args, column);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleColumnResults(String sql, String[] args,
+			int column, GeoPackageDataType dataType) {
+		return SQLUtils.querySingleColumnResults(connection, sql, args, column,
+				dataType);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleColumnTypedResults(String sql, String[] args,
+			int column, GeoPackageDataType dataType) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleColumnResults(sql, args, column,
+				dataType);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleColumnResults(String sql, String[] args,
+			int column, Integer limit) {
+		return SQLUtils.querySingleColumnResults(connection, sql, args, column,
+				limit);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleColumnTypedResults(String sql, String[] args,
+			int column, Integer limit) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleColumnResults(sql, args, column,
+				limit);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleColumnResults(String sql, String[] args,
+			int column, GeoPackageDataType dataType, Integer limit) {
+		return SQLUtils.querySingleColumnResults(connection, sql, args, column,
+				dataType, limit);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleColumnTypedResults(String sql, String[] args,
+			int column, GeoPackageDataType dataType, Integer limit) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleColumnResults(sql, args, column,
+				dataType, limit);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<List<Object>> queryResults(String sql, String[] args) {
+		return SQLUtils.queryResults(connection, sql, args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<List<T>> queryTypedResults(String sql, String[] args) {
+		@SuppressWarnings("unchecked")
+		List<List<T>> result = (List<List<T>>) (Object) queryResults(sql, args);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<List<Object>> queryResults(String sql, String[] args,
+			GeoPackageDataType[] dataTypes) {
+		return SQLUtils.queryResults(connection, sql, args, dataTypes);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<List<T>> queryTypedResults(String sql, String[] args,
+			GeoPackageDataType[] dataTypes) {
+		@SuppressWarnings("unchecked")
+		List<List<T>> result = (List<List<T>>) (Object) queryResults(sql, args,
+				dataTypes);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleRowResults(String sql, String[] args) {
+		return SQLUtils.querySingleRowResults(connection, sql, args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleRowTypedResults(String sql, String[] args) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleRowResults(sql, args);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object> querySingleRowResults(String sql, String[] args,
+			GeoPackageDataType[] dataTypes) {
+		return SQLUtils.querySingleRowResults(connection, sql, args, dataTypes);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<T> querySingleRowTypedResults(String sql, String[] args,
+			GeoPackageDataType[] dataTypes) {
+		@SuppressWarnings("unchecked")
+		List<T> result = (List<T>) querySingleRowResults(sql, args, dataTypes);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<List<Object>> queryResults(String sql, String[] args,
+			Integer limit) {
+		return SQLUtils.queryResults(connection, sql, args, limit);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<List<T>> queryTypedResults(String sql, String[] args,
+			Integer limit) {
+		@SuppressWarnings("unchecked")
+		List<List<T>> result = (List<List<T>>) (Object) queryResults(sql, args,
+				limit);
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<List<Object>> queryResults(String sql, String[] args,
+			GeoPackageDataType[] dataTypes, Integer limit) {
+		return SQLUtils.queryResults(connection, sql, args, dataTypes, limit);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> List<List<T>> queryTypedResults(String sql, String[] args,
+			GeoPackageDataType[] dataTypes, Integer limit) {
+		@SuppressWarnings("unchecked")
+		List<List<T>> result = (List<List<T>>) (Object) queryResults(sql, args,
+				dataTypes, limit);
+		return result;
 	}
 
 	/**

@@ -15,6 +15,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.DateConverter;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.db.ResultUtils;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.SQLiteQueryBuilder;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -28,7 +29,6 @@ import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.geom.GeoPackageGeometryDataUtils;
 import mil.nga.geopackage.user.ColumnValue;
-import mil.nga.geopackage.user.UserCoreResultUtils;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryCollection;
 import mil.nga.sf.GeometryType;
@@ -299,15 +299,15 @@ public class FeatureUtils {
 
 			switch (rowType) {
 
-			case UserCoreResultUtils.FIELD_TYPE_INTEGER:
+			case ResultUtils.FIELD_TYPE_INTEGER:
 				TestUtils.validateIntegerValue(value, column.getDataType());
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_FLOAT:
+			case ResultUtils.FIELD_TYPE_FLOAT:
 				TestUtils.validateFloatValue(value, column.getDataType());
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_STRING:
+			case ResultUtils.FIELD_TYPE_STRING:
 				if (dataType == GeoPackageDataType.DATE
 						|| dataType == GeoPackageDataType.DATETIME) {
 					TestCase.assertTrue(value instanceof Date);
@@ -321,7 +321,7 @@ public class FeatureUtils {
 				}
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_BLOB:
+			case ResultUtils.FIELD_TYPE_BLOB:
 				if (featureRow.getGeometryColumnIndex() == i) {
 					TestCase.assertTrue(value instanceof GeoPackageGeometryData);
 				} else {
@@ -329,7 +329,7 @@ public class FeatureUtils {
 				}
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_NULL:
+			case ResultUtils.FIELD_TYPE_NULL:
 				TestCase.assertNull(value);
 				break;
 
@@ -640,7 +640,7 @@ public class FeatureUtils {
 											.getRowColumnType(featureColumn
 													.getIndex())) {
 
-									case UserCoreResultUtils.FIELD_TYPE_STRING:
+									case ResultUtils.FIELD_TYPE_STRING:
 										if (dataType == GeoPackageDataType.DATE
 												|| dataType == GeoPackageDataType.DATETIME) {
 											if (updatedDate == null) {
@@ -693,7 +693,7 @@ public class FeatureUtils {
 											}
 										}
 										break;
-									case UserCoreResultUtils.FIELD_TYPE_INTEGER:
+									case ResultUtils.FIELD_TYPE_INTEGER:
 										switch (featureColumn.getDataType()) {
 										case BOOLEAN:
 											if (updatedBoolean == null) {
@@ -752,7 +752,7 @@ public class FeatureUtils {
 															.getDataType());
 										}
 										break;
-									case UserCoreResultUtils.FIELD_TYPE_FLOAT:
+									case ResultUtils.FIELD_TYPE_FLOAT:
 										switch (featureColumn.getDataType()) {
 										case FLOAT:
 											if (updatedFloat == null) {
@@ -780,7 +780,7 @@ public class FeatureUtils {
 															.getDataType());
 										}
 										break;
-									case UserCoreResultUtils.FIELD_TYPE_BLOB:
+									case ResultUtils.FIELD_TYPE_BLOB:
 										if (updatedBytes == null) {
 											updatedBytes = UUID.randomUUID()
 													.toString().getBytes();
@@ -844,7 +844,7 @@ public class FeatureUtils {
 
 								switch (readRow
 										.getRowColumnType(readColumnName)) {
-								case UserCoreResultUtils.FIELD_TYPE_STRING:
+								case ResultUtils.FIELD_TYPE_STRING:
 									if (dataType == GeoPackageDataType.DATE
 											|| dataType == GeoPackageDataType.DATETIME) {
 										DateConverter converter = DateConverter
@@ -882,7 +882,7 @@ public class FeatureUtils {
 										}
 									}
 									break;
-								case UserCoreResultUtils.FIELD_TYPE_INTEGER:
+								case ResultUtils.FIELD_TYPE_INTEGER:
 									switch (readFeatureColumn.getDataType()) {
 									case BOOLEAN:
 										TestCase.assertEquals(
@@ -921,7 +921,7 @@ public class FeatureUtils {
 														.getDataType());
 									}
 									break;
-								case UserCoreResultUtils.FIELD_TYPE_FLOAT:
+								case ResultUtils.FIELD_TYPE_FLOAT:
 									switch (readFeatureColumn.getDataType()) {
 									case FLOAT:
 										TestCase.assertEquals(
@@ -942,7 +942,7 @@ public class FeatureUtils {
 														.getDataType());
 									}
 									break;
-								case UserCoreResultUtils.FIELD_TYPE_BLOB:
+								case ResultUtils.FIELD_TYPE_BLOB:
 									if (readFeatureColumn.getMax() != null) {
 										GeoPackageGeometryDataUtils
 												.compareByteArrays(

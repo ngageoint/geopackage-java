@@ -446,7 +446,7 @@ public class FeatureIndexManagerUtils {
 		testLargeIndex(geoPackage, FeatureIndexType.GEOPACKAGE, featureDao,
 				envelopes, .0000000001, compareProjectionCounts, verbose);
 		testLargeIndex(geoPackage, FeatureIndexType.RTREE, featureDao,
-				envelopes, .0001, compareProjectionCounts, verbose);
+				envelopes, .0000000001, .0001, compareProjectionCounts, verbose);
 		testLargeIndex(geoPackage, FeatureIndexType.NONE, featureDao,
 				envelopes, .0000000001, compareProjectionCounts, verbose);
 	}
@@ -488,6 +488,15 @@ public class FeatureIndexManagerUtils {
 			FeatureIndexType type, FeatureDao featureDao,
 			List<FeatureIndexTestEnvelope> envelopes, double precision,
 			boolean compareProjectionCounts, boolean verbose) {
+		testLargeIndex(geoPackage, type, featureDao, envelopes, precision,
+				precision, compareProjectionCounts, verbose);
+	}
+
+	private static void testLargeIndex(GeoPackage geoPackage,
+			FeatureIndexType type, FeatureDao featureDao,
+			List<FeatureIndexTestEnvelope> envelopes, double innerPrecision,
+			double outerPrecision, boolean compareProjectionCounts,
+			boolean verbose) {
 
 		System.out.println();
 		System.out.println("-------------------------------------");
@@ -537,14 +546,14 @@ public class FeatureIndexManagerUtils {
 		FeatureIndexTestEnvelope firstEnvelope = envelopes.get(0);
 		BoundingBox firstBounds = new BoundingBox(firstEnvelope.envelope);
 
-		TestCase.assertEquals(firstBounds.getMinLongitude(),
-				bounds.getMinLongitude(), precision);
-		TestCase.assertEquals(firstBounds.getMinLatitude(),
-				bounds.getMinLatitude(), precision);
-		TestCase.assertEquals(firstBounds.getMaxLongitude(),
-				bounds.getMaxLongitude(), precision);
-		TestCase.assertEquals(firstBounds.getMaxLatitude(),
-				bounds.getMaxLatitude(), precision);
+		assertRange(firstBounds.getMinLongitude(), bounds.getMinLongitude(),
+				outerPrecision, innerPrecision);
+		assertRange(firstBounds.getMinLatitude(), bounds.getMinLatitude(),
+				outerPrecision, innerPrecision);
+		assertRange(firstBounds.getMaxLongitude(), bounds.getMaxLongitude(),
+				innerPrecision, outerPrecision);
+		assertRange(firstBounds.getMaxLatitude(), bounds.getMaxLatitude(),
+				innerPrecision, outerPrecision);
 
 		timerCount.start();
 		BoundingBox projectedBounds = featureIndexManager
@@ -554,14 +563,18 @@ public class FeatureIndexManagerUtils {
 		BoundingBox reprojectedBounds = projectedBounds
 				.transform(transformToProjection);
 
-		TestCase.assertEquals(reprojectedBounds.getMinLongitude(),
-				bounds.getMinLongitude(), precision);
-		TestCase.assertEquals(reprojectedBounds.getMinLatitude(),
-				bounds.getMinLatitude(), precision);
-		TestCase.assertEquals(reprojectedBounds.getMaxLongitude(),
-				bounds.getMaxLongitude(), precision);
-		TestCase.assertEquals(reprojectedBounds.getMaxLatitude(),
-				bounds.getMaxLatitude(), precision);
+		assertRange(firstBounds.getMinLongitude(),
+				reprojectedBounds.getMinLongitude(), outerPrecision,
+				innerPrecision);
+		assertRange(firstBounds.getMinLatitude(),
+				reprojectedBounds.getMinLatitude(), outerPrecision,
+				innerPrecision);
+		assertRange(firstBounds.getMaxLongitude(),
+				reprojectedBounds.getMaxLongitude(), innerPrecision,
+				outerPrecision);
+		assertRange(firstBounds.getMaxLatitude(),
+				reprojectedBounds.getMaxLatitude(), innerPrecision,
+				outerPrecision);
 
 		timerQuery.reset();
 		timerCount.reset();
@@ -629,6 +642,14 @@ public class FeatureIndexManagerUtils {
 				+ " ms");
 
 		featureIndexManager.close();
+	}
+
+	private static void assertRange(double expected, double actual,
+			double lowPrecision, double highPrecision) {
+		double low = expected - lowPrecision;
+		double high = expected + highPrecision;
+		TestCase.assertTrue("Value: " + actual + ", not within range: " + low
+				+ " - " + high, low <= actual && actual <= high);
 	}
 
 	private class TestTimer {

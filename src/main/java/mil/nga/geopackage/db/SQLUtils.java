@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -103,7 +102,7 @@ public class SQLUtils {
 			sql = "select count(*)" + sql.substring(index);
 		}
 
-		int count = singleResultQuery(connection, sql, selectionArgs, true);
+		int count = querySingleInteger(connection, sql, selectionArgs, true);
 
 		return count;
 	}
@@ -131,7 +130,7 @@ public class SQLUtils {
 		}
 		String sql = countQuery.toString();
 
-		int count = singleResultQuery(connection, sql, args, true);
+		int count = querySingleInteger(connection, sql, args, true);
 
 		return count;
 	}
@@ -166,7 +165,7 @@ public class SQLUtils {
 			}
 			String sql = minQuery.toString();
 
-			min = singleResultQuery(connection, sql, args, false);
+			min = querySingleInteger(connection, sql, args, false);
 		}
 
 		return min;
@@ -202,7 +201,7 @@ public class SQLUtils {
 			}
 			String sql = maxQuery.toString();
 
-			max = singleResultQuery(connection, sql, args, false);
+			max = querySingleInteger(connection, sql, args, false);
 		}
 
 		return max;
@@ -221,88 +220,18 @@ public class SQLUtils {
 	 *            true to accept empty results as a 0 return
 	 * @return Integer result, null if no result
 	 */
-	private static int singleResultQuery(Connection connection, String sql,
+	private static int querySingleInteger(Connection connection, String sql,
 			String[] args, boolean allowEmptyResults) {
 
-		ResultSet resultSet = query(connection, sql, args);
-
 		int result = 0;
-		try {
-			if (resultSet.next()) {
-				result = resultSet.getInt(1);
-			} else if (!allowEmptyResults) {
-				throw new GeoPackageException(
-						"Failed to query for single result. SQL: " + sql);
-			}
-		} catch (SQLException e) {
+
+		Object value = querySingleResult(connection, sql, args,
+				GeoPackageDataType.MEDIUMINT);
+		if (value != null) {
+			result = ((Number) value).intValue();
+		} else if (!allowEmptyResults) {
 			throw new GeoPackageException(
-					"Failed to query for single result. SQL: " + sql, e);
-		} finally {
-			closeResultSetStatement(resultSet, sql);
-		}
-
-		return result;
-	}
-
-	/**
-	 * Query the SQL for a single result string
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @return string result, null if no result
-	 * @since 1.1.9
-	 */
-	public static String querySingleStringResult(Connection connection,
-			String sql, String[] args) {
-
-		ResultSet resultSet = query(connection, sql, args);
-
-		String result = null;
-		try {
-			if (resultSet.next()) {
-				result = resultSet.getString(1);
-			}
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to query for single result. SQL: " + sql, e);
-		} finally {
-			closeResultSetStatement(resultSet, sql);
-		}
-
-		return result;
-	}
-
-	/**
-	 * Query the SQL for a single result int
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @return integer result, null if no result
-	 * @since 1.2.1
-	 */
-	public static Integer querySingleIntResult(Connection connection,
-			String sql, String[] args) {
-
-		ResultSet resultSet = query(connection, sql, args);
-
-		Integer result = null;
-		try {
-			if (resultSet.next()) {
-				result = resultSet.getInt(1);
-			}
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to query for single result. SQL: " + sql, e);
-		} finally {
-			closeResultSetStatement(resultSet, sql);
+					"Failed to query for single result. SQL: " + sql);
 		}
 
 		return result;
@@ -317,31 +246,17 @@ public class SQLUtils {
 	 *            sql statement
 	 * @param args
 	 *            arguments
-	 * @return string result, null if no result
-	 * @since 3.0.2
+	 * @return result, null if no result
+	 * @since 3.0.3
 	 */
-	public static Object querySingleObjectResult(Connection connection,
-			String sql, String[] args) {
-
-		ResultSet resultSet = query(connection, sql, args);
-
-		Object result = null;
-		try {
-			if (resultSet.next()) {
-				result = resultSet.getObject(1);
-			}
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to query for single result. SQL: " + sql, e);
-		} finally {
-			closeResultSetStatement(resultSet, sql);
-		}
-
-		return result;
+	public static Object querySingleResult(Connection connection, String sql,
+			String[] args) {
+		return querySingleResult(connection, sql, args, 0);
 	}
 
 	/**
-	 * Query for values from a single column
+	 * Query the SQL for a single result object in the first column with the
+	 * expected data type
 	 * 
 	 * @param connection
 	 *            connection
@@ -349,26 +264,93 @@ public class SQLUtils {
 	 *            sql statement
 	 * @param args
 	 *            arguments
-	 * @return 3.0.2
+	 * @param dataType
+	 *            GeoPackage data type
+	 * @return result, null if no result
+	 * @since 3.0.3
+	 */
+	public static Object querySingleResult(Connection connection, String sql,
+			String[] args, GeoPackageDataType dataType) {
+		return querySingleResult(connection, sql, args, 0, dataType);
+	}
+
+	/**
+	 * Query the SQL for a single result object
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param column
+	 *            column index
+	 * @return result, null if no result
+	 * @since 3.0.3
+	 */
+	public static Object querySingleResult(Connection connection, String sql,
+			String[] args, int column) {
+		return querySingleResult(connection, sql, args, column, null);
+	}
+
+	/**
+	 * Query the SQL for a single result object with the expected data type
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param column
+	 *            column index
+	 * @param dataType
+	 *            GeoPackage data type
+	 * @return result, null if no result
+	 * @since 3.0.3
+	 */
+	public static Object querySingleResult(Connection connection, String sql,
+			String[] args, int column, GeoPackageDataType dataType) {
+		ResultSetResult result = wrapQuery(connection, sql, args);
+		Object value = ResultUtils.buildSingleResult(result, column, dataType);
+		return value;
+	}
+
+	/**
+	 * Query for values from the first column
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @return single column results
+	 * @since 3.0.2
 	 */
 	public static List<Object> querySingleColumnResults(Connection connection,
 			String sql, String[] args) {
+		return querySingleColumnResults(connection, sql, args, 0, null, null);
+	}
 
-		ResultSet resultSet = query(connection, sql, args);
-
-		List<Object> results = new ArrayList<>();
-		try {
-			while (resultSet.next()) {
-				results.add(resultSet.getObject(1));
-			}
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to query for single column result. SQL: " + sql, e);
-		} finally {
-			closeResultSetStatement(resultSet, sql);
-		}
-
-		return results;
+	/**
+	 * Query for values from the first column
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param dataType
+	 *            GeoPackage data type
+	 * @return single column results
+	 * @since 3.0.2
+	 */
+	public static List<Object> querySingleColumnResults(Connection connection,
+			String sql, String[] args, GeoPackageDataType dataType) {
+		return querySingleColumnResults(connection, sql, args, 0, dataType,
+				null);
 	}
 
 	/**
@@ -380,18 +362,90 @@ public class SQLUtils {
 	 *            sql statement
 	 * @param args
 	 *            arguments
-	 * @return 3.0.2
+	 * @param column
+	 *            column index
+	 * @return single column results
+	 * @since 3.0.3
 	 */
-	public static List<String> querySingleColumnStringResults(
-			Connection connection, String sql, String[] args) {
-		@SuppressWarnings("unchecked")
-		List<String> results = (List<String>) (Object) querySingleColumnResults(
-				connection, sql, args);
+	public static List<Object> querySingleColumnResults(Connection connection,
+			String sql, String[] args, int column) {
+		return querySingleColumnResults(connection, sql, args, column, null,
+				null);
+	}
+
+	/**
+	 * Query for values from a single column
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param column
+	 *            column index
+	 * @param dataType
+	 *            GeoPackage data type
+	 * @return single column results
+	 * @since 3.0.3
+	 */
+	public static List<Object> querySingleColumnResults(Connection connection,
+			String sql, String[] args, int column, GeoPackageDataType dataType) {
+		return querySingleColumnResults(connection, sql, args, column,
+				dataType, null);
+	}
+
+	/**
+	 * Query for values from a single column up to the limit
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param column
+	 *            column index
+	 * @param limit
+	 *            result row limit
+	 * @return single column results
+	 * @since 3.0.3
+	 */
+	public static List<Object> querySingleColumnResults(Connection connection,
+			String sql, String[] args, int column, Integer limit) {
+		return querySingleColumnResults(connection, sql, args, column, null,
+				limit);
+	}
+
+	/**
+	 * Query for values from a single column up to the limit
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param column
+	 *            column index
+	 * @param dataType
+	 *            GeoPackage data type
+	 * @param limit
+	 *            result row limit
+	 * @return single column results
+	 * @since 3.0.3
+	 */
+	public static List<Object> querySingleColumnResults(Connection connection,
+			String sql, String[] args, int column, GeoPackageDataType dataType,
+			Integer limit) {
+		ResultSetResult result = wrapQuery(connection, sql, args);
+		List<Object> results = ResultUtils.buildSingleColumnResults(result,
+				column, dataType, limit);
 		return results;
 	}
 
 	/**
-	 * Query for string values
+	 * Query for values
 	 * 
 	 * @param connection
 	 *            connection
@@ -399,15 +453,16 @@ public class SQLUtils {
 	 *            sql statement
 	 * @param args
 	 *            arguments
-	 * @return 3.0.3
+	 * @return results
+	 * @since 3.0.3
 	 */
-	public static List<String[]> queryStringResults(Connection connection,
+	public static List<List<Object>> queryResults(Connection connection,
 			String sql, String[] args) {
-		return queryStringResults(connection, sql, args, null);
+		return queryResults(connection, sql, args, null, null);
 	}
 
 	/**
-	 * Query for string values in a single (first) row
+	 * Query for values
 	 * 
 	 * @param connection
 	 *            connection
@@ -415,12 +470,52 @@ public class SQLUtils {
 	 *            sql statement
 	 * @param args
 	 *            arguments
-	 * @return 3.0.3
+	 * @param dataTypes
+	 *            column data types
+	 * @return results
+	 * @since 3.0.3
 	 */
-	public static String[] querySingleRowStringResults(Connection connection,
+	public static List<List<Object>> queryResults(Connection connection,
+			String sql, String[] args, GeoPackageDataType[] dataTypes) {
+		return queryResults(connection, sql, args, dataTypes, null);
+	}
+
+	/**
+	 * Query for values in a single (first) row
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @return single row results
+	 * @since 3.0.3
+	 */
+	public static List<Object> querySingleRowResults(Connection connection,
 			String sql, String[] args) {
-		List<String[]> results = queryStringResults(connection, sql, args, 1);
-		String[] singleRow = null;
+		return querySingleRowResults(connection, sql, args, null);
+	}
+
+	/**
+	 * Query for values in a single (first) row
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param dataTypes
+	 *            column data types
+	 * @return single row results
+	 * @since 3.0.3
+	 */
+	public static List<Object> querySingleRowResults(Connection connection,
+			String sql, String[] args, GeoPackageDataType[] dataTypes) {
+		List<List<Object>> results = queryResults(connection, sql, args,
+				dataTypes, 1);
+		List<Object> singleRow = null;
 		if (!results.isEmpty()) {
 			singleRow = results.get(0);
 		}
@@ -428,7 +523,7 @@ public class SQLUtils {
 	}
 
 	/**
-	 * Query for string values
+	 * Query for values up to the limit
 	 * 
 	 * @param connection
 	 *            connection
@@ -438,33 +533,36 @@ public class SQLUtils {
 	 *            arguments
 	 * @param limit
 	 *            result row limit
-	 * @return 3.0.3
+	 * @return results
+	 * @since 3.0.3
 	 */
-	public static List<String[]> queryStringResults(Connection connection,
+	public static List<List<Object>> queryResults(Connection connection,
 			String sql, String[] args, Integer limit) {
+		return queryResults(connection, sql, args, null, limit);
+	}
 
-		ResultSet resultSet = query(connection, sql, args);
-
-		List<String[]> results = new ArrayList<>();
-		try {
-			int columns = resultSet.getMetaData().getColumnCount();
-			while (resultSet.next()) {
-				String[] row = new String[columns];
-				for (int i = 0; i < columns; i++) {
-					row[i] = resultSet.getString(i + 1);
-				}
-				results.add(row);
-				if (limit != null && results.size() >= limit) {
-					break;
-				}
-			}
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to query for string results. SQL: " + sql, e);
-		} finally {
-			closeResultSetStatement(resultSet, sql);
-		}
-
+	/**
+	 * Query for values up to the limit
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param args
+	 *            arguments
+	 * @param dataTypes
+	 *            column data types
+	 * @param limit
+	 *            result row limit
+	 * @return results
+	 * @since 3.0.3
+	 */
+	public static List<List<Object>> queryResults(Connection connection,
+			String sql, String[] args, GeoPackageDataType[] dataTypes,
+			Integer limit) {
+		ResultSetResult result = wrapQuery(connection, sql, args);
+		List<List<Object>> results = ResultUtils.buildResults(result,
+				dataTypes, limit);
 		return results;
 	}
 
@@ -735,6 +833,22 @@ public class SQLUtils {
 						e);
 			}
 		}
+	}
+
+	/**
+	 * Perform the query and wrap as a result
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param sql
+	 *            sql statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @return result
+	 */
+	public static ResultSetResult wrapQuery(Connection connection, String sql,
+			String[] selectionArgs) {
+		return new ResultSetResult(query(connection, sql, selectionArgs));
 	}
 
 }

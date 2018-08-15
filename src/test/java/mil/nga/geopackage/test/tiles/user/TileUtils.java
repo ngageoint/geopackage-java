@@ -19,6 +19,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.db.ResultUtils;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.SQLiteQueryBuilder;
 import mil.nga.geopackage.test.TestUtils;
@@ -36,7 +37,6 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.user.ColumnValue;
-import mil.nga.geopackage.user.UserCoreResultUtils;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 
@@ -259,23 +259,23 @@ public class TileUtils {
 
 			switch (rowType) {
 
-			case UserCoreResultUtils.FIELD_TYPE_INTEGER:
+			case ResultUtils.FIELD_TYPE_INTEGER:
 				TestUtils.validateIntegerValue(value, column.getDataType());
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_FLOAT:
+			case ResultUtils.FIELD_TYPE_FLOAT:
 				TestUtils.validateFloatValue(value, column.getDataType());
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_STRING:
+			case ResultUtils.FIELD_TYPE_STRING:
 				TestCase.assertTrue(value instanceof String);
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_BLOB:
+			case ResultUtils.FIELD_TYPE_BLOB:
 				TestCase.assertTrue(value instanceof byte[]);
 				break;
 
-			case UserCoreResultUtils.FIELD_TYPE_NULL:
+			case ResultUtils.FIELD_TYPE_NULL:
 				TestCase.assertNull(value);
 				break;
 
@@ -351,7 +351,7 @@ public class TileUtils {
 							switch (tileRow.getRowColumnType(tileColumn
 									.getIndex())) {
 
-							case UserCoreResultUtils.FIELD_TYPE_STRING:
+							case ResultUtils.FIELD_TYPE_STRING:
 								if (updatedString == null) {
 									updatedString = UUID.randomUUID()
 											.toString();
@@ -375,7 +375,7 @@ public class TileUtils {
 											updatedString);
 								}
 								break;
-							case UserCoreResultUtils.FIELD_TYPE_INTEGER:
+							case ResultUtils.FIELD_TYPE_INTEGER:
 								switch (tileColumn.getDataType()) {
 								case BOOLEAN:
 									if (updatedBoolean == null) {
@@ -427,7 +427,7 @@ public class TileUtils {
 											+ tileColumn.getDataType());
 								}
 								break;
-							case UserCoreResultUtils.FIELD_TYPE_FLOAT:
+							case ResultUtils.FIELD_TYPE_FLOAT:
 								switch (tileColumn.getDataType()) {
 								case FLOAT:
 									if (updatedFloat == null) {
@@ -451,7 +451,7 @@ public class TileUtils {
 											+ tileColumn.getDataType());
 								}
 								break;
-							case UserCoreResultUtils.FIELD_TYPE_BLOB:
+							case ResultUtils.FIELD_TYPE_BLOB:
 								if (updatedBytes == null) {
 									updatedBytes = TestUtils.getTileBytes();
 								}
@@ -498,7 +498,7 @@ public class TileUtils {
 								.getColumn(readColumnName);
 						if (!readTileColumn.isPrimaryKey()) {
 							switch (readRow.getRowColumnType(readColumnName)) {
-							case UserCoreResultUtils.FIELD_TYPE_STRING:
+							case ResultUtils.FIELD_TYPE_STRING:
 								if (readTileColumn.getMax() != null) {
 									TestCase.assertEquals(updatedLimitedString,
 											readRow.getValue(readTileColumn
@@ -509,7 +509,7 @@ public class TileUtils {
 													.getIndex()));
 								}
 								break;
-							case UserCoreResultUtils.FIELD_TYPE_INTEGER:
+							case ResultUtils.FIELD_TYPE_INTEGER:
 								switch (readTileColumn.getDataType()) {
 								case BOOLEAN:
 									TestCase.assertEquals(updatedBoolean,
@@ -542,7 +542,7 @@ public class TileUtils {
 											+ readTileColumn.getDataType());
 								}
 								break;
-							case UserCoreResultUtils.FIELD_TYPE_FLOAT:
+							case ResultUtils.FIELD_TYPE_FLOAT:
 								switch (readTileColumn.getDataType()) {
 								case FLOAT:
 									TestCase.assertEquals(updatedFloat,
@@ -560,7 +560,7 @@ public class TileUtils {
 											+ readTileColumn.getDataType());
 								}
 								break;
-							case UserCoreResultUtils.FIELD_TYPE_BLOB:
+							case ResultUtils.FIELD_TYPE_BLOB:
 								if (readTileColumn.getMax() != null) {
 									GeoPackageGeometryDataUtils
 											.compareByteArrays(
