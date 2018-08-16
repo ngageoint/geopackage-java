@@ -225,7 +225,7 @@ public class SQLUtils {
 
 		int result = 0;
 
-		Object value = querySingleResult(connection, sql, args,
+		Object value = querySingleResult(connection, sql, args, 0,
 				GeoPackageDataType.MEDIUMINT);
 		if (value != null) {
 			result = ((Number) value).intValue();
@@ -235,62 +235,6 @@ public class SQLUtils {
 		}
 
 		return result;
-	}
-
-	/**
-	 * Query the SQL for a single result object
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @return result, null if no result
-	 * @since 3.0.3
-	 */
-	public static Object querySingleResult(Connection connection, String sql,
-			String[] args) {
-		return querySingleResult(connection, sql, args, 0);
-	}
-
-	/**
-	 * Query the SQL for a single result object in the first column with the
-	 * expected data type
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param dataType
-	 *            GeoPackage data type
-	 * @return result, null if no result
-	 * @since 3.0.3
-	 */
-	public static Object querySingleResult(Connection connection, String sql,
-			String[] args, GeoPackageDataType dataType) {
-		return querySingleResult(connection, sql, args, 0, dataType);
-	}
-
-	/**
-	 * Query the SQL for a single result object
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param column
-	 *            column index
-	 * @return result, null if no result
-	 * @since 3.0.3
-	 */
-	public static Object querySingleResult(Connection connection, String sql,
-			String[] args, int column) {
-		return querySingleResult(connection, sql, args, column, null);
 	}
 
 	/**
@@ -314,107 +258,6 @@ public class SQLUtils {
 		ResultSetResult result = wrapQuery(connection, sql, args);
 		Object value = ResultUtils.buildSingleResult(result, column, dataType);
 		return value;
-	}
-
-	/**
-	 * Query for values from the first column
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @return single column results
-	 * @since 3.0.2
-	 */
-	public static List<Object> querySingleColumnResults(Connection connection,
-			String sql, String[] args) {
-		return querySingleColumnResults(connection, sql, args, 0, null, null);
-	}
-
-	/**
-	 * Query for values from the first column
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param dataType
-	 *            GeoPackage data type
-	 * @return single column results
-	 * @since 3.0.2
-	 */
-	public static List<Object> querySingleColumnResults(Connection connection,
-			String sql, String[] args, GeoPackageDataType dataType) {
-		return querySingleColumnResults(connection, sql, args, 0, dataType,
-				null);
-	}
-
-	/**
-	 * Query for values from a single column
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param column
-	 *            column index
-	 * @return single column results
-	 * @since 3.0.3
-	 */
-	public static List<Object> querySingleColumnResults(Connection connection,
-			String sql, String[] args, int column) {
-		return querySingleColumnResults(connection, sql, args, column, null,
-				null);
-	}
-
-	/**
-	 * Query for values from a single column
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param column
-	 *            column index
-	 * @param dataType
-	 *            GeoPackage data type
-	 * @return single column results
-	 * @since 3.0.3
-	 */
-	public static List<Object> querySingleColumnResults(Connection connection,
-			String sql, String[] args, int column, GeoPackageDataType dataType) {
-		return querySingleColumnResults(connection, sql, args, column,
-				dataType, null);
-	}
-
-	/**
-	 * Query for values from a single column up to the limit
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param column
-	 *            column index
-	 * @param limit
-	 *            result row limit
-	 * @return single column results
-	 * @since 3.0.3
-	 */
-	public static List<Object> querySingleColumnResults(Connection connection,
-			String sql, String[] args, int column, Integer limit) {
-		return querySingleColumnResults(connection, sql, args, column, null,
-				limit);
 	}
 
 	/**
@@ -442,103 +285,6 @@ public class SQLUtils {
 		List<Object> results = ResultUtils.buildSingleColumnResults(result,
 				column, dataType, limit);
 		return results;
-	}
-
-	/**
-	 * Query for values
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @return results
-	 * @since 3.0.3
-	 */
-	public static List<List<Object>> queryResults(Connection connection,
-			String sql, String[] args) {
-		return queryResults(connection, sql, args, null, null);
-	}
-
-	/**
-	 * Query for values
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param dataTypes
-	 *            column data types
-	 * @return results
-	 * @since 3.0.3
-	 */
-	public static List<List<Object>> queryResults(Connection connection,
-			String sql, String[] args, GeoPackageDataType[] dataTypes) {
-		return queryResults(connection, sql, args, dataTypes, null);
-	}
-
-	/**
-	 * Query for values in a single (first) row
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @return single row results
-	 * @since 3.0.3
-	 */
-	public static List<Object> querySingleRowResults(Connection connection,
-			String sql, String[] args) {
-		return querySingleRowResults(connection, sql, args, null);
-	}
-
-	/**
-	 * Query for values in a single (first) row
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param dataTypes
-	 *            column data types
-	 * @return single row results
-	 * @since 3.0.3
-	 */
-	public static List<Object> querySingleRowResults(Connection connection,
-			String sql, String[] args, GeoPackageDataType[] dataTypes) {
-		List<List<Object>> results = queryResults(connection, sql, args,
-				dataTypes, 1);
-		List<Object> singleRow = null;
-		if (!results.isEmpty()) {
-			singleRow = results.get(0);
-		}
-		return singleRow;
-	}
-
-	/**
-	 * Query for values up to the limit
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql statement
-	 * @param args
-	 *            arguments
-	 * @param limit
-	 *            result row limit
-	 * @return results
-	 * @since 3.0.3
-	 */
-	public static List<List<Object>> queryResults(Connection connection,
-			String sql, String[] args, Integer limit) {
-		return queryResults(connection, sql, args, null, limit);
 	}
 
 	/**
@@ -845,6 +591,7 @@ public class SQLUtils {
 	 * @param selectionArgs
 	 *            selection arguments
 	 * @return result
+	 * @since 3.0.3
 	 */
 	public static ResultSetResult wrapQuery(Connection connection, String sql,
 			String[] selectionArgs) {

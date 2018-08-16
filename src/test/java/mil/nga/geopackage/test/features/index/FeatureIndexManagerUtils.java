@@ -23,7 +23,6 @@ import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.io.TestGeoPackageProgress;
-import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.Point;
@@ -434,8 +433,8 @@ public class FeatureIndexManagerUtils {
 			if (rowEnvelope != null) {
 				BoundingBox rowBoundingBox = new BoundingBox(rowEnvelope);
 				for (FeatureIndexTestEnvelope testEnvelope : envelopes) {
-					if (TileBoundingBoxUtils.overlap(rowBoundingBox,
-							new BoundingBox(testEnvelope.envelope), true) != null) {
+					if (rowBoundingBox.intersects(new BoundingBox(
+							testEnvelope.envelope), true)) {
 						testEnvelope.count++;
 					}
 				}
@@ -540,7 +539,7 @@ public class FeatureIndexManagerUtils {
 				.getTransformation(projection);
 
 		timerCount.start();
-		BoundingBox bounds = featureIndexManager.bounds();
+		BoundingBox bounds = featureIndexManager.getBoundingBox();
 		timerCount.end("Bounds Query");
 		TestCase.assertNotNull(bounds);
 		FeatureIndexTestEnvelope firstEnvelope = envelopes.get(0);
@@ -557,7 +556,7 @@ public class FeatureIndexManagerUtils {
 
 		timerCount.start();
 		BoundingBox projectedBounds = featureIndexManager
-				.bounds(webMercatorProjection);
+				.getBoundingBox(webMercatorProjection);
 		timerCount.end("Bounds Projection Query");
 		TestCase.assertNotNull(projectedBounds);
 		BoundingBox reprojectedBounds = projectedBounds

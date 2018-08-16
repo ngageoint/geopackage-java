@@ -9,7 +9,6 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.user.UserDao;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * Feature DAO for reading feature user data tables
@@ -61,7 +60,7 @@ public class FeatureDao extends
 					+ SpatialReferenceSystem.class.getSimpleName());
 		}
 
-		projection = geometryColumns.getSrs().getProjection();
+		projection = geometryColumns.getProjection();
 	}
 
 	/**
@@ -69,16 +68,16 @@ public class FeatureDao extends
 	 */
 	@Override
 	public BoundingBox getBoundingBox() {
+		return getBoundingBox(projection);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BoundingBox getBoundingBox(Projection projection) {
 		Contents contents = geometryColumns.getContents();
-		Projection contentsProjection = contents.getSrs().getProjection();
-
-		BoundingBox boundingBox = contents.getBoundingBox();
-		if (!projection.equals(contentsProjection)) {
-			ProjectionTransform transform = contentsProjection
-					.getTransformation(projection);
-			boundingBox = boundingBox.transform(transform);
-		}
-
+		BoundingBox boundingBox = contents.getBoundingBox(projection);
 		return boundingBox;
 	}
 

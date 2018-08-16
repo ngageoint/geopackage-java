@@ -540,8 +540,8 @@ public class TileReader {
 			if (webMercatorBoundingBox == null) {
 				webMercatorBoundingBox = zoomBoundingBox;
 			} else {
-				webMercatorBoundingBox = TileBoundingBoxUtils.union(
-						webMercatorBoundingBox, zoomBoundingBox);
+				webMercatorBoundingBox = webMercatorBoundingBox
+						.union(zoomBoundingBox);
 			}
 		}
 
@@ -673,9 +673,8 @@ public class TileReader {
 
 									// Get the bounding box overlap between the
 									// column/row image and the x,y,z image
-									BoundingBox overlap = TileBoundingBoxUtils
-											.overlap(tileMatrixBoundingBox,
-													imageBoundingBox);
+									BoundingBox overlap = tileMatrixBoundingBox
+											.overlap(imageBoundingBox);
 
 									// If the tile overlaps
 									if (overlap != null) {

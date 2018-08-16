@@ -4,6 +4,7 @@ import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.io.GeoPackageProgress;
@@ -194,13 +195,13 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * 
 	 * @return bounding box
 	 */
-	public BoundingBox bounds() {
+	public BoundingBox getBoundingBox() {
 		List<Double> values = querySingleRowTypedResults(
 				"SELECT MIN(" + RTreeIndexExtension.COLUMN_MIN_X + "), MIN("
 						+ RTreeIndexExtension.COLUMN_MIN_Y + "), MAX("
 						+ RTreeIndexExtension.COLUMN_MAX_X + "), MAX("
 						+ RTreeIndexExtension.COLUMN_MAX_Y + ") FROM "
-						+ getTableName(), null);
+						+ CoreSQLUtils.quoteWrap(getTableName()), null);
 		BoundingBox boundingBox = new BoundingBox(values.get(0), values.get(1),
 				values.get(2), values.get(3));
 		return boundingBox;
@@ -213,12 +214,14 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            desired projection
 	 * @return bounding box
 	 */
-	public BoundingBox bounds(Projection projection) {
-		BoundingBox bounds = bounds();
-		ProjectionTransform projectionTransform = featureDao.getProjection()
-				.getTransformation(projection);
-		BoundingBox requestedBounds = bounds.transform(projectionTransform);
-		return requestedBounds;
+	public BoundingBox getBoundingBox(Projection projection) {
+		BoundingBox boundingBox = getBoundingBox();
+		if (boundingBox != null && projection != null) {
+			ProjectionTransform projectionTransform = featureDao
+					.getProjection().getTransformation(projection);
+			boundingBox = boundingBox.transform(projectionTransform);
+		}
+		return boundingBox;
 	}
 
 	/**

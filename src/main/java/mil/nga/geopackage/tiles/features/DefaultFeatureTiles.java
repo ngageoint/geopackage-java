@@ -201,8 +201,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 					BoundingBox transformedBoundingBox = geometryBoundingBox
 							.transform(transform);
 
-					if (TileBoundingBoxUtils.overlap(expandedBoundingBox,
-							transformedBoundingBox, true) != null) {
+					if (expandedBoundingBox.intersects(transformedBoundingBox,
+							true)) {
 
 						double simplifyTolerance = TileBoundingBoxUtils
 								.toleranceDistance(zoom, tileWidth, tileHeight);

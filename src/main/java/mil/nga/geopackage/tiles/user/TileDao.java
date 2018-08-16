@@ -14,6 +14,7 @@ import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.user.UserDao;
+import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 
 /**
@@ -91,7 +92,7 @@ public class TileDao extends
 		this.widths = new double[tileMatrices.size()];
 		this.heights = new double[tileMatrices.size()];
 
-		projection = tileMatrixSet.getSrs().getProjection();
+		projection = tileMatrixSet.getProjection();
 
 		// Set the min and max zoom levels
 		if (!tileMatrices.isEmpty()) {
@@ -132,6 +133,14 @@ public class TileDao extends
 	@Override
 	public BoundingBox getBoundingBox() {
 		return tileMatrixSet.getBoundingBox();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BoundingBox getBoundingBox(Projection projection) {
+		return tileMatrixSet.getBoundingBox(projection);
 	}
 
 	/**

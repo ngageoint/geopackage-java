@@ -71,7 +71,7 @@ public class ManualFeatureQuery {
 	 * 
 	 * @return bounding box
 	 */
-	public BoundingBox bounds() {
+	public BoundingBox getBoundingBox() {
 
 		GeometryEnvelope envelope = null;
 
@@ -108,7 +108,10 @@ public class ManualFeatureQuery {
 			offset += chunkLimit;
 		}
 
-		BoundingBox boundingBox = new BoundingBox(envelope);
+		BoundingBox boundingBox = null;
+		if (envelope != null) {
+			boundingBox = new BoundingBox(envelope);
+		}
 
 		return boundingBox;
 	}
@@ -120,12 +123,14 @@ public class ManualFeatureQuery {
 	 *            desired projection
 	 * @return bounding box
 	 */
-	public BoundingBox bounds(Projection projection) {
-		BoundingBox bounds = bounds();
-		ProjectionTransform projectionTransform = featureDao.getProjection()
-				.getTransformation(projection);
-		BoundingBox requestedBounds = bounds.transform(projectionTransform);
-		return requestedBounds;
+	public BoundingBox getBoundingBox(Projection projection) {
+		BoundingBox boundingBox = getBoundingBox();
+		if (boundingBox != null && projection != null) {
+			ProjectionTransform projectionTransform = featureDao
+					.getProjection().getTransformation(projection);
+			boundingBox = boundingBox.transform(projectionTransform);
+		}
+		return boundingBox;
 	}
 
 	/**

@@ -5,6 +5,7 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.user.UserDao;
+import mil.nga.sf.proj.Projection;
 
 /**
  * Attributes DAO for reading attributes user data tables
@@ -52,6 +53,15 @@ public class AttributesDao
 	 */
 	@Override
 	public BoundingBox getBoundingBox() {
+		throw new GeoPackageException(
+				"Bounding Box not supported for Attributes");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BoundingBox getBoundingBox(Projection projection) {
 		throw new GeoPackageException(
 				"Bounding Box not supported for Attributes");
 	}

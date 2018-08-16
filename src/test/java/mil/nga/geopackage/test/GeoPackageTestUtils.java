@@ -7,11 +7,14 @@ import java.util.List;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -20,7 +23,11 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.sf.GeometryType;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 /**
  * GeoPackage Utility test methods
@@ -44,7 +51,7 @@ public class GeoPackageTestUtils {
 		geometryColumns.setZ((byte) 1);
 		geometryColumns.setM((byte) 0);
 
-		BoundingBox boundingBox = new BoundingBox(-90, 45, 90, 45);
+		BoundingBox boundingBox = new BoundingBox(-90, -45, 90, 45);
 
 		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
 				.createWebMercator();
@@ -70,7 +77,7 @@ public class GeoPackageTestUtils {
 		geometryColumns.setZ((byte) 1);
 		geometryColumns.setM((byte) 0);
 
-		BoundingBox boundingBox = new BoundingBox(-90, 45, 90, 45);
+		BoundingBox boundingBox = new BoundingBox(-90, -45, 90, 45);
 
 		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
 				.createWebMercator();
@@ -97,7 +104,7 @@ public class GeoPackageTestUtils {
 		geometryColumns.setZ((byte) 1);
 		geometryColumns.setM((byte) 0);
 
-		BoundingBox boundingBox = new BoundingBox(-90, 45, 90, 45);
+		BoundingBox boundingBox = new BoundingBox(-90, -45, 90, 45);
 
 		List<FeatureColumn> additionalColumns = getFeatureColumns();
 
@@ -126,7 +133,7 @@ public class GeoPackageTestUtils {
 		geometryColumns.setZ((byte) 1);
 		geometryColumns.setM((byte) 0);
 
-		BoundingBox boundingBox = new BoundingBox(-90, 45, 90, 45);
+		BoundingBox boundingBox = new BoundingBox(-90, -45, 90, 45);
 
 		List<FeatureColumn> additionalColumns = getFeatureColumns();
 
@@ -296,4 +303,222 @@ public class GeoPackageTestUtils {
 
 	}
 
+	/**
+	 * Test GeoPackage bounds
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
+	public static void testBounds(GeoPackage geoPackage) throws SQLException {
+
+		Projection projection = ProjectionFactory.getProjection(
+				ProjectionConstants.AUTHORITY_EPSG,
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+
+		// Create a feature table with empty contents
+		GeometryColumns geometryColumns = new GeometryColumns();
+		geometryColumns.setId(new TableColumnKey("feature_empty_contents",
+				"geom"));
+		geometryColumns.setGeometryType(GeometryType.POINT);
+		geometryColumns.setZ((byte) 0);
+		geometryColumns.setM((byte) 0);
+		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
+				.queryForOrganizationCoordsysId(
+						ProjectionConstants.AUTHORITY_EPSG,
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		geoPackage.createFeatureTableWithMetadata(geometryColumns, null,
+				srs.getId());
+
+		BoundingBox geoPackageContentsBoundingBox = geoPackage
+				.getContentsBoundingBox(projection);
+
+		BoundingBox expectedContentsBoundingBox = null;
+
+		ContentsDao contentsDao = geoPackage.getContentsDao();
+		for (Contents contents : contentsDao.queryForAll()) {
+
+			BoundingBox contentsBoundingBox = contents
+					.getBoundingBox(projection);
+			if (contentsBoundingBox != null) {
+				TestCase.assertTrue(geoPackageContentsBoundingBox
+						.contains(contentsBoundingBox));
+
+				if (expectedContentsBoundingBox == null) {
+					expectedContentsBoundingBox = contentsBoundingBox;
+				} else {
+					expectedContentsBoundingBox = expectedContentsBoundingBox
+							.union(contentsBoundingBox);
+				}
+			}
+
+			TestCase.assertEquals(
+					contentsBoundingBox,
+					geoPackage.getContentsBoundingBox(projection,
+							contents.getTableName()));
+			TestCase.assertEquals(contents.getBoundingBox(),
+					geoPackage.getContentsBoundingBox(contents.getTableName()));
+
+		}
+
+		TestCase.assertEquals(expectedContentsBoundingBox,
+				geoPackageContentsBoundingBox);
+
+		BoundingBox geoPackageBoundingBox = geoPackage
+				.getBoundingBox(projection);
+		BoundingBox geoPackageManualBoundingBox = geoPackage.getBoundingBox(
+				projection, true);
+
+		BoundingBox expectedBoundingBox = expectedContentsBoundingBox;
+		BoundingBox expectedManualBoundingBox = expectedContentsBoundingBox;
+
+		for (Contents contents : contentsDao.queryForAll()) {
+
+			ContentsDataType dataType = contents.getDataType();
+			if (dataType != null) {
+
+				switch (dataType) {
+				case FEATURES:
+					FeatureIndexManager manager = new FeatureIndexManager(
+							geoPackage, contents.getTableName());
+					BoundingBox featureBoundingBox = manager
+							.getBoundingBox(projection);
+					if (featureBoundingBox != null) {
+						if (manager.isIndexed()) {
+							expectedBoundingBox = expectedBoundingBox
+									.union(featureBoundingBox);
+						}
+						expectedManualBoundingBox = expectedManualBoundingBox
+								.union(featureBoundingBox);
+					}
+
+					BoundingBox expectedFeatureProjectionBoundingBox = contents
+							.getBoundingBox(projection);
+					if (featureBoundingBox != null && manager.isIndexed()) {
+						if (expectedFeatureProjectionBoundingBox == null) {
+							expectedFeatureProjectionBoundingBox = featureBoundingBox;
+						} else {
+							expectedFeatureProjectionBoundingBox = expectedFeatureProjectionBoundingBox
+									.union(featureBoundingBox);
+						}
+					}
+					BoundingBox featureProjectionBoundingBox = geoPackage
+							.getBoundingBox(projection, contents.getTableName());
+					if (featureProjectionBoundingBox == null) {
+						TestCase.assertNull(expectedFeatureProjectionBoundingBox);
+					} else {
+						TestCase.assertTrue(expectedBoundingBox
+								.contains(featureProjectionBoundingBox));
+						TestCase.assertEquals(
+								expectedFeatureProjectionBoundingBox,
+								featureProjectionBoundingBox);
+					}
+
+					BoundingBox expectedFeatureManualProjectionBoundingBox = contents
+							.getBoundingBox(projection);
+					if (featureBoundingBox != null) {
+						if (expectedFeatureManualProjectionBoundingBox == null) {
+							expectedFeatureManualProjectionBoundingBox = featureBoundingBox;
+						} else {
+							expectedFeatureManualProjectionBoundingBox = expectedFeatureManualProjectionBoundingBox
+									.union(featureBoundingBox);
+						}
+					}
+					BoundingBox featureManualProjectionBoundingBox = geoPackage
+							.getBoundingBox(projection,
+									contents.getTableName(), true);
+					if (featureManualProjectionBoundingBox == null) {
+						TestCase.assertNull(expectedFeatureManualProjectionBoundingBox);
+					} else {
+						TestCase.assertTrue(expectedManualBoundingBox
+								.contains(featureManualProjectionBoundingBox));
+						TestCase.assertEquals(
+								expectedFeatureManualProjectionBoundingBox,
+								featureManualProjectionBoundingBox);
+					}
+
+					featureBoundingBox = manager.getBoundingBox();
+
+					BoundingBox expectedFeatureBoundingBox = contents
+							.getBoundingBox();
+					if (featureBoundingBox != null && manager.isIndexed()) {
+						if (expectedFeatureBoundingBox == null) {
+							expectedFeatureBoundingBox = featureBoundingBox;
+						} else {
+							expectedFeatureBoundingBox = expectedFeatureBoundingBox
+									.union(featureBoundingBox);
+						}
+					}
+					BoundingBox featureBox = geoPackage.getBoundingBox(contents
+							.getTableName());
+					if (featureBox == null) {
+						TestCase.assertNull(expectedFeatureBoundingBox);
+					} else {
+						TestCase.assertEquals(expectedFeatureBoundingBox,
+								featureBox);
+					}
+
+					BoundingBox expectedFeatureManualBoundingBox = contents
+							.getBoundingBox();
+					if (featureBoundingBox != null) {
+						if (expectedFeatureManualBoundingBox == null) {
+							expectedFeatureManualBoundingBox = featureBoundingBox;
+						} else {
+							expectedFeatureManualBoundingBox = expectedFeatureManualBoundingBox
+									.union(featureBoundingBox);
+						}
+					}
+					BoundingBox featureManualBoundingBox = geoPackage
+							.getBoundingBox(contents.getTableName(), true);
+					if (featureManualBoundingBox == null) {
+						TestCase.assertNull(expectedFeatureManualBoundingBox);
+					} else {
+						TestCase.assertEquals(expectedFeatureManualBoundingBox,
+								featureManualBoundingBox);
+					}
+
+					break;
+				case TILES:
+				case GRIDDED_COVERAGE:
+					TileDao tileDao = geoPackage.getTileDao(contents
+							.getTableName());
+					BoundingBox tileBoundingBox = tileDao
+							.getBoundingBox(projection);
+					expectedBoundingBox = expectedBoundingBox
+							.union(tileBoundingBox);
+					expectedManualBoundingBox = expectedManualBoundingBox
+							.union(tileBoundingBox);
+
+					BoundingBox expectedProjectionTileBoundingBox = tileBoundingBox
+							.union(contents.getBoundingBox(projection));
+					TestCase.assertEquals(
+							expectedProjectionTileBoundingBox,
+							geoPackage.getBoundingBox(projection,
+									contents.getTableName()));
+					TestCase.assertEquals(
+							expectedProjectionTileBoundingBox,
+							geoPackage.getBoundingBox(projection,
+									contents.getTableName(), true));
+
+					BoundingBox expectedTileBoundingBox = tileDao
+							.getBoundingBox().union(contents.getBoundingBox());
+					TestCase.assertEquals(expectedTileBoundingBox,
+							geoPackage.getBoundingBox(contents.getTableName()));
+					TestCase.assertEquals(expectedTileBoundingBox, geoPackage
+							.getBoundingBox(contents.getTableName(), true));
+					break;
+				default:
+					break;
+				}
+
+			}
+
+		}
+
+		TestCase.assertEquals(expectedBoundingBox, geoPackageBoundingBox);
+		TestCase.assertEquals(expectedManualBoundingBox,
+				geoPackageManualBoundingBox);
+
+	}
 }

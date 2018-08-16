@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.attributes.AttributesConnection;
@@ -20,6 +21,7 @@ import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.factory.GeoPackageCoreImpl;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.user.FeatureConnection;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureTable;
@@ -33,6 +35,7 @@ import mil.nga.geopackage.tiles.user.TileConnection;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.tiles.user.TileTableReader;
+import mil.nga.sf.proj.Projection;
 
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -65,6 +68,23 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 			GeoPackageTableCreator tableCreator) {
 		super(name, file.getAbsolutePath(), database, tableCreator, true);
 		this.database = database;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BoundingBox getFeatureBoundingBox(Projection projection,
+			String table, boolean manual) {
+
+		BoundingBox boundingBox = null;
+
+		FeatureIndexManager indexManager = new FeatureIndexManager(this, table);
+		if (manual || indexManager.isIndexed()) {
+			boundingBox = indexManager.getBoundingBox(projection);
+		}
+
+		return boundingBox;
 	}
 
 	/**
