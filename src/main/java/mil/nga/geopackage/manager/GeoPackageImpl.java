@@ -80,8 +80,12 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		BoundingBox boundingBox = null;
 
 		FeatureIndexManager indexManager = new FeatureIndexManager(this, table);
-		if (manual || indexManager.isIndexed()) {
-			boundingBox = indexManager.getBoundingBox(projection);
+		try {
+			if (manual || indexManager.isIndexed()) {
+				boundingBox = indexManager.getBoundingBox(projection);
+			}
+		} finally {
+			indexManager.close();
 		}
 
 		return boundingBox;

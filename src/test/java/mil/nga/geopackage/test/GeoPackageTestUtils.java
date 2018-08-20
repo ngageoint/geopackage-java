@@ -478,6 +478,8 @@ public class GeoPackageTestUtils {
 								featureManualBoundingBox);
 					}
 
+					manager.close();
+					
 					break;
 				case TILES:
 				case GRIDDED_COVERAGE:
