@@ -191,10 +191,9 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
-	 * Query for the bounds of the feature table index
-	 * 
-	 * @return bounding box
+	 * {@inheritDoc}
 	 */
+	@Override
 	public BoundingBox getBoundingBox() {
 		List<Double> values = querySingleRowTypedResults(
 				"SELECT MIN(" + RTreeIndexExtension.COLUMN_MIN_X + "), MIN("
@@ -208,12 +207,9 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
-	 * Query for the feature index bounds and return in the provided projection
-	 * 
-	 * @param projection
-	 *            desired projection
-	 * @return bounding box
+	 * {@inheritDoc}
 	 */
+	@Override
 	public BoundingBox getBoundingBox(Projection projection) {
 		BoundingBox boundingBox = getBoundingBox();
 		if (boundingBox != null && projection != null) {
