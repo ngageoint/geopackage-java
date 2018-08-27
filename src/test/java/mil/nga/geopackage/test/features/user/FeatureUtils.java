@@ -668,7 +668,7 @@ public class FeatureUtils {
 														.toString();
 											}
 											if (featureColumn.getMax() != null) {
-												if (updatedLimitedString != null) {
+												if (updatedLimitedString == null) {
 													if (updatedString.length() > featureColumn
 															.getMax()) {
 														updatedLimitedString = updatedString

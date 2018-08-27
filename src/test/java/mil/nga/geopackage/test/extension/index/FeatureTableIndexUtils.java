@@ -71,6 +71,10 @@ public class FeatureTableIndexUtils {
 			}
 			featureResultSet.close();
 
+			if (featureTableIndex.isIndexed()) {
+				featureTableIndex.deleteIndex();
+			}
+
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 			TestCase.assertNull(featureTableIndex.getLastIndexed());
 			Date currentDate = new Date();
@@ -312,6 +316,10 @@ public class FeatureTableIndexUtils {
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureTableIndex featureTableIndex = new FeatureTableIndex(
 					geoPackage, featureDao);
+
+			if (featureTableIndex.isIndexed()) {
+				featureTableIndex.deleteIndex();
+			}
 
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 

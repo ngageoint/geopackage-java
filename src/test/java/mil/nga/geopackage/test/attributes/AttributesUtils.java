@@ -25,6 +25,7 @@ import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.ResultUtils;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.SQLiteQueryBuilder;
+import mil.nga.geopackage.extension.properties.PropertiesExtension;
 import mil.nga.geopackage.metadata.Metadata;
 import mil.nga.geopackage.metadata.MetadataScopeType;
 import mil.nga.geopackage.metadata.reference.MetadataReference;
@@ -127,7 +128,8 @@ public class AttributesUtils {
 				AttributesColumn column2 = null;
 				for (AttributesColumn column : attributesRow.getTable()
 						.getColumns()) {
-					if (!column.isPrimaryKey()) {
+					if (!column.isPrimaryKey()
+							&& column.getDataType() != GeoPackageDataType.BLOB) {
 						if (column1 == null) {
 							column1 = column;
 						} else {
@@ -150,6 +152,10 @@ public class AttributesUtils {
 					if (column1Decimal) {
 						column1AttributesValue = new ColumnValue(column1Value,
 								.000001);
+					} else if (column1Value instanceof Date) {
+						column1AttributesValue = new ColumnValue(DateConverter
+								.converter(column1.getDataType()).stringValue(
+										(Date) column1Value));
 					} else {
 						column1AttributesValue = new ColumnValue(column1Value);
 					}
@@ -184,6 +190,11 @@ public class AttributesUtils {
 						if (column2Decimal) {
 							column2AttributesValue = new ColumnValue(
 									column2Value, .000001);
+						} else if (column2Value instanceof Date) {
+							column2AttributesValue = new ColumnValue(
+									DateConverter.converter(
+											column2.getDataType()).stringValue(
+											(Date) column2Value));
 						} else {
 							column2AttributesValue = new ColumnValue(
 									column2Value);
@@ -311,6 +322,10 @@ public class AttributesUtils {
 
 			for (String tableName : tables) {
 
+				if (tableName.equals(PropertiesExtension.TABLE_NAME)) {
+					continue;
+				}
+
 				AttributesDao dao = geoPackage.getAttributesDao(tableName);
 				TestCase.assertNotNull(dao);
 
@@ -382,7 +397,7 @@ public class AttributesUtils {
 												.toString();
 									}
 									if (attributesColumn.getMax() != null) {
-										if (updatedLimitedString != null) {
+										if (updatedLimitedString == null) {
 											if (updatedString.length() > attributesColumn
 													.getMax()) {
 												updatedLimitedString = updatedString
@@ -682,6 +697,10 @@ public class AttributesUtils {
 
 			for (String tableName : tables) {
 
+				if (tableName.equals(PropertiesExtension.TABLE_NAME)) {
+					continue;
+				}
+				
 				AttributesDao dao = geoPackage.getAttributesDao(tableName);
 				TestCase.assertNotNull(dao);
 

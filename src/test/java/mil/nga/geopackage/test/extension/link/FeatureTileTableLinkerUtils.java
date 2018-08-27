@@ -23,6 +23,8 @@ public class FeatureTileTableLinkerUtils {
 	 */
 	public static void testLink(GeoPackage geoPackage) throws SQLException {
 
+		GeoPackageExtensions.deleteExtensions(geoPackage);
+
 		FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
 		TestCase.assertNull(linker.getExtension());
 
