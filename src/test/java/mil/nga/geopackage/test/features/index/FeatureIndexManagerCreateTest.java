@@ -21,6 +21,14 @@ public class FeatureIndexManagerCreateTest extends CreateGeoPackageTestCase {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean allowEmptyFeatures() {
+		return false;
+	}
+	
+	/**
 	 * Test index
 	 *
 	 * @throws SQLException
@@ -46,12 +54,16 @@ public class FeatureIndexManagerCreateTest extends CreateGeoPackageTestCase {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean allowEmptyFeatures() {
-		return false;
-	}
+    /**
+     * Test timed index
+     *
+     * @throws SQLException upon error
+     */
+    @Test
+    public void testTimedIndex() throws SQLException {
 
+        FeatureIndexManagerUtils.testTimedIndex(geoPackage, false, false);
+
+    }
+	
 }
