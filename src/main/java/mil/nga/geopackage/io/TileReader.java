@@ -620,10 +620,25 @@ public class TileReader {
 					+ ", Width: " + matrixWidth + ", Height: " + matrixHeight
 					+ ", Max Tiles: " + (matrixWidth * matrixHeight));
 
-			// Create the image for each column and row combination
-			for (int column = 0; column < matrixWidth; column++) {
+			// Shortcut for raw images with zoom directories with smaller bounds
+			// than the bounds of the minimum zoom value
+			int minColumn, maxColumn, minRow, maxRow;
+			if (rawImage) {
+				minColumn = zoomDirectory.minX;
+				maxColumn = zoomDirectory.maxX;
+				minRow = zoomDirectory.minY;
+				maxRow = zoomDirectory.maxY;
+			} else {
+				minColumn = 0;
+				maxColumn = (int) matrixWidth - 1;
+				minRow = 0;
+				maxRow = (int) matrixHeight - 1;
+			}
 
-				for (int row = 0; row < matrixHeight; row++) {
+			// Create the image for each column and row combination
+			for (int column = minColumn; column <= maxColumn; column++) {
+
+				for (int row = minRow; row <= maxRow; row++) {
 
 					// Image to draw for the column and row
 					BufferedImage image = null;
