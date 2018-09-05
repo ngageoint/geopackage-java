@@ -6,7 +6,18 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 3.0.3 (TBD)
 
-* TBD
+* geopackage-core version 3.0.3
+* User Table DAO projected bounding box methods
+* GeoPackage Connection and SQLUtils query improvements
+* ResultSet Result interface implementation, utilized by UserResultSet
+* RTree improvements for querying geometries
+* Feature Table Index chunked limit queries when indexing
+* Feature Index Manager to manage and query multiple index types
+* Feature Index Results interface and implementations
+* Feature Row geometry value and envelope methods
+* Feature Table Reader ignore case of geometry column name
+* Manual Feature Queries for unindexed geometries
+* Tile Reader directory checking shortcut when processing raw images
 
 ## [3.0.2](https://github.com/ngageoint/geopackage-java/releases/tag/3.0.2) (07-27-2018)
 
