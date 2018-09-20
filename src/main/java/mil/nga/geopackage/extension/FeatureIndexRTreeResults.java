@@ -1,8 +1,8 @@
-package mil.nga.geopackage.features.index;
+package mil.nga.geopackage.extension;
 
 import java.util.Iterator;
 
-import mil.nga.geopackage.extension.RTreeIndexTableDao;
+import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
 
