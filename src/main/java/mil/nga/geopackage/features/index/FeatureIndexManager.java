@@ -34,7 +34,7 @@ import com.j256.ormlite.dao.CloseableIterator;
  *
  * @author osbornb
  * @see mil.nga.geopackage.extension.index.FeatureTableIndex
- * @since 3.0.3
+ * @since 3.1.0
  */
 public class FeatureIndexManager {
 

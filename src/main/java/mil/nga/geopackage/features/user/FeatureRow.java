@@ -108,7 +108,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 * Get the simple features geometry value
 	 * 
 	 * @return geometry
-	 * @since 3.0.3
+	 * @since 3.1.0
 	 */
 	public Geometry getGeometryValue() {
 		GeoPackageGeometryData data = getGeometry();
@@ -123,7 +123,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 * Get the geometry envelope
 	 * 
 	 * @return geometry envelope
-	 * @since 3.0.3
+	 * @since 3.1.0
 	 */
 	public GeometryEnvelope getGeometryEnvelope() {
 		GeoPackageGeometryData data = getGeometry();

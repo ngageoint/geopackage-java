@@ -11,7 +11,7 @@ import mil.nga.geopackage.GeoPackageException;
  * 0 indexed based and ResultSets are 1 indexed based.
  * 
  * @author osbornb
- * @since 3.0.3
+ * @since 3.1.0
  */
 public class ResultSetResult implements Result {
 

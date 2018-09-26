@@ -13,7 +13,7 @@ import mil.nga.geopackage.features.user.FeatureRow;
  * of multiple Feature Index Results
  *
  * @author osbornb
- * @since 3.0.3
+ * @since 3.1.0
  */
 public class MultipleFeatureIndexResults implements FeatureIndexResults {
 

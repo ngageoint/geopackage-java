@@ -4,7 +4,7 @@ package mil.nga.geopackage.features.index;
  * Feature Index type enumeration of index location
  *
  * @author osbornb
- * @since 3.0.3
+ * @since 3.1.0
  */
 public enum FeatureIndexType {
 

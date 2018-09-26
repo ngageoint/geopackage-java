@@ -4,9 +4,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 3.0.3 (TBD)
+## 3.1.0 (TBD)
 
-* geopackage-core version 3.0.3
+* geopackage-core version 3.1.0
 * User Table DAO projected bounding box methods
 * GeoPackage Connection and SQLUtils query improvements
 * ResultSet Result interface implementation, utilized by UserResultSet

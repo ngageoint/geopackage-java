@@ -13,7 +13,7 @@ import com.j256.ormlite.dao.CloseableIterator;
  * GeoPackage index extension results
  *
  * @author osbornb
- * @since 3.0.3
+ * @since 3.1.0
  */
 class FeatureIndexGeoPackageResults implements FeatureIndexResults {
 

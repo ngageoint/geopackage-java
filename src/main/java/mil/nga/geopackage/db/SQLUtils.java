@@ -251,7 +251,7 @@ public class SQLUtils {
 	 * @param dataType
 	 *            GeoPackage data type
 	 * @return result, null if no result
-	 * @since 3.0.3
+	 * @since 3.1.0
 	 */
 	public static Object querySingleResult(Connection connection, String sql,
 			String[] args, int column, GeoPackageDataType dataType) {
@@ -276,7 +276,7 @@ public class SQLUtils {
 	 * @param limit
 	 *            result row limit
 	 * @return single column results
-	 * @since 3.0.3
+	 * @since 3.1.0
 	 */
 	public static List<Object> querySingleColumnResults(Connection connection,
 			String sql, String[] args, int column, GeoPackageDataType dataType,
@@ -301,7 +301,7 @@ public class SQLUtils {
 	 * @param limit
 	 *            result row limit
 	 * @return results
-	 * @since 3.0.3
+	 * @since 3.1.0
 	 */
 	public static List<List<Object>> queryResults(Connection connection,
 			String sql, String[] args, GeoPackageDataType[] dataTypes,
@@ -591,7 +591,7 @@ public class SQLUtils {
 	 * @param selectionArgs
 	 *            selection arguments
 	 * @return result
-	 * @since 3.0.3
+	 * @since 3.1.0
 	 */
 	public static ResultSetResult wrapQuery(Connection connection, String sql,
 			String[] selectionArgs) {
