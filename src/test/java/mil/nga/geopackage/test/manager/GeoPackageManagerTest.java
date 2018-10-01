@@ -225,4 +225,50 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * Test the memory footprint when repeatedly opening and closing a
+	 * GeoPackage
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void memoryTest() throws IOException {
+
+		File testFolder = folder.newFolder();
+		File dbFile = new File(testFolder, TestConstants.TEST_DB_FILE_NAME);
+
+		assertTrue("Database failed to create",
+				GeoPackageManager.create(dbFile));
+		assertTrue("Database does not exist", dbFile.exists());
+
+		// Try to garbage collect
+		System.gc();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+
+		// Track current memory usage
+		long initialMemory = Runtime.getRuntime().totalMemory()
+				- Runtime.getRuntime().freeMemory();
+
+		for (int i = 0; i < 5000; i++) {
+			GeoPackage geoPackage = GeoPackageManager.open(dbFile);
+			geoPackage.close();
+		}
+
+		// Try to garbage collect
+		System.gc();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+
+		long currentMemory = Runtime.getRuntime().totalMemory()
+				- Runtime.getRuntime().freeMemory();
+
+		// Less than 10 times initial memory
+		assertTrue(currentMemory <= 10 * initialMemory);
+	}
+
 }

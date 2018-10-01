@@ -39,11 +39,6 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	private final Connection connection;
 
 	/**
-	 * Connection source
-	 */
-	private final ConnectionSource connectionSource;
-
-	/**
 	 * Constructor
 	 *
 	 * @param file
@@ -55,9 +50,9 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 */
 	public GeoPackageConnection(File file, Connection connection,
 			ConnectionSource connectionSource) {
+		super(connectionSource);
 		this.file = file;
 		this.connection = connection;
-		this.connectionSource = connectionSource;
 	}
 
 	/**
@@ -122,7 +117,7 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 */
 	@Override
 	public void close() {
-		connectionSource.closeQuietly();
+		super.close();
 		try {
 			connection.close();
 		} catch (SQLException e) {
