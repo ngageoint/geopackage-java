@@ -17,7 +17,7 @@ public class UserMappingRow extends UserCustomRow {
 	 * @param table
 	 *            user mapping table
 	 */
-	UserMappingRow(UserMappingTable table) {
+	protected UserMappingRow(UserMappingTable table) {
 		super(table);
 	}
 

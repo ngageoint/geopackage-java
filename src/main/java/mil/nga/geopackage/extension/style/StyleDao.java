@@ -61,4 +61,23 @@ public class StyleDao extends SimpleAttributesDao {
 		return new StyleRow(row);
 	}
 
+	/**
+	 * Query for the style row from a style mapping row
+	 * 
+	 * @param styleMappingRow
+	 *            style mapping row
+	 * @return style row
+	 */
+	public StyleRow queryForRow(StyleMappingRow styleMappingRow) {
+		StyleRow styleRow = null;
+
+		UserCustomRow userCustomRow = queryForIdRow(styleMappingRow
+				.getRelatedId());
+		if (userCustomRow != null) {
+			styleRow = getRow(userCustomRow);
+		}
+
+		return styleRow;
+	}
+
 }

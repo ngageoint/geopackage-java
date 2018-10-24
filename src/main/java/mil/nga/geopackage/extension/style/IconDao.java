@@ -61,4 +61,23 @@ public class IconDao extends MediaDao {
 		return new IconRow(row);
 	}
 
+	/**
+	 * Query for the icon row from a style mapping row
+	 * 
+	 * @param styleMappingRow
+	 *            style mapping row
+	 * @return icon row
+	 */
+	public IconRow queryForRow(StyleMappingRow styleMappingRow) {
+		IconRow iconRow = null;
+
+		UserCustomRow userCustomRow = queryForIdRow(styleMappingRow
+				.getRelatedId());
+		if (userCustomRow != null) {
+			iconRow = getRow(userCustomRow);
+		}
+
+		return iconRow;
+	}
+
 }

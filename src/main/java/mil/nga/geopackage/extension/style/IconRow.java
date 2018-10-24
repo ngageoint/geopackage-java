@@ -19,7 +19,7 @@ public class IconRow extends MediaRow {
 	 * @param table
 	 *            icon table
 	 */
-	IconRow(IconTable table) {
+	protected IconRow(IconTable table) {
 		super(table);
 	}
 

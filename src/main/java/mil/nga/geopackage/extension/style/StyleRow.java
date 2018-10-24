@@ -26,7 +26,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * @param table
 	 *            style table
 	 */
-	StyleRow(StyleTable table) {
+	protected StyleRow(StyleTable table) {
 		super(table);
 	}
 
