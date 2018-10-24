@@ -26,6 +26,18 @@ public class MediaDao extends UserCustomDao {
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param dao
+	 *            user custom data access object
+	 * @param mediaTable
+	 *            media table
+	 */
+	protected MediaDao(UserCustomDao dao, MediaTable mediaTable) {
+		super(dao, mediaTable);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
