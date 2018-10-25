@@ -5,7 +5,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.extension.style.FeatureTableStyle;
+import mil.nga.geopackage.extension.style.FeatureTableStyles;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -29,31 +29,33 @@ public class FeatureStylesUtils {
 
 				FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
 
-				FeatureTableStyle featureTableStyle = new FeatureTableStyle(
+				FeatureTableStyles featureTableStyles = new FeatureTableStyles(
 						geoPackage, featureDao.getTable());
 
-				TestCase.assertNotNull(featureTableStyle.getTableName());
+				TestCase.assertNotNull(featureTableStyles.getTableName());
 				TestCase.assertEquals(tableName,
-						featureTableStyle.getTableName());
-				TestCase.assertNotNull(featureTableStyle.getFeatureStyles());
+						featureTableStyles.getTableName());
+				TestCase.assertNotNull(featureTableStyles
+						.getFeatureStyleExtension());
 
-				TestCase.assertNull(featureTableStyle.getDefaultFeatureStyle());
-				TestCase.assertNull(featureTableStyle.getDefaultStyles());
-				TestCase.assertNull(featureTableStyle.getDefaultIcons());
+				TestCase.assertNull(featureTableStyles.getTableFeatureStyles());
+				TestCase.assertNull(featureTableStyles.getTableStyles());
+				TestCase.assertNull(featureTableStyles.getTableIcons());
 
 				FeatureResultSet featureResultSet = featureDao.queryForAll();
 				while (featureResultSet.moveToNext()) {
 					FeatureRow featureRow = featureResultSet.getRow();
 
-					TestCase.assertNull(featureTableStyle
-							.getFeatureStyle(featureRow));
-					TestCase.assertNull(featureTableStyle
-							.getFeatureStyle(featureRow.getId()));
-					TestCase.assertNull(featureTableStyle.getStyles(featureRow));
-					TestCase.assertNull(featureTableStyle.getStyles(featureRow
+					TestCase.assertNull(featureTableStyles
+							.getFeatureStyles(featureRow));
+					TestCase.assertNull(featureTableStyles
+							.getFeatureStyles(featureRow.getId()));
+					TestCase.assertNull(featureTableStyles
+							.getStyles(featureRow));
+					TestCase.assertNull(featureTableStyles.getStyles(featureRow
 							.getId()));
-					TestCase.assertNull(featureTableStyle.getIcons(featureRow));
-					TestCase.assertNull(featureTableStyle.getIcons(featureRow
+					TestCase.assertNull(featureTableStyles.getIcons(featureRow));
+					TestCase.assertNull(featureTableStyles.getIcons(featureRow
 							.getId()));
 				}
 

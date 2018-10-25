@@ -94,7 +94,7 @@ public class Styles {
 		StyleRow styleRow = null;
 
 		if (geometryType != null) {
-			List<GeometryType> geometryTypes = FeatureStyles
+			List<GeometryType> geometryTypes = FeatureStyleExtension
 					.getGeometryTypeInheritance(geometryType);
 			for (GeometryType type : geometryTypes) {
 				styleRow = styles.get(type);

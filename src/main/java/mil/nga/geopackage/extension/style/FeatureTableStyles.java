@@ -8,17 +8,17 @@ import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
 
 /**
- * Feature Table Style, styles and icons for an individual feature table
+ * Feature Table Styles, styles and icons for an individual feature table
  * 
  * @author osbornb
  * @since 3.1.1
  */
-public class FeatureTableStyle {
+public class FeatureTableStyles {
 
 	/**
 	 * Feature Styles
 	 */
-	private final FeatureStyles featureStyles;
+	private final FeatureStyleExtension featureStyleExtension;
 
 	/**
 	 * Feature Table name
@@ -33,7 +33,7 @@ public class FeatureTableStyle {
 	 * @param featureTable
 	 *            feature table
 	 */
-	public FeatureTableStyle(GeoPackage geoPackage, FeatureTable featureTable) {
+	public FeatureTableStyles(GeoPackage geoPackage, FeatureTable featureTable) {
 		this(geoPackage, featureTable.getTableName());
 	}
 
@@ -45,7 +45,7 @@ public class FeatureTableStyle {
 	 * @param geometryColumns
 	 *            geometry columns
 	 */
-	public FeatureTableStyle(GeoPackage geoPackage,
+	public FeatureTableStyles(GeoPackage geoPackage,
 			GeometryColumns geometryColumns) {
 		this(geoPackage, geometryColumns.getTableName());
 	}
@@ -58,7 +58,7 @@ public class FeatureTableStyle {
 	 * @param contents
 	 *            feature contents
 	 */
-	public FeatureTableStyle(GeoPackage geoPackage, Contents contents) {
+	public FeatureTableStyles(GeoPackage geoPackage, Contents contents) {
 		this(geoPackage, contents.getTableName());
 	}
 
@@ -70,8 +70,8 @@ public class FeatureTableStyle {
 	 * @param featureTable
 	 *            feature table
 	 */
-	public FeatureTableStyle(GeoPackage geoPackage, String featureTable) {
-		featureStyles = new FeatureStyles(geoPackage);
+	public FeatureTableStyles(GeoPackage geoPackage, String featureTable) {
+		featureStyleExtension = new FeatureStyleExtension(geoPackage);
 		tableName = featureTable;
 		if (!geoPackage.isFeatureTable(featureTable)) {
 			throw new GeoPackageException(
@@ -82,12 +82,12 @@ public class FeatureTableStyle {
 	}
 
 	/**
-	 * Get the feature styles
+	 * Get the feature style extension
 	 * 
-	 * @return feature styles
+	 * @return feature style extension
 	 */
-	public FeatureStyles getFeatureStyles() {
-		return featureStyles;
+	public FeatureStyleExtension getFeatureStyleExtension() {
+		return featureStyleExtension;
 	}
 
 	/**
@@ -100,52 +100,52 @@ public class FeatureTableStyle {
 	}
 
 	/**
-	 * Get the default feature style
+	 * Get the table feature styles
 	 * 
-	 * @return default feature style or null
+	 * @return table feature styles or null
 	 */
-	public FeatureStyle getDefaultFeatureStyle() {
-		return featureStyles.getDefaultFeatureStyle(tableName);
+	public FeatureStyles getTableFeatureStyles() {
+		return featureStyleExtension.getTableFeatureStyles(tableName);
 	}
 
 	/**
-	 * Get the default styles
+	 * Get the table styles
 	 * 
-	 * @return default styles or null
+	 * @return table styles or null
 	 */
-	public Styles getDefaultStyles() {
-		return featureStyles.getDefaultStyles(tableName);
+	public Styles getTableStyles() {
+		return featureStyleExtension.getTableStyles(tableName);
 	}
 
 	/**
-	 * Get the default icons for the feature table
+	 * Get the table icons
 	 * 
-	 * @return default icons or null
+	 * @return table icons or null
 	 */
-	public Icons getDefaultIcons() {
-		return featureStyles.getDefaultIcons(tableName);
+	public Icons getTableIcons() {
+		return featureStyleExtension.getTableIcons(tableName);
 	}
 
 	/**
-	 * Get the feature style for the feature row
+	 * Get the feature styles for the feature row
 	 * 
 	 * @param featureRow
 	 *            feature row
-	 * @return feature style or null
+	 * @return feature styles or null
 	 */
-	public FeatureStyle getFeatureStyle(FeatureRow featureRow) {
-		return featureStyles.getFeatureStyle(featureRow);
+	public FeatureStyles getFeatureStyles(FeatureRow featureRow) {
+		return featureStyleExtension.getFeatureStyles(featureRow);
 	}
 
 	/**
-	 * Get the feature style for the feature id
+	 * Get the feature styles for the feature id
 	 * 
 	 * @param featureId
 	 *            feature id
-	 * @return feature style or null
+	 * @return feature styles or null
 	 */
-	public FeatureStyle getFeatureStyle(long featureId) {
-		return featureStyles.getFeatureStyle(tableName, featureId);
+	public FeatureStyles getFeatureStyles(long featureId) {
+		return featureStyleExtension.getFeatureStyles(tableName, featureId);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class FeatureTableStyle {
 	 * @return styles or null
 	 */
 	public Styles getStyles(FeatureRow featureRow) {
-		return featureStyles.getStyles(featureRow);
+		return featureStyleExtension.getStyles(featureRow);
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class FeatureTableStyle {
 	 * @return styles or null
 	 */
 	public Styles getStyles(long featureId) {
-		return featureStyles.getStyles(tableName, featureId);
+		return featureStyleExtension.getStyles(tableName, featureId);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class FeatureTableStyle {
 	 * @return icons or null
 	 */
 	public Icons getIcons(FeatureRow featureRow) {
-		return featureStyles.getIcons(featureRow);
+		return featureStyleExtension.getIcons(featureRow);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class FeatureTableStyle {
 	 * @return icons or null
 	 */
 	public Icons getIcons(long featureId) {
-		return featureStyles.getIcons(tableName, featureId);
+		return featureStyleExtension.getIcons(tableName, featureId);
 	}
 
 }

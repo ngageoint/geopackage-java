@@ -94,7 +94,7 @@ public class Icons {
 		IconRow iconRow = null;
 
 		if (geometryType != null) {
-			List<GeometryType> geometryTypes = FeatureStyles
+			List<GeometryType> geometryTypes = FeatureStyleExtension
 					.getGeometryTypeInheritance(geometryType);
 			for (GeometryType type : geometryTypes) {
 				iconRow = icons.get(type);
