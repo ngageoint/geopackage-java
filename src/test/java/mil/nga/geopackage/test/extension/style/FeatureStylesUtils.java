@@ -38,8 +38,8 @@ public class FeatureStylesUtils {
 				TestCase.assertNotNull(featureTableStyle.getFeatureStyles());
 
 				TestCase.assertNull(featureTableStyle.getDefaultFeatureStyle());
-				TestCase.assertNull(featureTableStyle.getDefaultStyle());
-				TestCase.assertNull(featureTableStyle.getDefaultIcon());
+				TestCase.assertNull(featureTableStyle.getDefaultStyles());
+				TestCase.assertNull(featureTableStyle.getDefaultIcons());
 
 				FeatureResultSet featureResultSet = featureDao.queryForAll();
 				while (featureResultSet.moveToNext()) {
@@ -49,11 +49,11 @@ public class FeatureStylesUtils {
 							.getFeatureStyle(featureRow));
 					TestCase.assertNull(featureTableStyle
 							.getFeatureStyle(featureRow.getId()));
-					TestCase.assertNull(featureTableStyle.getStyle(featureRow));
-					TestCase.assertNull(featureTableStyle.getStyle(featureRow
+					TestCase.assertNull(featureTableStyle.getStyles(featureRow));
+					TestCase.assertNull(featureTableStyle.getStyles(featureRow
 							.getId()));
-					TestCase.assertNull(featureTableStyle.getIcon(featureRow));
-					TestCase.assertNull(featureTableStyle.getIcon(featureRow
+					TestCase.assertNull(featureTableStyle.getIcons(featureRow));
+					TestCase.assertNull(featureTableStyle.getIcons(featureRow
 							.getId()));
 				}
 

@@ -155,11 +155,11 @@ public class FeatureStyles extends FeatureCoreStyles {
 		Long id = contentsId.getId(featureTable);
 		if (id != null) {
 
-			Style style = getDefaultStyle(featureTable, id);
-			Icon icon = getDefaultIcon(featureTable, id);
+			Styles styles = getDefaultStyles(featureTable, id);
+			Icons icons = getDefaultIcons(featureTable, id);
 
-			if (style != null || icon != null) {
-				featureStyle = new FeatureStyle(style, icon);
+			if (styles != null || icons != null) {
+				featureStyle = new FeatureStyle(styles, icons);
 			}
 
 		}
@@ -168,83 +168,83 @@ public class FeatureStyles extends FeatureCoreStyles {
 	}
 
 	/**
-	 * Get the default style for the feature table
+	 * Get the default styles for the feature table
 	 * 
 	 * @param featureTable
 	 *            feature table
-	 * @return default style or null
+	 * @return default styles or null
 	 */
-	public Style getDefaultStyle(FeatureTable featureTable) {
-		return getDefaultStyle(featureTable.getTableName());
+	public Styles getDefaultStyles(FeatureTable featureTable) {
+		return getDefaultStyles(featureTable.getTableName());
 	}
 
 	/**
-	 * Get the default style for the feature table
+	 * Get the default styles for the feature table
 	 * 
 	 * @param featureTable
 	 *            feature table
-	 * @return default style or null
+	 * @return default styles or null
 	 */
-	public Style getDefaultStyle(String featureTable) {
-		Style style = null;
+	public Styles getDefaultStyles(String featureTable) {
+		Styles styles = null;
 		Long id = contentsId.getId(featureTable);
 		if (id != null) {
-			style = getDefaultStyle(featureTable, id);
+			styles = getDefaultStyles(featureTable, id);
 		}
-		return style;
+		return styles;
 	}
 
 	/**
-	 * Get the default style for the feature table and contents id
+	 * Get the default styles for the feature table and contents id
 	 * 
 	 * @param featureTable
 	 *            feature table
 	 * @param contentsId
 	 *            contents id
-	 * @return default style or null
+	 * @return default styles or null
 	 */
-	private Style getDefaultStyle(String featureTable, long contentsId) {
-		return getStyle(contentsId, getStyleDefaultMappingDao(featureTable));
+	private Styles getDefaultStyles(String featureTable, long contentsId) {
+		return getStyles(contentsId, getStyleDefaultMappingDao(featureTable));
 	}
 
 	/**
-	 * Get the default icon for the feature table
+	 * Get the default icons for the feature table
 	 * 
 	 * @param featureTable
 	 *            feature table
-	 * @return default icon or null
+	 * @return default icons or null
 	 */
-	public Icon getDefaultIcon(FeatureTable featureTable) {
-		return getDefaultIcon(featureTable.getTableName());
+	public Icons getDefaultIcons(FeatureTable featureTable) {
+		return getDefaultIcons(featureTable.getTableName());
 	}
 
 	/**
-	 * Get the default icon for the feature table
+	 * Get the default icons for the feature table
 	 * 
 	 * @param featureTable
 	 *            feature table
-	 * @return default icon or null
+	 * @return default icons or null
 	 */
-	public Icon getDefaultIcon(String featureTable) {
-		Icon icon = null;
+	public Icons getDefaultIcons(String featureTable) {
+		Icons icons = null;
 		Long id = contentsId.getId(featureTable);
 		if (id != null) {
-			icon = getDefaultIcon(featureTable, id);
+			icons = getDefaultIcons(featureTable, id);
 		}
-		return icon;
+		return icons;
 	}
 
 	/**
-	 * Get the default icon for the feature table and contents id
+	 * Get the default icons for the feature table and contents id
 	 * 
 	 * @param featureTable
 	 *            feature table
 	 * @param contentsId
 	 *            contents id
-	 * @return default icon or null
+	 * @return default icons or null
 	 */
-	private Icon getDefaultIcon(String featureTable, long contentsId) {
-		return getIcon(contentsId, getIconDefaultMappingDao(featureTable));
+	private Icons getDefaultIcons(String featureTable, long contentsId) {
+		return getIcons(contentsId, getIconDefaultMappingDao(featureTable));
 	}
 
 	/**
@@ -270,78 +270,79 @@ public class FeatureStyles extends FeatureCoreStyles {
 	 */
 	public FeatureStyle getFeatureStyle(String featureTable, long featureId) {
 
-		Style style = getStyle(featureTable, featureId);
-		Icon icon = getIcon(featureTable, featureId);
+		Styles styles = getStyles(featureTable, featureId);
+		Icons icons = getIcons(featureTable, featureId);
 
 		FeatureStyle featureStyle = null;
-		if (style != null || icon != null) {
-			featureStyle = new FeatureStyle(style, icon);
+		if (styles != null || icons != null) {
+			featureStyle = new FeatureStyle(styles, icons);
 		}
 
 		return featureStyle;
 	}
 
 	/**
-	 * Get the style for the feature row
+	 * Get the styles for the feature row
 	 * 
 	 * @param featureRow
 	 *            feature row
-	 * @return style or null
+	 * @return styles or null
 	 */
-	public Style getStyle(FeatureRow featureRow) {
-		return getStyle(featureRow.getTable().getTableName(),
+	public Styles getStyles(FeatureRow featureRow) {
+		return getStyles(featureRow.getTable().getTableName(),
 				featureRow.getId());
 	}
 
 	/**
-	 * Get the style for the feature table and feature id
+	 * Get the styles for the feature table and feature id
 	 * 
 	 * @param featureTable
 	 *            feature table
 	 * @param featureId
 	 *            feature id
-	 * @return style or null
+	 * @return styles or null
 	 */
-	public Style getStyle(String featureTable, long featureId) {
-		return getStyle(featureId, getStyleMappingDao(featureTable));
+	public Styles getStyles(String featureTable, long featureId) {
+		return getStyles(featureId, getStyleMappingDao(featureTable));
 	}
 
 	/**
-	 * Get the icon for the feature row
+	 * Get the icons for the feature row
 	 * 
 	 * @param featureRow
 	 *            feature row
-	 * @return icon or null
+	 * @return icons or null
 	 */
-	public Icon getIcon(FeatureRow featureRow) {
-		return getIcon(featureRow.getTable().getTableName(), featureRow.getId());
+	public Icons getIcons(FeatureRow featureRow) {
+		return getIcons(featureRow.getTable().getTableName(),
+				featureRow.getId());
 	}
 
 	/**
-	 * Get the icon for the feature table and feature id
+	 * Get the icons for the feature table and feature id
 	 * 
 	 * @param featureTable
 	 *            feature table
 	 * @param featureId
 	 *            feature id
-	 * @return icon or null
+	 * @return icons or null
 	 */
-	public Icon getIcon(String featureTable, long featureId) {
-		return getIcon(featureId, getIconMappingDao(featureTable));
+	public Icons getIcons(String featureTable, long featureId) {
+		return getIcons(featureId, getIconMappingDao(featureTable));
 	}
 
 	/**
-	 * Get the style for feature id from the style and icon mapping daos
+	 * Get the styles for feature id from the style mapping dao
 	 * 
 	 * @param featureId
 	 *            geometry feature id or feature table id
 	 * @param mappingDao
 	 *            style mapping dao
-	 * @return style
+	 * @return styles
 	 */
-	private Style getStyle(long featureId, StyleMappingDao mappingDao) {
+	private Styles getStyles(long featureId, StyleMappingDao mappingDao) {
 
-		Style style = null;
+		Styles styles = null;
 
 		if (mappingDao != null && geoPackage.isTable(StyleTable.TABLE_NAME)) {
 
@@ -354,10 +355,10 @@ public class FeatureStyles extends FeatureCoreStyles {
 
 					StyleRow styleRow = styleDao.queryForRow(styleMappingRow);
 					if (styleRow != null) {
-						if (style == null) {
-							style = new Style();
+						if (styles == null) {
+							styles = new Styles();
 						}
-						style.setStyle(styleRow,
+						styles.setStyle(styleRow,
 								styleMappingRow.getGeometryType());
 					}
 				}
@@ -365,21 +366,21 @@ public class FeatureStyles extends FeatureCoreStyles {
 
 		}
 
-		return style;
+		return styles;
 	}
 
 	/**
-	 * Get the style for feature id from the style and icon mapping daos
+	 * Get the icons for feature id from the icon mapping dao
 	 * 
 	 * @param featureId
 	 *            geometry feature id or feature table id
 	 * @param mappingDao
 	 *            icon mapping dao
-	 * @return style
+	 * @return icons
 	 */
-	private Icon getIcon(long featureId, StyleMappingDao mappingDao) {
+	private Icons getIcons(long featureId, StyleMappingDao mappingDao) {
 
-		Icon icon = null;
+		Icons icons = null;
 
 		if (mappingDao != null && geoPackage.isTable(IconTable.TABLE_NAME)) {
 
@@ -392,17 +393,173 @@ public class FeatureStyles extends FeatureCoreStyles {
 
 					IconRow iconRow = iconDao.queryForRow(styleMappingRow);
 					if (iconRow != null) {
-						if (icon == null) {
-							icon = new Icon();
+						if (icons == null) {
+							icons = new Icons();
 						}
-						icon.setIcon(iconRow, styleMappingRow.getGeometryType());
+						icons.setIcon(iconRow,
+								styleMappingRow.getGeometryType());
 					}
 				}
 			}
 
 		}
 
-		return icon;
+		return icons;
+	}
+
+	/**
+	 * Set the default feature style for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureStyle
+	 *            default feature style
+	 */
+	public void setDefaultFeatureStyle(FeatureTable featureTable,
+			FeatureStyle featureStyle) {
+		setDefaultFeatureStyle(featureTable.getTableName(), featureStyle);
+	}
+
+	/**
+	 * Set the default feature style for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureStyle
+	 *            default feature style
+	 */
+	public void setDefaultFeatureStyle(String featureTable,
+			FeatureStyle featureStyle) {
+		if (featureStyle != null) {
+			setDefaultStyles(featureTable, featureStyle.getStyles());
+			setDefaultIcons(featureTable, featureStyle.getIcons());
+		} else {
+			deleteDefaultFeatureStyle(featureTable);
+		}
+	}
+
+	/**
+	 * Set the default styles for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param styles
+	 *            default styles
+	 */
+	public void setDefaultStyles(FeatureTable featureTable, Styles styles) {
+		setDefaultStyles(featureTable.getTableName(), styles);
+	}
+
+	/**
+	 * Set the default styles for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param styles
+	 *            default styles
+	 */
+	public void setDefaultStyles(String featureTable, Styles styles) {
+
+		deleteDefaultStyles(featureTable);
+
+		if (styles != null) {
+
+			if (styles.getDefaultStyle() != null) {
+				// TODO
+			}
+
+			// TODO
+		}
+	}
+
+	/**
+	 * Set the default icons for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param icons
+	 *            default icons
+	 */
+	public void setDefaultIcon(FeatureTable featureTable, Icons icons) {
+		setDefaultIcons(featureTable.getTableName(), icons);
+	}
+
+	/**
+	 * Set the default icons for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param icons
+	 *            default icons
+	 */
+	public void setDefaultIcons(String featureTable, Icons icons) {
+
+		deleteDefaultIcons(featureTable);
+
+		if (icons != null) {
+			// TODO
+		}
+	}
+
+	/**
+	 * Delete the default feature style for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteDefaultFeatureStyle(FeatureTable featureTable) {
+		deleteDefaultFeatureStyle(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete the default feature style for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteDefaultFeatureStyle(String featureTable) {
+		deleteDefaultStyles(featureTable);
+		deleteDefaultIcons(featureTable);
+	}
+
+	/**
+	 * Delete the default styles for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteDefaultStyles(FeatureTable featureTable) {
+		deleteDefaultStyles(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete the default styles for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteDefaultStyles(String featureTable) {
+		// TODO
+	}
+
+	/**
+	 * Delete the default icons for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteDefaultIcons(FeatureTable featureTable) {
+		deleteDefaultIcons(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete the default icons for the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteDefaultIcons(String featureTable) {
+		// TODO
 	}
 
 }

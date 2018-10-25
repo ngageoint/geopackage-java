@@ -13,7 +13,7 @@ import mil.nga.sf.GeometryType;
  * @author osbornb
  * @since 3.1.1
  */
-public class Icon {
+public class Icons {
 
 	/**
 	 * Default icon

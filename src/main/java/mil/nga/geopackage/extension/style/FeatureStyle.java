@@ -12,12 +12,12 @@ public class FeatureStyle {
 	/**
 	 * Style
 	 */
-	private Style style;
+	private Styles styles;
 
 	/**
 	 * Icon
 	 */
-	private Icon icon;
+	private Icons icons;
 
 	/**
 	 * Constructor
@@ -29,72 +29,72 @@ public class FeatureStyle {
 	/**
 	 * Constructor
 	 * 
-	 * @param style
-	 *            style
+	 * @param styles
+	 *            styles
 	 */
-	public FeatureStyle(Style style) {
-		this(style, null);
+	public FeatureStyle(Styles styles) {
+		this(styles, null);
 	}
 
 	/**
 	 * Constructor
 	 * 
-	 * @param icon
-	 *            icon
+	 * @param icons
+	 *            icons
 	 */
-	public FeatureStyle(Icon icon) {
-		this(null, icon);
+	public FeatureStyle(Icons icons) {
+		this(null, icons);
 	}
 
 	/**
 	 * Constructor
 	 * 
-	 * @param style
-	 *            style
-	 * @param icon
-	 *            icon
+	 * @param styles
+	 *            styles
+	 * @param icons
+	 *            icons
 	 */
-	public FeatureStyle(Style style, Icon icon) {
-		this.style = style;
-		this.icon = icon;
+	public FeatureStyle(Styles styles, Icons icons) {
+		this.styles = styles;
+		this.icons = icons;
 	}
 
 	/**
-	 * Get the style
+	 * Get the styles
 	 * 
-	 * @return style or null
+	 * @return styles or null
 	 */
-	public Style getStyle() {
-		return style;
+	public Styles getStyles() {
+		return styles;
 	}
 
 	/**
-	 * Set the style
+	 * Set the styles
 	 * 
-	 * @param style
-	 *            style
+	 * @param styles
+	 *            styles
 	 */
-	public void setStyle(Style style) {
-		this.style = style;
+	public void setStyles(Styles styles) {
+		this.styles = styles;
 	}
 
 	/**
-	 * Get the icon
+	 * Get the icons
 	 * 
-	 * @return icon or null
+	 * @return icons or null
 	 */
-	public Icon getIcon() {
-		return icon;
+	public Icons getIcons() {
+		return icons;
 	}
 
 	/**
-	 * Set the icon
+	 * Set the icons
 	 * 
-	 * @param icon
-	 *            icon
+	 * @param icons
+	 *            icons
 	 */
-	public void setIcon(Icon icon) {
-		this.icon = icon;
+	public void setIcon(Icons icons) {
+		this.icons = icons;
 	}
 
 }

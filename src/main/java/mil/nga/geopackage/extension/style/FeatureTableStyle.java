@@ -109,21 +109,21 @@ public class FeatureTableStyle {
 	}
 
 	/**
-	 * Get the default style
+	 * Get the default styles
 	 * 
-	 * @return default style or null
+	 * @return default styles or null
 	 */
-	public Style getDefaultStyle() {
-		return featureStyles.getDefaultStyle(tableName);
+	public Styles getDefaultStyles() {
+		return featureStyles.getDefaultStyles(tableName);
 	}
 
 	/**
-	 * Get the default icon for the feature table
+	 * Get the default icons for the feature table
 	 * 
-	 * @return default icon or null
+	 * @return default icons or null
 	 */
-	public Icon getDefaultIcon() {
-		return featureStyles.getDefaultIcon(tableName);
+	public Icons getDefaultIcons() {
+		return featureStyles.getDefaultIcons(tableName);
 	}
 
 	/**
@@ -149,47 +149,47 @@ public class FeatureTableStyle {
 	}
 
 	/**
-	 * Get the style for the feature row
+	 * Get the styles for the feature row
 	 * 
 	 * @param featureRow
 	 *            feature row
-	 * @return style or null
+	 * @return styles or null
 	 */
-	public Style getStyle(FeatureRow featureRow) {
-		return featureStyles.getStyle(featureRow);
+	public Styles getStyles(FeatureRow featureRow) {
+		return featureStyles.getStyles(featureRow);
 	}
 
 	/**
-	 * Get the style for the feature id
+	 * Get the styles for the feature id
 	 * 
 	 * @param featureId
 	 *            feature id
-	 * @return style or null
+	 * @return styles or null
 	 */
-	public Style getStyle(long featureId) {
-		return featureStyles.getStyle(tableName, featureId);
+	public Styles getStyles(long featureId) {
+		return featureStyles.getStyles(tableName, featureId);
 	}
 
 	/**
-	 * Get the icon for the feature row
+	 * Get the icons for the feature row
 	 * 
 	 * @param featureRow
 	 *            feature row
-	 * @return icon or null
+	 * @return icons or null
 	 */
-	public Icon getIcon(FeatureRow featureRow) {
-		return featureStyles.getIcon(featureRow);
+	public Icons getIcons(FeatureRow featureRow) {
+		return featureStyles.getIcons(featureRow);
 	}
 
 	/**
-	 * Get the icon for the feature id
+	 * Get the icons for the feature id
 	 * 
 	 * @param featureId
 	 *            feature id
-	 * @return icon or null
+	 * @return icons or null
 	 */
-	public Icon getIcon(long featureId) {
-		return featureStyles.getIcon(tableName, featureId);
+	public Icons getIcons(long featureId) {
+		return featureStyles.getIcons(tableName, featureId);
 	}
 
 }
