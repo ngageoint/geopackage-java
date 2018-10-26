@@ -239,7 +239,8 @@ public class StyleRow extends SimpleAttributesRow {
 	 * Set the width
 	 * 
 	 * @param width
-	 *            Geometry line stroke or point width >= 0.0
+	 *            Geometry line stroke or point width greater than or equal to
+	 *            0.0
 	 */
 	public void setWidth(Double width) {
 		if (width != null && width < 0.0) {
