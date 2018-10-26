@@ -776,7 +776,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @param featureStyles
 	 *            default feature styles
 	 */
-	public void setTableFeatureStyle(FeatureTable featureTable,
+	public void setTableFeatureStyles(FeatureTable featureTable,
 			FeatureStyles featureStyles) {
 		setTableFeatureStyles(featureTable.getTableName(), featureStyles);
 	}
@@ -1000,6 +1000,312 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
+	 * Set the feature styles for the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param featureStyles
+	 *            feature styles
+	 */
+	public void setFeatureStyles(FeatureRow featureRow,
+			FeatureStyles featureStyles) {
+		setFeatureStyles(featureRow.getTable().getTableName(),
+				featureRow.getId(), featureStyles);
+	}
+
+	/**
+	 * Set the feature styles for the feature table and feature id
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param featureStyles
+	 *            feature styles
+	 */
+	public void setFeatureStyles(String featureTable, long featureId,
+			FeatureStyles featureStyles) {
+		if (featureStyles != null) {
+			setStyles(featureTable, featureId, featureStyles.getStyles());
+			setIcons(featureTable, featureId, featureStyles.getIcons());
+		} else {
+			deleteStyles(featureTable, featureId);
+			deleteIcons(featureTable, featureId);
+		}
+	}
+
+	/**
+	 * Set the feature style (style and icon) of the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param featureStyle
+	 *            feature style
+	 */
+	public void setFeatureStyle(FeatureRow featureRow, FeatureStyle featureStyle) {
+		setFeatureStyle(featureRow.getTable().getTableName(),
+				featureRow.getId(), featureRow.getGeometryType(), featureStyle);
+	}
+
+	/**
+	 * Set the feature style default (style and icon) of the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param featureStyle
+	 *            feature style
+	 */
+	public void setFeatureStyleDefault(FeatureRow featureRow,
+			FeatureStyle featureStyle) {
+		setFeatureStyle(featureRow.getTable().getTableName(),
+				featureRow.getId(), null, featureStyle);
+	}
+
+	/**
+	 * Set the feature style (style and icon) of the feature
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 * @param featureStyle
+	 *            feature style
+	 */
+	public void setFeatureStyle(String featureTable, long featureId,
+			GeometryType geometryType, FeatureStyle featureStyle) {
+		if (featureStyle != null) {
+			setStyle(featureTable, featureId, geometryType,
+					featureStyle.getStyle());
+			setIcon(featureTable, featureId, geometryType,
+					featureStyle.getIcon());
+		} else {
+			deleteStyle(featureTable, featureId, geometryType);
+			deleteIcon(featureTable, featureId, geometryType);
+		}
+	}
+
+	/**
+	 * Set the feature style (style and icon) of the feature
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param featureStyle
+	 *            feature style
+	 */
+	public void setFeatureStyleDefault(String featureTable, long featureId,
+			FeatureStyle featureStyle) {
+		setFeatureStyle(featureTable, featureId, null, featureStyle);
+	}
+
+	/**
+	 * Set the styles for the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param styles
+	 *            styles
+	 */
+	public void setStyles(FeatureRow featureRow, Styles styles) {
+		setStyles(featureRow.getTable().getTableName(), featureRow.getId(),
+				styles);
+	}
+
+	/**
+	 * Set the styles for the feature table and feature id
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param styles
+	 *            styles
+	 */
+	public void setStyles(String featureTable, long featureId, Styles styles) {
+		deleteStyles(featureTable, featureId);
+
+		if (styles != null) {
+
+			if (styles.getDefaultStyle() != null) {
+				setStyleDefault(featureTable, featureId,
+						styles.getDefaultStyle());
+			}
+
+			for (Entry<GeometryType, StyleRow> style : styles.getStyles()
+					.entrySet()) {
+				setStyle(featureTable, featureId, style.getKey(),
+						style.getValue());
+			}
+
+		}
+	}
+
+	/**
+	 * Set the style of the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param style
+	 *            style row
+	 */
+	public void setStyle(FeatureRow featureRow, StyleRow style) {
+		setStyle(featureRow.getTable().getTableName(), featureRow.getId(),
+				featureRow.getGeometryType(), style);
+	}
+
+	/**
+	 * Set the default style of the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param style
+	 *            style row
+	 */
+	public void setStyleDefault(FeatureRow featureRow, StyleRow style) {
+		setStyle(featureRow.getTable().getTableName(), featureRow.getId(),
+				null, style);
+	}
+
+	/**
+	 * Set the style of the feature
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 * @param style
+	 *            style row
+	 */
+	public void setStyle(String featureTable, long featureId,
+			GeometryType geometryType, StyleRow style) {
+		deleteStyle(featureTable, featureId, geometryType);
+		if (style != null) {
+			// TODO
+		}
+	}
+
+	/**
+	 * Set the default style of the feature
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param style
+	 *            style row
+	 */
+	public void setStyleDefault(String featureTable, long featureId,
+			StyleRow style) {
+		setStyle(featureTable, featureId, null, style);
+	}
+
+	/**
+	 * Set the icons for the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param icons
+	 *            icons
+	 */
+	public void setIcons(FeatureRow featureRow, Icons icons) {
+		setIcons(featureRow.getTable().getTableName(), featureRow.getId(),
+				icons);
+	}
+
+	/**
+	 * Set the icons for the feature table and feature id
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param icons
+	 *            icons
+	 */
+	public void setIcons(String featureTable, long featureId, Icons icons) {
+		deleteIcons(featureTable, featureId);
+
+		if (icons != null) {
+
+			if (icons.getDefaultIcon() != null) {
+				setIconDefault(featureTable, featureId, icons.getDefaultIcon());
+			}
+
+			for (Entry<GeometryType, IconRow> icon : icons.getIcons()
+					.entrySet()) {
+				setIcon(featureTable, featureId, icon.getKey(), icon.getValue());
+			}
+
+		}
+	}
+
+	/**
+	 * Set the icon of the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param icon
+	 *            icon row
+	 */
+	public void setIcon(FeatureRow featureRow, IconRow icon) {
+		setIcon(featureRow.getTable().getTableName(), featureRow.getId(),
+				featureRow.getGeometryType(), icon);
+	}
+
+	/**
+	 * Set the default icon of the feature row
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param icon
+	 *            icon row
+	 */
+	public void setIconDefault(FeatureRow featureRow, IconRow icon) {
+		setIcon(featureRow.getTable().getTableName(), featureRow.getId(), null,
+				icon);
+	}
+
+	/**
+	 * Get the icon of the feature, searching in order: feature geometry type
+	 * icon, feature default icon, table geometry type icon, table default icon
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 * @param icon
+	 *            icon row
+	 */
+	public void setIcon(String featureTable, long featureId,
+			GeometryType geometryType, IconRow icon) {
+		deleteIcon(featureTable, featureId, geometryType);
+		if (icon != null) {
+			// TODO
+		}
+	}
+
+	/**
+	 * Set the default icon of the feature
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param icon
+	 *            icon row
+	 */
+	public void setIconDefault(String featureTable, long featureId, IconRow icon) {
+		setIcon(featureTable, featureId, null, icon);
+	}
+
+	/**
 	 * Delete the feature table feature styles
 	 * 
 	 * @param featureTable
@@ -1147,6 +1453,213 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            geometry type
 	 */
 	public void deleteTableIcon(String featureTable, GeometryType geometryType) {
+		// TODO
+	}
+
+	/**
+	 * Delete all feature styles
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteFeatureStyles(FeatureTable featureTable) {
+		deleteFeatureStyles(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete all feature styles
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteFeatureStyles(String featureTable) {
+		deleteStyles(featureTable);
+		deleteIcons(featureTable);
+	}
+
+	/**
+	 * Delete all styles
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteStyles(FeatureTable featureTable) {
+		deleteStyles(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete all styles
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteStyles(String featureTable) {
+		// TODO
+	}
+
+	/**
+	 * Delete feature row styles
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 */
+	public void deleteStyles(FeatureRow featureRow) {
+		deleteStyles(featureRow.getTable().getTableName(), featureRow.getId());
+	}
+
+	/**
+	 * Delete feature row styles
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 */
+	public void deleteStyles(String featureTable, long featureId) {
+		// TODO
+	}
+
+	/**
+	 * Delete the feature row default style
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 */
+	public void deleteStyleDefault(FeatureRow featureRow) {
+		deleteStyleDefault(featureRow.getTable().getTableName(),
+				featureRow.getId());
+	}
+
+	/**
+	 * Delete the feature row default style
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 */
+	public void deleteStyleDefault(String featureTable, long featureId) {
+		deleteStyle(featureTable, featureId, null);
+	}
+
+	/**
+	 * Delete the feature row style for the geometry type
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 */
+	public void deleteStyle(FeatureRow featureRow, GeometryType geometryType) {
+		deleteStyle(featureRow.getTable().getTableName(), featureRow.getId(),
+				geometryType);
+	}
+
+	/**
+	 * Delete the feature row style for the geometry type
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 */
+	public void deleteStyle(String featureTable, long featureId,
+			GeometryType geometryType) {
+		// TODO
+	}
+
+	/**
+	 * Delete all icons
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteIcons(FeatureTable featureTable) {
+		deleteIcons(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete all icons
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteIcons(String featureTable) {
+		// TODO
+	}
+
+	/**
+	 * Delete feature row icons
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 */
+	public void deleteIcons(FeatureRow featureRow) {
+		deleteIcons(featureRow.getTable().getTableName(), featureRow.getId());
+	}
+
+	/**
+	 * Delete feature row icons
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 */
+	public void deleteIcons(String featureTable, long featureId) {
+		// TODO
+	}
+
+	/**
+	 * Delete the feature row default icon
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 */
+	public void deleteIconDefault(FeatureRow featureRow) {
+		deleteIconDefault(featureRow.getTable().getTableName(),
+				featureRow.getId());
+	}
+
+	/**
+	 * Delete the feature row default icon
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 */
+	public void deleteIconDefault(String featureTable, long featureId) {
+		deleteIcon(featureTable, featureId, null);
+	}
+
+	/**
+	 * Delete the feature row icon for the geometry type
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 */
+	public void deleteIcon(FeatureRow featureRow, GeometryType geometryType) {
+		deleteIcon(featureRow.getTable().getTableName(), featureRow.getId(),
+				geometryType);
+	}
+
+	/**
+	 * Delete the feature row icon for the geometry type
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 */
+	public void deleteIcon(String featureTable, long featureId,
+			GeometryType geometryType) {
 		// TODO
 	}
 
