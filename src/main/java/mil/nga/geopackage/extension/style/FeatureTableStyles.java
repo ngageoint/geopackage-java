@@ -492,4 +492,175 @@ public class FeatureTableStyles {
 		return getIcon(featureId, null);
 	}
 
+	/**
+	 * Set the feature table default feature styles
+	 * 
+	 * @param featureStyles
+	 *            default feature styles
+	 */
+	public void setTableFeatureStyles(FeatureStyles featureStyles) {
+		featureStyleExtension.setTableFeatureStyles(tableName, featureStyles);
+		clearCachedTableFeatureStyles();
+	}
+
+	/**
+	 * Set the feature table default styles
+	 * 
+	 * @param styles
+	 *            default styles
+	 */
+	public void setTableStyles(Styles styles) {
+		featureStyleExtension.setTableStyles(tableName, styles);
+		clearCachedTableStyles();
+	}
+
+	/**
+	 * Set the feature table style default
+	 * 
+	 * @param style
+	 *            style row
+	 */
+	public void setTableStyleDefault(StyleRow style) {
+		featureStyleExtension.setTableStyleDefault(tableName, style);
+		clearCachedTableStyles();
+	}
+
+	/**
+	 * Set the feature table style for the geometry type
+	 * 
+	 * @param geometryType
+	 *            geometry type
+	 * @param style
+	 *            style row
+	 */
+	public void setTableStyle(GeometryType geometryType, StyleRow style) {
+		featureStyleExtension.setTableStyle(tableName, geometryType, style);
+		clearCachedTableStyles();
+	}
+
+	/**
+	 * Set the feature table default icons
+	 * 
+	 * @param icons
+	 *            default icons
+	 */
+	public void setTableIcons(Icons icons) {
+		featureStyleExtension.setTableIcons(tableName, icons);
+		clearCachedTableIcons();
+	}
+
+	/**
+	 * Set the feature table icon default
+	 * 
+	 * @param icon
+	 *            icon row
+	 */
+	public void setTableIconDefault(IconRow icon) {
+		featureStyleExtension.setTableIconDefault(tableName, icon);
+		clearCachedTableIcons();
+	}
+
+	/**
+	 * Set the feature table icon for the geometry type
+	 * 
+	 * @param geometryType
+	 *            geometry type
+	 * @param icon
+	 *            icon row
+	 */
+	public void setTableIcon(GeometryType geometryType, IconRow icon) {
+		featureStyleExtension.setTableIcon(tableName, geometryType, icon);
+		clearCachedTableIcons();
+	}
+
+	/**
+	 * Delete the feature table feature styles
+	 */
+	public void deleteTableFeatureStyles() {
+		featureStyleExtension.deleteTableFeatureStyles(tableName);
+		clearCachedTableFeatureStyles();
+	}
+
+	/**
+	 * Delete the feature table styles
+	 */
+	public void deleteTableStyles() {
+		featureStyleExtension.deleteTableStyles(tableName);
+		clearCachedTableStyles();
+	}
+
+	/**
+	 * Delete the feature table default style
+	 */
+	public void deleteTableStyleDefault() {
+		featureStyleExtension.deleteTableStyleDefault(tableName);
+		clearCachedTableStyles();
+	}
+
+	/**
+	 * Delete the feature table style for the geometry type
+	 * 
+	 * @param geometryType
+	 *            geometry type
+	 */
+	public void deleteTableStyle(GeometryType geometryType) {
+		featureStyleExtension.deleteTableStyle(tableName, geometryType);
+		clearCachedTableStyles();
+	}
+
+	/**
+	 * Delete the feature table icons
+	 */
+	public void deleteTableIcons() {
+		featureStyleExtension.deleteTableIcons(tableName);
+		clearCachedTableIcons();
+	}
+
+	/**
+	 * Delete the feature table default icon
+	 */
+	public void deleteTableIconDefault() {
+		featureStyleExtension.deleteTableIconDefault(tableName);
+		clearCachedTableIcons();
+	}
+
+	/**
+	 * Delete the feature table icon for the geometry type
+	 * 
+	 * @param geometryType
+	 *            geometry type
+	 */
+	public void deleteTableIcon(GeometryType geometryType) {
+		featureStyleExtension.deleteTableIcon(tableName, geometryType);
+		clearCachedTableIcons();
+	}
+
+	/**
+	 * Clear the cached table feature styles
+	 */
+	public void clearCachedTableFeatureStyles() {
+		synchronized (cachedTableFeatureStyles) {
+			cachedTableFeatureStyles.setStyles(null);
+			cachedTableFeatureStyles.setIcons(null);
+		}
+	}
+
+	/**
+	 * Clear the cached table styles
+	 */
+	public void clearCachedTableStyles() {
+		synchronized (cachedTableFeatureStyles) {
+			cachedTableFeatureStyles.setStyles(null);
+		}
+	}
+
+	/**
+	 * Clear the cached table icons
+	 */
+	public void clearCachedTableIcons() {
+		synchronized (cachedTableFeatureStyles) {
+			cachedTableFeatureStyles.setIcons(null);
+		}
+	}
+
 }
