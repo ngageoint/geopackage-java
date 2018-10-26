@@ -93,7 +93,7 @@ public class FeatureStyles {
 	 * @param icons
 	 *            icons
 	 */
-	public void setIcon(Icons icons) {
+	public void setIcons(Icons icons) {
 		this.icons = icons;
 	}
 

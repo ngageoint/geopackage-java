@@ -93,7 +93,7 @@ public class Icons {
 
 		IconRow iconRow = null;
 
-		if (geometryType != null) {
+		if (geometryType != null && !icons.isEmpty()) {
 			List<GeometryType> geometryTypes = FeatureStyleExtension
 					.getGeometryTypeInheritance(geometryType);
 			for (GeometryType type : geometryTypes) {
@@ -113,6 +113,24 @@ public class Icons {
 		}
 
 		return iconRow;
+	}
+
+	/**
+	 * Determine if this icons is empty
+	 * 
+	 * @return true if empty, false if at least one icon
+	 */
+	public boolean isEmpty() {
+		return defaultIcon == null && icons.isEmpty();
+	}
+
+	/**
+	 * Determine if there is a default icon
+	 * 
+	 * @return true if default icon exists
+	 */
+	public boolean hasDefault() {
+		return defaultIcon != null;
 	}
 
 }

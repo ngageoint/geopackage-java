@@ -93,7 +93,7 @@ public class Styles {
 
 		StyleRow styleRow = null;
 
-		if (geometryType != null) {
+		if (geometryType != null && !styles.isEmpty()) {
 			List<GeometryType> geometryTypes = FeatureStyleExtension
 					.getGeometryTypeInheritance(geometryType);
 			for (GeometryType type : geometryTypes) {
@@ -113,6 +113,24 @@ public class Styles {
 		}
 
 		return styleRow;
+	}
+
+	/**
+	 * Determine if this styles is empty
+	 * 
+	 * @return true if empty, false if at least one style
+	 */
+	public boolean isEmpty() {
+		return defaultStyle == null && styles.isEmpty();
+	}
+
+	/**
+	 * Determine if there is a default style
+	 * 
+	 * @return true if default style exists
+	 */
+	public boolean hasDefault() {
+		return defaultStyle != null;
 	}
 
 }

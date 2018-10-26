@@ -9,6 +9,7 @@ import mil.nga.geopackage.extension.style.FeatureTableStyles;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.sf.GeometryType;
 
 public class FeatureStylesUtils {
 
@@ -40,7 +41,15 @@ public class FeatureStylesUtils {
 
 				TestCase.assertNull(featureTableStyles.getTableFeatureStyles());
 				TestCase.assertNull(featureTableStyles.getTableStyles());
+				TestCase.assertNull(featureTableStyles.getCachedTableStyles());
+				TestCase.assertNull(featureTableStyles.getTableStyleDefault());
+				TestCase.assertNull(featureTableStyles
+						.getTableStyle(GeometryType.GEOMETRY));
 				TestCase.assertNull(featureTableStyles.getTableIcons());
+				TestCase.assertNull(featureTableStyles.getCachedTableIcons());
+				TestCase.assertNull(featureTableStyles.getTableIconDefault());
+				TestCase.assertNull(featureTableStyles
+						.getTableIcon(GeometryType.GEOMETRY));
 
 				FeatureResultSet featureResultSet = featureDao.queryForAll();
 				while (featureResultSet.moveToNext()) {
@@ -50,13 +59,41 @@ public class FeatureStylesUtils {
 							.getFeatureStyles(featureRow));
 					TestCase.assertNull(featureTableStyles
 							.getFeatureStyles(featureRow.getId()));
+
+					TestCase.assertNull(featureTableStyles
+							.getFeatureStyle(featureRow));
+					TestCase.assertNull(featureTableStyles
+							.getFeatureStyleDefault(featureRow));
+					TestCase.assertNull(featureTableStyles.getFeatureStyle(
+							featureRow.getId(), featureRow.getGeometryType()));
+					TestCase.assertNull(featureTableStyles
+							.getFeatureStyleDefault(featureRow.getId()));
+
 					TestCase.assertNull(featureTableStyles
 							.getStyles(featureRow));
 					TestCase.assertNull(featureTableStyles.getStyles(featureRow
 							.getId()));
+
+					TestCase.assertNull(featureTableStyles.getStyle(featureRow));
+					TestCase.assertNull(featureTableStyles
+							.getStyleDefault(featureRow));
+					TestCase.assertNull(featureTableStyles.getStyle(
+							featureRow.getId(), featureRow.getGeometryType()));
+					TestCase.assertNull(featureTableStyles
+							.getStyleDefault(featureRow.getId()));
+
 					TestCase.assertNull(featureTableStyles.getIcons(featureRow));
 					TestCase.assertNull(featureTableStyles.getIcons(featureRow
 							.getId()));
+
+					TestCase.assertNull(featureTableStyles.getIcon(featureRow));
+					TestCase.assertNull(featureTableStyles
+							.getIconDefault(featureRow));
+					TestCase.assertNull(featureTableStyles.getIcon(
+							featureRow.getId(), featureRow.getGeometryType()));
+					TestCase.assertNull(featureTableStyles
+							.getIconDefault(featureRow.getId()));
+
 				}
 
 			}
@@ -64,4 +101,5 @@ public class FeatureStylesUtils {
 		}
 
 	}
+
 }

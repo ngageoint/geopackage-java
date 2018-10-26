@@ -27,6 +27,11 @@ public class FeatureTableStyles {
 	private final String tableName;
 
 	/**
+	 * Cached table feature styles
+	 */
+	private final FeatureStyles cachedTableFeatureStyles = new FeatureStyles();
+
+	/**
 	 * Constructor
 	 * 
 	 * @param geoPackage
@@ -119,6 +124,35 @@ public class FeatureTableStyles {
 	}
 
 	/**
+	 * Get the cached table styles, querying and caching if needed
+	 * 
+	 * @return cached table styles
+	 */
+	public Styles getCachedTableStyles() {
+
+		Styles styles = cachedTableFeatureStyles.getStyles();
+
+		if (styles == null) {
+			synchronized (cachedTableFeatureStyles) {
+				styles = cachedTableFeatureStyles.getStyles();
+				if (styles == null) {
+					styles = getTableStyles();
+					if (styles == null) {
+						styles = new Styles();
+					}
+					cachedTableFeatureStyles.setStyles(styles);
+				}
+			}
+		}
+
+		if (styles.isEmpty()) {
+			styles = null;
+		}
+
+		return styles;
+	}
+
+	/**
 	 * Get the table style of the geometry type
 	 * 
 	 * @param geometryType
@@ -145,6 +179,35 @@ public class FeatureTableStyles {
 	 */
 	public Icons getTableIcons() {
 		return featureStyleExtension.getTableIcons(tableName);
+	}
+
+	/**
+	 * Get the cached table icons, querying and caching if needed
+	 * 
+	 * @return cached table icons
+	 */
+	public Icons getCachedTableIcons() {
+
+		Icons icons = cachedTableFeatureStyles.getIcons();
+
+		if (icons == null) {
+			synchronized (cachedTableFeatureStyles) {
+				icons = cachedTableFeatureStyles.getIcons();
+				if (icons == null) {
+					icons = getTableIcons();
+					if (icons == null) {
+						icons = new Icons();
+					}
+					cachedTableFeatureStyles.setIcons(icons);
+				}
+			}
+		}
+
+		if (icons.isEmpty()) {
+			icons = null;
+		}
+
+		return icons;
 	}
 
 	/**
@@ -320,9 +383,10 @@ public class FeatureTableStyles {
 		if (styleRow == null) {
 
 			// Table Style
-			// TODO cache table styles
-			styleRow = featureStyleExtension.getTableStyle(tableName,
-					geometryType);
+			Styles styles = getCachedTableStyles();
+			if (styles != null) {
+				styleRow = styles.getStyle(geometryType);
+			}
 
 		}
 
@@ -405,10 +469,11 @@ public class FeatureTableStyles {
 
 		if (iconRow == null) {
 
-			// Table Style
-			// TODO cache table icons
-			iconRow = featureStyleExtension.getTableIcon(tableName,
-					geometryType);
+			// Table Icon
+			Icons icons = getCachedTableIcons();
+			if (icons != null) {
+				iconRow = icons.getIcon(geometryType);
+			}
 
 		}
 
