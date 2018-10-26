@@ -210,6 +210,35 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
+	 * Get the style of the feature table and geometry type
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param geometryType
+	 *            geometry type
+	 * @return style row
+	 */
+	public StyleRow getTableStyle(String featureTable, GeometryType geometryType) {
+		StyleRow styleRow = null;
+		Styles tableStyles = getTableStyles(featureTable);
+		if (tableStyles != null) {
+			styleRow = tableStyles.getStyle(geometryType);
+		}
+		return styleRow;
+	}
+
+	/**
+	 * Get the default style of the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @return style row
+	 */
+	public StyleRow getTableStyleDefault(String featureTable) {
+		return getTableStyle(featureTable, null);
+	}
+
+	/**
 	 * Get the feature table default icons
 	 * 
 	 * @param featureTable
@@ -247,6 +276,35 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 */
 	private Icons getTableIcons(String featureTable, long contentsId) {
 		return getIcons(contentsId, getIconDefaultMappingDao(featureTable));
+	}
+
+	/**
+	 * Get the default icon of the feature table
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @return icon row
+	 */
+	public IconRow getTableIconDefault(String featureTable) {
+		return getTableIcon(featureTable, null);
+	}
+
+	/**
+	 * Get the icon of the feature table and geometry type
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param geometryType
+	 *            geometry type
+	 * @return icon row
+	 */
+	public IconRow getTableIcon(String featureTable, GeometryType geometryType) {
+		IconRow iconRow = null;
+		Icons tableIcons = getTableIcons(featureTable);
+		if (tableIcons != null) {
+			iconRow = tableIcons.getIcon(geometryType);
+		}
+		return iconRow;
 	}
 
 	/**
@@ -298,6 +356,20 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
+	 * Get the feature style default (style and icon) of the feature row,
+	 * searching in order: feature default style or icon, table default style or
+	 * icon
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @return feature style
+	 */
+	public FeatureStyle getFeatureStyleDefault(FeatureRow featureRow) {
+		return getFeatureStyle(featureRow.getTable().getTableName(),
+				featureRow.getId(), null);
+	}
+
+	/**
 	 * Get the feature style (style and icon) of the feature, searching in
 	 * order: feature geometry type style or icon, feature default style or
 	 * icon, table geometry type style or icon, table default style or icon
@@ -323,6 +395,22 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 		}
 
 		return featureStyle;
+	}
+
+	/**
+	 * Get the feature style (style and icon) of the feature, searching in
+	 * order: feature geometry type style or icon, feature default style or
+	 * icon, table geometry type style or icon, table default style or icon
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @return feature style
+	 */
+	public FeatureStyle getFeatureStyleDefault(String featureTable,
+			long featureId) {
+		return getFeatureStyle(featureTable, featureId, null);
 	}
 
 	/**
@@ -365,6 +453,19 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
+	 * Get the default style of the feature row, searching in order: feature
+	 * default style, table default style
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @return style row
+	 */
+	public StyleRow getStyleDefault(FeatureRow featureRow) {
+		return getStyle(featureRow.getTable().getTableName(),
+				featureRow.getId(), null);
+	}
+
+	/**
 	 * Get the style of the feature, searching in order: feature geometry type
 	 * style, feature default style, table geometry type style, table default
 	 * style
@@ -379,6 +480,42 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 */
 	public StyleRow getStyle(String featureTable, long featureId,
 			GeometryType geometryType) {
+		return getStyle(featureTable, featureId, geometryType, true);
+	}
+
+	/**
+	 * Get the default style of the feature, searching in order: feature default
+	 * style, table default style
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @return style row
+	 */
+	public StyleRow getStyleDefault(String featureTable, long featureId) {
+		return getStyle(featureTable, featureId, null, true);
+	}
+
+	/**
+	 * Get the style of the feature, searching in order: feature geometry type
+	 * style, feature default style, when tableStyle enabled continue searching:
+	 * table geometry type style, table default style
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 * @param tableStyle
+	 *            when true and a feature style is not found, query for a
+	 *            matching table style
+	 * 
+	 * @return style row
+	 */
+	public StyleRow getStyle(String featureTable, long featureId,
+			GeometryType geometryType, boolean tableStyle) {
 
 		StyleRow styleRow = null;
 
@@ -388,16 +525,33 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 			styleRow = styles.getStyle(geometryType);
 		}
 
-		if (styleRow == null) {
+		if (styleRow == null && tableStyle) {
 
 			// Table Style
-			Styles tableStyles = getTableStyles(featureTable);
-			if (tableStyles != null) {
-				styleRow = tableStyles.getStyle(geometryType);
-			}
+			styleRow = getTableStyle(featureTable, geometryType);
+
 		}
 
 		return styleRow;
+	}
+
+	/**
+	 * Get the default style of the feature, searching in order: feature default
+	 * style, when tableStyle enabled continue searching: table default style
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param tableStyle
+	 *            when true and a feature style is not found, query for a
+	 *            matching table style
+	 * 
+	 * @return style row
+	 */
+	public StyleRow getStyleDefault(String featureTable, long featureId,
+			boolean tableStyle) {
+		return getStyle(featureTable, featureId, null, tableStyle);
 	}
 
 	/**
@@ -440,6 +594,19 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
+	 * Get the default icon of the feature row, searching in order: feature
+	 * default icon, table default icon
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @return icon row
+	 */
+	public IconRow getIconDefault(FeatureRow featureRow) {
+		return getIcon(featureRow.getTable().getTableName(),
+				featureRow.getId(), null);
+	}
+
+	/**
 	 * Get the icon of the feature, searching in order: feature geometry type
 	 * icon, feature default icon, table geometry type icon, table default icon
 	 * 
@@ -453,6 +620,41 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 */
 	public IconRow getIcon(String featureTable, long featureId,
 			GeometryType geometryType) {
+		return getIcon(featureTable, featureId, geometryType, true);
+	}
+
+	/**
+	 * Get the default icon of the feature, searching in order: feature default
+	 * icon, table default icon
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @return icon row
+	 */
+	public IconRow getIconDefault(String featureTable, long featureId) {
+		return getIcon(featureTable, featureId, null, true);
+	}
+
+	/**
+	 * Get the icon of the feature, searching in order: feature geometry type
+	 * icon, feature default icon, when tableIcon enabled continue searching:
+	 * table geometry type icon, table default icon
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 * @param tableIcon
+	 *            when true and a feature icon is not found, query for a
+	 *            matching table icon
+	 * @return icon row
+	 */
+	public IconRow getIcon(String featureTable, long featureId,
+			GeometryType geometryType, boolean tableIcon) {
 
 		IconRow iconRow = null;
 
@@ -462,16 +664,32 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 			iconRow = icons.getIcon(geometryType);
 		}
 
-		if (iconRow == null) {
+		if (iconRow == null && tableIcon) {
 
 			// Table Icon
-			Icons tableIcons = getTableIcons(featureTable);
-			if (tableIcons != null) {
-				iconRow = tableIcons.getIcon(geometryType);
-			}
+			iconRow = getTableIcon(featureTable, geometryType);
+
 		}
 
 		return iconRow;
+	}
+
+	/**
+	 * Get the default icon of the feature, searching in order: feature default
+	 * icon, when tableIcon enabled continue searching: table default icon
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 * @param featureId
+	 *            feature id
+	 * @param tableIcon
+	 *            when true and a feature icon is not found, query for a
+	 *            matching table icon
+	 * @return icon row
+	 */
+	public IconRow getIconDefault(String featureTable, long featureId,
+			boolean tableIcon) {
+		return getIcon(featureTable, featureId, null, tableIcon);
 	}
 
 	/**
