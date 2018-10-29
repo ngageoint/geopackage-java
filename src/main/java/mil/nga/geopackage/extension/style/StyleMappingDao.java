@@ -7,6 +7,7 @@ import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
 import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.sf.GeometryType;
 
 /**
  * Style Mapping DAO for reading style mapping data tables
@@ -82,6 +83,41 @@ public class StyleMappingDao extends UserMappingDao {
 			resultSet.close();
 		}
 		return rows;
+	}
+
+	/**
+	 * Delete by base is and geometry type
+	 * 
+	 * @param id
+	 *            base id
+	 * @param geometryType
+	 *            geometry type
+	 * @return rows deleted
+	 */
+	public int deleteByBaseId(long id, GeometryType geometryType) {
+
+		String geometryTypeName = null;
+		if (geometryType != null) {
+			geometryTypeName = geometryType.getName();
+		}
+
+		StringBuilder where = new StringBuilder();
+		where.append(buildWhere(StyleMappingTable.COLUMN_BASE_ID, id));
+		where.append(" AND ");
+		where.append(buildWhere(StyleMappingTable.COLUMN_GEOMETRY_TYPE_NAME,
+				geometryTypeName));
+
+		List<Object> whereArguments = new ArrayList<>();
+		whereArguments.add(id);
+		if (geometryTypeName != null) {
+			whereArguments.add(geometryTypeName);
+		}
+
+		String[] whereArgs = buildWhereArgs(whereArguments);
+
+		int deleted = delete(where.toString(), whereArgs);
+
+		return deleted;
 	}
 
 }

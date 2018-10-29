@@ -54,15 +54,15 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
-	 * Get a Style Default Mapping DAO
+	 * Get a Table Style Mapping DAO
 	 * 
 	 * @param featureTable
 	 *            feature table
 	 * 
-	 * @return style default mapping DAO
+	 * @return table style mapping DAO
 	 */
-	public StyleMappingDao getStyleDefaultMappingDao(String featureTable) {
-		return getMappingDao(TABLE_MAPPING_STYLE_DEFAULT, featureTable);
+	public StyleMappingDao getTableStyleMappingDao(String featureTable) {
+		return getMappingDao(TABLE_MAPPING_TABLE_STYLE, featureTable);
 	}
 
 	/**
@@ -78,15 +78,15 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
-	 * Get a Icon Default Mapping DAO
+	 * Get a Table Icon Mapping DAO
 	 * 
 	 * @param featureTable
 	 *            feature table
 	 * 
-	 * @return icon default mapping DAO
+	 * @return table icon mapping DAO
 	 */
-	public StyleMappingDao getIconDefaultMappingDao(String featureTable) {
-		return getMappingDao(TABLE_MAPPING_ICON_DEFAULT, featureTable);
+	public StyleMappingDao getTableIconMappingDao(String featureTable) {
+		return getMappingDao(TABLE_MAPPING_TABLE_ICON, featureTable);
 	}
 
 	/**
@@ -114,9 +114,12 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @return style DAO
 	 */
 	public StyleDao getStyleDao() {
-		StyleDao styleDao = new StyleDao(
-				relatedTables.getUserDao(StyleTable.TABLE_NAME));
-		relatedTables.setContents(styleDao.getTable());
+		StyleDao styleDao = null;
+		if (geoPackage.isTable(StyleTable.TABLE_NAME)) {
+			styleDao = new StyleDao(
+					relatedTables.getUserDao(StyleTable.TABLE_NAME));
+			relatedTables.setContents(styleDao.getTable());
+		}
 		return styleDao;
 	}
 
@@ -126,9 +129,12 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @return icon DAO
 	 */
 	public IconDao getIconDao() {
-		IconDao iconDao = new IconDao(
-				relatedTables.getUserDao(IconTable.TABLE_NAME));
-		relatedTables.setContents(iconDao.getTable());
+		IconDao iconDao = null;
+		if (geoPackage.isTable(IconTable.TABLE_NAME)) {
+			iconDao = new IconDao(
+					relatedTables.getUserDao(IconTable.TABLE_NAME));
+			relatedTables.setContents(iconDao.getTable());
+		}
 		return iconDao;
 	}
 
@@ -206,7 +212,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @return table styles or null
 	 */
 	private Styles getTableStyles(String featureTable, long contentsId) {
-		return getStyles(contentsId, getStyleDefaultMappingDao(featureTable));
+		return getStyles(contentsId, getTableStyleMappingDao(featureTable));
 	}
 
 	/**
@@ -275,7 +281,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @return table icons or null
 	 */
 	private Icons getTableIcons(String featureTable, long contentsId) {
-		return getIcons(contentsId, getIconDefaultMappingDao(featureTable));
+		return getIcons(contentsId, getTableIconMappingDao(featureTable));
 	}
 
 	/**
@@ -705,26 +711,30 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		Styles styles = null;
 
-		if (mappingDao != null && geoPackage.isTable(StyleTable.TABLE_NAME)) {
+		if (mappingDao != null) {
 
-			List<StyleMappingRow> styleMappingRows = mappingDao
-					.queryByBaseFeatureId(featureId);
-			if (!styleMappingRows.isEmpty()) {
+			StyleDao styleDao = getStyleDao();
 
-				StyleDao styleDao = getStyleDao();
-				for (StyleMappingRow styleMappingRow : styleMappingRows) {
+			if (styleDao != null) {
 
-					StyleRow styleRow = styleDao.queryForRow(styleMappingRow);
-					if (styleRow != null) {
-						if (styles == null) {
-							styles = new Styles();
+				List<StyleMappingRow> styleMappingRows = mappingDao
+						.queryByBaseFeatureId(featureId);
+				if (!styleMappingRows.isEmpty()) {
+
+					for (StyleMappingRow styleMappingRow : styleMappingRows) {
+
+						StyleRow styleRow = styleDao
+								.queryForRow(styleMappingRow);
+						if (styleRow != null) {
+							if (styles == null) {
+								styles = new Styles();
+							}
+							styles.setStyle(styleRow,
+									styleMappingRow.getGeometryType());
 						}
-						styles.setStyle(styleRow,
-								styleMappingRow.getGeometryType());
 					}
 				}
 			}
-
 		}
 
 		return styles;
@@ -743,26 +753,28 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		Icons icons = null;
 
-		if (mappingDao != null && geoPackage.isTable(IconTable.TABLE_NAME)) {
+		if (mappingDao != null) {
 
-			List<StyleMappingRow> styleMappingRows = mappingDao
-					.queryByBaseFeatureId(featureId);
-			if (!styleMappingRows.isEmpty()) {
+			IconDao iconDao = getIconDao();
+			if (iconDao != null) {
 
-				IconDao iconDao = getIconDao();
-				for (StyleMappingRow styleMappingRow : styleMappingRows) {
+				List<StyleMappingRow> styleMappingRows = mappingDao
+						.queryByBaseFeatureId(featureId);
+				if (!styleMappingRows.isEmpty()) {
 
-					IconRow iconRow = iconDao.queryForRow(styleMappingRow);
-					if (iconRow != null) {
-						if (icons == null) {
-							icons = new Icons();
+					for (StyleMappingRow styleMappingRow : styleMappingRows) {
+
+						IconRow iconRow = iconDao.queryForRow(styleMappingRow);
+						if (iconRow != null) {
+							if (icons == null) {
+								icons = new Icons();
+							}
+							icons.setIcon(iconRow,
+									styleMappingRow.getGeometryType());
 						}
-						icons.setIcon(iconRow,
-								styleMappingRow.getGeometryType());
 					}
 				}
 			}
-
 		}
 
 		return icons;
@@ -893,7 +905,15 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		if (style != null) {
 
-			// TODO
+			createTableStyleRelationship(featureTable);
+
+			long featureContentsId = contentsId.getOrCreateId(featureTable);
+
+			long styleId = getOrInsertStyle(style);
+
+			StyleMappingDao mappingDao = getTableStyleMappingDao(featureTable);
+			insertStyleMapping(mappingDao, featureContentsId, styleId,
+					geometryType);
 
 		}
 
@@ -994,7 +1014,15 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		if (icon != null) {
 
-			// TODO
+			createTableIconRelationship(featureTable);
+
+			long featureContentsId = contentsId.getOrCreateId(featureTable);
+
+			long iconId = getOrInsertIcon(icon);
+
+			StyleMappingDao mappingDao = getTableIconMappingDao(featureTable);
+			insertStyleMapping(mappingDao, featureContentsId, iconId,
+					geometryType);
 
 		}
 	}
@@ -1185,7 +1213,14 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 			GeometryType geometryType, StyleRow style) {
 		deleteStyle(featureTable, featureId, geometryType);
 		if (style != null) {
-			// TODO
+
+			createStyleRelationship(featureTable);
+
+			long styleId = getOrInsertStyle(style);
+
+			StyleMappingDao mappingDao = getStyleMappingDao(featureTable);
+			insertStyleMapping(mappingDao, featureId, styleId, geometryType);
+
 		}
 	}
 
@@ -1287,7 +1322,14 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 			GeometryType geometryType, IconRow icon) {
 		deleteIcon(featureTable, featureId, geometryType);
 		if (icon != null) {
-			// TODO
+
+			createIconRelationship(featureTable);
+
+			long iconId = getOrInsertIcon(icon);
+
+			StyleMappingDao mappingDao = getIconMappingDao(featureTable);
+			insertStyleMapping(mappingDao, featureId, iconId, geometryType);
+
 		}
 	}
 
@@ -1303,6 +1345,67 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 */
 	public void setIconDefault(String featureTable, long featureId, IconRow icon) {
 		setIcon(featureTable, featureId, null, icon);
+	}
+
+	/**
+	 * Get the style id, either from the existing style or by inserting a new
+	 * one
+	 * 
+	 * @param style
+	 *            style row
+	 * @return style id
+	 */
+	private long getOrInsertStyle(StyleRow style) {
+		long styleId;
+		if (style.hasId()) {
+			styleId = style.getId();
+		} else {
+			StyleDao styleDao = getStyleDao();
+			styleId = styleDao.create(style);
+		}
+		return styleId;
+	}
+
+	/**
+	 * Get the icon id, either from the existing icon or by inserting a new one
+	 * 
+	 * @param icon
+	 *            icon row
+	 * @return icon id
+	 */
+	private long getOrInsertIcon(IconRow icon) {
+		long iconId;
+		if (icon.hasId()) {
+			iconId = icon.getId();
+		} else {
+			IconDao iconDao = getIconDao();
+			iconId = iconDao.create(icon);
+		}
+		return iconId;
+	}
+
+	/**
+	 * Insert a style mapping row
+	 * 
+	 * @param mappingDao
+	 *            mapping dao
+	 * @param baseId
+	 *            base id, either contents id or feature id
+	 * @param relatedId
+	 *            related id, either style or icon id
+	 * @param geometryType
+	 *            geometry type or null
+	 */
+	private void insertStyleMapping(StyleMappingDao mappingDao, long baseId,
+			long relatedId, GeometryType geometryType) {
+
+		StyleMappingRow row = mappingDao.newRow();
+
+		row.setBaseId(baseId);
+		row.setRelatedId(relatedId);
+		row.setGeometryType(geometryType);
+
+		mappingDao.insert(row);
 	}
 
 	/**
@@ -1343,7 +1446,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            feature table
 	 */
 	public void deleteTableStyles(String featureTable) {
-		// TODO
+		deleteTableMappings(getTableStyleMappingDao(featureTable), featureTable);
 	}
 
 	/**
@@ -1388,7 +1491,8 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            geometry type
 	 */
 	public void deleteTableStyle(String featureTable, GeometryType geometryType) {
-		// TODO
+		deleteTableMapping(getTableStyleMappingDao(featureTable), featureTable,
+				geometryType);
 	}
 
 	/**
@@ -1408,7 +1512,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            feature table
 	 */
 	public void deleteTableIcons(String featureTable) {
-		// TODO
+		deleteTableMappings(getTableIconMappingDao(featureTable), featureTable);
 	}
 
 	/**
@@ -1453,7 +1557,46 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            geometry type
 	 */
 	public void deleteTableIcon(String featureTable, GeometryType geometryType) {
-		// TODO
+		deleteTableMapping(getTableIconMappingDao(featureTable), featureTable,
+				geometryType);
+	}
+
+	/**
+	 * Delete the table style mappings
+	 * 
+	 * @param mappingDao
+	 *            mapping dao
+	 * @param featureTable
+	 *            feature table
+	 */
+	private void deleteTableMappings(StyleMappingDao mappingDao,
+			String featureTable) {
+		if (mappingDao != null) {
+			Long featureContentsId = contentsId.getId(featureTable);
+			if (featureContentsId != null) {
+				mappingDao.deleteByBaseId(featureContentsId);
+			}
+		}
+	}
+
+	/**
+	 * Delete the table style mapping with the geometry type value
+	 * 
+	 * @param mappingDao
+	 *            mapping dao
+	 * @param featureTable
+	 *            feature table
+	 * @param geometryType
+	 *            geometry type
+	 */
+	private void deleteTableMapping(StyleMappingDao mappingDao,
+			String featureTable, GeometryType geometryType) {
+		if (mappingDao != null) {
+			Long featureContentsId = contentsId.getId(featureTable);
+			if (featureContentsId != null) {
+				mappingDao.deleteByBaseId(featureContentsId, geometryType);
+			}
+		}
 	}
 
 	/**
@@ -1494,7 +1637,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            feature table
 	 */
 	public void deleteStyles(String featureTable) {
-		// TODO
+		deleteMappings(getStyleMappingDao(featureTable));
 	}
 
 	/**
@@ -1516,7 +1659,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            feature id
 	 */
 	public void deleteStyles(String featureTable, long featureId) {
-		// TODO
+		deleteMappings(getStyleMappingDao(featureTable), featureId);
 	}
 
 	/**
@@ -1567,7 +1710,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 */
 	public void deleteStyle(String featureTable, long featureId,
 			GeometryType geometryType) {
-		// TODO
+		deleteMapping(getStyleMappingDao(featureTable), featureId, geometryType);
 	}
 
 	/**
@@ -1587,7 +1730,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            feature table
 	 */
 	public void deleteIcons(String featureTable) {
-		// TODO
+		deleteMappings(getIconMappingDao(featureTable));
 	}
 
 	/**
@@ -1609,7 +1752,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            feature id
 	 */
 	public void deleteIcons(String featureTable, long featureId) {
-		// TODO
+		deleteMappings(getIconMappingDao(featureTable), featureId);
 	}
 
 	/**
@@ -1660,7 +1803,50 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 */
 	public void deleteIcon(String featureTable, long featureId,
 			GeometryType geometryType) {
-		// TODO
+		deleteMapping(getIconMappingDao(featureTable), featureId, geometryType);
+	}
+
+	/**
+	 * Delete all style mappings
+	 * 
+	 * @param mappingDao
+	 *            mapping dao
+	 */
+	private void deleteMappings(StyleMappingDao mappingDao) {
+		if (mappingDao != null) {
+			mappingDao.deleteAll();
+		}
+	}
+
+	/**
+	 * Delete the style mappings
+	 * 
+	 * @param mappingDao
+	 *            mapping dao
+	 * @param featureId
+	 *            feature id
+	 */
+	private void deleteMappings(StyleMappingDao mappingDao, long featureId) {
+		if (mappingDao != null) {
+			mappingDao.deleteByBaseId(featureId);
+		}
+	}
+
+	/**
+	 * Delete the style mapping with the geometry type value
+	 * 
+	 * @param mappingDao
+	 *            mapping dao
+	 * @param featureId
+	 *            feature id
+	 * @param geometryType
+	 *            geometry type
+	 */
+	private void deleteMapping(StyleMappingDao mappingDao, long featureId,
+			GeometryType geometryType) {
+		if (mappingDao != null) {
+			mappingDao.deleteByBaseId(featureId, geometryType);
+		}
 	}
 
 }
