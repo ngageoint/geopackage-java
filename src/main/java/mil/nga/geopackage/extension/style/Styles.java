@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import mil.nga.sf.GeometryType;
+import mil.nga.sf.util.GeometryUtils;
 
 /**
  * Styles for a single feature geometry or feature table default
@@ -94,8 +95,9 @@ public class Styles {
 		StyleRow styleRow = null;
 
 		if (geometryType != null && !styles.isEmpty()) {
-			List<GeometryType> geometryTypes = FeatureStyleExtension
-					.getGeometryTypeInheritance(geometryType);
+			List<GeometryType> geometryTypes = GeometryUtils
+					.parentHierarchy(geometryType);
+			geometryTypes.add(0, geometryType);
 			for (GeometryType type : geometryTypes) {
 				styleRow = styles.get(type);
 				if (styleRow != null) {

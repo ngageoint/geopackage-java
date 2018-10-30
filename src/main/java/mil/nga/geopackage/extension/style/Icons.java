@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import mil.nga.sf.GeometryType;
+import mil.nga.sf.util.GeometryUtils;
 
 /**
  * Icons for a single feature geometry or feature table default
@@ -94,8 +95,9 @@ public class Icons {
 		IconRow iconRow = null;
 
 		if (geometryType != null && !icons.isEmpty()) {
-			List<GeometryType> geometryTypes = FeatureStyleExtension
-					.getGeometryTypeInheritance(geometryType);
+			List<GeometryType> geometryTypes = GeometryUtils
+					.parentHierarchy(geometryType);
+			geometryTypes.add(0, geometryType);
 			for (GeometryType type : geometryTypes) {
 				iconRow = icons.get(type);
 				if (iconRow != null) {
