@@ -106,6 +106,88 @@ public class FeatureTableStyles {
 	}
 
 	/**
+	 * Create a style relationship for the feature table
+	 */
+	public void createStyleRelationship() {
+		featureStyleExtension.createStyleRelationship(tableName);
+	}
+
+	/**
+	 * Create a feature table style relationship
+	 */
+	public void createTableStyleRelationship() {
+		featureStyleExtension.createTableStyleRelationship(tableName);
+	}
+
+	/**
+	 * Create a icon relationship for the feature table
+	 */
+	public void createIconRelationship() {
+		featureStyleExtension.createIconRelationship(tableName);
+	}
+
+	/**
+	 * Create a feature table icon relationship
+	 */
+	public void createTableIconRelationship() {
+		featureStyleExtension.createTableIconRelationship(tableName);
+	}
+
+	/**
+	 * Get a Style Mapping DAO
+	 * 
+	 * @return style mapping DAO
+	 */
+	public StyleMappingDao getStyleMappingDao() {
+		return featureStyleExtension.getStyleMappingDao(tableName);
+	}
+
+	/**
+	 * Get a Table Style Mapping DAO
+	 * 
+	 * @return table style mapping DAO
+	 */
+	public StyleMappingDao getTableStyleMappingDao() {
+		return featureStyleExtension.getTableStyleMappingDao(tableName);
+	}
+
+	/**
+	 * Get a Icon Mapping DAO
+	 * 
+	 * @return icon mapping DAO
+	 */
+	public StyleMappingDao getIconMappingDao() {
+		return featureStyleExtension.getIconMappingDao(tableName);
+	}
+
+	/**
+	 * Get a Table Icon Mapping DAO
+	 * 
+	 * @return table icon mapping DAO
+	 */
+	public StyleMappingDao getTableIconMappingDao() {
+		return featureStyleExtension.getTableIconMappingDao(tableName);
+	}
+
+	/**
+	 * Get a style DAO
+	 * 
+	 * @return style DAO
+	 */
+	public StyleDao getStyleDao() {
+		return featureStyleExtension.getStyleDao();
+	}
+
+	/**
+	 * Get a icon DAO
+	 * 
+	 * @return icon DAO
+	 */
+	public IconDao getIconDao() {
+		return featureStyleExtension.getIconDao();
+	}
+
+	/**
 	 * Get the table feature styles
 	 * 
 	 * @return table feature styles or null
