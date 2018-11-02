@@ -113,6 +113,15 @@ public class FeatureTableStyles {
 	}
 
 	/**
+	 * Determine if a style relationship exists for the feature table
+	 * 
+	 * @return true if relationship exists
+	 */
+	public boolean hasStyleRelationship() {
+		return featureStyleExtension.hasStyleRelationship(tableName);
+	}
+
+	/**
 	 * Create a feature table style relationship
 	 */
 	public void createTableStyleRelationship() {
@@ -120,10 +129,28 @@ public class FeatureTableStyles {
 	}
 
 	/**
-	 * Create a icon relationship for the feature table
+	 * Determine if feature table style relationship exists
+	 * 
+	 * @return true if relationship exists
+	 */
+	public boolean hasTableStyleRelationship() {
+		return featureStyleExtension.hasTableStyleRelationship(tableName);
+	}
+
+	/**
+	 * Create an icon relationship for the feature table
 	 */
 	public void createIconRelationship() {
 		featureStyleExtension.createIconRelationship(tableName);
+	}
+
+	/**
+	 * Determine if an icon relationship exists for the feature table
+	 * 
+	 * @return true if relationship exists
+	 */
+	public boolean hasIconRelationship() {
+		return featureStyleExtension.hasIconRelationship(tableName);
 	}
 
 	/**
@@ -131,6 +158,15 @@ public class FeatureTableStyles {
 	 */
 	public void createTableIconRelationship() {
 		featureStyleExtension.createTableIconRelationship(tableName);
+	}
+
+	/**
+	 * Determine if feature table icon relationship exists
+	 * 
+	 * @return true if relationship exists
+	 */
+	public boolean hasTableIconRelationship() {
+		return featureStyleExtension.hasTableIconRelationship(tableName);
 	}
 
 	/**

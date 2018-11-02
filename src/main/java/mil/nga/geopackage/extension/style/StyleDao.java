@@ -1,9 +1,8 @@
 package mil.nga.geopackage.extension.style;
 
-import mil.nga.geopackage.extension.related.simple.SimpleAttributesDao;
-import mil.nga.geopackage.user.custom.UserCustomDao;
-import mil.nga.geopackage.user.custom.UserCustomResultSet;
-import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.geopackage.attributes.AttributesDao;
+import mil.nga.geopackage.attributes.AttributesResultSet;
+import mil.nga.geopackage.attributes.AttributesRow;
 
 /**
  * Style DAO for reading style tables
@@ -11,7 +10,7 @@ import mil.nga.geopackage.user.custom.UserCustomRow;
  * @author osbornb
  * @since 3.1.1
  */
-public class StyleDao extends SimpleAttributesDao {
+public class StyleDao extends AttributesDao {
 
 	/**
 	 * Constructor
@@ -19,8 +18,9 @@ public class StyleDao extends SimpleAttributesDao {
 	 * @param dao
 	 *            user custom data access object
 	 */
-	public StyleDao(UserCustomDao dao) {
-		super(dao, new StyleTable(dao.getTable()));
+	public StyleDao(AttributesDao dao) {
+		super(dao.getDatabase(), dao.getDb(), dao.getAttributesDb(),
+				new StyleTable(dao.getTable()));
 	}
 
 	/**
@@ -46,18 +46,18 @@ public class StyleDao extends SimpleAttributesDao {
 	 *            result set
 	 * @return style row
 	 */
-	public StyleRow getRow(UserCustomResultSet resultSet) {
+	public StyleRow getRow(AttributesResultSet resultSet) {
 		return getRow(resultSet.getRow());
 	}
 
 	/**
-	 * Get a style row from the user custom row
+	 * Get a style row from the attributes row
 	 * 
 	 * @param row
-	 *            custom row
+	 *            attributes row
 	 * @return style row
 	 */
-	public StyleRow getRow(UserCustomRow row) {
+	public StyleRow getRow(AttributesRow row) {
 		return new StyleRow(row);
 	}
 
@@ -71,10 +71,10 @@ public class StyleDao extends SimpleAttributesDao {
 	public StyleRow queryForRow(StyleMappingRow styleMappingRow) {
 		StyleRow styleRow = null;
 
-		UserCustomRow userCustomRow = queryForIdRow(styleMappingRow
+		AttributesRow attributesRow = queryForIdRow(styleMappingRow
 				.getRelatedId());
-		if (userCustomRow != null) {
-			styleRow = getRow(userCustomRow);
+		if (attributesRow != null) {
+			styleRow = getRow(attributesRow);
 		}
 
 		return styleRow;

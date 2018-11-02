@@ -152,4 +152,15 @@ public class TestConstants {
 	 */
 	public static final String TILES2_WGS84_TEST_RAW_IMAGE = "wgs84Raw.png";
 
+	/**
+	 * Point icon image extension
+	 */
+	public static final String ICON_POINT_IMAGE_EXTENSION = "png";
+
+	/**
+	 * Point icon image
+	 */
+	public static final String ICON_POINT_IMAGE = "point."
+			+ ICON_POINT_IMAGE_EXTENSION;
+
 }

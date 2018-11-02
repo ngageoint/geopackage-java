@@ -1,5 +1,6 @@
 package mil.nga.geopackage.test.extension.style;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import mil.nga.geopackage.test.ImportGeoPackageTestCase;
@@ -24,9 +25,10 @@ public class FeatureStylesImportTest extends ImportGeoPackageTestCase {
 	 * Test feature styles
 	 * 
 	 * @throws SQLException
+	 * @throws IOException
 	 */
 	@Test
-	public void testFeatureStyles() throws SQLException {
+	public void testFeatureStyles() throws SQLException, IOException {
 
 		FeatureStylesUtils.testFeatureStyles(geoPackage);
 

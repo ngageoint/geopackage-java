@@ -32,7 +32,7 @@ public class Styles {
 	 * @param styleRow
 	 *            default style
 	 */
-	public void setDefaultStyle(StyleRow styleRow) {
+	public void setDefault(StyleRow styleRow) {
 		setStyle(styleRow, null);
 	}
 
@@ -61,7 +61,7 @@ public class Styles {
 	 * 
 	 * @return default style
 	 */
-	public StyleRow getDefaultStyle() {
+	public StyleRow getDefault() {
 		return defaultStyle;
 	}
 

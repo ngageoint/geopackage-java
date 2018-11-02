@@ -32,7 +32,7 @@ public class Icons {
 	 * @param iconRow
 	 *            default icon
 	 */
-	public void setDefaultIcon(IconRow iconRow) {
+	public void setDefault(IconRow iconRow) {
 		setIcon(iconRow, null);
 	}
 
@@ -61,7 +61,7 @@ public class Icons {
 	 * 
 	 * @return default icon
 	 */
-	public IconRow getDefaultIcon() {
+	public IconRow getDefault() {
 		return defaultIcon;
 	}
 

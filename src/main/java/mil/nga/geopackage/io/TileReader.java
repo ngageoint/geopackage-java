@@ -349,6 +349,7 @@ public class TileReader {
 
 		// Create the contents
 		contentsDao.create(contents);
+		table.setContents(contents);
 
 		// Create new Tile Matrix Set
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
@@ -584,6 +585,7 @@ public class TileReader {
 
 		// Create the contents
 		contentsDao.create(contents);
+		table.setContents(contents);
 
 		// Create new Tile Matrix Set
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();

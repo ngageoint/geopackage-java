@@ -108,6 +108,7 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		FeatureTableReader tableReader = new FeatureTableReader(geometryColumns);
 		FeatureConnection userDb = new FeatureConnection(database);
 		final FeatureTable featureTable = tableReader.readTable(userDb);
+		featureTable.setContents(geometryColumns.getContents());
 		FeatureDao dao = new FeatureDao(getName(), database, userDb,
 				geometryColumns, featureTable);
 
@@ -222,6 +223,7 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 				tileMatrixSet.getTableName());
 		TileConnection userDb = new TileConnection(database);
 		final TileTable tileTable = tableReader.readTable(userDb);
+		tileTable.setContents(tileMatrixSet.getContents());
 		TileDao dao = new TileDao(getName(), database, userDb, tileMatrixSet,
 				tileMatrices, tileTable);
 

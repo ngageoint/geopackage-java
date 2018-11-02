@@ -29,7 +29,7 @@ public class AttributesRow extends UserRow<AttributesColumn, AttributesTable> {
 	 * 
 	 * @param table
 	 */
-	AttributesRow(AttributesTable table) {
+	protected AttributesRow(AttributesTable table) {
 		super(table);
 	}
 

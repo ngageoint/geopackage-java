@@ -15,11 +15,18 @@ public class IconRow extends MediaRow {
 
 	/**
 	 * Constructor to create an empty row
+	 */
+	public IconRow() {
+		this(new IconTable());
+	}
+
+	/**
+	 * Constructor to create an empty row
 	 * 
 	 * @param table
 	 *            icon table
 	 */
-	protected IconRow(IconTable table) {
+	public IconRow(IconTable table) {
 		super(table);
 	}
 

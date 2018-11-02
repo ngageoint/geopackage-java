@@ -3,9 +3,8 @@ package mil.nga.geopackage.extension.style;
 import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.related.simple.SimpleAttributesRow;
-import mil.nga.geopackage.user.custom.UserCustomColumn;
-import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.geopackage.attributes.AttributesColumn;
+import mil.nga.geopackage.attributes.AttributesRow;
 
 /**
  * Style Row containing the values from a single result set row
@@ -13,7 +12,7 @@ import mil.nga.geopackage.user.custom.UserCustomRow;
  * @author osbornb
  * @since 3.1.1
  */
-public class StyleRow extends SimpleAttributesRow {
+public class StyleRow extends AttributesRow {
 
 	/**
 	 * Color hex pattern
@@ -22,22 +21,29 @@ public class StyleRow extends SimpleAttributesRow {
 
 	/**
 	 * Constructor to create an empty row
+	 */
+	public StyleRow() {
+		this(new StyleTable());
+	}
+
+	/**
+	 * Constructor to create an empty row
 	 * 
 	 * @param table
 	 *            style table
 	 */
-	protected StyleRow(StyleTable table) {
+	public StyleRow(StyleTable table) {
 		super(table);
 	}
 
 	/**
 	 * Constructor
 	 * 
-	 * @param userCustomRow
-	 *            user custom row
+	 * @param attributesRow
+	 *            attributes row
 	 */
-	public StyleRow(UserCustomRow userCustomRow) {
-		super(userCustomRow);
+	public StyleRow(AttributesRow attributesRow) {
+		super(attributesRow);
 	}
 
 	/**
@@ -72,7 +78,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * 
 	 * @return name column
 	 */
-	public UserCustomColumn getNameColumn() {
+	public AttributesColumn getNameColumn() {
 		return getTable().getNameColumn();
 	}
 
@@ -109,7 +115,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * 
 	 * @return description column
 	 */
-	public UserCustomColumn getDescriptionColumn() {
+	public AttributesColumn getDescriptionColumn() {
 		return getTable().getDescriptionColumn();
 	}
 
@@ -146,7 +152,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * 
 	 * @return color column
 	 */
-	public UserCustomColumn getColorColumn() {
+	public AttributesColumn getColorColumn() {
 		return getTable().getColorColumn();
 	}
 
@@ -184,7 +190,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * 
 	 * @return opacity column
 	 */
-	public UserCustomColumn getOpacityColumn() {
+	public AttributesColumn getOpacityColumn() {
 		return getTable().getOpacityColumn();
 	}
 
@@ -222,7 +228,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * 
 	 * @return width column
 	 */
-	public UserCustomColumn getWidthColumn() {
+	public AttributesColumn getWidthColumn() {
 		return getTable().getWidthColumn();
 	}
 
@@ -265,7 +271,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * 
 	 * @return fill color column
 	 */
-	public UserCustomColumn getFillColorColumn() {
+	public AttributesColumn getFillColorColumn() {
 		return getTable().getFillColorColumn();
 	}
 
@@ -303,7 +309,7 @@ public class StyleRow extends SimpleAttributesRow {
 	 * 
 	 * @return fill opacity column
 	 */
-	public UserCustomColumn getFillOpacityColumn() {
+	public AttributesColumn getFillOpacityColumn() {
 		return getTable().getFillOpacityColumn();
 	}
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
@@ -31,6 +32,14 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	public FeatureStyleExtension(GeoPackage geoPackage) {
 		super(geoPackage, new RelatedTablesExtension(geoPackage));
 		this.relatedTables = (RelatedTablesExtension) super.getRelatedTables();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public GeoPackage getGeoPackage() {
+		return (GeoPackage) geoPackage;
 	}
 
 	/**
@@ -116,8 +125,9 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	public StyleDao getStyleDao() {
 		StyleDao styleDao = null;
 		if (geoPackage.isTable(StyleTable.TABLE_NAME)) {
-			styleDao = new StyleDao(
-					relatedTables.getUserDao(StyleTable.TABLE_NAME));
+			AttributesDao attributesDao = getGeoPackage().getAttributesDao(
+					StyleTable.TABLE_NAME);
+			styleDao = new StyleDao(attributesDao);
 			relatedTables.setContents(styleDao.getTable());
 		}
 		return styleDao;
@@ -837,8 +847,8 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		if (styles != null) {
 
-			if (styles.getDefaultStyle() != null) {
-				setTableStyleDefault(featureTable, styles.getDefaultStyle());
+			if (styles.getDefault() != null) {
+				setTableStyleDefault(featureTable, styles.getDefault());
 			}
 
 			for (Entry<GeometryType, StyleRow> style : styles.getStyles()
@@ -945,8 +955,8 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		if (icons != null) {
 
-			if (icons.getDefaultIcon() != null) {
-				setTableIconDefault(featureTable, icons.getDefaultIcon());
+			if (icons.getDefault() != null) {
+				setTableIconDefault(featureTable, icons.getDefault());
 			}
 
 			for (Entry<GeometryType, IconRow> icon : icons.getIcons()
@@ -1157,9 +1167,9 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		if (styles != null) {
 
-			if (styles.getDefaultStyle() != null) {
+			if (styles.getDefault() != null) {
 				setStyleDefault(featureTable, featureId,
-						styles.getDefaultStyle());
+						styles.getDefault());
 			}
 
 			for (Entry<GeometryType, StyleRow> style : styles.getStyles()
@@ -1267,8 +1277,8 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 
 		if (icons != null) {
 
-			if (icons.getDefaultIcon() != null) {
-				setIconDefault(featureTable, featureId, icons.getDefaultIcon());
+			if (icons.getDefault() != null) {
+				setIconDefault(featureTable, featureId, icons.getDefault());
 			}
 
 			for (Entry<GeometryType, IconRow> icon : icons.getIcons()
