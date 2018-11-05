@@ -367,8 +367,25 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @return feature style
 	 */
 	public FeatureStyle getFeatureStyle(FeatureRow featureRow) {
+		return getFeatureStyle(featureRow, featureRow.getGeometryType());
+	}
+
+	/**
+	 * Get the feature style (style and icon) of the feature row with the
+	 * provided geometry type, searching in order: feature geometry type style
+	 * or icon, feature default style or icon, table geometry type style or
+	 * icon, table default style or icon
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 * @return feature style
+	 */
+	public FeatureStyle getFeatureStyle(FeatureRow featureRow,
+			GeometryType geometryType) {
 		return getFeatureStyle(featureRow.getTable().getTableName(),
-				featureRow.getId(), featureRow.getGeometryType());
+				featureRow.getId(), geometryType);
 	}
 
 	/**
@@ -464,8 +481,23 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @return style row
 	 */
 	public StyleRow getStyle(FeatureRow featureRow) {
+		return getStyle(featureRow, featureRow.getGeometryType());
+	}
+
+	/**
+	 * Get the style of the feature row with the provided geometry type,
+	 * searching in order: feature geometry type style, feature default style,
+	 * table geometry type style, table default style
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 * @return style row
+	 */
+	public StyleRow getStyle(FeatureRow featureRow, GeometryType geometryType) {
 		return getStyle(featureRow.getTable().getTableName(),
-				featureRow.getId(), featureRow.getGeometryType());
+				featureRow.getId(), geometryType);
 	}
 
 	/**
@@ -605,8 +637,23 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @return icon row
 	 */
 	public IconRow getIcon(FeatureRow featureRow) {
+		return getIcon(featureRow, featureRow.getGeometryType());
+	}
+
+	/**
+	 * Get the icon of the feature row with the provided geometry type,
+	 * searching in order: feature geometry type icon, feature default icon,
+	 * table geometry type icon, table default icon
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 * @return icon row
+	 */
+	public IconRow getIcon(FeatureRow featureRow, GeometryType geometryType) {
 		return getIcon(featureRow.getTable().getTableName(),
-				featureRow.getId(), featureRow.getGeometryType());
+				featureRow.getId(), geometryType);
 	}
 
 	/**
@@ -1081,8 +1128,24 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            feature style
 	 */
 	public void setFeatureStyle(FeatureRow featureRow, FeatureStyle featureStyle) {
+		setFeatureStyle(featureRow, featureRow.getGeometryType(), featureStyle);
+	}
+
+	/**
+	 * Set the feature style (style and icon) of the feature row for the
+	 * specified geometry type
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 * @param featureStyle
+	 *            feature style
+	 */
+	public void setFeatureStyle(FeatureRow featureRow,
+			GeometryType geometryType, FeatureStyle featureStyle) {
 		setFeatureStyle(featureRow.getTable().getTableName(),
-				featureRow.getId(), featureRow.getGeometryType(), featureStyle);
+				featureRow.getId(), geometryType, featureStyle);
 	}
 
 	/**
@@ -1168,8 +1231,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 		if (styles != null) {
 
 			if (styles.getDefault() != null) {
-				setStyleDefault(featureTable, featureId,
-						styles.getDefault());
+				setStyleDefault(featureTable, featureId, styles.getDefault());
 			}
 
 			for (Entry<GeometryType, StyleRow> style : styles.getStyles()
@@ -1190,8 +1252,23 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            style row
 	 */
 	public void setStyle(FeatureRow featureRow, StyleRow style) {
+		setStyle(featureRow, featureRow.getGeometryType(), style);
+	}
+
+	/**
+	 * Set the style of the feature row for the specified geometry type
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 * @param style
+	 *            style row
+	 */
+	public void setStyle(FeatureRow featureRow, GeometryType geometryType,
+			StyleRow style) {
 		setStyle(featureRow.getTable().getTableName(), featureRow.getId(),
-				featureRow.getGeometryType(), style);
+				geometryType, style);
 	}
 
 	/**
@@ -1298,8 +1375,23 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 *            icon row
 	 */
 	public void setIcon(FeatureRow featureRow, IconRow icon) {
+		setIcon(featureRow, featureRow.getGeometryType(), icon);
+	}
+
+	/**
+	 * Set the icon of the feature row for the specified geometry type
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 * @param geometryType
+	 *            geometry type
+	 * @param icon
+	 *            icon row
+	 */
+	public void setIcon(FeatureRow featureRow, GeometryType geometryType,
+			IconRow icon) {
 		setIcon(featureRow.getTable().getTableName(), featureRow.getId(),
-				featureRow.getGeometryType(), icon);
+				geometryType, icon);
 	}
 
 	/**
@@ -1696,6 +1788,16 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
+	 * Delete the feature row style for the feature row geometry type
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 */
+	public void deleteStyle(FeatureRow featureRow) {
+		deleteStyle(featureRow, featureRow.getGeometryType());
+	}
+
+	/**
 	 * Delete the feature row style for the geometry type
 	 * 
 	 * @param featureRow
@@ -1786,6 +1888,16 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 */
 	public void deleteIconDefault(String featureTable, long featureId) {
 		deleteIcon(featureTable, featureId, null);
+	}
+
+	/**
+	 * Delete the feature row icon for the feature row geometry type
+	 * 
+	 * @param featureRow
+	 *            feature row
+	 */
+	public void deleteIcon(FeatureRow featureRow) {
+		deleteIcon(featureRow, featureRow.getGeometryType());
 	}
 
 	/**

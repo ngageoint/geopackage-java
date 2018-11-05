@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +16,11 @@ import mil.nga.geopackage.extension.contents.ContentsId;
 import mil.nga.geopackage.extension.style.FeatureStyleExtension;
 import mil.nga.geopackage.extension.style.FeatureStyles;
 import mil.nga.geopackage.extension.style.FeatureTableStyles;
+import mil.nga.geopackage.extension.style.IconDao;
 import mil.nga.geopackage.extension.style.IconRow;
 import mil.nga.geopackage.extension.style.IconTable;
 import mil.nga.geopackage.extension.style.Icons;
+import mil.nga.geopackage.extension.style.StyleDao;
 import mil.nga.geopackage.extension.style.StyleRow;
 import mil.nga.geopackage.extension.style.StyleTable;
 import mil.nga.geopackage.extension.style.Styles;
@@ -129,8 +132,8 @@ public class FeatureStylesUtils {
 							featureRow.getId(), featureRow.getGeometryType()));
 					TestCase.assertNull(featureTableStyles
 							.getIconDefault(featureRow.getId()));
-
 				}
+				featureResultSet.close();
 
 				// Table Styles
 				TestCase.assertFalse(featureTableStyles
@@ -158,8 +161,8 @@ public class FeatureStylesUtils {
 										tableName)));
 
 				// Add geometry type table styles
-				Map<GeometryType, StyleRow> geometryTypeStyles = randomStyles(childGeometryTypes);
-				for (Entry<GeometryType, StyleRow> geometryTypeStyle : geometryTypeStyles
+				Map<GeometryType, StyleRow> geometryTypeTableStyles = randomStyles(childGeometryTypes);
+				for (Entry<GeometryType, StyleRow> geometryTypeStyle : geometryTypeTableStyles
 						.entrySet()) {
 					featureTableStyles.setTableStyle(
 							geometryTypeStyle.getKey(),
@@ -182,7 +185,7 @@ public class FeatureStylesUtils {
 				TestCase.assertEquals(tableStyleDefault.getId(),
 						featureTableStyles.getTableStyle(geometryType).getId());
 				validateTableStyles(featureTableStyles, tableStyleDefault,
-						geometryTypeStyles, childGeometryTypes);
+						geometryTypeTableStyles, childGeometryTypes);
 
 				// Table Icons
 				TestCase.assertFalse(featureTableStyles
@@ -202,10 +205,10 @@ public class FeatureStylesUtils {
 				Icons createTableIcons = new Icons();
 				IconRow tableIconDefault = randomIcon();
 				createTableIcons.setDefault(tableIconDefault);
+				Map<GeometryType, IconRow> geometryTypeTableIcons = randomIcons(childGeometryTypes);
 				IconRow baseGeometryTypeIcon = randomIcon();
-				createTableIcons.setIcon(baseGeometryTypeIcon, geometryType);
-				Map<GeometryType, IconRow> geometryTypeIcons = randomIcons(childGeometryTypes);
-				for (Entry<GeometryType, IconRow> geometryTypeIcon : geometryTypeIcons
+				geometryTypeTableIcons.put(geometryType, baseGeometryTypeIcon);
+				for (Entry<GeometryType, IconRow> geometryTypeIcon : geometryTypeTableIcons
 						.entrySet()) {
 					createTableIcons.setIcon(geometryTypeIcon.getValue(),
 							geometryTypeIcon.getKey());
@@ -236,7 +239,138 @@ public class FeatureStylesUtils {
 				TestCase.assertEquals(baseGeometryTypeIcon.getId(),
 						featureTableStyles.getTableIcon(geometryType).getId());
 				validateTableIcons(featureTableStyles, baseGeometryTypeIcon,
-						geometryTypeIcons, childGeometryTypes);
+						geometryTypeTableIcons, childGeometryTypes);
+
+				TestCase.assertFalse(featureTableStyles.hasStyleRelationship());
+				TestCase.assertFalse(geoPackage.isTable(featureTableStyles
+						.getFeatureStyleExtension().getMappingTableName(
+								FeatureStyleExtension.TABLE_MAPPING_STYLE,
+								tableName)));
+				TestCase.assertFalse(featureTableStyles.hasIconRelationship());
+				TestCase.assertFalse(geoPackage.isTable(featureTableStyles
+						.getFeatureStyleExtension().getMappingTableName(
+								FeatureStyleExtension.TABLE_MAPPING_ICON,
+								tableName)));
+
+				StyleDao styleDao = featureTableStyles.getStyleDao();
+				IconDao iconDao = featureTableStyles.getIconDao();
+
+				List<StyleRow> randomStyles = new ArrayList<>();
+				List<IconRow> randomIcons = new ArrayList<>();
+				for (int i = 0; i < 10; i++) {
+					StyleRow styleRow = randomStyle();
+					randomStyles.add(styleRow);
+					IconRow iconRow = randomIcon();
+					randomIcons.add(iconRow);
+
+					if (i % 2 == 0) {
+						styleDao.insert(styleRow);
+						iconDao.insert(iconRow);
+					}
+				}
+
+				// Create style and icon relationship
+				featureTableStyles.createStyleRelationship();
+				TestCase.assertTrue(featureTableStyles.hasStyleRelationship());
+				TestCase.assertTrue(geoPackage.isTable(featureTableStyles
+						.getFeatureStyleExtension().getMappingTableName(
+								FeatureStyleExtension.TABLE_MAPPING_STYLE,
+								tableName)));
+				featureTableStyles.createIconRelationship();
+				TestCase.assertTrue(featureTableStyles.hasIconRelationship());
+				TestCase.assertTrue(geoPackage.isTable(featureTableStyles
+						.getFeatureStyleExtension().getMappingTableName(
+								FeatureStyleExtension.TABLE_MAPPING_ICON,
+								tableName)));
+
+				Map<Long, Map<GeometryType, StyleRow>> featureResultsStyles = new HashMap<>();
+				Map<Long, Map<GeometryType, IconRow>> featureResultsIcons = new HashMap<>();
+
+				featureResultSet = featureDao.queryForAll();
+				while (featureResultSet.moveToNext()) {
+
+					double randomFeatureOption = Math.random();
+
+					if (randomFeatureOption < .25) {
+						continue;
+					}
+
+					FeatureRow featureRow = featureResultSet.getRow();
+
+					if (randomFeatureOption < .75) {
+
+						// Feature Styles
+
+						Map<GeometryType, StyleRow> featureRowStyles = new HashMap<>();
+						featureResultsStyles.put(featureRow.getId(),
+								featureRowStyles);
+
+						// Add a default style
+						StyleRow styleDefault = randomStyle(randomStyles);
+						featureTableStyles.setStyleDefault(featureRow,
+								styleDefault);
+						featureRowStyles.put(null, styleDefault);
+
+						// Add geometry type styles
+						Map<GeometryType, StyleRow> geometryTypeStyles = randomStyles(
+								childGeometryTypes, randomStyles);
+						for (Entry<GeometryType, StyleRow> geometryTypeStyle : geometryTypeStyles
+								.entrySet()) {
+							featureTableStyles.setStyle(featureRow,
+									geometryTypeStyle.getKey(),
+									geometryTypeStyle.getValue());
+							featureRowStyles.put(geometryTypeStyle.getKey(),
+									geometryTypeStyle.getValue());
+						}
+
+					}
+
+					if (randomFeatureOption >= .5) {
+
+						// Feature Icons
+
+						Map<GeometryType, IconRow> featureRowIcons = new HashMap<>();
+						featureResultsIcons.put(featureRow.getId(),
+								featureRowIcons);
+
+						// Add a default icon
+						IconRow iconDefault = randomIcon(randomIcons);
+						featureTableStyles.setIconDefault(featureRow,
+								iconDefault);
+						featureRowIcons.put(null, iconDefault);
+
+						// Add geometry type icons
+						Map<GeometryType, IconRow> geometryTypeIcons = randomIcons(
+								childGeometryTypes, randomIcons);
+						for (Entry<GeometryType, IconRow> geometryTypeIcon : geometryTypeIcons
+								.entrySet()) {
+							featureTableStyles.setIcon(featureRow,
+									geometryTypeIcon.getKey(),
+									geometryTypeIcon.getValue());
+							featureRowIcons.put(geometryTypeIcon.getKey(),
+									geometryTypeIcon.getValue());
+						}
+
+					}
+
+				}
+				featureResultSet.close();
+
+				featureResultSet = featureDao.queryForAll();
+				while (featureResultSet.moveToNext()) {
+
+					FeatureRow featureRow = featureResultSet.getRow();
+
+					validateRowStyles(featureTableStyles, featureRow,
+							tableStyleDefault, geometryTypeTableStyles,
+							featureResultsStyles);
+
+					validateRowIcons(featureTableStyles, featureRow,
+							tableIconDefault, geometryTypeTableIcons,
+							featureResultsIcons);
+
+				}
+				featureResultSet.close();
 
 			}
 
@@ -301,6 +435,180 @@ public class FeatureStylesUtils {
 		}
 	}
 
+	private static void validateRowStyles(
+			FeatureTableStyles featureTableStyles, FeatureRow featureRow,
+			StyleRow tableStyleDefault,
+			Map<GeometryType, StyleRow> geometryTypeTableStyles,
+			Map<Long, Map<GeometryType, StyleRow>> featureResultsStyles) {
+
+		GeometryType geometryType = featureRow.getGeometryType();
+
+		validateRowStyles(featureTableStyles, featureRow, null,
+				tableStyleDefault, geometryTypeTableStyles,
+				featureResultsStyles);
+
+		if (geometryType != null) {
+
+			List<GeometryType> geometryTypes = GeometryUtils
+					.parentHierarchy(geometryType);
+			for (GeometryType parentGeometryType : geometryTypes) {
+				validateRowStyles(featureTableStyles, featureRow,
+						parentGeometryType, tableStyleDefault,
+						geometryTypeTableStyles, featureResultsStyles);
+			}
+
+			List<GeometryType> childTypes = getAllChildTypes(geometryType);
+			for (GeometryType childGeometryType : childTypes) {
+				validateRowStyles(featureTableStyles, featureRow,
+						childGeometryType, tableStyleDefault,
+						geometryTypeTableStyles, featureResultsStyles);
+			}
+		}
+
+	}
+
+	private static void validateRowStyles(
+			FeatureTableStyles featureTableStyles, FeatureRow featureRow,
+			GeometryType geometryType, StyleRow tableStyleDefault,
+			Map<GeometryType, StyleRow> geometryTypeTableStyles,
+			Map<Long, Map<GeometryType, StyleRow>> featureResultsStyles) {
+
+		StyleRow styleRow = null;
+		if (geometryType == null) {
+			styleRow = featureTableStyles.getStyle(featureRow);
+			geometryType = featureRow.getGeometryType();
+		} else {
+			styleRow = featureTableStyles.getStyle(featureRow, geometryType);
+		}
+
+		List<GeometryType> geometryTypes = null;
+		if (geometryType != null) {
+			geometryTypes = GeometryUtils.parentHierarchy(geometryType);
+			geometryTypes.add(0, geometryType);
+		} else {
+			geometryTypes = new ArrayList<>();
+		}
+		geometryTypes.add(null);
+
+		StyleRow expectedStyleRow = null;
+		Map<GeometryType, StyleRow> geometryTypeRowStyles = featureResultsStyles
+				.get(featureRow.getId());
+		if (geometryTypeRowStyles != null) {
+			for (GeometryType type : geometryTypes) {
+				expectedStyleRow = geometryTypeRowStyles.get(type);
+				if (expectedStyleRow != null) {
+					break;
+				}
+			}
+		}
+
+		if (expectedStyleRow == null) {
+			for (GeometryType type : geometryTypes) {
+				expectedStyleRow = geometryTypeTableStyles.get(type);
+				if (expectedStyleRow != null) {
+					break;
+				}
+			}
+
+			if (expectedStyleRow == null) {
+				expectedStyleRow = tableStyleDefault;
+			}
+		}
+
+		if (expectedStyleRow != null) {
+			TestCase.assertEquals(expectedStyleRow.getId(), styleRow.getId());
+		} else {
+			TestCase.assertNull(styleRow);
+		}
+
+	}
+
+	private static void validateRowIcons(FeatureTableStyles featureTableStyles,
+			FeatureRow featureRow, IconRow tableIconDefault,
+			Map<GeometryType, IconRow> geometryTypeTableIcons,
+			Map<Long, Map<GeometryType, IconRow>> featureResultsIcons) {
+
+		GeometryType geometryType = featureRow.getGeometryType();
+
+		validateRowIcons(featureTableStyles, featureRow, null,
+				tableIconDefault, geometryTypeTableIcons, featureResultsIcons);
+
+		if (geometryType != null) {
+
+			List<GeometryType> geometryTypes = GeometryUtils
+					.parentHierarchy(geometryType);
+			for (GeometryType parentGeometryType : geometryTypes) {
+				validateRowIcons(featureTableStyles, featureRow,
+						parentGeometryType, tableIconDefault,
+						geometryTypeTableIcons, featureResultsIcons);
+			}
+
+			List<GeometryType> childTypes = getAllChildTypes(geometryType);
+			for (GeometryType childGeometryType : childTypes) {
+				validateRowIcons(featureTableStyles, featureRow,
+						childGeometryType, tableIconDefault,
+						geometryTypeTableIcons, featureResultsIcons);
+			}
+		}
+
+	}
+
+	private static void validateRowIcons(FeatureTableStyles featureTableStyles,
+			FeatureRow featureRow, GeometryType geometryType,
+			IconRow tableIconDefault,
+			Map<GeometryType, IconRow> geometryTypeTableIcons,
+			Map<Long, Map<GeometryType, IconRow>> featureResultsIcons) {
+
+		IconRow iconRow = null;
+		if (geometryType == null) {
+			iconRow = featureTableStyles.getIcon(featureRow);
+			geometryType = featureRow.getGeometryType();
+		} else {
+			iconRow = featureTableStyles.getIcon(featureRow, geometryType);
+		}
+
+		List<GeometryType> geometryTypes = null;
+		if (geometryType != null) {
+			geometryTypes = GeometryUtils.parentHierarchy(geometryType);
+			geometryTypes.add(0, geometryType);
+		} else {
+			geometryTypes = new ArrayList<>();
+		}
+		geometryTypes.add(null);
+
+		IconRow expectedIconRow = null;
+		Map<GeometryType, IconRow> geometryTypeRowStyles = featureResultsIcons
+				.get(featureRow.getId());
+		if (geometryTypeRowStyles != null) {
+			for (GeometryType type : geometryTypes) {
+				expectedIconRow = geometryTypeRowStyles.get(type);
+				if (expectedIconRow != null) {
+					break;
+				}
+			}
+		}
+
+		if (expectedIconRow == null) {
+			for (GeometryType type : geometryTypes) {
+				expectedIconRow = geometryTypeTableIcons.get(type);
+				if (expectedIconRow != null) {
+					break;
+				}
+			}
+
+			if (expectedIconRow == null) {
+				expectedIconRow = tableIconDefault;
+			}
+		}
+
+		if (expectedIconRow != null) {
+			TestCase.assertEquals(expectedIconRow.getId(), iconRow.getId());
+		} else {
+			TestCase.assertNull(iconRow);
+		}
+
+	}
+
 	private static StyleRow randomStyle() {
 		StyleRow styleRow = new StyleRow();
 
@@ -327,25 +635,6 @@ public class FeatureStylesUtils {
 		}
 
 		return styleRow;
-	}
-
-	private static Map<GeometryType, StyleRow> randomStyles(
-			Map<GeometryType, Map<GeometryType, ?>> geometryTypes) {
-		Map<GeometryType, StyleRow> rowMap = new HashMap<>();
-		if (geometryTypes != null) {
-			for (Entry<GeometryType, Map<GeometryType, ?>> type : geometryTypes
-					.entrySet()) {
-				if (Math.random() < .5) {
-					rowMap.put(type.getKey(), randomStyle());
-				}
-				@SuppressWarnings("unchecked")
-				Map<GeometryType, Map<GeometryType, ?>> childGeometryTypes = (Map<GeometryType, Map<GeometryType, ?>>) type
-						.getValue();
-				Map<GeometryType, StyleRow> childRowMap = randomStyles(childGeometryTypes);
-				rowMap.putAll(childRowMap);
-			}
-		}
-		return rowMap;
 	}
 
 	private static IconRow randomIcon() throws IOException {
@@ -381,24 +670,96 @@ public class FeatureStylesUtils {
 		return iconRow;
 	}
 
+	private static Map<GeometryType, StyleRow> randomStyles(
+			Map<GeometryType, Map<GeometryType, ?>> geometryTypes) {
+		return randomStyles(geometryTypes, null);
+	}
+
 	private static Map<GeometryType, IconRow> randomIcons(
 			Map<GeometryType, Map<GeometryType, ?>> geometryTypes)
 			throws IOException {
+		return randomIcons(geometryTypes, null);
+	}
+
+	private static Map<GeometryType, StyleRow> randomStyles(
+			Map<GeometryType, Map<GeometryType, ?>> geometryTypes,
+			List<StyleRow> randomStyles) {
+		Map<GeometryType, StyleRow> rowMap = new HashMap<>();
+		if (geometryTypes != null) {
+			for (Entry<GeometryType, Map<GeometryType, ?>> type : geometryTypes
+					.entrySet()) {
+				if (Math.random() < .5) {
+					rowMap.put(type.getKey(), randomStyle(randomStyles));
+				}
+				@SuppressWarnings("unchecked")
+				Map<GeometryType, Map<GeometryType, ?>> childGeometryTypes = (Map<GeometryType, Map<GeometryType, ?>>) type
+						.getValue();
+				Map<GeometryType, StyleRow> childRowMap = randomStyles(
+						childGeometryTypes, randomStyles);
+				rowMap.putAll(childRowMap);
+			}
+		}
+		return rowMap;
+	}
+
+	private static Map<GeometryType, IconRow> randomIcons(
+			Map<GeometryType, Map<GeometryType, ?>> geometryTypes,
+			List<IconRow> randomIcons) throws IOException {
 		Map<GeometryType, IconRow> rowMap = new HashMap<>();
 		if (geometryTypes != null) {
 			for (Entry<GeometryType, Map<GeometryType, ?>> type : geometryTypes
 					.entrySet()) {
 				if (Math.random() < .5) {
-					rowMap.put(type.getKey(), randomIcon());
+					rowMap.put(type.getKey(), randomIcon(randomIcons));
 				}
 				@SuppressWarnings("unchecked")
 				Map<GeometryType, Map<GeometryType, ?>> childGeometryTypes = (Map<GeometryType, Map<GeometryType, ?>>) type
 						.getValue();
-				Map<GeometryType, IconRow> childRowMap = randomIcons(childGeometryTypes);
+				Map<GeometryType, IconRow> childRowMap = randomIcons(
+						childGeometryTypes, randomIcons);
 				rowMap.putAll(childRowMap);
 			}
 		}
 		return rowMap;
+	}
+
+	private static StyleRow randomStyle(List<StyleRow> randomStyles) {
+		StyleRow randomStyle = null;
+		if (randomStyles != null) {
+			randomStyle = randomStyles.get((int) (Math.random() * randomStyles
+					.size()));
+		} else {
+			randomStyle = randomStyle();
+		}
+
+		return randomStyle;
+	}
+
+	private static IconRow randomIcon(List<IconRow> randomIcons)
+			throws IOException {
+		IconRow randomIcon = null;
+		if (randomIcons != null) {
+			randomIcon = randomIcons.get((int) (Math.random() * randomIcons
+					.size()));
+		} else {
+			randomIcon = randomIcon();
+		}
+
+		return randomIcon;
+	}
+
+	private static List<GeometryType> getAllChildTypes(GeometryType geometryType) {
+
+		List<GeometryType> allChildTypes = new ArrayList<>();
+
+		List<GeometryType> childTypes = GeometryUtils.childTypes(geometryType);
+		allChildTypes.addAll(childTypes);
+
+		for (GeometryType childType : childTypes) {
+			allChildTypes.addAll(getAllChildTypes(childType));
+		}
+
+		return allChildTypes;
 	}
 
 }
