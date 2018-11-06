@@ -1511,6 +1511,71 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	}
 
 	/**
+	 * Delete all feature styles including table styles, table icons, style, and
+	 * icons
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteAllFeatureStyles(FeatureTable featureTable) {
+		deleteAllFeatureStyles(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete all feature styles including table styles, table icons, style, and
+	 * icons
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteAllFeatureStyles(String featureTable) {
+		deleteTableFeatureStyles(featureTable);
+		deleteFeatureStyles(featureTable);
+	}
+
+	/**
+	 * Delete all styles including table styles and feature row styles
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteAllStyles(FeatureTable featureTable) {
+		deleteAllStyles(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete all styles including table styles and feature row styles
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteAllStyles(String featureTable) {
+		deleteTableStyles(featureTable);
+		deleteStyles(featureTable);
+	}
+
+	/**
+	 * Delete all icons including table icons and feature row icons
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteAllIcons(FeatureTable featureTable) {
+		deleteAllIcons(featureTable.getTableName());
+	}
+
+	/**
+	 * Delete all icons including table icons and feature row icons
+	 * 
+	 * @param featureTable
+	 *            feature table
+	 */
+	public void deleteAllIcons(String featureTable) {
+		deleteTableIcons(featureTable);
+		deleteIcons(featureTable);
+	}
+
+	/**
 	 * Delete the feature table feature styles
 	 * 
 	 * @param featureTable

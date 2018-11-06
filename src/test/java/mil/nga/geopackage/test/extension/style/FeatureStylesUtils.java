@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.contents.ContentsId;
+import mil.nga.geopackage.extension.contents.ContentsIdExtension;
 import mil.nga.geopackage.extension.style.FeatureStyleExtension;
 import mil.nga.geopackage.extension.style.FeatureStyles;
 import mil.nga.geopackage.extension.style.FeatureTableStyles;
@@ -46,6 +47,11 @@ public class FeatureStylesUtils {
 	public static void testFeatureStyles(GeoPackage geoPackage)
 			throws SQLException, IOException {
 
+		FeatureStyleExtension featureStyleExtension = new FeatureStyleExtension(
+				geoPackage);
+
+		TestCase.assertFalse(featureStyleExtension.has());
+
 		List<String> featureTables = geoPackage.getFeatureTables();
 
 		if (!featureTables.isEmpty()) {
@@ -56,10 +62,13 @@ public class FeatureStylesUtils {
 
 			for (String tableName : featureTables) {
 
+				TestCase.assertFalse(featureStyleExtension.has(tableName));
+
 				FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
 
 				FeatureTableStyles featureTableStyles = new FeatureTableStyles(
 						geoPackage, featureDao.getTable());
+				TestCase.assertFalse(featureTableStyles.has());
 
 				GeometryType geometryType = featureDao.getGeometryType();
 				Map<GeometryType, Map<GeometryType, ?>> childGeometryTypes = GeometryUtils
@@ -149,6 +158,9 @@ public class FeatureStylesUtils {
 				StyleRow tableStyleDefault = randomStyle();
 				featureTableStyles.setTableStyleDefault(tableStyleDefault);
 
+				TestCase.assertTrue(featureStyleExtension.has());
+				TestCase.assertTrue(featureStyleExtension.has(tableName));
+				TestCase.assertTrue(featureTableStyles.has());
 				TestCase.assertTrue(featureTableStyles
 						.hasTableStyleRelationship());
 				TestCase.assertTrue(geoPackage.isTable(StyleTable.TABLE_NAME));
@@ -373,6 +385,65 @@ public class FeatureStylesUtils {
 				featureResultSet.close();
 
 			}
+
+			List<String> tables = featureStyleExtension.getTables();
+			TestCase.assertEquals(featureTables.size(), tables.size());
+
+			for (String tableName : featureTables) {
+
+				TestCase.assertTrue(tables.contains(tableName));
+
+				TestCase.assertNotNull(featureStyleExtension
+						.getTableStyles(tableName));
+				TestCase.assertNotNull(featureStyleExtension
+						.getTableIcons(tableName));
+
+				featureStyleExtension.deleteAllFeatureStyles(tableName);
+
+				TestCase.assertNull(featureStyleExtension
+						.getTableStyles(tableName));
+				TestCase.assertNull(featureStyleExtension
+						.getTableIcons(tableName));
+
+				FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
+				FeatureResultSet featureResultSet = featureDao.queryForAll();
+				while (featureResultSet.moveToNext()) {
+
+					FeatureRow featureRow = featureResultSet.getRow();
+
+					TestCase.assertNull(featureStyleExtension
+							.getStyles(featureRow));
+					TestCase.assertNull(featureStyleExtension
+							.getIcons(featureRow));
+
+				}
+				featureResultSet.close();
+
+				featureStyleExtension.deleteRelationships(tableName);
+				TestCase.assertFalse(featureStyleExtension.has(tableName));
+
+			}
+
+			TestCase.assertFalse(featureStyleExtension.has());
+
+			TestCase.assertTrue(geoPackage.isTable(StyleTable.TABLE_NAME));
+			TestCase.assertTrue(geoPackage.isTable(IconTable.TABLE_NAME));
+			TestCase.assertTrue(geoPackage.isTable(ContentsId.TABLE_NAME));
+
+			featureStyleExtension.removeExtension();
+
+			TestCase.assertFalse(geoPackage.isTable(StyleTable.TABLE_NAME));
+			TestCase.assertFalse(geoPackage.isTable(IconTable.TABLE_NAME));
+			TestCase.assertTrue(geoPackage.isTable(ContentsId.TABLE_NAME));
+
+			ContentsIdExtension contentsIdExtension = featureStyleExtension
+					.getContentsId();
+			TestCase.assertEquals(featureTables.size(),
+					contentsIdExtension.count());
+			TestCase.assertEquals(featureTables.size(),
+					contentsIdExtension.deleteIds());
+			contentsIdExtension.removeExtension();
+			TestCase.assertFalse(geoPackage.isTable(ContentsId.TABLE_NAME));
 
 		}
 

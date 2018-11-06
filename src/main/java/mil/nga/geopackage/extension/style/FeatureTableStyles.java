@@ -106,6 +106,33 @@ public class FeatureTableStyles {
 	}
 
 	/**
+	 * Determine if the GeoPackage has the extension for the table
+	 * 
+	 * @return true if has extension
+	 */
+	public boolean has() {
+		return featureStyleExtension.has(tableName);
+	}
+
+	/**
+	 * Create style, icon, table style, and table icon relationships for the
+	 * feature table
+	 */
+	public void createRelationships() {
+		featureStyleExtension.createRelationships(tableName);
+	}
+
+	/**
+	 * Check if feature table has a style, icon, table style, or table icon
+	 * relationships
+	 * 
+	 * @return true if has a relationship
+	 */
+	public boolean hasRelationship() {
+		return featureStyleExtension.hasRelationship(tableName);
+	}
+
+	/**
 	 * Create a style relationship for the feature table
 	 */
 	public void createStyleRelationship() {
@@ -167,6 +194,42 @@ public class FeatureTableStyles {
 	 */
 	public boolean hasTableIconRelationship() {
 		return featureStyleExtension.hasTableIconRelationship(tableName);
+	}
+
+	/**
+	 * Delete the style and icon table and row relationships for the feature
+	 * table
+	 */
+	public void deleteRelationships() {
+		featureStyleExtension.deleteRelationships(tableName);
+	}
+
+	/**
+	 * Delete a style relationship for the feature table
+	 */
+	public void deleteStyleRelationship() {
+		featureStyleExtension.deleteStyleRelationship(tableName);
+	}
+
+	/**
+	 * Delete a table style relationship for the feature table
+	 */
+	public void deleteTableStyleRelationship() {
+		featureStyleExtension.deleteTableStyleRelationship(tableName);
+	}
+
+	/**
+	 * Delete a icon relationship for the feature table
+	 */
+	public void deleteIconRelationship() {
+		featureStyleExtension.deleteIconRelationship(tableName);
+	}
+
+	/**
+	 * Delete a table icon relationship for the feature table
+	 */
+	public void deleteTableIconRelationship() {
+		featureStyleExtension.deleteTableIconRelationship(tableName);
 	}
 
 	/**
@@ -1014,6 +1077,31 @@ public class FeatureTableStyles {
 	 */
 	public void setIconDefault(long featureId, IconRow icon) {
 		featureStyleExtension.setIconDefault(tableName, featureId, icon);
+	}
+
+	/**
+	 * Delete all feature styles including table styles, table icons, style, and
+	 * icons
+	 */
+	public void deleteAllFeatureStyles() {
+		featureStyleExtension.deleteAllFeatureStyles(tableName);
+		clearCachedTableFeatureStyles();
+	}
+
+	/**
+	 * Delete all styles including table styles and feature row styles
+	 */
+	public void deleteAllStyles() {
+		featureStyleExtension.deleteAllStyles(tableName);
+		clearCachedTableStyles();
+	}
+
+	/**
+	 * Delete all icons including table icons and feature row icons
+	 */
+	public void deleteAllIcons() {
+		featureStyleExtension.deleteAllIcons(tableName);
+		clearCachedTableIcons();
 	}
 
 	/**
