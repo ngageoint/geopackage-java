@@ -29,6 +29,7 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
+import mil.nga.geopackage.style.Color;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.tiles.ImageUtils;
@@ -689,23 +690,28 @@ public class FeatureStylesUtils {
 		if (Math.random() < .5) {
 			styleRow.setDescription("Style Description");
 		}
-		if (Math.random() < .5) {
-			styleRow.setColor("#0000ff"); // TODO
-			if (Math.random() < .75) {
-				styleRow.setOpacity(Math.random());
-			}
-		}
+		styleRow.setColor(randomColor());
 		if (Math.random() < .5) {
 			styleRow.setWidth(1.0 + (Math.random() * 3));
 		}
+		styleRow.setFillColor(randomColor());
+
+		return styleRow;
+	}
+
+	private static Color randomColor() {
+
+		Color color = null;
+
 		if (Math.random() < .5) {
-			styleRow.setFillColor("#f00"); // TODO
-			if (Math.random() < .75) {
-				styleRow.setFillOpacity(Math.random());
+			color = new Color((int) (Math.random() * 256),
+					(int) (Math.random() * 256), (int) (Math.random() * 256));
+			if (Math.random() < .5) {
+				color.setOpacity((float) Math.random());
 			}
 		}
 
-		return styleRow;
+		return color;
 	}
 
 	private static IconRow randomIcon() throws IOException {

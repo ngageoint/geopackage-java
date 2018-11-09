@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesRow;
+import mil.nga.geopackage.style.Color;
 
 /**
  * Style Row containing the values from a single result set row
@@ -157,12 +158,38 @@ public class StyleRow extends AttributesRow {
 	}
 
 	/**
+	 * Get the style color
+	 * 
+	 * @return color
+	 */
+	public Color getColor() {
+		return createColor(getHexColor(), getOpacity());
+	}
+
+	/**
 	 * Get the color
 	 * 
 	 * @return color
 	 */
-	public String getColor() {
+	public String getHexColor() {
 		return getValue(getColorColumnIndex()).toString();
+	}
+
+	/**
+	 * Set the color
+	 * 
+	 * @param color
+	 *            color
+	 */
+	public void setColor(Color color) {
+		String hex = null;
+		Double opacity = null;
+		if (color != null) {
+			hex = color.getColorHexShorthand();
+			opacity = new Double(color.getOpacity());
+		}
+		setColor(hex);
+		setOpacity(opacity);
 	}
 
 	/**
@@ -276,12 +303,38 @@ public class StyleRow extends AttributesRow {
 	}
 
 	/**
+	 * Get the style fill color
+	 * 
+	 * @return fill color
+	 */
+	public Color getFillColor() {
+		return createColor(getFillHexColor(), getFillOpacity());
+	}
+
+	/**
 	 * Get the fill color
 	 * 
 	 * @return fill color
 	 */
-	public String getFillColor() {
+	public String getFillHexColor() {
 		return getValue(getFillColorColumnIndex()).toString();
+	}
+
+	/**
+	 * Set the color
+	 * 
+	 * @param color
+	 *            color
+	 */
+	public void setFillColor(Color color) {
+		String hex = null;
+		Double opacity = null;
+		if (color != null) {
+			hex = color.getColorHexShorthand();
+			opacity = new Double(color.getOpacity());
+		}
+		setFillColor(hex);
+		setFillOpacity(opacity);
 	}
 
 	/**
@@ -368,6 +421,29 @@ public class StyleRow extends AttributesRow {
 					"Opacity must be set inclusively between 0.0 and 1.0, invalid value: "
 							+ opacity);
 		}
+	}
+
+	/**
+	 * Create a color from the hex color and opacity
+	 * 
+	 * @param hexColor
+	 *            hex color
+	 * @param opacity
+	 *            opacity
+	 * @return color or null
+	 */
+	private Color createColor(String hexColor, Double opacity) {
+		Color color = null;
+		if (hexColor != null || opacity != null) {
+			color = new Color();
+			if (hexColor != null) {
+				color.setColor(hexColor);
+			}
+			if (opacity != null) {
+				color.setOpacity(opacity.floatValue());
+			}
+		}
+		return color;
 	}
 
 	/**
