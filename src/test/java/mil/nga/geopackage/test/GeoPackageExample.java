@@ -67,6 +67,10 @@ import mil.nga.geopackage.extension.related.simple.SimpleAttributesTable;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileScalingType;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
+import mil.nga.geopackage.extension.style.FeatureStyleExtension;
+import mil.nga.geopackage.extension.style.FeatureTableStyles;
+import mil.nga.geopackage.extension.style.IconRow;
+import mil.nga.geopackage.extension.style.StyleRow;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.user.FeatureColumn;
@@ -88,7 +92,10 @@ import mil.nga.geopackage.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.schema.constraints.DataColumnConstraintType;
 import mil.nga.geopackage.schema.constraints.DataColumnConstraints;
 import mil.nga.geopackage.schema.constraints.DataColumnConstraintsDao;
+import mil.nga.geopackage.style.Color;
+import mil.nga.geopackage.style.ColorConstants;
 import mil.nga.geopackage.test.extension.related.RelatedTablesUtils;
+import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.TileGrid;
@@ -151,6 +158,7 @@ public class GeoPackageExample {
 	private static final boolean TILE_SCALING = true;
 	private static final boolean PROPERTIES = true;
 	private static final boolean CONTENTS_ID = true;
+	private static final boolean FEATURE_STYLE = true;
 
 	private static final String ID_COLUMN = "id";
 	private static final String GEOMETRY_COLUMN = "geometry";
@@ -318,7 +326,8 @@ public class GeoPackageExample {
 				geoPackage).has());
 		TestCase.assertEquals(has && CONTENTS_ID, new ContentsIdExtension(
 				geoPackage).has());
-		// TODO Feature Style Extension
+		TestCase.assertEquals(has && FEATURE_STYLE, new FeatureStyleExtension(
+				geoPackage).has());
 
 	}
 
@@ -385,6 +394,11 @@ public class GeoPackageExample {
 				createRelatedTablesFeaturesExtension(geoPackage);
 			}
 
+			System.out.println("Feature Style Extension: " + FEATURE_STYLE);
+			if (FEATURE_STYLE) {
+				createFeatureStyleExtension(geoPackage);
+			}
+
 		} else {
 			System.out.println("Schema Extension: " + FEATURES);
 			System.out.println("Geometry Index Extension: " + FEATURES);
@@ -395,6 +409,7 @@ public class GeoPackageExample {
 			System.out.println("Related Tables Media Extension: " + FEATURES);
 			System.out
 					.println("Related Tables Features Extension: " + FEATURES);
+			System.out.println("Feature Style Extension: " + FEATURES);
 		}
 
 		System.out.println("Tiles: " + TILES);
@@ -1809,6 +1824,84 @@ public class GeoPackageExample {
 
 		ContentsIdExtension contentsId = new ContentsIdExtension(geoPackage);
 		contentsId.createIds(ContentsDataType.FEATURES);
+
+	}
+
+	private static void createFeatureStyleExtension(GeoPackage geoPackage)
+			throws IOException {
+
+		Color color1 = new Color(ColorConstants.BLUE);
+		Color color2 = new Color(255, 0, 0, .4f);
+		Color color3 = new Color(0x000000);
+
+		StyleRow style1 = new StyleRow();
+		style1.setName("Style 1");
+		style1.setDescription("Style 1");
+		style1.setColor(ColorConstants.GREEN);
+		style1.setWidth(2.0);
+
+		StyleRow style2 = new StyleRow();
+		style2.setName("Style 2");
+		style2.setDescription("Style 2");
+		style2.setColor(color1);
+		style2.setWidth(1.5);
+		style2.setFillColor(color2);
+
+		StyleRow style3 = new StyleRow();
+		style3.setName("Style 3");
+		style3.setDescription("Style 3");
+		style3.setColor(color3);
+
+		File iconImageFile = TestUtils
+				.getTestFile(TestConstants.ICON_POINT_IMAGE);
+		byte[] iconBytes = GeoPackageIOUtils.fileBytes(iconImageFile);
+		BufferedImage iconImage = ImageUtils.getImage(iconBytes);
+		IconRow icon = new IconRow();
+		icon.setName("Icon 1");
+		icon.setDescription("Icon 1");
+		icon.setData(iconBytes);
+		icon.setContentType("image/png");
+		icon.setHeight(iconImage.getHeight() * .9);
+		icon.setWidth(iconImage.getWidth() * .9);
+		icon.setAnchorU(0.5);
+		icon.setAnchorV(1.0);
+
+		FeatureTableStyles geometry1Styles = new FeatureTableStyles(geoPackage,
+				"geometry1");
+
+		geometry1Styles.setTableStyleDefault(style1);
+		geometry1Styles.setTableStyle(GeometryType.POLYGON, style2);
+		geometry1Styles.setTableIconDefault(icon);
+
+		FeatureDao featureDao = geoPackage.getFeatureDao("geometry2");
+		FeatureTableStyles geometry2Styles = new FeatureTableStyles(geoPackage,
+				featureDao.getTable());
+
+		geometry2Styles.setTableStyle(GeometryType.POINT, style1);
+		geometry2Styles.setTableStyle(GeometryType.LINESTRING, style2);
+		geometry2Styles.setTableStyle(GeometryType.POLYGON, style1);
+		geometry2Styles.setTableStyle(GeometryType.GEOMETRY, style3);
+
+		geometry2Styles.createStyleRelationship();
+		geometry2Styles.createIconRelationship();
+
+		FeatureResultSet features = featureDao.queryForAll();
+		while (features.moveToNext()) {
+			FeatureRow featureRow = features.getRow();
+			switch (featureRow.getGeometryType()) {
+			case POINT:
+				geometry2Styles.setIcon(featureRow, icon);
+				break;
+			case LINESTRING:
+				geometry2Styles.setStyle(featureRow, style1);
+				break;
+			case POLYGON:
+				geometry2Styles.setStyle(featureRow, style2);
+				break;
+			default:
+			}
+		}
+		features.close();
 
 	}
 
