@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.contents.ContentsId;
 import mil.nga.geopackage.extension.contents.ContentsIdExtension;
 import mil.nga.geopackage.extension.style.FeatureStyleExtension;
@@ -47,6 +48,8 @@ public class FeatureStylesUtils {
 	 */
 	public static void testFeatureStyles(GeoPackage geoPackage)
 			throws SQLException, IOException {
+
+		GeoPackageExtensions.deleteExtensions(geoPackage);
 
 		FeatureStyleExtension featureStyleExtension = new FeatureStyleExtension(
 				geoPackage);
