@@ -82,7 +82,7 @@ public class IconRow extends MediaRow {
 	 * @return name
 	 */
 	public String getName() {
-		return getValue(getNameColumnIndex()).toString();
+		return getValueString(getNameColumnIndex());
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class IconRow extends MediaRow {
 	 * @return description
 	 */
 	public String getDescription() {
-		return getValue(getDescriptionColumnIndex()).toString();
+		return getValueString(getDescriptionColumnIndex());
 	}
 
 	/**
