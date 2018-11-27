@@ -1,5 +1,9 @@
 package mil.nga.geopackage.extension.related.media;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomRow;
 
@@ -112,6 +116,52 @@ public class MediaRow extends UserCustomRow {
 	 */
 	public void setData(byte[] data) {
 		setValue(getDataColumnIndex(), data);
+	}
+
+	/**
+	 * Get the data image
+	 * 
+	 * @return image
+	 * @throws IOException
+	 *             upon failure
+	 * @since 3.1.1
+	 */
+	public BufferedImage getDataImage() throws IOException {
+		return ImageUtils.getImage(getData());
+	}
+
+	/**
+	 * Set the data from an image
+	 * 
+	 * @param image
+	 *            image
+	 * @param imageFormat
+	 *            image format
+	 * @throws IOException
+	 *             upon failure
+	 * @since 3.1.1
+	 */
+	public void setData(BufferedImage image, String imageFormat)
+			throws IOException {
+		setData(image, imageFormat, null);
+	}
+
+	/**
+	 * Set the data from an image with optional quality
+	 * 
+	 * @param image
+	 *            image
+	 * @param imageFormat
+	 *            image format
+	 * @param quality
+	 *            null or quality between 0.0 and 1.0
+	 * @throws IOException
+	 *             upon failure
+	 * @since 3.1.1
+	 */
+	public void setData(BufferedImage image, String imageFormat, Float quality)
+			throws IOException {
+		setData(ImageUtils.writeImageToBytes(image, imageFormat, quality));
 	}
 
 	/**
