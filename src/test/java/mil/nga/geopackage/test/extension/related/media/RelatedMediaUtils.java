@@ -314,8 +314,7 @@ public class RelatedMediaUtils {
 					RelatedTablesUtils.validateUserRow(mediaColumns, mediaRow);
 					RelatedTablesUtils.validateDublinCoreColumns(mediaRow);
 					validateDublinCoreColumns(mediaRow);
-					BufferedImage image = ImageUtils.getImage(mediaRow
-							.getData());
+					BufferedImage image = mediaRow.getDataImage();
 					TestCase.assertNotNull(image);
 					TestCase.assertEquals(imageWidth, image.getWidth());
 					TestCase.assertEquals(imageHeight, image.getHeight());

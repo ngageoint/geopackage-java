@@ -493,8 +493,7 @@ public class FeatureStylesUtils {
 					TestCase.assertEquals("image/"
 							+ TestConstants.ICON_POINT_IMAGE_EXTENSION,
 							typeIconRow.getContentType());
-					BufferedImage iconImage = ImageUtils.getImage(typeIconRow
-							.getData());
+					BufferedImage iconImage = typeIconRow.getDataImage();
 					TestCase.assertNotNull(iconImage);
 					TestCase.assertTrue(iconImage.getWidth() > 0);
 					TestCase.assertTrue(iconImage.getHeight() > 0);
