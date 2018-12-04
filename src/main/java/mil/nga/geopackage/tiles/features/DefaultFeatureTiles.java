@@ -1,18 +1,21 @@
 package mil.nga.geopackage.tiles.features;
 
-import java.awt.BasicStroke;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.extension.index.GeometryIndex;
+import mil.nga.geopackage.extension.style.FeatureStyle;
+import mil.nga.geopackage.extension.style.IconRow;
+import mil.nga.geopackage.extension.style.StyleRow;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -23,6 +26,7 @@ import mil.nga.sf.CompoundCurve;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryCollection;
 import mil.nga.sf.GeometryEnvelope;
+import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
 import mil.nga.sf.MultiLineString;
 import mil.nga.sf.MultiPoint;
@@ -61,15 +65,28 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	}
 
 	/**
+	 * Constructor, auto creates the feature table index for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @since 3.1.1
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
+		super(geoPackage, featureDao);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
 			CloseableIterator<GeometryIndex> results) {
 
-		// Create image and graphics
-		BufferedImage image = createNewImage();
-		Graphics2D graphics = getGraphics(image);
+		FeatureTileGraphics graphics = new FeatureTileGraphics(tileWidth,
+				tileHeight);
 
 		// WGS84 to web mercator projection and google shape converter
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
@@ -85,10 +102,17 @@ public class DefaultFeatureTiles extends FeatureTiles {
 				drawn = true;
 			}
 		}
+		try {
+			results.close();
+		} catch (IOException e) {
+			log.log(Level.WARNING, "Failed to close geometry index results", e);
+		}
 
-		if (!drawn) {
-			image.flush();
-			image = null;
+		BufferedImage image = null;
+		if (drawn) {
+			image = graphics.createImage();
+		} else {
+			graphics.dispose();
 		}
 
 		return image;
@@ -101,8 +125,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
 			FeatureResultSet resultSet) {
 
-		BufferedImage image = createNewImage();
-		Graphics2D graphics = getGraphics(image);
+		FeatureTileGraphics graphics = new FeatureTileGraphics(tileWidth,
+				tileHeight);
 
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
 		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
@@ -115,11 +139,13 @@ public class DefaultFeatureTiles extends FeatureTiles {
 				drawn = true;
 			}
 		}
-
 		resultSet.close();
-		if (!drawn) {
-			image.flush();
-			image = null;
+
+		BufferedImage image = null;
+		if (drawn) {
+			image = graphics.createImage();
+		} else {
+			graphics.dispose();
 		}
 
 		return image;
@@ -132,8 +158,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
 			List<FeatureRow> featureRow) {
 
-		BufferedImage image = createNewImage();
-		Graphics2D graphics = getGraphics(image);
+		FeatureTileGraphics graphics = new FeatureTileGraphics(tileWidth,
+				tileHeight);
 
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
 		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
@@ -146,25 +172,14 @@ public class DefaultFeatureTiles extends FeatureTiles {
 			}
 		}
 
-		if (!drawn) {
-			image.flush();
-			image = null;
+		BufferedImage image = null;
+		if (drawn) {
+			image = graphics.createImage();
+		} else {
+			graphics.dispose();
 		}
 
 		return image;
-	}
-
-	/**
-	 * Get a graphics for the image
-	 * 
-	 * @param image
-	 * @return graphics
-	 */
-	private Graphics2D getGraphics(BufferedImage image) {
-		Graphics2D graphics = image.createGraphics();
-		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		return graphics;
 	}
 
 	/**
@@ -186,7 +201,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 */
 	private boolean drawFeature(int zoom, BoundingBox boundingBox,
 			BoundingBox expandedBoundingBox, ProjectionTransform transform,
-			Graphics2D graphics, FeatureRow row) {
+			FeatureTileGraphics graphics, FeatureRow row) {
 
 		boolean drawn = false;
 
@@ -207,7 +222,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 						double simplifyTolerance = TileBoundingBoxUtils
 								.toleranceDistance(zoom, tileWidth, tileHeight);
 						drawGeometry(simplifyTolerance, boundingBox, transform,
-								graphics, geometry);
+								graphics, row, geometry);
 
 						drawn = true;
 					}
@@ -227,87 +242,97 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param simplifyTolerance
 	 *            simplify tolerance in meters
 	 * @param boundingBox
+	 *            bounding box
 	 * @param transform
+	 *            projection transform
 	 * @param graphics
+	 *            feature tile graphics
+	 * @param featureRow
+	 *            feature row
 	 * @param geometry
+	 *            geometry
 	 */
 	private void drawGeometry(double simplifyTolerance,
 			BoundingBox boundingBox, ProjectionTransform transform,
-			Graphics2D graphics, Geometry geometry) {
+			FeatureTileGraphics graphics, FeatureRow featureRow,
+			Geometry geometry) {
 
-		switch (geometry.getGeometryType()) {
+		GeometryType geometryType = geometry.getGeometryType();
+		FeatureStyle featureStyle = getFeatureStyle(featureRow, geometryType);
+
+		switch (geometryType) {
 
 		case POINT:
 			Point point = (Point) geometry;
-			drawPoint(boundingBox, transform, graphics, point);
+			drawPoint(boundingBox, transform, graphics, point, featureStyle);
 			break;
 		case LINESTRING:
 			LineString lineString = (LineString) geometry;
 			drawLineString(simplifyTolerance, boundingBox, transform, graphics,
-					lineString);
+					lineString, featureStyle);
 			break;
 		case POLYGON:
 			Polygon polygon = (Polygon) geometry;
 			drawPolygon(simplifyTolerance, boundingBox, transform, graphics,
-					polygon);
+					polygon, featureStyle);
 			break;
 		case MULTIPOINT:
 			MultiPoint multiPoint = (MultiPoint) geometry;
 			for (Point p : multiPoint.getPoints()) {
-				drawPoint(boundingBox, transform, graphics, p);
+				drawPoint(boundingBox, transform, graphics, p, featureStyle);
 			}
 			break;
 		case MULTILINESTRING:
 			MultiLineString multiLineString = (MultiLineString) geometry;
 			for (LineString ls : multiLineString.getLineStrings()) {
 				drawLineString(simplifyTolerance, boundingBox, transform,
-						graphics, ls);
+						graphics, ls, featureStyle);
 			}
 			break;
 		case MULTIPOLYGON:
 			MultiPolygon multiPolygon = (MultiPolygon) geometry;
 			for (Polygon p : multiPolygon.getPolygons()) {
 				drawPolygon(simplifyTolerance, boundingBox, transform,
-						graphics, p);
+						graphics, p, featureStyle);
 			}
 			break;
 		case CIRCULARSTRING:
 			CircularString circularString = (CircularString) geometry;
 			drawLineString(simplifyTolerance, boundingBox, transform, graphics,
-					circularString);
+					circularString, featureStyle);
 			break;
 		case COMPOUNDCURVE:
 			CompoundCurve compoundCurve = (CompoundCurve) geometry;
 			for (LineString ls : compoundCurve.getLineStrings()) {
 				drawLineString(simplifyTolerance, boundingBox, transform,
-						graphics, ls);
+						graphics, ls, featureStyle);
 			}
 			break;
 		case POLYHEDRALSURFACE:
 			PolyhedralSurface polyhedralSurface = (PolyhedralSurface) geometry;
 			for (Polygon p : polyhedralSurface.getPolygons()) {
 				drawPolygon(simplifyTolerance, boundingBox, transform,
-						graphics, p);
+						graphics, p, featureStyle);
 			}
 			break;
 		case TIN:
 			TIN tin = (TIN) geometry;
 			for (Polygon p : tin.getPolygons()) {
 				drawPolygon(simplifyTolerance, boundingBox, transform,
-						graphics, p);
+						graphics, p, featureStyle);
 			}
 			break;
 		case TRIANGLE:
 			Triangle triangle = (Triangle) geometry;
 			drawPolygon(simplifyTolerance, boundingBox, transform, graphics,
-					triangle);
+					triangle, featureStyle);
 			break;
 		case GEOMETRYCOLLECTION:
 			@SuppressWarnings("unchecked")
 			GeometryCollection<Geometry> geometryCollection = (GeometryCollection<Geometry>) geometry;
 			for (Geometry g : geometryCollection.getGeometries()) {
 				drawGeometry(simplifyTolerance, boundingBox, transform,
-						graphics, g);
+						graphics, featureRow, g);
 			}
 			break;
 		default:
@@ -323,16 +348,23 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param simplifyTolerance
 	 *            simplify tolerance in meters
 	 * @param boundingBox
+	 *            bounding box
 	 * @param transform
+	 *            projection transform
 	 * @param graphics
+	 *            feature tile graphics
 	 * @param lineString
+	 *            line string
+	 * @param featureStyle
+	 *            feature style
 	 */
 	private void drawLineString(double simplifyTolerance,
 			BoundingBox boundingBox, ProjectionTransform transform,
-			Graphics2D graphics, LineString lineString) {
+			FeatureTileGraphics graphics, LineString lineString,
+			FeatureStyle featureStyle) {
 		Path2D path = getPath(simplifyTolerance, boundingBox, transform,
 				lineString);
-		drawLine(graphics, path);
+		drawLine(graphics, path, featureStyle);
 	}
 
 	/**
@@ -341,15 +373,22 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param simplifyTolerance
 	 *            simplify tolerance in meters
 	 * @param boundingBox
+	 *            bounding box
 	 * @param transform
+	 *            projection transform
 	 * @param graphics
+	 *            feature tile graphics
 	 * @param polygon
+	 *            polygon
+	 * @param featureStyle
+	 *            feature style
 	 */
 	private void drawPolygon(double simplifyTolerance, BoundingBox boundingBox,
-			ProjectionTransform transform, Graphics2D graphics, Polygon polygon) {
+			ProjectionTransform transform, FeatureTileGraphics graphics,
+			Polygon polygon, FeatureStyle featureStyle) {
 		Area polygonArea = getArea(simplifyTolerance, boundingBox, transform,
 				polygon);
-		drawPolygon(graphics, polygonArea);
+		drawPolygon(graphics, polygonArea, featureStyle);
 	}
 
 	/**
@@ -395,12 +434,23 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * Draw the line
 	 * 
 	 * @param graphics
+	 *            feature tile graphics
 	 * @param line
+	 *            line path
+	 * @param featureStyle
+	 *            feature style
 	 */
-	private void drawLine(Graphics2D graphics, Path2D line) {
-		graphics.setColor(lineColor);
-		graphics.setStroke(new BasicStroke(lineStrokeWidth));
-		graphics.draw(line);
+	private void drawLine(FeatureTileGraphics graphics, Path2D line,
+			FeatureStyle featureStyle) {
+
+		Graphics2D lineGraphics = graphics.getLineGraphics();
+
+		Paint paint = getLinePaint(featureStyle);
+		lineGraphics.setColor(paint.getColor());
+		lineGraphics.setStroke(paint.getStroke());
+
+		lineGraphics.draw(line);
+
 	}
 
 	/**
@@ -438,18 +488,30 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * Draw the polygon
 	 * 
 	 * @param graphics
+	 *            feature tile graphics
 	 * @param polygon
+	 *            polygon area
+	 * @param featureStyle
+	 *            feature style
 	 */
-	private void drawPolygon(Graphics2D graphics, Area polygon) {
+	private void drawPolygon(FeatureTileGraphics graphics, Area polygon,
+			FeatureStyle featureStyle) {
 
-		if (fillPolygon) {
-			graphics.setColor(polygonFillColor);
-			graphics.fill(polygon);
+		Graphics2D polygonGraphics = graphics.getPolygonGraphics();
+
+		Paint fillPaint = getPolygonFillPaint(featureStyle);
+		if (fillPaint != null) {
+
+			polygonGraphics.setColor(fillPaint.getColor());
+			polygonGraphics.fill(polygon);
+
 		}
 
-		graphics.setColor(polygonColor);
-		graphics.setStroke(new BasicStroke(polygonStrokeWidth));
-		graphics.draw(polygon);
+		Paint paint = getPolygonPaint(featureStyle);
+		polygonGraphics.setColor(paint.getColor());
+		polygonGraphics.setStroke(paint.getStroke());
+
+		polygonGraphics.draw(polygon);
 
 	}
 
@@ -457,12 +519,19 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * Draw the point
 	 *
 	 * @param boundingBox
+	 *            bounding box
 	 * @param transform
+	 *            projection transform
 	 * @param graphics
+	 *            feature tile graphics
 	 * @param point
+	 *            point
+	 * @param featureStyle
+	 *            feature style
 	 */
 	private void drawPoint(BoundingBox boundingBox,
-			ProjectionTransform transform, Graphics2D graphics, Point point) {
+			ProjectionTransform transform, FeatureTileGraphics graphics,
+			Point point, FeatureStyle featureStyle) {
 
 		Point projectedPoint = transform.transform(point);
 
@@ -471,24 +540,65 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		float y = TileBoundingBoxUtils.getYPixel(tileHeight, boundingBox,
 				projectedPoint.getY());
 
-		if (pointIcon != null) {
+		if (featureStyle != null && featureStyle.hasIcon()) {
+
+			IconRow iconRow = featureStyle.getIcon();
+			BufferedImage icon = getIcon(iconRow);
+
+			int width = icon.getWidth();
+			int height = icon.getHeight();
+
+			if (x >= 0 - width && x <= tileWidth + width && y >= 0 - height
+					&& y <= tileHeight + height) {
+
+				float anchorU = (float) iconRow.getAnchorUOrDefault();
+				float anchorV = (float) iconRow.getAnchorVOrDefault();
+
+				int iconX = Math.round(x - (anchorU * width));
+				int iconY = Math.round(y - (anchorV * height));
+
+				Graphics2D iconGraphics = graphics.getIconGraphics();
+				iconGraphics.drawImage(icon, iconX, iconY, null);
+
+			}
+
+		} else if (pointIcon != null) {
+
 			if (x >= 0 - pointIcon.getWidth()
 					&& x <= tileWidth + pointIcon.getWidth()
 					&& y >= 0 - pointIcon.getHeight()
 					&& y <= tileHeight + pointIcon.getHeight()) {
 				int iconX = Math.round(x - pointIcon.getXOffset());
 				int iconY = Math.round(y - pointIcon.getYOffset());
-				graphics.drawImage(pointIcon.getIcon(), iconX, iconY, null);
+				Graphics2D iconGraphics = graphics.getIconGraphics();
+				iconGraphics.drawImage(pointIcon.getIcon(), iconX, iconY, null);
 			}
+
 		} else {
-			if (x >= 0 - pointRadius && x <= tileWidth + pointRadius
-					&& y >= 0 - pointRadius && y <= tileHeight + pointRadius) {
-				int diameter = Math.round(pointRadius * 2);
-				graphics.setColor(pointColor);
-				int circleX = Math.round(x - pointRadius);
-				int circleY = Math.round(y - pointRadius);
-				graphics.fillOval(circleX, circleY, diameter, diameter);
+
+			Float radius = null;
+			if (featureStyle != null) {
+				StyleRow styleRow = featureStyle.getStyle();
+				if (styleRow != null) {
+					radius = (float) (styleRow.getWidthOrDefault() / 2.0f);
+				}
 			}
+			if (radius == null) {
+				radius = pointRadius;
+			}
+			if (x >= 0 - radius && x <= tileWidth + radius && y >= 0 - radius
+					&& y <= tileHeight + radius) {
+
+				Graphics2D pointGraphics = graphics.getPointGraphics();
+				Paint pointPaint = getPointPaint(featureStyle);
+				pointGraphics.setColor(pointPaint.getColor());
+
+				int circleX = Math.round(x - radius);
+				int circleY = Math.round(y - radius);
+				int diameter = Math.round(radius * 2);
+				pointGraphics.fillOval(circleX, circleY, diameter, diameter);
+			}
+
 		}
 
 	}
