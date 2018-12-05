@@ -187,6 +187,20 @@ public abstract class FeatureTiles {
 	 *            feature dao
 	 */
 	public FeatureTiles(FeatureDao featureDao) {
+		this(null, featureDao);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @since 3.1.1
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
+
 		this.featureDao = featureDao;
 		if (featureDao != null) {
 			this.projection = featureDao.getProjection();
@@ -230,33 +244,23 @@ public abstract class FeatureTiles {
 				JavaPropertyConstants.FEATURE_TILES_POLYGON_FILL,
 				JavaPropertyConstants.FEATURE_TILES_COLOR));
 
+		if (geoPackage != null) {
+
+			featureIndex = new FeatureTableIndex(geoPackage, featureDao);
+			if (!featureIndex.isIndexed()) {
+				featureIndex.close();
+				featureIndex = null;
+			}
+
+			featureTableStyles = new FeatureTableStyles(geoPackage,
+					featureDao.getTable());
+			if (!featureTableStyles.has()) {
+				featureTableStyles = null;
+			}
+
+		}
+
 		calculateDrawOverlap();
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param geoPackage
-	 *            GeoPackage
-	 * @param featureDao
-	 *            feature dao
-	 * @since 3.1.1
-	 */
-	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
-		this(featureDao);
-
-		featureIndex = new FeatureTableIndex(geoPackage, featureDao);
-		if (!featureIndex.isIndexed()) {
-			featureIndex.close();
-			featureIndex = null;
-		}
-
-		featureTableStyles = new FeatureTableStyles(geoPackage,
-				featureDao.getTable());
-		if (!featureTableStyles.has()) {
-			featureTableStyles = null;
-		}
-
 	}
 
 	/**
@@ -434,6 +438,16 @@ public abstract class FeatureTiles {
 	 */
 	public void setFeatureTableStyles(FeatureTableStyles featureTableStyles) {
 		this.featureTableStyles = featureTableStyles;
+	}
+
+	/**
+	 * Ignore the feature table styles within the GeoPackage
+	 * 
+	 * @since 3.1.1
+	 */
+	public void ignoreFeatureTableStyles() {
+		setFeatureTableStyles(null);
+		calculateDrawOverlap();
 	}
 
 	/**
@@ -881,6 +895,29 @@ public abstract class FeatureTiles {
 				WEB_MERCATOR_PROJECTION);
 
 		return count;
+	}
+
+	/**
+	 * Query for feature results in the x, y, and zoom
+	 *
+	 * @param x
+	 *            x coordinate
+	 * @param y
+	 *            y coordinate
+	 * @param zoom
+	 *            zoom level
+	 * @return feature count
+	 * @since 3.1.1
+	 */
+	public CloseableIterator<GeometryIndex> queryIndexedFeatures(int x, int y,
+			int zoom) {
+
+		// Get the web mercator bounding box
+		BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
+				.getWebMercatorBoundingBox(x, y, zoom);
+
+		// Query for the geometries matching the bounds in the index
+		return queryIndexedFeatures(webMercatorBoundingBox);
 	}
 
 	/**

@@ -363,6 +363,11 @@ public class GeoPackageExample {
 				createGeometryIndexExtension(geoPackage);
 			}
 
+			System.out.println("Feature Style Extension: " + FEATURE_STYLE);
+			if (FEATURE_STYLE) {
+				createFeatureStyleExtension(geoPackage);
+			}
+
 			System.out.println("Feature Tile Link Extension: "
 					+ FEATURE_TILE_LINK);
 			if (FEATURE_TILE_LINK) {
@@ -393,14 +398,10 @@ public class GeoPackageExample {
 				createRelatedTablesFeaturesExtension(geoPackage);
 			}
 
-			System.out.println("Feature Style Extension: " + FEATURE_STYLE);
-			if (FEATURE_STYLE) {
-				createFeatureStyleExtension(geoPackage);
-			}
-
 		} else {
 			System.out.println("Schema Extension: " + FEATURES);
 			System.out.println("Geometry Index Extension: " + FEATURES);
+			System.out.println("Feature Style Extension: " + FEATURES);
 			System.out.println("Feature Tile Link Extension: " + FEATURES);
 			System.out.println("Non-Linear Geometry Types Extension: "
 					+ FEATURES);
@@ -408,7 +409,6 @@ public class GeoPackageExample {
 			System.out.println("Related Tables Media Extension: " + FEATURES);
 			System.out
 					.println("Related Tables Features Extension: " + FEATURES);
-			System.out.println("Feature Style Extension: " + FEATURES);
 		}
 
 		System.out.println("Tiles: " + TILES);
@@ -1077,11 +1077,8 @@ public class GeoPackageExample {
 		for (String featureTable : featureTables) {
 
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
-			FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
-
-			FeatureTableIndex featureIndex = new FeatureTableIndex(geoPackage,
+			FeatureTiles featureTiles = new DefaultFeatureTiles(geoPackage,
 					featureDao);
-			featureTiles.setFeatureIndex(featureIndex);
 
 			BoundingBox boundingBox = featureDao.getBoundingBox();
 			Projection projection = featureDao.getProjection();
