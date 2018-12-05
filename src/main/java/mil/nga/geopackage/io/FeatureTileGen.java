@@ -179,6 +179,11 @@ public class FeatureTileGen {
 	public static final String ARGUMENT_SIMPLIFY_GEOMETRIES = "simplifyGeometries";
 
 	/**
+	 * Ignore GeoPackage styles argument
+	 */
+	public static final String ARGUMENT_IGNORE_GEOPACKAGE_STYLES = "ignoreGeoPackageStyles";
+
+	/**
 	 * Tile progress
 	 */
 	private static Progress progress = new Progress("Feature Tile Generation",
@@ -318,6 +323,11 @@ public class FeatureTileGen {
 	 * Simplify geometries
 	 */
 	private static boolean simplifyGeometries = true;
+
+	/**
+	 * Ignore styles saved within the GeoPackage
+	 */
+	private static boolean ignoreGeoPackageStyles = false;
 
 	/**
 	 * Main method to generate tiles in a GeoPackage
@@ -569,6 +579,18 @@ public class FeatureTileGen {
 					}
 					break;
 
+				case ARGUMENT_IGNORE_GEOPACKAGE_STYLES:
+					if (i < args.length) {
+						ignoreGeoPackageStyles = Boolean.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out
+								.println("Error: Ignore GeoPackage Styles argument '"
+										+ arg
+										+ "' must be followed by a boolean value");
+					}
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -735,10 +757,14 @@ public class FeatureTileGen {
 							+ "' feature table '" + featureTable + "', "
 							+ indexed + " features");
 		}
+		featureIndex.close();
 
 		// Create the feature tiles
-		FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
-		featureTiles.setFeatureIndex(featureIndex);
+		FeatureTiles featureTiles = new DefaultFeatureTiles(featureGeoPackage,
+				featureDao);
+		if (ignoreGeoPackageStyles) {
+			featureTiles.ignoreFeatureTableStyles();
+		}
 		if (maxFeaturesPerTile != null) {
 			featureTiles.setMaxFeaturesPerTile(maxFeaturesPerTile);
 			featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile());
@@ -810,6 +836,12 @@ public class FeatureTileGen {
 		ProjectionTransform transform = projection
 				.getTransformation(webMercatorProjection);
 		BoundingBox webMercatorBoundingBox = boundingBox.transform(transform);
+
+		// Minimize the bounding box to the feature table
+		BoundingBox featureBoundingBox = featureGeoPackage.getBoundingBox(
+				webMercatorProjection, featureTable, true);
+		webMercatorBoundingBox = webMercatorBoundingBox
+				.overlap(featureBoundingBox);
 
 		// Create the tile generator
 		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(
@@ -1019,6 +1051,9 @@ public class FeatureTileGen {
 						+ " color] ["
 						+ ARGUMENT_PREFIX
 						+ ARGUMENT_SIMPLIFY_GEOMETRIES
+						+ " true|false] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES
 						+ " true|false] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
@@ -1129,6 +1164,11 @@ public class FeatureTileGen {
 				+ ARGUMENT_SIMPLIFY_GEOMETRIES + " true|false");
 		System.out
 				.println("\t\tFlag indicating whether geometries should be simplified with a similar curve with fewer points before drawn (default is true)");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX
+				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES + " true|false");
+		System.out
+				.println("\t\tFlag indicating whether styles saved within the GeoPackage should be ignored (default is false)");
 		System.out.println();
 		System.out.println("\tfeature_geopackage_file");
 		System.out
