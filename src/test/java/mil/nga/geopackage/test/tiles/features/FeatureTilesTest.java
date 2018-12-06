@@ -66,10 +66,10 @@ public class FeatureTilesTest extends CreateGeoPackageTestCase {
 				featureDao);
 		int indexed = featureIndex.index();
 		TestCase.assertEquals(num, indexed);
-		
+
 		featureTiles.setFeatureIndex(featureIndex);
 
-		createTiles(featureTiles, 0, 2);
+		createTiles(featureTiles, 0, 3);
 
 	}
 
@@ -84,14 +84,14 @@ public class FeatureTilesTest extends CreateGeoPackageTestCase {
 		for (int i = 0; i < tilesPerSide; i++) {
 			for (int j = 0; j < tilesPerSide; j++) {
 				BufferedImage image = featureTiles.drawTile(i, j, zoom);
-				long count = featureTiles.queryIndexedFeaturesCount(i, j, zoom);
-				if(count > 0){
+				if (image != null) {
+					long count = featureTiles.queryIndexedFeaturesCount(i, j,
+							zoom);
+					TestCase.assertTrue(count > 0);
 					TestCase.assertEquals(featureTiles.getTileWidth(),
-						image.getWidth());
+							image.getWidth());
 					TestCase.assertEquals(featureTiles.getTileHeight(),
-						image.getHeight());
-				}else{
-					TestCase.assertNull(image);
+							image.getHeight());
 				}
 			}
 		}
