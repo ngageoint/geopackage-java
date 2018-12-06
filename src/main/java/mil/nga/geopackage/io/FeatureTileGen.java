@@ -814,39 +814,36 @@ public class FeatureTileGen {
 			epsg = new Long(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}
 
+		BoundingBox webMercatorBoundingBox = null;
+		Projection webMercatorProjection = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+
 		// Set the projection and default bounding box as needed
 		Projection projection = null;
 		if (boundingBox != null) {
+
 			projection = ProjectionFactory.getProjection(epsg);
+
+			// Bound WGS84 tiles to Web Mercator limits
+			if (projection.getUnit() instanceof DegreeUnit) {
+				boundingBox = TileBoundingBoxUtils
+						.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
+			}
+
+			// Transform to a Web Mercator bounding box
+			ProjectionTransform transform = projection
+					.getTransformation(webMercatorProjection);
+			webMercatorBoundingBox = boundingBox.transform(transform);
+
 		} else {
-			boundingBox = new BoundingBox();
 			projection = ProjectionFactory
 					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}
 
-		// Bound WGS84 tiles to Web Mercator limits
-		if (projection.getUnit() instanceof DegreeUnit) {
-			boundingBox = TileBoundingBoxUtils
-					.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
-		}
-
-		// Transform to a Web Mercator bounding box
-		Projection webMercatorProjection = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-		ProjectionTransform transform = projection
-				.getTransformation(webMercatorProjection);
-		BoundingBox webMercatorBoundingBox = boundingBox.transform(transform);
-
-		// Minimize the bounding box to the feature table
-		BoundingBox featureBoundingBox = featureGeoPackage.getBoundingBox(
-				webMercatorProjection, featureTable, true);
-		webMercatorBoundingBox = webMercatorBoundingBox
-				.overlap(featureBoundingBox);
-
 		// Create the tile generator
 		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(
-				tileGeoPackage, tileTable, featureTiles, minZoom, maxZoom,
-				webMercatorBoundingBox, webMercatorProjection);
+				tileGeoPackage, tileTable, featureTiles, featureGeoPackage,
+				minZoom, maxZoom, webMercatorBoundingBox, webMercatorProjection);
 
 		if (compressFormat != null) {
 			tileGenerator.setCompressFormat(compressFormat);
