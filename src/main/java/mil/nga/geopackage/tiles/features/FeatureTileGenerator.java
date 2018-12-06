@@ -46,7 +46,38 @@ public class FeatureTileGenerator extends TileGenerator {
 	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
 			FeatureTiles featureTiles, int minZoom, int maxZoom,
 			BoundingBox boundingBox, Projection projection) {
-		super(geoPackage, tableName, minZoom, maxZoom, boundingBox, projection);
+		this(geoPackage, tableName, featureTiles, geoPackage, minZoom, maxZoom,
+				boundingBox, projection);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param minZoom
+	 *            min zoom
+	 * @param maxZoom
+	 *            max zoom
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 3.1.1
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			int minZoom, int maxZoom, BoundingBox boundingBox,
+			Projection projection) {
+		super(geoPackage, tableName, minZoom, maxZoom, getBoundingBox(
+				featureGeoPackage, featureTiles, boundingBox, projection),
+				projection);
 		this.featureTiles = featureTiles;
 	}
 
@@ -70,9 +101,67 @@ public class FeatureTileGenerator extends TileGenerator {
 	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
 			FeatureTiles featureTiles, int minZoom, int maxZoom,
 			Projection projection) {
-		this(geoPackage, tableName, featureTiles, minZoom, maxZoom, geoPackage
-				.getBoundingBox(projection, featureTiles.getFeatureDao()
-						.getTableName(), true), projection);
+		this(geoPackage, tableName, featureTiles, minZoom, maxZoom, null,
+				projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param minZoom
+	 *            min zoom
+	 * @param maxZoom
+	 *            max zoom
+	 * @param projection
+	 *            tiles projection
+	 * @since 3.1.1
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			int minZoom, int maxZoom, Projection projection) {
+		this(geoPackage, tableName, featureTiles, featureGeoPackage, minZoom,
+				maxZoom, null, projection);
+	}
+
+	/**
+	 * Get the bounding box for the feature tile generator, from the provided
+	 * and from the feature table
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @return bounding box
+	 */
+	private static BoundingBox getBoundingBox(GeoPackage geoPackage,
+			FeatureTiles featureTiles, BoundingBox boundingBox,
+			Projection projection) {
+
+		String tableName = featureTiles.getFeatureDao().getTableName();
+		boolean manualQuery = boundingBox == null;
+		BoundingBox featureBoundingBox = geoPackage.getBoundingBox(projection,
+				tableName, manualQuery);
+		if (featureBoundingBox != null) {
+			if (boundingBox == null) {
+				boundingBox = featureBoundingBox;
+			} else {
+				boundingBox = boundingBox.overlap(featureBoundingBox);
+			}
+		}
+
+		return boundingBox;
 	}
 
 	/**
