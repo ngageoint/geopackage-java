@@ -29,7 +29,7 @@ import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 
-import org.osgeo.proj4j.units.DegreeUnit;
+import org.locationtech.proj4j.units.Units;
 
 /**
  * Writes the tiles from a GeoPackage tile table to a file system directory
@@ -520,7 +520,7 @@ public class TileWriter {
 
 		// Get the bounding box of actual tiles
 		BoundingBox zoomBoundingBox = tileDao.getBoundingBox();
-		if (projection.getUnit() instanceof DegreeUnit) {
+		if (projection.isUnit(Units.DEGREES)) {
 			zoomBoundingBox = TileBoundingBoxUtils
 					.boundDegreesBoundingBoxWithWebMercatorLimits(zoomBoundingBox);
 		}

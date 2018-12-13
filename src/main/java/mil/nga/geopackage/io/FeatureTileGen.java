@@ -28,7 +28,7 @@ import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 
-import org.osgeo.proj4j.units.DegreeUnit;
+import org.locationtech.proj4j.units.Units;
 
 /**
  * Feature Tile Generator main method for command line feature to tile
@@ -825,7 +825,7 @@ public class FeatureTileGen {
 			projection = ProjectionFactory.getProjection(epsg);
 
 			// Bound WGS84 tiles to Web Mercator limits
-			if (projection.getUnit() instanceof DegreeUnit) {
+			if (projection.isUnit(Units.DEGREES)) {
 				boundingBox = TileBoundingBoxUtils
 						.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
 			}

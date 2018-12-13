@@ -38,7 +38,7 @@ import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryUtils;
 
-import org.osgeo.proj4j.units.Units;
+import org.locationtech.proj4j.units.Units;
 
 import com.j256.ormlite.dao.CloseableIterator;
 
@@ -1071,7 +1071,7 @@ public abstract class FeatureTiles {
 		if (simplifyGeometries) {
 
 			// Reproject to web mercator if not in meters
-			if (projection != null && projection.getUnit() != Units.METRES) {
+			if (projection != null && !projection.isUnit(Units.METRES)) {
 				ProjectionTransform toWebMercator = projection
 						.getTransformation(WEB_MERCATOR_PROJECTION);
 				points = toWebMercator.transform(points);
@@ -1082,7 +1082,7 @@ public abstract class FeatureTiles {
 					simplifyTolerance);
 
 			// Reproject back to the original projection
-			if (projection != null && projection.getUnit() != Units.METRES) {
+			if (projection != null && !projection.isUnit(Units.METRES)) {
 				ProjectionTransform fromWebMercator = WEB_MERCATOR_PROJECTION
 						.getTransformation(projection);
 				simplifiedPoints = fromWebMercator.transform(simplifiedPoints);

@@ -17,7 +17,7 @@ import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 
-import org.osgeo.proj4j.units.DegreeUnit;
+import org.locationtech.proj4j.units.Units;
 
 /**
  * URL Tile Generator main method for command line tile generation
@@ -358,7 +358,7 @@ public class URLTileGen {
 		}
 
 		// Bound degree tiles to Web Mercator limits
-		if (bboxProjection.getUnit() instanceof DegreeUnit) {
+		if (bboxProjection.isUnit(Units.DEGREES)) {
 			boundingBox = TileBoundingBoxUtils
 					.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
 		}

@@ -33,7 +33,7 @@ import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 
-import org.osgeo.proj4j.units.DegreeUnit;
+import org.locationtech.proj4j.units.Units;
 
 /**
  * Creates a set of tiles within a GeoPackage
@@ -320,7 +320,7 @@ public abstract class TileGenerator {
 		if (tileCount == null) {
 			int count = 0;
 			BoundingBox requestBoundingBox = null;
-			if (projection.getUnit() instanceof DegreeUnit) {
+			if (projection.isUnit(Units.DEGREES)) {
 				requestBoundingBox = boundingBox;
 			} else {
 				ProjectionTransform transform = projection
@@ -334,7 +334,7 @@ public abstract class TileGenerator {
 			for (int zoom = minZoom; zoom <= maxZoom; zoom++) {
 				// Get the tile grid that includes the entire bounding box
 				TileGrid tileGrid = null;
-				if (projection.getUnit() instanceof DegreeUnit) {
+				if (projection.isUnit(Units.DEGREES)) {
 					tileGrid = TileBoundingBoxUtils.getTileGridWGS84(
 							requestBoundingBox, zoom);
 				} else {
@@ -486,7 +486,7 @@ public abstract class TileGenerator {
 		// Google Tile Format
 		if (googleTiles) {
 			adjustGoogleBounds();
-		} else if (projection.getUnit() instanceof DegreeUnit) {
+		} else if (projection.isUnit(Units.DEGREES)) {
 			adjustGeoPackageBoundsWGS84(boundingBox, zoom);
 		} else {
 			adjustGeoPackageBounds(boundingBox, zoom);

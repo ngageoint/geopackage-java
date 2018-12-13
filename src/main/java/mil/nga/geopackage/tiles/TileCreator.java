@@ -18,7 +18,7 @@ import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionTransform;
 
-import org.osgeo.proj4j.ProjCoordinate;
+import org.locationtech.proj4j.ProjCoordinate;
 
 /**
  * Tile Creator, creates a tile from a tile matrix to the desired projection
