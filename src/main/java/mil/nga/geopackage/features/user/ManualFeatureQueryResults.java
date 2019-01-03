@@ -60,7 +60,7 @@ public class ManualFeatureQueryResults implements FeatureIndexResults {
 	 */
 	@Override
 	public Iterator<FeatureRow> iterator() {
-		Iterator<FeatureRow> iterator = new Iterator<FeatureRow>() {
+		return new Iterator<FeatureRow>() {
 
 			int index = 0;
 
@@ -79,16 +79,7 @@ public class ManualFeatureQueryResults implements FeatureIndexResults {
 			public FeatureRow next() {
 				return featureDao.queryForIdRow(featureIds.get(index++));
 			}
-
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
 		};
-		return iterator;
 	}
 
 	/**
@@ -105,6 +96,24 @@ public class ManualFeatureQueryResults implements FeatureIndexResults {
 	@Override
 	public void close() {
 
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Iterable<Long> ids() {
+
+		return new Iterable<Long>() {
+
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public Iterator<Long> iterator() {
+				return featureIds.iterator();
+			}
+		};
 	}
 
 }

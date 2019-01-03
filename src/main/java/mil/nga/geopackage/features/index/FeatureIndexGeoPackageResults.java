@@ -54,7 +54,7 @@ class FeatureIndexGeoPackageResults implements FeatureIndexResults {
 	 */
 	@Override
 	public Iterator<FeatureRow> iterator() {
-		Iterator<FeatureRow> iterator = new Iterator<FeatureRow>() {
+		return new Iterator<FeatureRow>() {
 
 			/**
 			 * {@inheritDoc}
@@ -74,16 +74,7 @@ class FeatureIndexGeoPackageResults implements FeatureIndexResults {
 						.getFeatureRow(geometryIndex);
 				return featureRow;
 			}
-
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
 		};
-		return iterator;
 	}
 
 	/**
@@ -100,6 +91,41 @@ class FeatureIndexGeoPackageResults implements FeatureIndexResults {
 	@Override
 	public void close() {
 		geometryIndices.closeQuietly();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Iterable<Long> ids() {
+		return new Iterable<Long>() {
+
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public Iterator<Long> iterator() {
+				return new Iterator<Long>() {
+
+					/**
+					 * {@inheritDoc}
+					 */
+					@Override
+					public boolean hasNext() {
+						return geometryIndices.hasNext();
+					}
+
+					/**
+					 * {@inheritDoc}
+					 */
+					@Override
+					public Long next() {
+						return geometryIndices.next().getGeomId();
+					}
+
+				};
+			}
+		};
 	}
 
 }
