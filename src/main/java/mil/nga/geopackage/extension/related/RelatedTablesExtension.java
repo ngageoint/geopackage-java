@@ -261,19 +261,8 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	 * @since 3.1.1
 	 */
 	public boolean hasMapping(String tableName, long baseId, long relatedId) {
-
-		boolean has = false;
-
 		UserMappingDao userMappingDao = getMappingDao(tableName);
-		UserCustomResultSet resultSet = userMappingDao.queryByIds(baseId,
-				relatedId);
-		try {
-			has = resultSet.getCount() > 0;
-		} finally {
-			resultSet.close();
-		}
-
-		return has;
+		return userMappingDao.countByIds(baseId, relatedId) > 0;
 	}
 
 }
