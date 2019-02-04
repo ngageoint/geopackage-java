@@ -984,7 +984,7 @@ public class FeatureStyleExtension extends FeatureCoreStyleExtension {
 	 * @param icons
 	 *            default icons
 	 */
-	public void setTableIcon(FeatureTable featureTable, Icons icons) {
+	public void setTableIcons(FeatureTable featureTable, Icons icons) {
 		setTableIcons(featureTable.getTableName(), icons);
 	}
 
