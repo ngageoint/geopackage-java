@@ -18,12 +18,12 @@ public class FeatureTilePointIcon {
 	/**
 	 * Point icon width
 	 */
-	private final int width;
+	private int width;
 
 	/**
 	 * Point icon height
 	 */
-	private final int height;
+	private int height;
 
 	/**
 	 * X pixel offset
@@ -42,9 +42,24 @@ public class FeatureTilePointIcon {
 	 *            icon image
 	 */
 	public FeatureTilePointIcon(BufferedImage icon) {
+		this(icon, icon.getWidth(), icon.getHeight());
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param icon
+	 *            icon image
+	 * @param width
+	 *            icon display width
+	 * @param height
+	 *            icon display height
+	 * @since 3.1.1
+	 */
+	public FeatureTilePointIcon(BufferedImage icon, int width, int height) {
 		this.icon = icon;
-		this.width = icon.getWidth();
-		this.height = icon.getHeight();
+		this.width = width;
+		this.height = height;
 		pinIcon();
 	}
 
@@ -83,12 +98,36 @@ public class FeatureTilePointIcon {
 	}
 
 	/**
+	 * Set the display width and adjust the x offset
+	 * 
+	 * @param width
+	 *            icon display width
+	 * @since 3.1.1
+	 */
+	public void setWidth(int width) {
+		xOffset = xOffset / this.width * width;
+		this.width = width;
+	}
+
+	/**
 	 * Get the height
 	 *
 	 * @return height
 	 */
 	public int getHeight() {
 		return height;
+	}
+
+	/**
+	 * Set the display height and adjust the y offset
+	 * 
+	 * @param height
+	 *            icon display height
+	 * @since 3.1.1
+	 */
+	public void setHeight(int height) {
+		yOffset = yOffset / this.height * height;
+		this.height = height;
 	}
 
 	/**

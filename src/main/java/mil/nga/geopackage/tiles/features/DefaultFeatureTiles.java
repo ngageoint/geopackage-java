@@ -676,7 +676,6 @@ public class DefaultFeatureTiles extends FeatureTiles {
 			int height = Math.round(this.scale * pointIcon.getHeight());
 			if (x >= 0 - width && x <= tileWidth + width && y >= 0 - height
 					&& y <= tileHeight + height) {
-				// TODO test this
 				int iconX = Math.round(x - this.scale * pointIcon.getXOffset());
 				int iconY = Math.round(y - this.scale * pointIcon.getYOffset());
 				Graphics2D iconGraphics = graphics.getIconGraphics();

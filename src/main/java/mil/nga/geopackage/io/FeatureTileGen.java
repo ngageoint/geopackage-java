@@ -144,6 +144,16 @@ public class FeatureTileGen {
 	public static final String ARGUMENT_POINT_ICON = "pointIcon";
 
 	/**
+	 * Point icon display width argument
+	 */
+	public static final String ARGUMENT_ICON_WIDTH = "iconWidth";
+
+	/**
+	 * Point icon display height argument
+	 */
+	public static final String ARGUMENT_ICON_HEIGHT = "iconHeight";
+
+	/**
 	 * Center icon argument
 	 */
 	public static final String ARGUMENT_POINT_CENTER_ICON = "centerIcon";
@@ -293,6 +303,16 @@ public class FeatureTileGen {
 	 * Feature tile point icon
 	 */
 	private static FeatureTilePointIcon icon = null;
+
+	/**
+	 * Feature tile point icon display width
+	 */
+	private static Integer iconWidth = null;
+
+	/**
+	 * Feature tile point icon display height
+	 */
+	private static Integer iconHeight = null;
 
 	/**
 	 * Center icon flag
@@ -526,6 +546,26 @@ public class FeatureTileGen {
 					}
 					break;
 
+				case ARGUMENT_ICON_WIDTH:
+					if (i < args.length) {
+						iconWidth = Integer.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Icon Width argument '" + arg
+								+ "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_ICON_HEIGHT:
+					if (i < args.length) {
+						iconHeight = Integer.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Icon Height argument '"
+								+ arg + "' must be followed by a value");
+					}
+					break;
+
 				case ARGUMENT_POINT_CENTER_ICON:
 					centerIcon = true;
 					break;
@@ -652,6 +692,26 @@ public class FeatureTileGen {
 			System.out
 					.println("Error: Point radius and/or color can not be specified together with a point icon");
 			valid = false;
+		}
+
+		if (iconWidth != null || iconHeight != null) {
+			if (icon == null) {
+				System.out
+						.println("Error: Point icon file must be specified when attempting to set an icon width or height");
+				valid = false;
+			} else {
+
+				if (iconWidth == null) {
+					iconWidth = Math.round(icon.getWidth()
+							* (iconHeight / (float) icon.getHeight()));
+				} else if (iconHeight == null) {
+					iconHeight = Math.round(icon.getHeight()
+							* (iconWidth / (float) icon.getWidth()));
+				}
+
+				icon.setWidth(iconWidth);
+				icon.setHeight(iconHeight);
+			}
 		}
 
 		if (centerIcon) {
@@ -1052,6 +1112,12 @@ public class FeatureTileGen {
 						+ ARGUMENT_POINT_ICON
 						+ " image_file] ["
 						+ ARGUMENT_PREFIX
+						+ ARGUMENT_ICON_WIDTH
+						+ " width] ["
+						+ ARGUMENT_PREFIX
+						+ ARGUMENT_ICON_HEIGHT
+						+ " height] ["
+						+ ARGUMENT_PREFIX
 						+ ARGUMENT_POINT_CENTER_ICON
 						+ "] ["
 						+ ARGUMENT_PREFIX
@@ -1150,6 +1216,16 @@ public class FeatureTileGen {
 				+ " image_file");
 		System.out
 				.println("\t\tImage file containing image to use when drawing points in place of a drawn circle");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_ICON_WIDTH
+				+ " width");
+		System.out
+				.println("\t\tPoint icon display width (default is actual icon width)");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_ICON_HEIGHT
+				+ " height");
+		System.out
+				.println("\t\tPoint icon display height (default is actual icon height)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_CENTER_ICON);
 		System.out
