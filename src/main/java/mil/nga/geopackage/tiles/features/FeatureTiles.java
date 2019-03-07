@@ -30,6 +30,7 @@ import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.TileUtils;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.Point;
 import mil.nga.sf.proj.Projection;
@@ -124,9 +125,19 @@ public abstract class FeatureTiles {
 	protected Paint linePaint = new Paint();
 
 	/**
+	 * Line stroke width
+	 */
+	protected float lineStrokeWidth;
+
+	/**
 	 * Polygon paint
 	 */
 	protected Paint polygonPaint = new Paint();
+
+	/**
+	 * Polygon stroke width
+	 */
+	protected float polygonStrokeWidth;
 
 	/**
 	 * Fill polygon flag
@@ -181,6 +192,11 @@ public abstract class FeatureTiles {
 	protected boolean simplifyGeometries = true;
 
 	/**
+	 * Scale factor
+	 */
+	protected float scale = 1.0f;
+
+	/**
 	 * Constructor
 	 *
 	 * @param featureDao
@@ -192,7 +208,36 @@ public abstract class FeatureTiles {
 
 	/**
 	 * Constructor
-	 * 
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @since 3.1.1
+	 */
+	public FeatureTiles(FeatureDao featureDao, float scale) {
+		this(null, featureDao, scale);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @since 3.1.1
+	 */
+	public FeatureTiles(FeatureDao featureDao, int width, int height) {
+		this(null, featureDao, width, height);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
 	 * @param geoPackage
 	 *            GeoPackage
 	 * @param featureDao
@@ -200,18 +245,76 @@ public abstract class FeatureTiles {
 	 * @since 3.1.1
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
+		this(geoPackage, featureDao, TileUtils.TILE_PIXELS_HIGH,
+				TileUtils.TILE_PIXELS_HIGH);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @since 3.1.1
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale) {
+		this(geoPackage, featureDao, scale, TileUtils.tileLength(scale),
+				TileUtils.tileLength(scale));
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @since 3.1.1
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			int width, int height) {
+		this(geoPackage, featureDao, TileUtils.tileScale(width, height), width,
+				height);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @since 3.1.1
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale, int width, int height) {
 
 		this.featureDao = featureDao;
 		if (featureDao != null) {
 			this.projection = featureDao.getProjection();
 		}
 
-		tileWidth = GeoPackageJavaProperties.getIntegerProperty(
-				JavaPropertyConstants.FEATURE_TILES,
-				JavaPropertyConstants.FEATURE_TILES_TILE_WIDTH);
-		tileHeight = GeoPackageJavaProperties.getIntegerProperty(
-				JavaPropertyConstants.FEATURE_TILES,
-				JavaPropertyConstants.FEATURE_TILES_TILE_HEIGHT);
+		this.scale = scale;
+
+		tileWidth = width;
+		tileHeight = height;
 
 		compressFormat = GeoPackageJavaProperties.getProperty(
 				JavaPropertyConstants.FEATURE_TILES,
@@ -224,16 +327,18 @@ public abstract class FeatureTiles {
 				JavaPropertyConstants.FEATURE_TILES_POINT,
 				JavaPropertyConstants.FEATURE_TILES_COLOR));
 
-		linePaint.setStrokeWidth(GeoPackageJavaProperties.getFloatProperty(
+		lineStrokeWidth = GeoPackageJavaProperties.getFloatProperty(
 				JavaPropertyConstants.FEATURE_TILES_LINE,
-				JavaPropertyConstants.FEATURE_TILES_STROKE_WIDTH));
+				JavaPropertyConstants.FEATURE_TILES_STROKE_WIDTH);
+		linePaint.setStrokeWidth(this.scale * lineStrokeWidth);
 		linePaint.setColor(GeoPackageJavaProperties.getColorProperty(
 				JavaPropertyConstants.FEATURE_TILES_LINE,
 				JavaPropertyConstants.FEATURE_TILES_COLOR));
 
-		polygonPaint.setStrokeWidth(GeoPackageJavaProperties.getFloatProperty(
+		polygonStrokeWidth = GeoPackageJavaProperties.getFloatProperty(
 				JavaPropertyConstants.FEATURE_TILES_POLYGON,
-				JavaPropertyConstants.FEATURE_TILES_STROKE_WIDTH));
+				JavaPropertyConstants.FEATURE_TILES_STROKE_WIDTH);
+		polygonPaint.setStrokeWidth(this.scale * polygonStrokeWidth);
 		polygonPaint.setColor(GeoPackageJavaProperties.getColorProperty(
 				JavaPropertyConstants.FEATURE_TILES_POLYGON,
 				JavaPropertyConstants.FEATURE_TILES_COLOR));
@@ -270,18 +375,18 @@ public abstract class FeatureTiles {
 	public void calculateDrawOverlap() {
 
 		if (pointIcon != null) {
-			heightOverlap = pointIcon.getHeight();
-			widthOverlap = pointIcon.getWidth();
+			heightOverlap = this.scale * pointIcon.getHeight();
+			widthOverlap = this.scale * pointIcon.getWidth();
 		} else {
-			heightOverlap = pointRadius;
-			widthOverlap = pointRadius;
+			heightOverlap = this.scale * pointRadius;
+			widthOverlap = this.scale * pointRadius;
 		}
 
-		float linePaintHalfStroke = linePaint.getStrokeWidth() / 2.0f;
+		float linePaintHalfStroke = this.scale * lineStrokeWidth / 2.0f;
 		heightOverlap = Math.max(heightOverlap, linePaintHalfStroke);
 		widthOverlap = Math.max(widthOverlap, linePaintHalfStroke);
 
-		float polygonPaintHalfStroke = polygonPaint.getStrokeWidth() / 2.0f;
+		float polygonPaintHalfStroke = this.scale * polygonStrokeWidth / 2.0f;
 		heightOverlap = Math.max(heightOverlap, polygonPaintHalfStroke);
 		widthOverlap = Math.max(widthOverlap, polygonPaintHalfStroke);
 
@@ -302,7 +407,8 @@ public abstract class FeatureTiles {
 			for (long styleRowId : styleRowIds) {
 				StyleRow styleRow = styleDao.getRow(styleDao
 						.queryForIdRow(styleRowId));
-				float styleHalfWidth = (float) (styleRow.getWidthOrDefault() / 2.0f);
+				float styleHalfWidth = this.scale
+						* (float) (styleRow.getWidthOrDefault() / 2.0f);
 				widthOverlap = Math.max(widthOverlap, styleHalfWidth);
 				heightOverlap = Math.max(heightOverlap, styleHalfWidth);
 			}
@@ -323,14 +429,40 @@ public abstract class FeatureTiles {
 				IconRow iconRow = iconDao.getRow(iconDao
 						.queryForIdRow(iconRowId));
 				double[] iconDimensions = iconRow.getDerivedDimensions();
-				float iconWidth = (float) Math.ceil(iconDimensions[0]);
-				float iconHeight = (float) Math.ceil(iconDimensions[1]);
+				float iconWidth = this.scale
+						* (float) Math.ceil(iconDimensions[0]);
+				float iconHeight = this.scale
+						* (float) Math.ceil(iconDimensions[1]);
 				widthOverlap = Math.max(widthOverlap, iconWidth);
 				heightOverlap = Math.max(heightOverlap, iconHeight);
 			}
 
 		}
 
+	}
+
+	/**
+	 * Set the scale
+	 * 
+	 * @param scale
+	 *            scale factor
+	 * @since 3.1.1
+	 */
+	public void setScale(float scale) {
+		this.scale = scale;
+		linePaint.setStrokeWidth(scale * lineStrokeWidth);
+		polygonPaint.setStrokeWidth(scale * polygonStrokeWidth);
+		featurePaintCache.clear();
+	}
+
+	/**
+	 * Get the scale
+	 * 
+	 * @return scale factor
+	 * @since 3.1.1
+	 */
+	public float getScale() {
+		return scale;
 	}
 
 	/**
@@ -570,7 +702,7 @@ public abstract class FeatureTiles {
 	 * @return width
 	 */
 	public float getLineStrokeWidth() {
-		return linePaint.getStrokeWidth();
+		return lineStrokeWidth;
 	}
 
 	/**
@@ -580,7 +712,8 @@ public abstract class FeatureTiles {
 	 *            line stroke width
 	 */
 	public void setLineStrokeWidth(float lineStrokeWidth) {
-		linePaint.setStrokeWidth(lineStrokeWidth);
+		this.lineStrokeWidth = lineStrokeWidth;
+		linePaint.setStrokeWidth(this.scale * lineStrokeWidth);
 	}
 
 	/**
@@ -608,7 +741,7 @@ public abstract class FeatureTiles {
 	 * @return width
 	 */
 	public float getPolygonStrokeWidth() {
-		return polygonPaint.getStrokeWidth();
+		return polygonStrokeWidth;
 	}
 
 	/**
@@ -618,7 +751,8 @@ public abstract class FeatureTiles {
 	 *            polygon stroke width
 	 */
 	public void setPolygonStrokeWidth(float polygonStrokeWidth) {
-		polygonPaint.setStrokeWidth(polygonStrokeWidth);
+		this.polygonStrokeWidth = polygonStrokeWidth;
+		polygonPaint.setStrokeWidth(this.scale * polygonStrokeWidth);
 	}
 
 	/**
@@ -1136,7 +1270,7 @@ public abstract class FeatureTiles {
 	 * @return icon image
 	 */
 	protected BufferedImage getIcon(IconRow iconRow) {
-		return iconCache.createIcon(iconRow);
+		return iconCache.createIcon(iconRow, scale);
 	}
 
 	/**
@@ -1282,11 +1416,11 @@ public abstract class FeatureTiles {
 				break;
 			case STROKE:
 				color = style.getColorOrDefault();
-				strokeWidth = (float) style.getWidthOrDefault();
+				strokeWidth = this.scale * (float) style.getWidthOrDefault();
 				break;
 			case FILL:
 				color = style.getFillColor();
-				strokeWidth = (float) style.getWidthOrDefault();
+				strokeWidth = this.scale * (float) style.getWidthOrDefault();
 				break;
 			default:
 				throw new GeoPackageException("Unsupported Draw Type: "

@@ -124,6 +124,11 @@ public class FeatureTileGen {
 	public static final String ARGUMENT_TILE_HEIGHT = "tileHeight";
 
 	/**
+	 * Tile scale factor argument
+	 */
+	public static final String ARGUMENT_TILE_SCALE = "tileScale";
+
+	/**
 	 * Point radius argument
 	 */
 	public static final String ARGUMENT_POINT_RADIUS = "pointRadius";
@@ -268,6 +273,11 @@ public class FeatureTileGen {
 	 * Tile draw height
 	 */
 	private static Integer tileHeight = null;
+
+	/**
+	 * Tile scale
+	 */
+	private static Float tileScale = null;
 
 	/**
 	 * Point radius
@@ -463,6 +473,16 @@ public class FeatureTileGen {
 						valid = false;
 						System.out.println("Error: Tile Height argument '"
 								+ arg + "' must be followed by a value");
+					}
+					break;
+
+				case ARGUMENT_TILE_SCALE:
+					if (i < args.length) {
+						tileScale = Float.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Tile Scale argument '" + arg
+								+ "' must be followed by a value");
 					}
 					break;
 
@@ -777,6 +797,9 @@ public class FeatureTileGen {
 		if (tileHeight != null) {
 			featureTiles.setTileHeight(tileHeight);
 		}
+		if (tileScale != null) {
+			featureTiles.setScale(tileScale);
+		}
 		if (pointRadius != null) {
 			featureTiles.setPointRadius(pointRadius);
 		}
@@ -1017,6 +1040,9 @@ public class FeatureTileGen {
 						+ ARGUMENT_TILE_HEIGHT
 						+ " height] ["
 						+ ARGUMENT_PREFIX
+						+ ARGUMENT_TILE_SCALE
+						+ " scale] ["
+						+ ARGUMENT_PREFIX
 						+ ARGUMENT_POINT_RADIUS
 						+ " radius] ["
 						+ ARGUMENT_PREFIX
@@ -1101,6 +1127,12 @@ public class FeatureTileGen {
 		System.out
 				.println("\t\tHeight used when creating each tile (default is "
 						+ featureTiles.getTileHeight() + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_SCALE
+				+ " scale");
+		System.out
+				.println("\t\tScale factor used when creating each tile (default is "
+						+ featureTiles.getScale() + ")");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_RADIUS
 				+ " radius");

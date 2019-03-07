@@ -169,6 +169,19 @@ public class IconCache {
 	}
 
 	/**
+	 * Create or retrieve from cache an icon image for the icon row
+	 *
+	 * @param icon
+	 *            icon row
+	 * @param scale
+	 *            scale factor
+	 * @return icon image
+	 */
+	public BufferedImage createIcon(IconRow icon, float scale) {
+		return createIcon(icon, scale, this);
+	}
+
+	/**
 	 * Create an icon image for the icon row without caching
 	 *
 	 * @param icon
@@ -177,6 +190,20 @@ public class IconCache {
 	 */
 	public static BufferedImage createIconNoCache(IconRow icon) {
 		return createIcon(icon, null);
+	}
+
+	/**
+	 * Create an icon image for the icon row without caching
+	 *
+	 *
+	 * @param icon
+	 *            icon row
+	 * @param scale
+	 *            scale factor
+	 * @return icon image
+	 */
+	public static BufferedImage createIconNoCache(IconRow icon, float scale) {
+		return createIcon(icon, scale, null);
 	}
 
 	/**
@@ -189,6 +216,22 @@ public class IconCache {
 	 * @return icon image
 	 */
 	public static BufferedImage createIcon(IconRow icon, IconCache iconCache) {
+		return createIcon(icon, 1.0f, iconCache);
+	}
+
+	/**
+	 * Create or retrieve from cache an icon image for the icon row
+	 *
+	 * @param icon
+	 *            icon row
+	 * @param scale
+	 *            scale factor
+	 * @param iconCache
+	 *            icon cache
+	 * @return icon image
+	 */
+	public static BufferedImage createIcon(IconRow icon, float scale,
+			IconCache iconCache) {
 
 		BufferedImage iconImage = null;
 
@@ -209,13 +252,21 @@ public class IconCache {
 									+ icon.getName(), e);
 				}
 
+				int dataWidth = iconImage.getWidth();
+				int dataHeight = iconImage.getHeight();
+
 				Double iconWidth = icon.getWidth();
 				Double iconHeight = icon.getHeight();
 
-				if (iconWidth != null || iconHeight != null) {
+				boolean scaleImage = iconWidth != null || iconHeight != null;
 
-					int dataWidth = iconImage.getWidth();
-					int dataHeight = iconImage.getHeight();
+				if (!scaleImage && scale != 1.0f) {
+					iconWidth = (double) dataWidth;
+					iconHeight = (double) dataHeight;
+					scaleImage = true;
+				}
+
+				if (scaleImage) {
 
 					if (iconWidth == null) {
 						iconWidth = dataWidth * (iconHeight / dataHeight);
@@ -223,8 +274,10 @@ public class IconCache {
 						iconHeight = dataHeight * (iconWidth / dataWidth);
 					}
 
-					int scaledWidth = Math.round(iconWidth.floatValue());
-					int scaledHeight = Math.round(iconHeight.floatValue());
+					int scaledWidth = Math
+							.round(scale * iconWidth.floatValue());
+					int scaledHeight = Math.round(scale
+							* iconHeight.floatValue());
 
 					if (scaledWidth != dataWidth || scaledHeight != dataHeight) {
 

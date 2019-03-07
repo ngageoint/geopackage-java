@@ -65,7 +65,35 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	}
 
 	/**
-	 * Constructor, auto creates the feature table index for indexed tables and
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @since 3.1.1
+	 */
+	public DefaultFeatureTiles(FeatureDao featureDao, float scale) {
+		super(featureDao, scale);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @since 3.1.1
+	 */
+	public DefaultFeatureTiles(FeatureDao featureDao, int width, int height) {
+		super(featureDao, width, height);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
 	 * feature styles for styled tables
 	 *
 	 * @param geoPackage
@@ -76,6 +104,63 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 */
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
 		super(geoPackage, featureDao);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @since 3.1.1
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale) {
+		super(geoPackage, featureDao, scale);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @since 3.1.1
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			int width, int height) {
+		super(geoPackage, featureDao, width, height);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @since 3.1.1
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale, int width, int height) {
+		super(geoPackage, featureDao, scale, width, height);
 	}
 
 	/**
@@ -587,14 +672,16 @@ public class DefaultFeatureTiles extends FeatureTiles {
 
 		} else if (pointIcon != null) {
 
-			if (x >= 0 - pointIcon.getWidth()
-					&& x <= tileWidth + pointIcon.getWidth()
-					&& y >= 0 - pointIcon.getHeight()
-					&& y <= tileHeight + pointIcon.getHeight()) {
-				int iconX = Math.round(x - pointIcon.getXOffset());
-				int iconY = Math.round(y - pointIcon.getYOffset());
+			int width = Math.round(this.scale * pointIcon.getWidth());
+			int height = Math.round(this.scale * pointIcon.getHeight());
+			if (x >= 0 - width && x <= tileWidth + width && y >= 0 - height
+					&& y <= tileHeight + height) {
+				// TODO test this
+				int iconX = Math.round(x - this.scale * pointIcon.getXOffset());
+				int iconY = Math.round(y - this.scale * pointIcon.getYOffset());
 				Graphics2D iconGraphics = graphics.getIconGraphics();
-				iconGraphics.drawImage(pointIcon.getIcon(), iconX, iconY, null);
+				iconGraphics.drawImage(pointIcon.getIcon(), iconX, iconY,
+						width, height, null);
 				drawn = true;
 			}
 
@@ -604,11 +691,12 @@ public class DefaultFeatureTiles extends FeatureTiles {
 			if (featureStyle != null) {
 				StyleRow styleRow = featureStyle.getStyle();
 				if (styleRow != null) {
-					radius = (float) (styleRow.getWidthOrDefault() / 2.0f);
+					radius = this.scale
+							* (float) (styleRow.getWidthOrDefault() / 2.0f);
 				}
 			}
 			if (radius == null) {
-				radius = pointRadius;
+				radius = this.scale * pointRadius;
 			}
 			if (x >= 0 - radius && x <= tileWidth + radius && y >= 0 - radius
 					&& y <= tileHeight + radius) {

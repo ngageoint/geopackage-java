@@ -41,7 +41,7 @@ public class JavaPropertyConstants {
 	public static final String TILE_GENERATOR_VARIABLE_MAX_LON = "max_lon";
 
 	public static final String TILE_GENERATOR_DOWNLOAD_ATTEMPTS = "downloadAttempts";
-	
+
 	public static final String COLOR_RED = "red";
 
 	public static final String COLOR_GREEN = "green";
@@ -52,10 +52,6 @@ public class JavaPropertyConstants {
 
 	public static final String FEATURE_TILES = GEO_PACKAGE + PROPERTY_DIVIDER
 			+ "feature_tiles";
-
-	public static final String FEATURE_TILES_TILE_WIDTH = "tile_width";
-
-	public static final String FEATURE_TILES_TILE_HEIGHT = "tile_height";
 
 	public static final String FEATURE_TILES_COMPRESS_FORMAT = "compress_format";
 
