@@ -1905,9 +1905,17 @@ public class GeoPackageExample {
 			TileTableScaling tileTableScaling = new TileTableScaling(
 					geoPackage, tileTable);
 			TileScaling tileScaling = new TileScaling();
-			tileScaling.setScalingType(TileScalingType.IN_OUT);
 			tileScaling.setZoomIn(2l);
-			tileScaling.setZoomOut(2l);
+			FeatureTileTableLinker linker = new FeatureTileTableLinker(
+					geoPackage);
+			if (linker.has()
+					&& !linker.getFeatureTablesForTileTable(tileTable)
+							.isEmpty()) {
+				tileScaling.setScalingType(TileScalingType.IN);
+			} else {
+				tileScaling.setScalingType(TileScalingType.IN_OUT);
+				tileScaling.setZoomOut(2l);
+			}
 			tileTableScaling.create(tileScaling);
 
 		}
