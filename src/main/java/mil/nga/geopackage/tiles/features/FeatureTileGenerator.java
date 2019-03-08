@@ -161,6 +161,11 @@ public class FeatureTileGenerator extends TileGenerator {
 			}
 		}
 
+		if (boundingBox != null) {
+			boundingBox = featureTiles.expandBoundingBox(boundingBox,
+					projection);
+		}
+
 		return boundingBox;
 	}
 
