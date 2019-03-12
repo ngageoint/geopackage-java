@@ -6,7 +6,20 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 3.1.1 (TBD)
 
-* TBD
+* geopackage-core version 3.2.0
+* tiff version 2.0.1
+* sqlite-jdbc version 3.25.2
+* NGA [Contents Id](http://ngageoint.github.io/GeoPackage/docs/extensions/contents-id.html) Extension
+* NGA [Feature Style](http://ngageoint.github.io/GeoPackage/docs/extensions/feature-style.html) Extension
+* OGC [Related Tables](http://www.geopackage.org/18-000.html) Extension improvements
+* Feature Tile drawing and generator improvements including scaling, styles, and layering
+* FeatureIndexResults id iteration option in place of reading full feature rows
+* Feature Cache for memory caching feature rows in a single table
+* Feature Cache Tables for memory caching feature rows from multiple single GeoPackage tables
+* Feature Row geometry type accessor
+* FeatureTileGen argument support for tile scale, icon dimensions, and ignoring styles
+* GeoPackage creation example updates
+* Eclipse project cleanup
 
 ## [3.1.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.1.0) (10-04-2018)
 
