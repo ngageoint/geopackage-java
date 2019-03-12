@@ -8,7 +8,7 @@ import java.awt.Stroke;
  * Feature Tile drawing paint object
  * 
  * @author osbornb
- * @since 3.1.1
+ * @since 3.2.0
  */
 public class Paint {
 

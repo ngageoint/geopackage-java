@@ -124,7 +124,7 @@ public class MediaRow extends UserCustomRow {
 	 * @return image
 	 * @throws IOException
 	 *             upon failure
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public BufferedImage getDataImage() throws IOException {
 		return ImageUtils.getImage(getData());
@@ -139,7 +139,7 @@ public class MediaRow extends UserCustomRow {
 	 *            image format
 	 * @throws IOException
 	 *             upon failure
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public void setData(BufferedImage image, String imageFormat)
 			throws IOException {
@@ -157,7 +157,7 @@ public class MediaRow extends UserCustomRow {
 	 *            null or quality between 0.0 and 1.0
 	 * @throws IOException
 	 *             upon failure
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public void setData(BufferedImage image, String imageFormat, Float quality)
 			throws IOException {

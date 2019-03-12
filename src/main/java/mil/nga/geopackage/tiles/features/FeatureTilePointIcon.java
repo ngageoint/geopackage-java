@@ -54,7 +54,7 @@ public class FeatureTilePointIcon {
 	 *            icon display width
 	 * @param height
 	 *            icon display height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTilePointIcon(BufferedImage icon, int width, int height) {
 		this.icon = icon;
@@ -102,7 +102,7 @@ public class FeatureTilePointIcon {
 	 * 
 	 * @param width
 	 *            icon display width
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public void setWidth(int width) {
 		xOffset = xOffset / this.width * width;
@@ -123,7 +123,7 @@ public class FeatureTilePointIcon {
 	 * 
 	 * @param height
 	 *            icon display height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public void setHeight(int height) {
 		yOffset = yOffset / this.height * height;

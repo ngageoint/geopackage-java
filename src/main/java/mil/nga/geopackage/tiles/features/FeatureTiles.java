@@ -213,7 +213,7 @@ public abstract class FeatureTiles {
 	 *            feature dao
 	 * @param scale
 	 *            scale factor
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTiles(FeatureDao featureDao, float scale) {
 		this(null, featureDao, scale);
@@ -228,7 +228,7 @@ public abstract class FeatureTiles {
 	 *            drawn tile width
 	 * @param height
 	 *            drawn tile height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTiles(FeatureDao featureDao, int width, int height) {
 		this(null, featureDao, width, height);
@@ -242,7 +242,7 @@ public abstract class FeatureTiles {
 	 *            GeoPackage
 	 * @param featureDao
 	 *            feature dao
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
 		this(geoPackage, featureDao, TileUtils.TILE_PIXELS_HIGH,
@@ -259,7 +259,7 @@ public abstract class FeatureTiles {
 	 *            feature dao
 	 * @param scale
 	 *            scale factor
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale) {
@@ -279,7 +279,7 @@ public abstract class FeatureTiles {
 	 *            drawn tile width
 	 * @param height
 	 *            drawn tile height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			int width, int height) {
@@ -301,7 +301,7 @@ public abstract class FeatureTiles {
 	 *            drawn tile width
 	 * @param height
 	 *            drawn tile height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale, int width, int height) {
@@ -446,7 +446,7 @@ public abstract class FeatureTiles {
 	 * 
 	 * @param scale
 	 *            scale factor
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public void setScale(float scale) {
 		this.scale = scale;
@@ -459,7 +459,7 @@ public abstract class FeatureTiles {
 	 * Get the scale
 	 * 
 	 * @return scale factor
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public float getScale() {
 		return scale;
@@ -555,7 +555,7 @@ public abstract class FeatureTiles {
 	 * Get the feature table styles
 	 *
 	 * @return feature table styles
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public FeatureTableStyles getFeatureTableStyles() {
 		return featureTableStyles;
@@ -566,7 +566,7 @@ public abstract class FeatureTiles {
 	 *
 	 * @param featureTableStyles
 	 *            feature table styles
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public void setFeatureTableStyles(FeatureTableStyles featureTableStyles) {
 		this.featureTableStyles = featureTableStyles;
@@ -575,7 +575,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Ignore the feature table styles within the GeoPackage
 	 * 
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public void ignoreFeatureTableStyles() {
 		setFeatureTableStyles(null);
@@ -1041,7 +1041,7 @@ public abstract class FeatureTiles {
 	 * @param zoom
 	 *            zoom level
 	 * @return feature count
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public CloseableIterator<GeometryIndex> queryIndexedFeatures(int x, int y,
 			int zoom) {
@@ -1084,7 +1084,7 @@ public abstract class FeatureTiles {
 	 * @param projection
 	 *            bounding box projection
 	 * @return bounding box
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public BoundingBox expandBoundingBox(BoundingBox boundingBox,
 			Projection projection) {
@@ -1116,7 +1116,7 @@ public abstract class FeatureTiles {
 	 * @param webMercatorBoundingBox
 	 *            web mercator bounding box
 	 * @return bounding box
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public BoundingBox expandBoundingBox(BoundingBox webMercatorBoundingBox) {
 

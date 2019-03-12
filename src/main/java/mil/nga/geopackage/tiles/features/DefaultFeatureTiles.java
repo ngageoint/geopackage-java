@@ -71,7 +71,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            feature dao
 	 * @param scale
 	 *            scale factor
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public DefaultFeatureTiles(FeatureDao featureDao, float scale) {
 		super(featureDao, scale);
@@ -86,7 +86,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            drawn tile width
 	 * @param height
 	 *            drawn tile height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public DefaultFeatureTiles(FeatureDao featureDao, int width, int height) {
 		super(featureDao, width, height);
@@ -100,7 +100,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            GeoPackage
 	 * @param featureDao
 	 *            feature dao
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
 		super(geoPackage, featureDao);
@@ -116,7 +116,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            feature dao
 	 * @param scale
 	 *            scale factor
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale) {
@@ -135,7 +135,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            drawn tile width
 	 * @param height
 	 *            drawn tile height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			int width, int height) {
@@ -156,7 +156,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            drawn tile width
 	 * @param height
 	 *            drawn tile height
-	 * @since 3.1.1
+	 * @since 3.2.0
 	 */
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale, int width, int height) {
