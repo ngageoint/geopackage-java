@@ -1151,6 +1151,7 @@ public abstract class FeatureTiles {
 				tileHeight, webMercatorBoundingBox, tileWebMercatorBoundingBox,
 				tileHeight + heightOverlap);
 
+		// Choose the most expanded longitudes and latitudes
 		minLongitude = Math.min(minLongitude,
 				webMercatorBoundingBox.getMinLongitude());
 		maxLongitude = Math.max(maxLongitude,
@@ -1159,6 +1160,16 @@ public abstract class FeatureTiles {
 				webMercatorBoundingBox.getMinLatitude());
 		maxLatitude = Math.max(maxLatitude,
 				webMercatorBoundingBox.getMaxLatitude());
+
+		// Bound with the web mercator limits
+		minLongitude = Math.max(minLongitude, -1
+				* ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
+		maxLongitude = Math.min(maxLongitude,
+				ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
+		minLatitude = Math.max(minLatitude, -1
+				* ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
+		maxLatitude = Math.min(maxLatitude,
+				ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
 
 		BoundingBox expandedBoundingBox = new BoundingBox(minLongitude,
 				minLatitude, maxLongitude, maxLatitude);
