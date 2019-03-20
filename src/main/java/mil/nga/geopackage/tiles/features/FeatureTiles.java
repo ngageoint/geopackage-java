@@ -1150,6 +1150,16 @@ public abstract class FeatureTiles {
 		double minLatitude = TileBoundingBoxUtils.getLatitudeFromPixel(
 				tileHeight, webMercatorBoundingBox, tileWebMercatorBoundingBox,
 				tileHeight + heightOverlap);
+
+		minLongitude = Math.min(minLongitude,
+				webMercatorBoundingBox.getMinLongitude());
+		maxLongitude = Math.max(maxLongitude,
+				webMercatorBoundingBox.getMaxLongitude());
+		minLatitude = Math.min(minLatitude,
+				webMercatorBoundingBox.getMinLatitude());
+		maxLatitude = Math.max(maxLatitude,
+				webMercatorBoundingBox.getMaxLatitude());
+
 		BoundingBox expandedBoundingBox = new BoundingBox(minLongitude,
 				minLatitude, maxLongitude, maxLatitude);
 
