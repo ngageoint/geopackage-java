@@ -85,6 +85,11 @@ public abstract class TileGenerator {
 	private final Map<Integer, TileGrid> tileGrids = new HashMap<>();
 
 	/**
+	 * Tile bounding boxes by zoom level
+	 */
+	private final Map<Integer, BoundingBox> tileBounds = new HashMap<>();
+
+	/**
 	 * Tile bounding box
 	 */
 	protected BoundingBox boundingBox;
@@ -207,6 +212,18 @@ public abstract class TileGenerator {
 	}
 
 	/**
+	 * Get the bounding box, possibly expanded for the zoom level
+	 *
+	 * @param zoom
+	 *            zoom level
+	 * @return original or expanded bounding box
+	 * @since 3.2.0
+	 */
+	public BoundingBox getBoundingBox(int zoom) {
+		return boundingBox;
+	}
+
+	/**
 	 * Set the compress format
 	 *
 	 * @param compressFormat
@@ -319,30 +336,32 @@ public abstract class TileGenerator {
 	public int getTileCount() {
 		if (tileCount == null) {
 			int count = 0;
-			BoundingBox requestBoundingBox = null;
-			if (projection.isUnit(Units.DEGREES)) {
-				requestBoundingBox = boundingBox;
-			} else {
-				ProjectionTransform transform = projection
+
+			boolean degrees = projection.isUnit(Units.DEGREES);
+			ProjectionTransform transformToWebMercator = null;
+			if (!degrees) {
+				transformToWebMercator = projection
 						.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
-				requestBoundingBox = boundingBox;
-				if (!transform.isSameProjection()) {
-					requestBoundingBox = requestBoundingBox
-							.transform(transform);
-				}
 			}
+
 			for (int zoom = minZoom; zoom <= maxZoom; zoom++) {
+
+				BoundingBox expandedBoundingBox = getBoundingBox(zoom);
+
 				// Get the tile grid that includes the entire bounding box
 				TileGrid tileGrid = null;
-				if (projection.isUnit(Units.DEGREES)) {
+				if (degrees) {
 					tileGrid = TileBoundingBoxUtils.getTileGridWGS84(
-							requestBoundingBox, zoom);
+							expandedBoundingBox, zoom);
 				} else {
 					tileGrid = TileBoundingBoxUtils.getTileGrid(
-							requestBoundingBox, zoom);
+							expandedBoundingBox
+									.transform(transformToWebMercator), zoom);
 				}
+
 				count += tileGrid.count();
 				tileGrids.put(zoom, tileGrid);
+				tileBounds.put(zoom, expandedBoundingBox);
 			}
 
 			tileCount = count;
@@ -376,7 +395,8 @@ public abstract class TileGenerator {
 		boolean update = false;
 
 		// Adjust the tile matrix set and bounds
-		adjustBounds(boundingBox, minZoom);
+		BoundingBox minZoomBoundingBox = tileBounds.get(minZoom);
+		adjustBounds(minZoomBoundingBox, minZoom);
 
 		// Create a new tile matrix or update an existing
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
@@ -431,9 +451,10 @@ public abstract class TileGenerator {
 				// Get the local tile grid for GeoPackage format of where the
 				// tiles belong
 				else {
+					BoundingBox zoomBoundingBox = tileBounds.get(zoom);
 					localTileGrid = TileBoundingBoxUtils.getTileGrid(
 							tileGridBoundingBox, matrixWidth, matrixHeight,
-							boundingBox);
+							zoomBoundingBox);
 				}
 
 				// Generate the tiles for the zoom level
@@ -615,7 +636,7 @@ public abstract class TileGenerator {
 					.getTransformation(tileMatrixProjection);
 			boolean sameProjection = transformProjectionToTileMatrixSet
 					.isSameProjection();
-			BoundingBox updateBoundingBox = boundingBox;
+			BoundingBox updateBoundingBox = tileBounds.get(minZoom);
 			if (!sameProjection) {
 				updateBoundingBox = updateBoundingBox
 						.transform(transformProjectionToTileMatrixSet);
