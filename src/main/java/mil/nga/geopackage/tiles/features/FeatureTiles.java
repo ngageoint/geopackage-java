@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -1521,6 +1522,47 @@ public abstract class FeatureTiles {
 		}
 
 		return paint;
+	}
+
+	/**
+	 * Determine if the image is transparent
+	 *
+	 * @param image
+	 *            image
+	 * @return true if transparent
+	 */
+	protected boolean isTransparent(BufferedImage image) {
+		boolean transparent = false;
+		if (image != null) {
+			WritableRaster raster = image.getAlphaRaster();
+			if (raster != null) {
+				transparent = true;
+				done: for (int x = 0; x < image.getWidth(); x++) {
+					for (int y = 0; y < image.getHeight(); y++) {
+						if (raster.getSample(x, y, 0) > 0) {
+							transparent = false;
+							break done;
+						}
+					}
+				}
+			}
+		}
+		return transparent;
+	}
+
+	/**
+	 * Check if the image was drawn upon (non null and not transparent). Return
+	 * the same image if drawn, else return null
+	 *
+	 * @param image
+	 *            image
+	 * @return drawn image or null
+	 */
+	protected BufferedImage checkIfDrawn(BufferedImage image) {
+		if (isTransparent(image)) {
+			image = null;
+		}
+		return image;
 	}
 
 	/**

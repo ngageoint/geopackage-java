@@ -196,6 +196,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		BufferedImage image = null;
 		if (drawn) {
 			image = graphics.createImage();
+			image = checkIfDrawn(image);
 		} else {
 			graphics.dispose();
 		}
@@ -229,6 +230,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		BufferedImage image = null;
 		if (drawn) {
 			image = graphics.createImage();
+			image = checkIfDrawn(image);
 		} else {
 			graphics.dispose();
 		}
@@ -260,6 +262,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		BufferedImage image = null;
 		if (drawn) {
 			image = graphics.createImage();
+			image = checkIfDrawn(image);
 		} else {
 			graphics.dispose();
 		}
