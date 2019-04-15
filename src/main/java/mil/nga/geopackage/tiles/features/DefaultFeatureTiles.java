@@ -5,7 +5,11 @@ import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,6 +57,37 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 */
 	private static final Logger log = Logger
 			.getLogger(DefaultFeatureTiles.class.getName());
+
+	/**
+	 * Default max number of feature geometries to retain in cache
+	 *
+	 * @since 3.2.1
+	 */
+	public static final int DEFAULT_GEOMETRY_CACHE_SIZE = 1000;
+
+	/**
+	 * Max geometry cache size
+	 */
+	protected int geometryCacheSize = DEFAULT_GEOMETRY_CACHE_SIZE;
+
+	/**
+	 * Geometry cache
+	 */
+	protected final Map<Long, GeoPackageGeometryData> geometryCache = new LinkedHashMap<Long, GeoPackageGeometryData>(
+			geometryCacheSize, .75f, true) {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected boolean removeEldestEntry(
+				Entry<Long, GeoPackageGeometryData> eldest) {
+			return size() > geometryCacheSize;
+		}
+	};
+
+	/**
+	 * When true, geometries are cached. Default is true
+	 */
+	protected boolean cacheGeometries = true;
 
 	/**
 	 * Constructor
@@ -161,6 +196,66 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale, int width, int height) {
 		super(geoPackage, featureDao, scale, width, height);
+	}
+
+	/**
+	 * Is caching geometries enabled?
+	 *
+	 * @return true if caching geometries
+	 * @since 3.2.1
+	 */
+	public boolean isCacheGeometries() {
+		return cacheGeometries;
+	}
+
+	/**
+	 * Set the cache geometries flag
+	 *
+	 * @param cacheGeometries
+	 *            true to cache geometries
+	 * @since 3.2.1
+	 */
+	public void setCacheGeometries(boolean cacheGeometries) {
+		this.cacheGeometries = cacheGeometries;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void clearCache() {
+		super.clearCache();
+		clearGeometryCache();
+	}
+
+	/**
+	 * Clear the geometry cache
+	 *
+	 * @since 3.2.1
+	 */
+	public void clearGeometryCache() {
+		geometryCache.clear();
+	}
+
+	/**
+	 * Set / resize the geometry cache size
+	 *
+	 * @param size
+	 *            new size
+	 * @since 3.2.1
+	 */
+	public void setGeometryCacheSize(int size) {
+		geometryCacheSize = size;
+		if (geometryCache.size() > size) {
+			int count = 0;
+			Iterator<Long> rowIds = geometryCache.keySet().iterator();
+			while (rowIds.hasNext()) {
+				rowIds.next();
+				if (++count > size) {
+					rowIds.remove();
+				}
+			}
+		}
 	}
 
 	/**
@@ -294,15 +389,50 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		boolean drawn = false;
 
 		try {
-			GeoPackageGeometryData geomData = row.getGeometry();
+
+			GeoPackageGeometryData geomData = null;
+			BoundingBox transformedBoundingBox = null;
+			long rowId = -1;
+
+			// Check the cache for the geometry data
+			if (cacheGeometries) {
+				rowId = row.getId();
+				geomData = geometryCache.get(rowId);
+				if (geomData != null) {
+					transformedBoundingBox = new BoundingBox(
+							geomData.getEnvelope());
+				}
+			}
+
+			if (geomData == null) {
+				// Read the geometry
+				geomData = row.getGeometry();
+			}
+
 			if (geomData != null) {
 				Geometry geometry = geomData.getGeometry();
 				if (geometry != null) {
 
-					GeometryEnvelope envelope = geomData.getOrBuildEnvelope();
-					BoundingBox geometryBoundingBox = new BoundingBox(envelope);
-					BoundingBox transformedBoundingBox = geometryBoundingBox
-							.transform(transform);
+					if (transformedBoundingBox == null) {
+						GeometryEnvelope envelope = geomData
+								.getOrBuildEnvelope();
+						BoundingBox geometryBoundingBox = new BoundingBox(
+								envelope);
+						transformedBoundingBox = geometryBoundingBox
+								.transform(transform);
+
+						if (cacheGeometries) {
+							// Set the geometry envelope to the transformed
+							// bounding box
+							geomData.setEnvelope(transformedBoundingBox
+									.buildEnvelope());
+						}
+					}
+
+					if (cacheGeometries) {
+						// Cache the geometry
+						geometryCache.put(rowId, geomData);
+					}
 
 					if (expandedBoundingBox.intersects(transformedBoundingBox,
 							true)) {

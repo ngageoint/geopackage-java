@@ -584,6 +584,56 @@ public abstract class FeatureTiles {
 	}
 
 	/**
+	 * Clear all caches
+	 *
+	 * @since 3.2.1
+	 */
+	public void clearCache() {
+		clearStylePaintCache();
+		clearIconCache();
+	}
+
+	/**
+	 * Clear the style paint cache
+	 *
+	 * @since 3.2.1
+	 */
+	public void clearStylePaintCache() {
+		featurePaintCache.clear();
+	}
+
+	/**
+	 * Set / resize the style paint cache size
+	 *
+	 * @param size
+	 *            new size
+	 * @since 3.2.1
+	 */
+	public void setStylePaintCacheSize(int size) {
+		featurePaintCache.resize(size);
+	}
+
+	/**
+	 * Clear the icon cache
+	 *
+	 * @since 3.2.1
+	 */
+	public void clearIconCache() {
+		iconCache.clear();
+	}
+
+	/**
+	 * Set / resize the icon cache size
+	 *
+	 * @param size
+	 *            new size
+	 * @since 3.2.1
+	 */
+	public void setIconCacheSize(int size) {
+		iconCache.resize(size);
+	}
+
+	/**
 	 * Get the tile width
 	 *
 	 * @return tile width
