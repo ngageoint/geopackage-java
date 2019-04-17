@@ -25,6 +25,7 @@ import org.junit.Test;
  * Test Related Tables Extension reading
  * 
  * @author jyutzler
+ * @author osbornb
  */
 public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 

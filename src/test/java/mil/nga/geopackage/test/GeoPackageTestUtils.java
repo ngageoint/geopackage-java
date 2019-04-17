@@ -161,23 +161,31 @@ public class GeoPackageTestUtils {
 		List<FeatureColumn> columns = new ArrayList<FeatureColumn>();
 
 		columns.add(FeatureColumn.createColumn(7, "test_text_limited",
-				GeoPackageDataType.TEXT, 5L, false, null));
+				GeoPackageDataType.TEXT, 5L));
 		columns.add(FeatureColumn.createColumn(8, "test_blob_limited",
-				GeoPackageDataType.BLOB, 7L, false, null));
+				GeoPackageDataType.BLOB, 7L));
 		columns.add(FeatureColumn.createColumn(9, "test_date",
-				GeoPackageDataType.DATE, false, null));
+				GeoPackageDataType.DATE));
 		columns.add(FeatureColumn.createColumn(10, "test_datetime",
-				GeoPackageDataType.DATETIME, false, null));
+				GeoPackageDataType.DATETIME));
 		columns.add(FeatureColumn.createColumn(2, "test_text",
 				GeoPackageDataType.TEXT, false, ""));
 		columns.add(FeatureColumn.createColumn(3, "test_real",
-				GeoPackageDataType.REAL, false, null));
+				GeoPackageDataType.REAL));
 		columns.add(FeatureColumn.createColumn(4, "test_boolean",
-				GeoPackageDataType.BOOLEAN, false, null));
-		columns.add(FeatureColumn.createColumn(5, "test_blob",
-				GeoPackageDataType.BLOB, false, null));
-		columns.add(FeatureColumn.createColumn(6, "test_integer",
-				GeoPackageDataType.INTEGER, false, null));
+				GeoPackageDataType.BOOLEAN));
+
+		FeatureColumn blobColumn = FeatureColumn.createColumn("test_blob",
+				GeoPackageDataType.BLOB);
+		columns.add(blobColumn);
+		// Let the index for this column be automatically set to 5
+		// blobColumn.setIndex(5);
+
+		// Test setting an index after column creation but before table creation
+		FeatureColumn integerColumn = FeatureColumn.createColumn(
+				"test_integer", GeoPackageDataType.INTEGER);
+		columns.add(integerColumn);
+		integerColumn.setIndex(6);
 
 		return columns;
 	}

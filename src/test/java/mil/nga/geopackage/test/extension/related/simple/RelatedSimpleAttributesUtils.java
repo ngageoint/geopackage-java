@@ -58,27 +58,24 @@ public class RelatedSimpleAttributesUtils {
 
 		// Validate nullable non simple columns
 		try {
-			SimpleAttributesTable.create("simple_table", RelatedTablesUtils
-					.createAdditionalUserColumns(SimpleAttributesTable
-							.numRequiredColumns()));
+			SimpleAttributesTable.create("simple_table",
+					RelatedTablesUtils.createAdditionalUserColumns());
 			TestCase.fail("Simple Attributes Table created with nullable non simple columns");
 		} catch (Exception e) {
 			// pass
 		}
 		// Validate non nullable non simple columns
 		try {
-			SimpleAttributesTable.create("simple_table", RelatedTablesUtils
-					.createAdditionalUserColumns(
-							SimpleAttributesTable.numRequiredColumns(), true));
+			SimpleAttributesTable.create("simple_table",
+					RelatedTablesUtils.createAdditionalUserColumns(true));
 			TestCase.fail("Simple Attributes Table created with non nullable non simple columns");
 		} catch (Exception e) {
 			// pass
 		}
 		// Validate nullable simple columns
 		try {
-			SimpleAttributesTable.create("simple_table", RelatedTablesUtils
-					.createSimpleUserColumns(
-							SimpleAttributesTable.numRequiredColumns(), false));
+			SimpleAttributesTable.create("simple_table",
+					RelatedTablesUtils.createSimpleUserColumns(false));
 			TestCase.fail("Simple Attributes Table created with nullable simple columns");
 		} catch (Exception e) {
 			// pass
@@ -86,8 +83,7 @@ public class RelatedSimpleAttributesUtils {
 
 		// Populate and validate a simple attributes table
 		List<UserCustomColumn> simpleUserColumns = RelatedTablesUtils
-				.createSimpleUserColumns(SimpleAttributesTable
-						.numRequiredColumns());
+				.createSimpleUserColumns();
 		SimpleAttributesTable simpleTable = SimpleAttributesTable.create(
 				"simple_table", simpleUserColumns);
 		String[] simpleColumns = simpleTable.getColumnNames();
@@ -103,8 +99,7 @@ public class RelatedSimpleAttributesUtils {
 
 		// Create and validate a mapping table
 		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
-				.createAdditionalUserColumns(UserMappingTable
-						.numRequiredColumns());
+				.createAdditionalUserColumns();
 		final String mappingTableName = "attributes_simple_attributes";
 		UserMappingTable userMappingTable = UserMappingTable.create(
 				mappingTableName, additionalMappingColumns);

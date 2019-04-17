@@ -20,6 +20,7 @@ import mil.nga.geopackage.user.custom.UserCustomTableReader;
  * Related Tables extension
  * 
  * @author jyutzler
+ * @author osbornb
  * @since 3.0.1
  */
 public class RelatedTablesExtension extends RelatedTablesCoreExtension {

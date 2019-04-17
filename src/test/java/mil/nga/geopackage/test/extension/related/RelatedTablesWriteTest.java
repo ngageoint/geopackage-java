@@ -27,6 +27,7 @@ import org.junit.Test;
  * Test Related Tables Extension writing
  * 
  * @author jyutzler
+ * @author osbornb
  */
 public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 
@@ -66,8 +67,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		final String mappingTableName = "g1_g2";
 
 		List<UserCustomColumn> additionalColumns = RelatedTablesUtils
-				.createAdditionalUserColumns(UserMappingTable
-						.numRequiredColumns());
+				.createAdditionalUserColumns();
 
 		UserMappingTable userMappingTable = UserMappingTable.create(
 				mappingTableName, additionalColumns);
@@ -197,8 +197,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		final String mappingTableName = "g1_a";
 
 		List<UserCustomColumn> additionalColumns = RelatedTablesUtils
-				.createAdditionalUserColumns(UserMappingTable
-						.numRequiredColumns());
+				.createAdditionalUserColumns();
 
 		UserMappingTable userMappingTable = UserMappingTable.create(
 				mappingTableName, additionalColumns);
@@ -329,8 +328,7 @@ public class RelatedTablesWriteTest extends LoadGeoPackageTestCase {
 		final String mappingTableName = "g1_g1t";
 
 		List<UserCustomColumn> additionalColumns = RelatedTablesUtils
-				.createAdditionalUserColumns(UserMappingTable
-						.numRequiredColumns());
+				.createAdditionalUserColumns();
 
 		UserMappingTable userMappingTable = UserMappingTable.create(
 				mappingTableName, additionalColumns);

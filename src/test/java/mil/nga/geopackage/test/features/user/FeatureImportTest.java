@@ -2,9 +2,9 @@ package mil.nga.geopackage.test.features.user;
 
 import java.sql.SQLException;
 
-import org.junit.Test;
-
 import mil.nga.geopackage.test.ImportGeoPackageTestCase;
+
+import org.junit.Test;
 
 /**
  * Test Features from an imported database
@@ -24,6 +24,7 @@ public class FeatureImportTest extends ImportGeoPackageTestCase {
 	 * Test reading
 	 * 
 	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
 	public void testRead() throws SQLException {
@@ -36,6 +37,7 @@ public class FeatureImportTest extends ImportGeoPackageTestCase {
 	 * Test updating
 	 * 
 	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
 	public void testUpdate() throws SQLException {
@@ -45,9 +47,23 @@ public class FeatureImportTest extends ImportGeoPackageTestCase {
 	}
 
 	/**
+	 * Test updating with added columns
+	 * 
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testUpdateAddColumns() throws SQLException {
+
+		FeatureUtils.testUpdateAddColumns(geoPackage);
+
+	}
+
+	/**
 	 * Test creating
 	 * 
 	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
 	public void testCreate() throws SQLException {
@@ -60,6 +76,7 @@ public class FeatureImportTest extends ImportGeoPackageTestCase {
 	 * Test deleting
 	 * 
 	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
 	public void testDelete() throws SQLException {
