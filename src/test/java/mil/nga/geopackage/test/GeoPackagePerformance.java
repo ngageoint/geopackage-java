@@ -1,7 +1,6 @@
 package mil.nga.geopackage.test;
 
 import java.io.File;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
@@ -97,41 +96,60 @@ public class GeoPackagePerformance {
 
 		FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 
-		Connection connection = dao.getConnection();
-		connection.setAutoCommit(AUTO_COMMIT);
+		if (AUTO_COMMIT) {
+			dao.getConnection().setAutoCommit(true);
+		} else {
+			dao.beginTransaction();
+		}
+		// Connection connection = dao.getConnection();
+		// connection.setAutoCommit(AUTO_COMMIT);
 
-		Instant startTime = Instant.now();
-		Instant logTime = Instant.now();
+		try {
 
-		for (int count = 1; count <= CREATE_COUNT; count++) {
+			Instant startTime = Instant.now();
+			Instant logTime = Instant.now();
 
-			FeatureRow newRow = dao.newRow();
-			newRow.setGeometry(geometryData);
+			for (int count = 1; count <= CREATE_COUNT; count++) {
 
-			dao.create(newRow);
+				FeatureRow newRow = dao.newRow();
+				newRow.setGeometry(geometryData);
 
-			if (!AUTO_COMMIT && count % COMMIT_CHUNK == 0) {
-				connection.commit();
+				dao.create(newRow);
+
+				if (!AUTO_COMMIT && count % COMMIT_CHUNK == 0) {
+					dao.commit();
+				}
+
+				if (LOG_CHUNK > 0 && count % LOG_CHUNK == 0) {
+					Instant time = Instant.now();
+					LOGGER.log(Level.INFO, "Total Count: " + count);
+					Duration duration = Duration.between(logTime, time);
+					LOGGER.log(Level.INFO, "Chunk Time: "
+							+ duration.toString().substring(2));
+					LOGGER.log(Level.INFO,
+							"Chunk Average: "
+									+ (duration.toMillis() / (float) LOG_CHUNK)
+									+ " ms");
+					Duration totalDuration = Duration.between(startTime, time);
+					LOGGER.log(Level.INFO, "Total Time: "
+							+ totalDuration.toString().substring(2));
+					LOGGER.log(
+							Level.INFO,
+							"Feature Average: "
+									+ (totalDuration.toMillis() / (float) count)
+									+ " ms");
+					logTime = time;
+				}
+
 			}
 
-			if (LOG_CHUNK > 0 && count % LOG_CHUNK == 0) {
-				Instant time = Instant.now();
-				LOGGER.log(Level.INFO, "Total Count: " + count);
-				Duration duration = Duration.between(logTime, time);
-				LOGGER.log(Level.INFO, "Chunk Time: "
-						+ duration.toString().substring(2));
-				LOGGER.log(Level.INFO, "Chunk Average: "
-						+ (duration.toMillis() / (float) LOG_CHUNK) + " ms");
-				Duration totalDuration = Duration.between(startTime, time);
-				LOGGER.log(Level.INFO, "Total Time: "
-						+ totalDuration.toString().substring(2));
-				LOGGER.log(Level.INFO,
-						"Feature Average: "
-								+ (totalDuration.toMillis() / (float) count)
-								+ " ms");
-				logTime = time;
+			if (!AUTO_COMMIT) {
+				dao.endTransaction();
 			}
 
+		} catch (Exception e) {
+			dao.endTransaction(false);
+			throw e;
 		}
 
 		geoPackage.close();

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import mil.nga.geopackage.GeoPackageException;
+
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
@@ -37,6 +39,11 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * Connection
 	 */
 	private final Connection connection;
+
+	/**
+	 * Auto commit mode at the beginning of a transaction
+	 */
+	private Boolean autoCommit = null;
 
 	/**
 	 * Constructor
@@ -78,6 +85,40 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	@Override
 	public void execSQL(String sql) {
 		SQLUtils.execSQL(connection, sql);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void beginTransaction() {
+		if (autoCommit != null) {
+			throw new GeoPackageException(
+					"Failed to begin transaction, previous transaction was not ended");
+		}
+		autoCommit = SQLUtils.beginTransaction(connection);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void endTransaction(boolean successful) {
+		SQLUtils.endTransaction(connection, successful, autoCommit);
+		autoCommit = null;
+	}
+
+	/**
+	 * Commit changes on the connection
+	 * 
+	 * @since 3.2.1
+	 */
+	public void commit() {
+		try {
+			connection.commit();
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to commit connection", e);
+		}
 	}
 
 	/**

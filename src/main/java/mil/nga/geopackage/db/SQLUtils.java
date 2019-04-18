@@ -598,4 +598,65 @@ public class SQLUtils {
 		return new ResultSetResult(query(connection, sql, selectionArgs));
 	}
 
+	/**
+	 * Begin a transaction for the connection
+	 * 
+	 * @param connection
+	 *            connection
+	 * @return pre-transaction auto commit value
+	 * @since 3.2.1
+	 */
+	public static boolean beginTransaction(Connection connection) {
+		boolean autoCommit;
+		try {
+			autoCommit = connection.getAutoCommit();
+			if (autoCommit) {
+				connection.setAutoCommit(false);
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to begin transaction", e);
+		}
+		return autoCommit;
+	}
+
+	/**
+	 * End a transaction for the connection
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param successful
+	 *            true to commit, false to rollback
+	 * @since 3.2.1
+	 */
+	public static void endTransaction(Connection connection, boolean successful) {
+		endTransaction(connection, successful, null);
+	}
+
+	/**
+	 * End a transaction for the connection
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param successful
+	 *            true to commit, false to rollback
+	 * @param autoCommit
+	 *            pre-transaction auto commit value
+	 * @since 3.2.1
+	 */
+	public static void endTransaction(Connection connection,
+			boolean successful, Boolean autoCommit) {
+		try {
+			if (successful) {
+				connection.commit();
+			} else {
+				connection.rollback();
+			}
+			if (autoCommit != null && autoCommit) {
+				connection.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to end transaction", e);
+		}
+	}
+
 }

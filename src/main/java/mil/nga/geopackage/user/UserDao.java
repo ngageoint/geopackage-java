@@ -1,7 +1,9 @@
 package mil.nga.geopackage.user;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.SQLUtils;
 
@@ -26,6 +28,11 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * Connection
 	 */
 	private final Connection connection;
+
+	/**
+	 * Auto commit mode at the beginning of a transaction
+	 */
+	private Boolean autoCommit = null;
 
 	/**
 	 * Constructor
@@ -69,6 +76,40 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	@Override
 	protected TResult prepareResult(TResult result) {
 		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void beginTransaction() {
+		if (autoCommit != null) {
+			throw new GeoPackageException(
+					"Failed to begin transaction, previous transaction was not ended");
+		}
+		autoCommit = SQLUtils.beginTransaction(connection);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void endTransaction(boolean successful) {
+		SQLUtils.endTransaction(connection, successful, autoCommit);
+		autoCommit = null;
+	}
+
+	/**
+	 * Commit changes on the connection
+	 * 
+	 * @since 3.2.1
+	 */
+	public void commit() {
+		try {
+			connection.commit();
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to commit connection", e);
+		}
 	}
 
 	/**
