@@ -416,6 +416,33 @@ public class AttributesUtils {
 				TestCase.assertEquals(pk, table.getPkColumn());
 
 				testUpdate(dao);
+
+				String newerColumnName = "newer_column";
+				for (int newColumn = 1; newColumn <= newColumns; newColumn++) {
+					dao.renameColumn(newColumnName + newColumn, newerColumnName
+							+ newColumn);
+				}
+				for (int index = existingColumns; index < table.getColumns()
+						.size(); index++) {
+					String name = newerColumnName
+							+ (index - existingColumns + 1);
+					TestCase.assertEquals(name, table.getColumnName(index));
+					TestCase.assertEquals(index, table.getColumnIndex(name));
+					TestCase.assertEquals(name, table.getColumn(index)
+							.getName());
+					TestCase.assertEquals(index, table.getColumn(index)
+							.getIndex());
+					TestCase.assertEquals(name, table.getColumnNames()[index]);
+					TestCase.assertEquals(name, table.getColumns().get(index)
+							.getName());
+				}
+
+				TestCase.assertEquals(existingColumns + newColumns, table
+						.getColumns().size());
+				TestCase.assertEquals(tableName, table.getTableName());
+				TestCase.assertEquals(pk, table.getPkColumn());
+
+				testUpdate(dao);
 			}
 		}
 
