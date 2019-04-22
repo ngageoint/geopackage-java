@@ -361,6 +361,8 @@ public class AttributesUtils {
 
 				AttributesDao dao = geoPackage.getAttributesDao(tableName);
 
+				int rowCount = dao.count();
+
 				AttributesTable table = dao.getTable();
 				int existingColumns = table.getColumns().size();
 				AttributesColumn pk = table.getPkColumn();
@@ -391,6 +393,7 @@ public class AttributesUtils {
 
 				TestCase.assertEquals(existingColumns + newColumns, table
 						.getColumns().size());
+				TestCase.assertEquals(rowCount, dao.count());
 
 				for (int index = existingColumns; index < table.getColumns()
 						.size(); index++) {
@@ -439,10 +442,27 @@ public class AttributesUtils {
 
 				TestCase.assertEquals(existingColumns + newColumns, table
 						.getColumns().size());
+				TestCase.assertEquals(rowCount, dao.count());
 				TestCase.assertEquals(tableName, table.getTableName());
 				TestCase.assertEquals(pk, table.getPkColumn());
 
 				testUpdate(dao);
+
+				for (int newColumn = 1; newColumn <= newColumns; newColumn++) {
+					dao.dropColumn(newerColumnName + newColumn);
+				}
+
+				TestCase.assertEquals(existingColumns, table.getColumns()
+						.size());
+				TestCase.assertEquals(rowCount, dao.count());
+
+				for (int index = 0; index < existingColumns; index++) {
+					TestCase.assertEquals(index, table.getColumn(index)
+							.getIndex());
+				}
+
+				TestCase.assertEquals(tableName, table.getTableName());
+				TestCase.assertEquals(pk, table.getPkColumn());
 			}
 		}
 

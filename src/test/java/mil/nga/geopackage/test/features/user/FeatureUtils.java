@@ -589,6 +589,8 @@ public class FeatureUtils {
 
 				FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 
+				int rowCount = dao.count();
+
 				FeatureTable table = dao.getTable();
 				int existingColumns = table.getColumns().size();
 				FeatureColumn pk = table.getPkColumn();
@@ -620,6 +622,7 @@ public class FeatureUtils {
 
 				TestCase.assertEquals(existingColumns + newColumns, table
 						.getColumns().size());
+				TestCase.assertEquals(rowCount, dao.count());
 
 				for (int index = existingColumns; index < table.getColumns()
 						.size(); index++) {
@@ -647,6 +650,55 @@ public class FeatureUtils {
 				TestCase.assertEquals(geometry, table.getGeometryColumn());
 
 				testUpdate(dao);
+
+				String newerColumnName = "newer_column";
+				for (int newColumn = 1; newColumn <= newColumns; newColumn++) {
+					dao.renameColumn(newColumnName + newColumn, newerColumnName
+							+ newColumn);
+				}
+				for (int index = existingColumns; index < table.getColumns()
+						.size(); index++) {
+					String name = newerColumnName
+							+ (index - existingColumns + 1);
+					TestCase.assertEquals(name, table.getColumnName(index));
+					TestCase.assertEquals(index, table.getColumnIndex(name));
+					TestCase.assertEquals(name, table.getColumn(index)
+							.getName());
+					TestCase.assertEquals(index, table.getColumn(index)
+							.getIndex());
+					TestCase.assertEquals(name, table.getColumnNames()[index]);
+					TestCase.assertEquals(name, table.getColumns().get(index)
+							.getName());
+				}
+
+				TestCase.assertEquals(existingColumns + newColumns, table
+						.getColumns().size());
+				TestCase.assertEquals(rowCount, dao.count());
+				TestCase.assertEquals(geometryColumns.getTableName(),
+						table.getTableName());
+				TestCase.assertEquals(pk, table.getPkColumn());
+				TestCase.assertEquals(geometry, table.getGeometryColumn());
+
+				testUpdate(dao);
+
+				for (int newColumn = 1; newColumn <= newColumns; newColumn++) {
+					dao.dropColumn(newerColumnName + newColumn);
+				}
+
+				TestCase.assertEquals(existingColumns, table.getColumns()
+						.size());
+				TestCase.assertEquals(rowCount, dao.count());
+
+				for (int index = 0; index < existingColumns; index++) {
+					TestCase.assertEquals(index, table.getColumn(index)
+							.getIndex());
+				}
+
+				TestCase.assertEquals(geometryColumns.getTableName(),
+						table.getTableName());
+				TestCase.assertEquals(pk, table.getPkColumn());
+				TestCase.assertEquals(geometry, table.getGeometryColumn());
+
 			}
 		}
 
@@ -658,7 +710,7 @@ public class FeatureUtils {
 	 * @param dao
 	 *            feature dao
 	 */
-	private static void testUpdate(FeatureDao dao) {
+	public static void testUpdate(FeatureDao dao) {
 
 		TestCase.assertNotNull(dao);
 
