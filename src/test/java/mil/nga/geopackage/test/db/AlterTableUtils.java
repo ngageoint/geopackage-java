@@ -9,8 +9,9 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageDataType;
-import mil.nga.geopackage.db.SQLiteMaster;
-import mil.nga.geopackage.db.SQLiteMasterType;
+import mil.nga.geopackage.db.master.SQLiteMaster;
+import mil.nga.geopackage.db.master.SQLiteMasterQuery;
+import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
@@ -27,6 +28,14 @@ import mil.nga.geopackage.test.features.user.FeatureUtils;
  */
 public class AlterTableUtils {
 
+	/**
+	 * Test column table alterations
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
 	public static void testColumns(GeoPackage geoPackage) throws SQLException {
 
 		GeometryColumnsDao geometryColumnsDao = geoPackage
@@ -73,6 +82,9 @@ public class AlterTableUtils {
 					indexColumn(db, tableName, column);
 				}
 
+				createView(db, featureTable, "v_", true);
+				createView(db, featureTable, "v2_", false);
+
 				int rowCount = dao.count();
 				int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
 						SQLiteMasterType.TABLE, tableName);
@@ -81,7 +93,13 @@ public class AlterTableUtils {
 				int triggerCount = SQLiteMaster.count(geoPackage.getDatabase(),
 						SQLiteMasterType.TRIGGER, tableName);
 				int viewCount = SQLiteMaster.count(geoPackage.getDatabase(),
-						SQLiteMasterType.VIEW, tableName);
+						SQLiteMasterType.VIEW,
+						SQLiteMasterQuery.createTableViewQuery(tableName));
+
+				TestCase.assertEquals(1, tableCount);
+				TestCase.assertTrue(indexCount >= featureTable.columnCount() - 2);
+				TestCase.assertTrue(triggerCount >= 6);
+				TestCase.assertTrue(viewCount >= 2);
 
 				FeatureTable table = dao.getTable();
 				int existingColumns = table.getColumns().size();
@@ -252,6 +270,49 @@ public class AlterTableUtils {
 	}
 
 	/**
+	 * Create a table view
+	 * 
+	 * @param db
+	 *            connection
+	 * @param featureTable
+	 *            feature column
+	 * @param namePrefix
+	 *            view name prefix
+	 * @param quoteWrap
+	 */
+	private static void createView(GeoPackageConnection db,
+			FeatureTable featureTable, String namePrefix, boolean quoteWrap) {
+
+		StringBuilder view = new StringBuilder("CREATE VIEW ");
+		String viewName = namePrefix + featureTable.getTableName();
+		if (quoteWrap) {
+			viewName = CoreSQLUtils.quoteWrap(viewName);
+		}
+		view.append(viewName);
+		view.append(" AS SELECT ");
+		for (int i = 0; i < featureTable.columnCount(); i++) {
+			if (i > 0) {
+				view.append(", ");
+			}
+			view.append(CoreSQLUtils.quoteWrap(featureTable.getColumnName(i)));
+			view.append(" AS ");
+			String columnName = "column" + (i + 1);
+			if (quoteWrap) {
+				columnName = CoreSQLUtils.quoteWrap(columnName);
+			}
+			view.append(columnName);
+		}
+		view.append(" FROM ");
+		String tableName = featureTable.getTableName();
+		if (quoteWrap) {
+			tableName = CoreSQLUtils.quoteWrap(tableName);
+		}
+		view.append(tableName);
+
+		db.execSQL(view.toString());
+	}
+
+	/**
 	 * Test the table schema counts
 	 * 
 	 * @param db
@@ -276,8 +337,10 @@ public class AlterTableUtils {
 				SQLiteMaster.count(db, SQLiteMasterType.INDEX, tableName));
 		TestCase.assertEquals(triggerCount,
 				SQLiteMaster.count(db, SQLiteMasterType.TRIGGER, tableName));
-		TestCase.assertEquals(viewCount,
-				SQLiteMaster.count(db, SQLiteMasterType.VIEW, tableName));
+		TestCase.assertEquals(
+				viewCount,
+				SQLiteMaster.count(db, SQLiteMasterType.VIEW,
+						SQLiteMasterQuery.createTableViewQuery(tableName)));
 	}
 
 	/**
