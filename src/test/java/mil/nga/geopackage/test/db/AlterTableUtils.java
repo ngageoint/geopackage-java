@@ -176,6 +176,17 @@ public class AlterTableUtils {
 					dao.renameColumn(newColumnName + newColumn, newerColumnName
 							+ newColumn);
 				}
+
+				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 3,
+						GeoPackageDataType.BOOLEAN, true, false));
+				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 5,
+						GeoPackageDataType.FLOAT, true, 1.5f));
+				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 6,
+						GeoPackageDataType.DATETIME, true,
+						"(strftime('%Y-%m-%dT%H:%M:%fZ','now'))"));
+				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 8,
+						GeoPackageDataType.TEXT, true, "date_to_text"));
+
 				for (int index = existingColumns + 1; index < table
 						.getColumns().size(); index++) {
 					String name = newerColumnName
