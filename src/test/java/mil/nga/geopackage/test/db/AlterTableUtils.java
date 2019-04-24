@@ -1,6 +1,8 @@
 package mil.nga.geopackage.test.db;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -179,13 +181,18 @@ public class AlterTableUtils {
 
 				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 3,
 						GeoPackageDataType.BOOLEAN, true, false));
-				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 5,
-						GeoPackageDataType.FLOAT, true, 1.5f));
-				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 6,
-						GeoPackageDataType.DATETIME, true,
+
+				List<FeatureColumn> alterColumns = new ArrayList<>();
+				alterColumns.add(FeatureColumn.createColumn(
+						newerColumnName + 5, GeoPackageDataType.FLOAT, true,
+						1.5f));
+				alterColumns.add(FeatureColumn.createColumn(
+						newerColumnName + 6, GeoPackageDataType.DATETIME, true,
 						"(strftime('%Y-%m-%dT%H:%M:%fZ','now'))"));
-				dao.alterColumn(FeatureColumn.createColumn(newerColumnName + 8,
-						GeoPackageDataType.TEXT, true, "date_to_text"));
+				alterColumns.add(FeatureColumn.createColumn(
+						newerColumnName + 8, GeoPackageDataType.TEXT, true,
+						"date_to_text"));
+				dao.alterColumns(alterColumns);
 
 				for (int index = existingColumns + 1; index < table
 						.getColumns().size(); index++) {
@@ -219,7 +226,9 @@ public class AlterTableUtils {
 				dao.dropColumn(newColumnName + 1);
 				testTableCounts(db, tableName, tableCount, indexCount
 						+ newColumns - 1, triggerCount, viewCount);
-				for (int newColumn = 2; newColumn <= newColumns; newColumn++) {
+				dao.dropColumnNames(Arrays.asList(newerColumnName + 2,
+						newerColumnName + 3, newerColumnName + 4));
+				for (int newColumn = 5; newColumn <= newColumns; newColumn++) {
 					dao.dropColumn(newerColumnName + newColumn);
 				}
 
