@@ -148,7 +148,9 @@ public class GeoPackagePerformance {
 			}
 
 		} catch (Exception e) {
-			dao.endTransaction(false);
+			if (!AUTO_COMMIT) {
+				dao.endTransaction(false);
+			}
 			throw e;
 		}
 
