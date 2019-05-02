@@ -149,7 +149,7 @@ public class GeoPackagePerformance {
 
 		} catch (Exception e) {
 			if (!AUTO_COMMIT) {
-				dao.endTransaction(false);
+				dao.failTransaction();
 			}
 			throw e;
 		}
