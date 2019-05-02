@@ -235,11 +235,8 @@ public class AlterTableUtils {
 				TestCase.assertEquals(existingColumns, table.getColumns()
 						.size());
 				TestCase.assertEquals(rowCount, dao.count());
-				// Renamed columns double quote wrap columns and allow indexes
-				// to be created on deleted columns, which is why there are more
-				// than indexCount indexes
-				testTableCounts(db, tableName, tableCount, indexCount
-						+ newColumns - 1, triggerCount, viewCount);
+				testTableCounts(db, tableName, tableCount, indexCount,
+						triggerCount, viewCount);
 
 				for (int index = 0; index < existingColumns; index++) {
 					TestCase.assertEquals(index, table.getColumn(index)
@@ -254,6 +251,8 @@ public class AlterTableUtils {
 				testIndex(indexManager, indexGeoPackageCount, indexRTreeCount);
 
 				FeatureUtils.testUpdate(dao);
+
+				indexManager.close();
 			}
 		}
 	}
@@ -273,7 +272,7 @@ public class AlterTableUtils {
 		if (!column.isPrimaryKey() && !column.isGeometry()) {
 			StringBuilder index = new StringBuilder(
 					"CREATE INDEX IF NOT EXISTS ");
-			index.append(CoreSQLUtils.quoteWrap("ids_" + tableName + "_"
+			index.append(CoreSQLUtils.quoteWrap("idx_" + tableName + "_"
 					+ column.getName()));
 			index.append(" ON ");
 			index.append(CoreSQLUtils.quoteWrap(tableName));
