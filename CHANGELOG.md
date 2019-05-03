@@ -7,7 +7,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 3.2.1 (TBD)
 
 * geopackage-core version 3.2.1
-* Transaction shortcut methods for connections and User DAOs
+* Transaction shortcut methods for the GeoPackages, connections, and User DAOs
 * Feature Tiles geometry caching
 
 ## [3.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.2.0) (04-02-2019)

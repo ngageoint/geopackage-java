@@ -12,7 +12,6 @@ import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.master.SQLiteMaster;
-import mil.nga.geopackage.db.master.SQLiteMasterQuery;
 import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -94,9 +93,8 @@ public class AlterTableUtils {
 						SQLiteMasterType.INDEX, tableName);
 				int triggerCount = SQLiteMaster.count(geoPackage.getDatabase(),
 						SQLiteMasterType.TRIGGER, tableName);
-				int viewCount = SQLiteMaster.count(geoPackage.getDatabase(),
-						SQLiteMasterType.VIEW,
-						SQLiteMasterQuery.createTableViewQuery(tableName));
+				int viewCount = SQLiteMaster.countViewsOnTable(
+						geoPackage.getDatabase(), tableName);
 
 				TestCase.assertEquals(1, tableCount);
 				TestCase.assertTrue(indexCount >= featureTable.columnCount() - 2);
@@ -356,10 +354,8 @@ public class AlterTableUtils {
 				SQLiteMaster.count(db, SQLiteMasterType.INDEX, tableName));
 		TestCase.assertEquals(triggerCount,
 				SQLiteMaster.count(db, SQLiteMasterType.TRIGGER, tableName));
-		TestCase.assertEquals(
-				viewCount,
-				SQLiteMaster.count(db, SQLiteMasterType.VIEW,
-						SQLiteMasterQuery.createTableViewQuery(tableName)));
+		TestCase.assertEquals(viewCount,
+				SQLiteMaster.countViewsOnTable(db, tableName));
 	}
 
 	/**

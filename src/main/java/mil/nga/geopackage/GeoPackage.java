@@ -112,6 +112,13 @@ public interface GeoPackage extends GeoPackageCore {
 	public GeoPackageConnection getConnection();
 
 	/**
+	 * Commit changes on the connection
+	 * 
+	 * @since 3.2.1
+	 */
+	public void commit();
+
+	/**
 	 * Perform a foreign key check on the database
 	 *
 	 * @return null if check passed, open result set with results if failed
