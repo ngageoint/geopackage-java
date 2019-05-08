@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import mil.nga.geopackage.GeoPackageException;
-
 import com.j256.ormlite.support.ConnectionSource;
+
+import mil.nga.geopackage.GeoPackageException;
 
 /**
  * GeoPackage Connection wrapper
@@ -141,7 +141,8 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Integer min(String table, String column, String where, String[] args) {
+	public Integer min(String table, String column, String where,
+			String[] args) {
 		return SQLUtils.min(connection, table, column, where, args);
 	}
 
@@ -149,7 +150,8 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Integer max(String table, String column, String where, String[] args) {
+	public Integer max(String table, String column, String where,
+			String[] args) {
 		return SQLUtils.max(connection, table, column, where, args);
 	}
 
@@ -165,41 +167,6 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 			log.log(Level.WARNING, "Failed to close GeoPackage connection to: "
 					+ file.getAbsolutePath(), e);
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean columnExists(String tableName, String columnName) {
-
-		boolean exists = false;
-
-		ResultSet result = query(
-				"PRAGMA table_info(" + CoreSQLUtils.quoteWrap(tableName) + ")",
-				null);
-		try {
-			while (result.next()) {
-				String name = result.getString(NAME_COLUMN);
-				if (columnName.equals(name)) {
-					exists = true;
-					break;
-				}
-			}
-		} catch (SQLException e) {
-			log.log(Level.WARNING, "Failed to search table info: " + tableName
-					+ ", looking for column: " + columnName, e);
-		} finally {
-			try {
-				result.close();
-			} catch (SQLException e) {
-				log.log(Level.WARNING,
-						"Failed to close result set to table info: "
-								+ tableName, e);
-			}
-		}
-
-		return exists;
 	}
 
 	/**

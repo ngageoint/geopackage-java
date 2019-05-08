@@ -35,19 +35,16 @@ public class FeatureDao extends
 	 *            database name
 	 * @param db
 	 *            GeoPackage connection
-	 * @param featureDb
-	 *            feature connection
 	 * @param geometryColumns
 	 *            geometry columns
 	 * @param table
 	 *            feature table
 	 */
 	public FeatureDao(String database, GeoPackageConnection db,
-			FeatureConnection featureDb, GeometryColumns geometryColumns,
-			FeatureTable table) {
-		super(database, db, featureDb, table);
+			GeometryColumns geometryColumns, FeatureTable table) {
+		super(database, db, new FeatureConnection(db), table);
 
-		this.featureDb = featureDb;
+		this.featureDb = (FeatureConnection) getUserDb();
 		this.geometryColumns = geometryColumns;
 		if (geometryColumns.getContents() == null) {
 			throw new GeoPackageException(GeometryColumns.class.getSimpleName()

@@ -13,8 +13,7 @@ import mil.nga.sf.proj.Projection;
  * @author osbornb
  * @since 1.2.1
  */
-public class AttributesDao
-		extends
+public class AttributesDao extends
 		UserDao<AttributesColumn, AttributesTable, AttributesRow, AttributesResultSet> {
 
 	/**
@@ -29,16 +28,14 @@ public class AttributesDao
 	 *            database
 	 * @param db
 	 *            db connection
-	 * @param attributesDb
-	 *            attributes connection
 	 * @param table
 	 *            attributes table
 	 */
 	public AttributesDao(String database, GeoPackageConnection db,
-			AttributesConnection attributesDb, AttributesTable table) {
-		super(database, db, attributesDb, table);
+			AttributesTable table) {
+		super(database, db, new AttributesConnection(db), table);
 
-		this.attributesDb = attributesDb;
+		this.attributesDb = (AttributesConnection) getUserDb();
 		if (table.getContents() == null) {
 			throw new GeoPackageException(AttributesTable.class.getSimpleName()
 					+ " " + table.getTableName() + " has null "

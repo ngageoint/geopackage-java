@@ -19,8 +19,7 @@ public class StyleDao extends AttributesDao {
 	 *            user custom data access object
 	 */
 	public StyleDao(AttributesDao dao) {
-		super(dao.getDatabase(), dao.getDb(), dao.getAttributesDb(),
-				new StyleTable(dao.getTable()));
+		super(dao.getDatabase(), dao.getDb(), new StyleTable(dao.getTable()));
 	}
 
 	/**
@@ -71,8 +70,8 @@ public class StyleDao extends AttributesDao {
 	public StyleRow queryForRow(StyleMappingRow styleMappingRow) {
 		StyleRow styleRow = null;
 
-		AttributesRow attributesRow = queryForIdRow(styleMappingRow
-				.getRelatedId());
+		AttributesRow attributesRow = queryForIdRow(
+				styleMappingRow.getRelatedId());
 		if (attributesRow != null) {
 			styleRow = getRow(attributesRow);
 		}

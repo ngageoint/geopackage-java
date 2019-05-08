@@ -5,10 +5,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.attributes.AttributesConnection;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesTable;
 import mil.nga.geopackage.attributes.AttributesTableReader;
@@ -22,7 +24,6 @@ import mil.nga.geopackage.factory.GeoPackageCoreImpl;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
-import mil.nga.geopackage.features.user.FeatureConnection;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.features.user.FeatureTableReader;
@@ -31,14 +32,10 @@ import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrix.TileMatrixKey;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
-import mil.nga.geopackage.tiles.user.TileConnection;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.tiles.user.TileTableReader;
 import mil.nga.sf.proj.Projection;
-
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
 
 /**
  * GeoPackage implementation
@@ -98,19 +95,19 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	public FeatureDao getFeatureDao(GeometryColumns geometryColumns) {
 
 		if (geometryColumns == null) {
-			throw new GeoPackageException("Non null "
-					+ GeometryColumns.class.getSimpleName()
-					+ " is required to create "
-					+ FeatureDao.class.getSimpleName());
+			throw new GeoPackageException(
+					"Non null " + GeometryColumns.class.getSimpleName()
+							+ " is required to create "
+							+ FeatureDao.class.getSimpleName());
 		}
 
 		// Read the existing table and create the dao
-		FeatureTableReader tableReader = new FeatureTableReader(geometryColumns);
-		FeatureConnection userDb = new FeatureConnection(database);
-		final FeatureTable featureTable = tableReader.readTable(userDb);
+		FeatureTableReader tableReader = new FeatureTableReader(
+				geometryColumns);
+		final FeatureTable featureTable = tableReader.readTable(database);
 		featureTable.setContents(geometryColumns.getContents());
-		FeatureDao dao = new FeatureDao(getName(), database, userDb,
-				geometryColumns, featureTable);
+		FeatureDao dao = new FeatureDao(getName(), database, geometryColumns,
+				featureTable);
 
 		// If the GeoPackage is writable and the feature table has a RTree Index
 		// extension, create the SQL functions
@@ -130,15 +127,14 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 
 		if (contents == null) {
 			throw new GeoPackageException("Non null "
-					+ Contents.class.getSimpleName()
-					+ " is required to create "
+					+ Contents.class.getSimpleName() + " is required to create "
 					+ FeatureDao.class.getSimpleName());
 		}
 
 		GeometryColumns geometryColumns = null;
 		try {
-			geometryColumns = getGeometryColumnsDao().queryForTableName(
-					contents.getTableName());
+			geometryColumns = getGeometryColumnsDao()
+					.queryForTableName(contents.getTableName());
 		} catch (SQLException e) {
 			throw new GeoPackageException("No "
 					+ GeometryColumns.class.getSimpleName()
@@ -163,8 +159,8 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		GeometryColumnsDao dao = getGeometryColumnsDao();
 		List<GeometryColumns> geometryColumnsList;
 		try {
-			geometryColumnsList = dao.queryForEq(
-					GeometryColumns.COLUMN_TABLE_NAME, tableName);
+			geometryColumnsList = dao
+					.queryForEq(GeometryColumns.COLUMN_TABLE_NAME, tableName);
 		} catch (SQLException e) {
 			throw new GeoPackageException("Failed to retrieve "
 					+ FeatureDao.class.getSimpleName() + " for table name: "
@@ -192,9 +188,10 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	public TileDao getTileDao(TileMatrixSet tileMatrixSet) {
 
 		if (tileMatrixSet == null) {
-			throw new GeoPackageException("Non null "
-					+ TileMatrixSet.class.getSimpleName()
-					+ " is required to create " + TileDao.class.getSimpleName());
+			throw new GeoPackageException(
+					"Non null " + TileMatrixSet.class.getSimpleName()
+							+ " is required to create "
+							+ TileDao.class.getSimpleName());
 		}
 
 		// Get the Tile Matrix collection, order by zoom level ascending & pixel
@@ -212,19 +209,20 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 			PreparedQuery<TileMatrix> query = qb.prepare();
 			tileMatrices = tileMatrixDao.query(query);
 		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to retrieve "
-					+ TileDao.class.getSimpleName() + " for table name: "
-					+ tileMatrixSet.getTableName() + ". Exception retrieving "
-					+ TileMatrix.class.getSimpleName() + " collection.", e);
+			throw new GeoPackageException(
+					"Failed to retrieve " + TileDao.class.getSimpleName()
+							+ " for table name: " + tileMatrixSet.getTableName()
+							+ ". Exception retrieving "
+							+ TileMatrix.class.getSimpleName() + " collection.",
+					e);
 		}
 
 		// Read the existing table and create the dao
 		TileTableReader tableReader = new TileTableReader(
 				tileMatrixSet.getTableName());
-		TileConnection userDb = new TileConnection(database);
-		final TileTable tileTable = tableReader.readTable(userDb);
+		final TileTable tileTable = tableReader.readTable(database);
 		tileTable.setContents(tileMatrixSet.getContents());
-		TileDao dao = new TileDao(getName(), database, userDb, tileMatrixSet,
+		TileDao dao = new TileDao(getName(), database, tileMatrixSet,
 				tileMatrices, tileTable);
 
 		return dao;
@@ -238,14 +236,14 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 
 		if (contents == null) {
 			throw new GeoPackageException("Non null "
-					+ Contents.class.getSimpleName()
-					+ " is required to create " + TileDao.class.getSimpleName());
+					+ Contents.class.getSimpleName() + " is required to create "
+					+ TileDao.class.getSimpleName());
 		}
 
 		TileMatrixSet tileMatrixSet = null;
 		try {
-			tileMatrixSet = getTileMatrixSetDao().queryForId(
-					contents.getTableName());
+			tileMatrixSet = getTileMatrixSetDao()
+					.queryForId(contents.getTableName());
 		} catch (SQLException e) {
 			throw new GeoPackageException("No "
 					+ TileMatrixSet.class.getSimpleName()
@@ -302,8 +300,7 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 
 		if (contents == null) {
 			throw new GeoPackageException("Non null "
-					+ Contents.class.getSimpleName()
-					+ " is required to create "
+					+ Contents.class.getSimpleName() + " is required to create "
 					+ AttributesDao.class.getSimpleName());
 		}
 		if (contents.getDataType() != ContentsDataType.ATTRIBUTES) {
@@ -316,10 +313,9 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		// Read the existing table and create the dao
 		AttributesTableReader tableReader = new AttributesTableReader(
 				contents.getTableName());
-		AttributesConnection userDb = new AttributesConnection(database);
-		final AttributesTable attributesTable = tableReader.readTable(userDb);
+		final AttributesTable attributesTable = tableReader.readTable(database);
 		attributesTable.setContents(contents);
-		AttributesDao dao = new AttributesDao(getName(), database, userDb,
+		AttributesDao dao = new AttributesDao(getName(), database,
 				attributesTable);
 
 		return dao;
@@ -336,9 +332,10 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 		try {
 			contents = dao.queryForId(tableName);
 		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to retrieve "
-					+ Contents.class.getSimpleName() + " for table name: "
-					+ tableName, e);
+			throw new GeoPackageException(
+					"Failed to retrieve " + Contents.class.getSimpleName()
+							+ " for table name: " + tableName,
+					e);
 		}
 		if (contents == null) {
 			throw new GeoPackageException(

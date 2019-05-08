@@ -12,8 +12,7 @@ import mil.nga.sf.proj.Projection;
  * @author osbornb
  * @since 3.0.1
  */
-public class UserCustomDao
-		extends
+public class UserCustomDao extends
 		UserDao<UserCustomColumn, UserCustomTable, UserCustomRow, UserCustomResultSet> {
 
 	/**
@@ -28,16 +27,14 @@ public class UserCustomDao
 	 *            database name
 	 * @param db
 	 *            database connection
-	 * @param userDb
-	 *            user connection
 	 * @param table
 	 *            user custom table
 	 */
 	public UserCustomDao(String database, GeoPackageConnection db,
-			UserCustomConnection userDb, UserCustomTable table) {
-		super(database, db, userDb, table);
+			UserCustomTable table) {
+		super(database, db, new UserCustomConnection(db), table);
 
-		this.userDb = userDb;
+		this.userDb = (UserCustomConnection) getUserDb();
 	}
 
 	/**
@@ -59,7 +56,7 @@ public class UserCustomDao
 	 *            user custom table
 	 */
 	public UserCustomDao(UserCustomDao dao, UserCustomTable userCustomTable) {
-		this(dao.getDatabase(), dao.getDb(), dao.getUserDb(), userCustomTable);
+		this(dao.getDatabase(), dao.getDb(), userCustomTable);
 	}
 
 	/**
@@ -128,10 +125,9 @@ public class UserCustomDao
 	public static UserCustomDao readTable(String database,
 			GeoPackageConnection connection, String tableName) {
 
-		UserCustomConnection userDb = new UserCustomConnection(connection);
-		UserCustomTable userCustomTable = UserCustomTableReader.readTable(
-				userDb, tableName);
-		UserCustomDao dao = new UserCustomDao(database, connection, userDb,
+		UserCustomTable userCustomTable = UserCustomTableReader
+				.readTable(connection, tableName);
+		UserCustomDao dao = new UserCustomDao(database, connection,
 				userCustomTable);
 
 		return dao;

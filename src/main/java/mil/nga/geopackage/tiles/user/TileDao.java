@@ -22,8 +22,8 @@ import mil.nga.sf.proj.ProjectionConstants;
  * 
  * @author osbornb
  */
-public class TileDao extends
-		UserDao<TileColumn, TileTable, TileRow, TileResultSet> {
+public class TileDao
+		extends UserDao<TileColumn, TileTable, TileRow, TileResultSet> {
 
 	/**
 	 * Tile connection
@@ -72,8 +72,6 @@ public class TileDao extends
 	 *            database
 	 * @param db
 	 *            GeoPackage connection
-	 * @param tileDb
-	 *            tile connection
 	 * @param tileMatrixSet
 	 *            tile matrix set
 	 * @param tileMatrices
@@ -82,11 +80,11 @@ public class TileDao extends
 	 *            tile table
 	 */
 	public TileDao(String database, GeoPackageConnection db,
-			TileConnection tileDb, TileMatrixSet tileMatrixSet,
-			List<TileMatrix> tileMatrices, TileTable table) {
-		super(database, db, tileDb, table);
+			TileMatrixSet tileMatrixSet, List<TileMatrix> tileMatrices,
+			TileTable table) {
+		super(database, db, new TileConnection(db), table);
 
-		this.tileDb = tileDb;
+		this.tileDb = (TileConnection) getUserDb();
 		this.tileMatrixSet = tileMatrixSet;
 		this.tileMatrices = tileMatrices;
 		this.widths = new double[tileMatrices.size()];
@@ -529,7 +527,8 @@ public class TileDao extends
 					tileGrid.getMinX(), tileGrid.getMaxX(), tileGrid.getMinY(),
 					tileGrid.getMaxY() });
 
-			tileCursor = query(where.toString(), whereArgs, null, null, orderBy);
+			tileCursor = query(where.toString(), whereArgs, null, null,
+					orderBy);
 		}
 
 		return tileCursor;
@@ -584,8 +583,8 @@ public class TileDao extends
 		where.append(" AND ");
 		where.append(buildWhere(TileTable.COLUMN_TILE_ROW, row));
 
-		String[] whereArgs = buildWhereArgs(new Object[] { zoomLevel, column,
-				row });
+		String[] whereArgs = buildWhereArgs(
+				new Object[] { zoomLevel, column, row });
 
 		int deleted = delete(where.toString(), whereArgs);
 
@@ -615,16 +614,20 @@ public class TileDao extends
 		// Convert the bounding box to wgs84
 		BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
 		BoundingBox wgs84BoundingBox = boundingBox
-				.transform(projection
-						.getTransformation(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
+				.transform(projection.getTransformation(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
 
 		boolean googleTiles = false;
 
 		// Verify the bounds are the entire world
-		if (wgs84BoundingBox.getMinLatitude() <= ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE
-				&& wgs84BoundingBox.getMaxLatitude() >= ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE
-				&& wgs84BoundingBox.getMinLongitude() <= -ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH
-				&& wgs84BoundingBox.getMaxLongitude() >= ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) {
+		if (wgs84BoundingBox
+				.getMinLatitude() <= ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE
+				&& wgs84BoundingBox
+						.getMaxLatitude() >= ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE
+				&& wgs84BoundingBox
+						.getMinLongitude() <= -ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH
+				&& wgs84BoundingBox
+						.getMaxLongitude() >= ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) {
 
 			googleTiles = true;
 

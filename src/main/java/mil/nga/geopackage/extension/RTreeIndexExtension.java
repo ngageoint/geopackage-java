@@ -4,16 +4,15 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.sqlite.Function;
+
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.geopackage.user.custom.UserCustomConnection;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomTable;
 import mil.nga.sf.GeometryEnvelope;
-
-import org.sqlite.Function;
 
 /**
  * RTree Index Extension
@@ -70,10 +69,9 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	public RTreeIndexTableDao getTableDao(FeatureDao featureDao) {
 
 		GeoPackageConnection connection = getGeoPackage().getConnection();
-		UserCustomConnection userDb = new UserCustomConnection(connection);
 		UserCustomTable userCustomTable = getRTreeTable(featureDao.getTable());
 		UserCustomDao userCustomDao = new UserCustomDao(geoPackage.getName(),
-				connection, userDb, userCustomTable);
+				connection, userCustomTable);
 
 		return new RTreeIndexTableDao(this, userCustomDao, featureDao);
 	}

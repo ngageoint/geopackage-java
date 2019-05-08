@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.extension.related.media.MediaDao;
 import mil.nga.geopackage.extension.related.media.MediaTable;
 import mil.nga.geopackage.extension.related.simple.SimpleAttributesDao;
 import mil.nga.geopackage.extension.related.simple.SimpleAttributesTable;
-import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
-import mil.nga.geopackage.user.custom.UserCustomTable;
-import mil.nga.geopackage.user.custom.UserCustomTableReader;
 
 /**
  * Related Tables extension
@@ -40,21 +36,6 @@ public class RelatedTablesExtension extends RelatedTablesCoreExtension {
 	public RelatedTablesExtension(GeoPackage geoPackage) {
 		super(geoPackage);
 		connection = geoPackage.getConnection();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getPrimaryKeyColumnName(String tableName) {
-		UserCustomTable table = UserCustomTableReader.readTable(connection,
-				tableName);
-		UserCustomColumn pkColumn = table.getPkColumn();
-		if (pkColumn == null) {
-			throw new GeoPackageException("Found no primary key for table "
-					+ tableName);
-		}
-		return pkColumn.getName();
 	}
 
 	/**
