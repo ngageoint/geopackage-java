@@ -148,7 +148,8 @@ public class TestUtils {
 		columns.add(FeatureColumn.createColumn(6, TEST_INTEGER_COLUMN,
 				GeoPackageDataType.INTEGER));
 
-		FeatureTable table = new FeatureTable(tableName, columns);
+		FeatureTable table = new FeatureTable(tableName, geometryColumn,
+				columns);
 
 		return table;
 	}
@@ -237,8 +238,8 @@ public class TestUtils {
 							String text = UUID.randomUUID().toString();
 							if (column.getMax() != null
 									&& text.length() > column.getMax()) {
-								text = text.substring(0, column.getMax()
-										.intValue());
+								text = text.substring(0,
+										column.getMax().intValue());
 							}
 							value = text;
 							break;
@@ -260,9 +261,10 @@ public class TestUtils {
 									&& blob.length > column.getMax()) {
 								byte[] blobLimited = new byte[column.getMax()
 										.intValue()];
-								ByteBuffer.wrap(blob, 0,
-										column.getMax().intValue()).get(
-										blobLimited);
+								ByteBuffer
+										.wrap(blob, 0,
+												column.getMax().intValue())
+										.get(blobLimited);
 								blob = blobLimited;
 							}
 							value = blob;
@@ -426,8 +428,8 @@ public class TestUtils {
 			TestCase.assertTrue(value instanceof Long);
 			break;
 		default:
-			throw new GeoPackageException("Data Type " + dataType
-					+ " is not an integer type");
+			throw new GeoPackageException(
+					"Data Type " + dataType + " is not an integer type");
 		}
 	}
 
@@ -450,8 +452,8 @@ public class TestUtils {
 			TestCase.assertTrue(value instanceof Double);
 			break;
 		default:
-			throw new GeoPackageException("Data Type " + dataType
-					+ " is not a float type");
+			throw new GeoPackageException(
+					"Data Type " + dataType + " is not a float type");
 		}
 	}
 
@@ -547,7 +549,8 @@ public class TestUtils {
 	 * @return file
 	 */
 	public static File getImportDbCoverageDataTiffFile() {
-		return getTestFile(TestConstants.IMPORT_COVERAGE_DATA_TIFF_DB_FILE_NAME);
+		return getTestFile(
+				TestConstants.IMPORT_COVERAGE_DATA_TIFF_DB_FILE_NAME);
 	}
 
 	/**
