@@ -74,7 +74,7 @@ public class TestSetupTeardown {
 
 	public static final int CREATE_METADATA_REFERENCE_COUNT = 13;
 
-	public static final int CREATE_EXTENSIONS_COUNT = 5;
+	public static final int CREATE_EXTENSIONS_COUNT = 7;
 
 	/**
 	 * Set up the create database
@@ -103,10 +103,10 @@ public class TestSetupTeardown {
 	 * @throws IOException
 	 */
 	public static GeoPackage setUpCreate(File directory, boolean features,
-			boolean allowEmptyFeatures, boolean tiles) throws SQLException,
-			IOException {
-		return setUpCreate(directory, TestConstants.TEST_DB_FILE_NAME,
-				features, allowEmptyFeatures, tiles);
+			boolean allowEmptyFeatures, boolean tiles)
+			throws SQLException, IOException {
+		return setUpCreate(directory, TestConstants.TEST_DB_FILE_NAME, features,
+				allowEmptyFeatures, tiles);
 	}
 
 	/**
@@ -146,8 +146,8 @@ public class TestSetupTeardown {
 				userVersionString.length() - 4);
 		String minorVersion = userVersionString.substring(
 				userVersionString.length() - 4, userVersionString.length() - 2);
-		String patchVersion = userVersionString.substring(userVersionString
-				.length() - 2);
+		String patchVersion = userVersionString
+				.substring(userVersionString.length() - 2);
 		assertEquals("Major User Version", geoPackage.getUserVersionMajor(),
 				Integer.valueOf(majorVersion).intValue());
 		assertEquals("Minor User Version", geoPackage.getUserVersionMinor(),
@@ -326,8 +326,8 @@ public class TestSetupTeardown {
 						String text = UUID.randomUUID().toString();
 						if (column.getMax() != null
 								&& text.length() > column.getMax()) {
-							text = text
-									.substring(0, column.getMax().intValue());
+							text = text.substring(0,
+									column.getMax().intValue());
 						}
 						value = text;
 						break;
@@ -348,8 +348,7 @@ public class TestSetupTeardown {
 								&& blob.length > column.getMax()) {
 							byte[] blobLimited = new byte[column.getMax()
 									.intValue()];
-							ByteBuffer
-									.wrap(blob, 0, column.getMax().intValue())
+							ByteBuffer.wrap(blob, 0, column.getMax().intValue())
 									.get(blobLimited);
 							blob = blobLimited;
 						}
@@ -538,8 +537,8 @@ public class TestSetupTeardown {
 		TestUtils.addRowsToFeatureTable(geoPackage, point3dGeometryColumns,
 				point3dTable, 3, true, false, allowEmptyFeatures);
 		TestUtils.addRowsToFeatureTable(geoPackage,
-				lineString3dMGeometryColumns, lineString3dMTable, 3, true,
-				true, allowEmptyFeatures);
+				lineString3dMGeometryColumns, lineString3dMTable, 3, true, true,
+				allowEmptyFeatures);
 
 	}
 
@@ -685,7 +684,8 @@ public class TestSetupTeardown {
 			throw new GeoPackageException(
 					"Failed to copy GeoPackage to test directory. File: "
 							+ file.getAbsolutePath() + ", Test Directory: "
-							+ directory.getAbsolutePath(), e);
+							+ directory.getAbsolutePath(),
+					e);
 		}
 		return newFile;
 	}
