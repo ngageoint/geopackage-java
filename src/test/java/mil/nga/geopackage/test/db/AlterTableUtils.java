@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesTable;
+import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageCoreConnection;
@@ -20,6 +21,9 @@ import mil.nga.geopackage.db.master.SQLiteMasterQuery;
 import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.extension.contents.ContentsId;
 import mil.nga.geopackage.extension.contents.ContentsIdExtension;
+import mil.nga.geopackage.extension.coverage.CoverageData;
+import mil.nga.geopackage.extension.coverage.GriddedCoverage;
+import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
@@ -680,6 +684,16 @@ public class AlterTableUtils {
 					tileScaling = tileTableScaling.get();
 				}
 
+				GriddedCoverage griddedCoverage = null;
+				List<GriddedTile> griddedTiles = null;
+				if (geoPackage.isTableType(ContentsDataType.GRIDDED_COVERAGE,
+						tableName)) {
+					CoverageData<?> coverageData = CoverageData
+							.getCoverageData(geoPackage, dao);
+					griddedCoverage = coverageData.queryGriddedCoverage();
+					griddedTiles = coverageData.getGriddedTile();
+				}
+
 				int rowCount = dao.count();
 				int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
 						SQLiteMasterType.TABLE, tableName);
@@ -777,6 +791,27 @@ public class AlterTableUtils {
 							copyTileScaling.getZoomIn());
 					TestCase.assertEquals(tileScaling.getZoomOut(),
 							copyTileScaling.getZoomOut());
+				}
+
+				if (griddedCoverage != null) {
+					CoverageData<?> copyCoverageData = CoverageData
+							.getCoverageData(geoPackage, copyDao);
+					GriddedCoverage copyGriddedCoverage = copyCoverageData
+							.queryGriddedCoverage();
+					List<GriddedTile> copyGriddedTiles = copyCoverageData
+							.getGriddedTile();
+					TestCase.assertEquals(tableName,
+							griddedCoverage.getTileMatrixSetName());
+					TestCase.assertEquals(newTableName,
+							copyGriddedCoverage.getTileMatrixSetName());
+					TestCase.assertEquals(griddedTiles.size(),
+							copyGriddedTiles.size());
+					for (int i = 0; i < griddedTiles.size(); i++) {
+						TestCase.assertEquals(tableName,
+								griddedTiles.get(i).getTableName());
+						TestCase.assertEquals(newTableName,
+								copyGriddedTiles.get(i).getTableName());
+					}
 				}
 
 			}
