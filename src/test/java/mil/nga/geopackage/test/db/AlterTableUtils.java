@@ -21,6 +21,8 @@ import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.extension.contents.ContentsId;
 import mil.nga.geopackage.extension.contents.ContentsIdExtension;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
+import mil.nga.geopackage.extension.scale.TileScaling;
+import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
@@ -671,6 +673,13 @@ public class AlterTableUtils {
 					dataColumns = dataColumnsDao.queryByTable(tableName);
 				}
 
+				TileScaling tileScaling = null;
+				TileTableScaling tileTableScaling = new TileTableScaling(
+						geoPackage, tileMatrixSet);
+				if (tileTableScaling.has()) {
+					tileScaling = tileTableScaling.get();
+				}
+
 				int rowCount = dao.count();
 				int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
 						SQLiteMasterType.TABLE, tableName);
@@ -753,6 +762,21 @@ public class AlterTableUtils {
 						TestCase.assertEquals(newTableName,
 								copyDataColumns.get(i).getTableName());
 					}
+				}
+
+				if (tileScaling != null) {
+					TileTableScaling copyTileTableScaling = new TileTableScaling(
+							geoPackage, copyTileMatrixSet);
+					TestCase.assertTrue(copyTileTableScaling.has());
+					TileScaling copyTileScaling = copyTileTableScaling.get();
+					TestCase.assertEquals(newTableName,
+							copyTileScaling.getTableName());
+					TestCase.assertEquals(tileScaling.getScalingTypeString(),
+							copyTileScaling.getScalingTypeString());
+					TestCase.assertEquals(tileScaling.getZoomIn(),
+							copyTileScaling.getZoomIn());
+					TestCase.assertEquals(tileScaling.getZoomOut(),
+							copyTileScaling.getZoomOut());
 				}
 
 			}
