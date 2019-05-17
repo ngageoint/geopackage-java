@@ -45,7 +45,9 @@ import mil.nga.geopackage.metadata.reference.MetadataReference;
 import mil.nga.geopackage.metadata.reference.MetadataReferenceDao;
 import mil.nga.geopackage.schema.columns.DataColumns;
 import mil.nga.geopackage.schema.columns.DataColumnsDao;
+import mil.nga.geopackage.test.attributes.AttributesUtils;
 import mil.nga.geopackage.test.features.user.FeatureUtils;
+import mil.nga.geopackage.test.tiles.user.TileUtils;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
@@ -870,12 +872,12 @@ public class AlterTableUtils {
 
 				geoPackage.copyTable(tableName, newTableName);
 
-				// TileUtils.testUpdate(dao);
+				TileUtils.testUpdate(dao);
 
 				TileDao copyDao = geoPackage.getTileDao(newTableName);
 				TileMatrixSet copyTileMatrixSet = copyDao.getTileMatrixSet();
 
-				// TileUtils.testUpdate(copyDao);
+				TileUtils.testUpdate(copyDao);
 
 				TileTable copyTable = copyDao.getTable();
 
@@ -1101,11 +1103,11 @@ public class AlterTableUtils {
 
 			geoPackage.copyTable(tableName, newTableName);
 
-			// AttributesUtils.testUpdate(dao);
+			AttributesUtils.testUpdate(dao);
 
 			AttributesDao copyDao = geoPackage.getAttributesDao(newTableName);
 
-			// AttributesUtils.testUpdate(copyDao);
+			AttributesUtils.testUpdate(copyDao);
 
 			AttributesTable copyTable = copyDao.getTable();
 

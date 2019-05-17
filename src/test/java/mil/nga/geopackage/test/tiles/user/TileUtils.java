@@ -331,7 +331,7 @@ public class TileUtils {
 	 * @param dao
 	 *            tile dao
 	 */
-	private static void testUpdate(TileDao dao) {
+	public static void testUpdate(TileDao dao) {
 
 		TestCase.assertNotNull(dao);
 
