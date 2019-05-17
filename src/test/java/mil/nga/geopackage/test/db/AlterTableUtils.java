@@ -753,6 +753,12 @@ public class AlterTableUtils {
 
 				indexManager.close();
 				copyIndexManager.close();
+
+				String newTableName2 = tableName + "_copy2";
+				geoPackage.copyTableAsEmpty(tableName, newTableName2);
+				FeatureDao copyDao2 = geoPackage.getFeatureDao(newTableName2);
+				TestCase.assertEquals(0, copyDao2.count());
+
 			}
 		}
 	}
@@ -1025,6 +1031,11 @@ public class AlterTableUtils {
 					}
 				}
 
+				String newTableName2 = tableName + "_copy2";
+				geoPackage.copyTableAsEmpty(tableName, newTableName2);
+				TileDao copyDao2 = geoPackage.getTileDao(newTableName2);
+				TestCase.assertEquals(0, copyDao2.count());
+
 			}
 		}
 	}
@@ -1197,6 +1208,11 @@ public class AlterTableUtils {
 							copyMappingTableCount);
 				}
 			}
+
+			String newTableName2 = tableName + "_copy2";
+			geoPackage.copyTableAsEmpty(tableName, newTableName2);
+			AttributesDao copyDao2 = geoPackage.getAttributesDao(newTableName2);
+			TestCase.assertEquals(0, copyDao2.count());
 
 		}
 	}
