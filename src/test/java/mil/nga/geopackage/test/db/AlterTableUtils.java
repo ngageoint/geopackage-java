@@ -27,6 +27,7 @@ import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
+import mil.nga.geopackage.extension.style.FeatureTableStyles;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
@@ -494,6 +495,20 @@ public class AlterTableUtils {
 					dataColumns = dataColumnsDao.queryByTable(tableName);
 				}
 
+				FeatureTableStyles featureTableStyles = new FeatureTableStyles(
+						geoPackage, table);
+				boolean featureStyle = featureTableStyles.has();
+				List<Long> styleIds = null;
+				List<Long> iconIds = null;
+				List<Long> tableStyleIds = null;
+				List<Long> tableIconIds = null;
+				if (featureStyle) {
+					styleIds = featureTableStyles.getAllStyleIds();
+					iconIds = featureTableStyles.getAllIconIds();
+					tableStyleIds = featureTableStyles.getAllTableStyleIds();
+					tableIconIds = featureTableStyles.getAllTableIconIds();
+				}
+
 				int rowCount = dao.count();
 				int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
 						SQLiteMasterType.TABLE, tableName);
@@ -622,8 +637,42 @@ public class AlterTableUtils {
 					}
 				}
 
+				FeatureTableStyles copyFeatureTableStyles = new FeatureTableStyles(
+						geoPackage, copyTable);
+				TestCase.assertEquals(featureStyle,
+						copyFeatureTableStyles.has());
+				if (featureStyle) {
+					compareIds(styleIds,
+							copyFeatureTableStyles.getAllStyleIds());
+					compareIds(iconIds, copyFeatureTableStyles.getAllIconIds());
+					compareIds(tableStyleIds,
+							copyFeatureTableStyles.getAllTableStyleIds());
+					compareIds(tableIconIds,
+							copyFeatureTableStyles.getAllTableIconIds());
+				}
+
 				indexManager.close();
 				copyIndexManager.close();
+			}
+		}
+	}
+
+	/**
+	 * Compare two lists of ids
+	 * 
+	 * @param ids
+	 *            ids
+	 * @param ids2
+	 *            ids 2
+	 */
+	private static void compareIds(List<Long> ids, List<Long> ids2) {
+		if (ids == null) {
+			TestCase.assertNull(ids2);
+		} else {
+			TestCase.assertNotNull(ids2);
+			TestCase.assertEquals(ids.size(), ids2.size());
+			for (long id : ids) {
+				TestCase.assertTrue(ids2.contains(id));
 			}
 		}
 	}
