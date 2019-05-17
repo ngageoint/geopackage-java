@@ -3,7 +3,9 @@ package mil.nga.geopackage.test.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import junit.framework.TestCase;
@@ -15,6 +17,7 @@ import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageCoreConnection;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.master.SQLiteMaster;
 import mil.nga.geopackage.db.master.SQLiteMasterColumn;
 import mil.nga.geopackage.db.master.SQLiteMasterQuery;
@@ -25,9 +28,12 @@ import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.coverage.GriddedCoverage;
 import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
+import mil.nga.geopackage.extension.related.ExtendedRelation;
+import mil.nga.geopackage.extension.related.RelatedTablesExtension;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.extension.style.FeatureTableStyles;
+import mil.nga.geopackage.extension.style.StyleMappingDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
@@ -495,6 +501,15 @@ public class AlterTableUtils {
 					dataColumns = dataColumnsDao.queryByTable(tableName);
 				}
 
+				List<ExtendedRelation> extendedRelations = null;
+				RelatedTablesExtension relatedTablesExtension = new RelatedTablesExtension(
+						geoPackage);
+				if (relatedTablesExtension.has()) {
+					extendedRelations = relatedTablesExtension
+							.getExtendedRelationsDao()
+							.getBaseTableRelations(tableName);
+				}
+
 				FeatureTableStyles featureTableStyles = new FeatureTableStyles(
 						geoPackage, table);
 				boolean featureStyle = featureTableStyles.has();
@@ -637,6 +652,59 @@ public class AlterTableUtils {
 					}
 				}
 
+				if (extendedRelations != null) {
+					List<ExtendedRelation> copyExtendedRelations = relatedTablesExtension
+							.getExtendedRelationsDao()
+							.getBaseTableRelations(newTableName);
+					TestCase.assertEquals(extendedRelations.size(),
+							copyExtendedRelations.size());
+					Map<String, ExtendedRelation> mappingTableToRelations = new HashMap<>();
+					for (ExtendedRelation copyExtendedRelation : copyExtendedRelations) {
+						mappingTableToRelations.put(
+								copyExtendedRelation.getMappingTableName(),
+								copyExtendedRelation);
+					}
+					for (ExtendedRelation extendedRelation : extendedRelations) {
+						String mappingTableName = extendedRelation
+								.getMappingTableName();
+						String copyMappingTableName = CoreSQLUtils.createName(
+								mappingTableName, tableName, newTableName);
+						ExtendedRelation copyExtendedRelation = mappingTableToRelations
+								.get(copyMappingTableName);
+						TestCase.assertNotNull(copyExtendedRelation);
+						TestCase.assertTrue(extendedRelation
+								.getId() < copyExtendedRelation.getId());
+						TestCase.assertEquals(tableName,
+								extendedRelation.getBaseTableName());
+						TestCase.assertEquals(newTableName,
+								copyExtendedRelation.getBaseTableName());
+						TestCase.assertEquals(
+								extendedRelation.getBasePrimaryColumn(),
+								copyExtendedRelation.getBasePrimaryColumn());
+						TestCase.assertEquals(
+								extendedRelation.getRelatedTableName(),
+								copyExtendedRelation.getRelatedTableName());
+						TestCase.assertEquals(
+								extendedRelation.getRelatedPrimaryColumn(),
+								copyExtendedRelation.getRelatedPrimaryColumn());
+						TestCase.assertEquals(
+								extendedRelation.getRelationName(),
+								copyExtendedRelation.getRelationName());
+						TestCase.assertTrue(
+								geoPackage.isTable(mappingTableName));
+						TestCase.assertTrue(
+								geoPackage.isTable(copyMappingTableName));
+						int mappingTableCount = SQLUtils.count(
+								geoPackage.getConnection().getConnection(),
+								mappingTableName, null, null);
+						int copyMappingTableCount = SQLUtils.count(
+								geoPackage.getConnection().getConnection(),
+								copyMappingTableName, null, null);
+						TestCase.assertEquals(mappingTableCount,
+								copyMappingTableCount);
+					}
+				}
+
 				FeatureTableStyles copyFeatureTableStyles = new FeatureTableStyles(
 						geoPackage, copyTable);
 				TestCase.assertEquals(featureStyle,
@@ -649,6 +717,38 @@ public class AlterTableUtils {
 							copyFeatureTableStyles.getAllTableStyleIds());
 					compareIds(tableIconIds,
 							copyFeatureTableStyles.getAllTableIconIds());
+					if (featureTableStyles.hasStyleRelationship()) {
+						StyleMappingDao styleMappingDao = featureTableStyles
+								.getStyleMappingDao();
+						StyleMappingDao copyStyleMappingDao = copyFeatureTableStyles
+								.getStyleMappingDao();
+						TestCase.assertEquals(styleMappingDao.count(),
+								copyStyleMappingDao.count());
+					}
+					if (featureTableStyles.hasIconRelationship()) {
+						StyleMappingDao iconMappingDao = featureTableStyles
+								.getIconMappingDao();
+						StyleMappingDao copyIconMappingDao = copyFeatureTableStyles
+								.getIconMappingDao();
+						TestCase.assertEquals(iconMappingDao.count(),
+								copyIconMappingDao.count());
+					}
+					if (featureTableStyles.hasTableStyleRelationship()) {
+						StyleMappingDao tableStyleMappingDao = featureTableStyles
+								.getTableStyleMappingDao();
+						StyleMappingDao copyTableStyleMappingDao = copyFeatureTableStyles
+								.getTableStyleMappingDao();
+						TestCase.assertEquals(tableStyleMappingDao.count(),
+								copyTableStyleMappingDao.count());
+					}
+					if (featureTableStyles.hasTableIconRelationship()) {
+						StyleMappingDao tableIconMappingDao = featureTableStyles
+								.getTableIconMappingDao();
+						StyleMappingDao copyTableIconMappingDao = copyFeatureTableStyles
+								.getTableIconMappingDao();
+						TestCase.assertEquals(tableIconMappingDao.count(),
+								copyTableIconMappingDao.count());
+					}
 				}
 
 				indexManager.close();
@@ -724,6 +824,15 @@ public class AlterTableUtils {
 				DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
 				if (dataColumnsDao.isTableExists()) {
 					dataColumns = dataColumnsDao.queryByTable(tableName);
+				}
+
+				List<ExtendedRelation> extendedRelations = null;
+				RelatedTablesExtension relatedTablesExtension = new RelatedTablesExtension(
+						geoPackage);
+				if (relatedTablesExtension.has()) {
+					extendedRelations = relatedTablesExtension
+							.getExtendedRelationsDao()
+							.getBaseTableRelations(tableName);
 				}
 
 				TileScaling tileScaling = null;
@@ -827,6 +936,59 @@ public class AlterTableUtils {
 					}
 				}
 
+				if (extendedRelations != null) {
+					List<ExtendedRelation> copyExtendedRelations = relatedTablesExtension
+							.getExtendedRelationsDao()
+							.getBaseTableRelations(newTableName);
+					TestCase.assertEquals(extendedRelations.size(),
+							copyExtendedRelations.size());
+					Map<String, ExtendedRelation> mappingTableToRelations = new HashMap<>();
+					for (ExtendedRelation copyExtendedRelation : copyExtendedRelations) {
+						mappingTableToRelations.put(
+								copyExtendedRelation.getMappingTableName(),
+								copyExtendedRelation);
+					}
+					for (ExtendedRelation extendedRelation : extendedRelations) {
+						String mappingTableName = extendedRelation
+								.getMappingTableName();
+						String copyMappingTableName = CoreSQLUtils.createName(
+								mappingTableName, tableName, newTableName);
+						ExtendedRelation copyExtendedRelation = mappingTableToRelations
+								.get(copyMappingTableName);
+						TestCase.assertNotNull(copyExtendedRelation);
+						TestCase.assertTrue(extendedRelation
+								.getId() < copyExtendedRelation.getId());
+						TestCase.assertEquals(tableName,
+								extendedRelation.getBaseTableName());
+						TestCase.assertEquals(newTableName,
+								copyExtendedRelation.getBaseTableName());
+						TestCase.assertEquals(
+								extendedRelation.getBasePrimaryColumn(),
+								copyExtendedRelation.getBasePrimaryColumn());
+						TestCase.assertEquals(
+								extendedRelation.getRelatedTableName(),
+								copyExtendedRelation.getRelatedTableName());
+						TestCase.assertEquals(
+								extendedRelation.getRelatedPrimaryColumn(),
+								copyExtendedRelation.getRelatedPrimaryColumn());
+						TestCase.assertEquals(
+								extendedRelation.getRelationName(),
+								copyExtendedRelation.getRelationName());
+						TestCase.assertTrue(
+								geoPackage.isTable(mappingTableName));
+						TestCase.assertTrue(
+								geoPackage.isTable(copyMappingTableName));
+						int mappingTableCount = SQLUtils.count(
+								geoPackage.getConnection().getConnection(),
+								mappingTableName, null, null);
+						int copyMappingTableCount = SQLUtils.count(
+								geoPackage.getConnection().getConnection(),
+								copyMappingTableName, null, null);
+						TestCase.assertEquals(mappingTableCount,
+								copyMappingTableCount);
+					}
+				}
+
 				if (tileScaling != null) {
 					TileTableScaling copyTileTableScaling = new TileTableScaling(
 							geoPackage, copyTileMatrixSet);
@@ -908,6 +1070,15 @@ public class AlterTableUtils {
 				dataColumns = dataColumnsDao.queryByTable(tableName);
 			}
 
+			List<ExtendedRelation> extendedRelations = null;
+			RelatedTablesExtension relatedTablesExtension = new RelatedTablesExtension(
+					geoPackage);
+			if (relatedTablesExtension.has()) {
+				extendedRelations = relatedTablesExtension
+						.getExtendedRelationsDao()
+						.getBaseTableRelations(tableName);
+			}
+
 			int rowCount = dao.count();
 			int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
 					SQLiteMasterType.TABLE, tableName);
@@ -973,6 +1144,57 @@ public class AlterTableUtils {
 							dataColumns.get(i).getTableName());
 					TestCase.assertEquals(newTableName,
 							copyDataColumns.get(i).getTableName());
+				}
+			}
+
+			if (extendedRelations != null) {
+				List<ExtendedRelation> copyExtendedRelations = relatedTablesExtension
+						.getExtendedRelationsDao()
+						.getBaseTableRelations(newTableName);
+				TestCase.assertEquals(extendedRelations.size(),
+						copyExtendedRelations.size());
+				Map<String, ExtendedRelation> mappingTableToRelations = new HashMap<>();
+				for (ExtendedRelation copyExtendedRelation : copyExtendedRelations) {
+					mappingTableToRelations.put(
+							copyExtendedRelation.getMappingTableName(),
+							copyExtendedRelation);
+				}
+				for (ExtendedRelation extendedRelation : extendedRelations) {
+					String mappingTableName = extendedRelation
+							.getMappingTableName();
+					String copyMappingTableName = CoreSQLUtils.createName(
+							mappingTableName, tableName, newTableName);
+					ExtendedRelation copyExtendedRelation = mappingTableToRelations
+							.get(copyMappingTableName);
+					TestCase.assertNotNull(copyExtendedRelation);
+					TestCase.assertTrue(extendedRelation
+							.getId() < copyExtendedRelation.getId());
+					TestCase.assertEquals(tableName,
+							extendedRelation.getBaseTableName());
+					TestCase.assertEquals(newTableName,
+							copyExtendedRelation.getBaseTableName());
+					TestCase.assertEquals(
+							extendedRelation.getBasePrimaryColumn(),
+							copyExtendedRelation.getBasePrimaryColumn());
+					TestCase.assertEquals(
+							extendedRelation.getRelatedTableName(),
+							copyExtendedRelation.getRelatedTableName());
+					TestCase.assertEquals(
+							extendedRelation.getRelatedPrimaryColumn(),
+							copyExtendedRelation.getRelatedPrimaryColumn());
+					TestCase.assertEquals(extendedRelation.getRelationName(),
+							copyExtendedRelation.getRelationName());
+					TestCase.assertTrue(geoPackage.isTable(mappingTableName));
+					TestCase.assertTrue(
+							geoPackage.isTable(copyMappingTableName));
+					int mappingTableCount = SQLUtils.count(
+							geoPackage.getConnection().getConnection(),
+							mappingTableName, null, null);
+					int copyMappingTableCount = SQLUtils.count(
+							geoPackage.getConnection().getConnection(),
+							copyMappingTableName, null, null);
+					TestCase.assertEquals(mappingTableCount,
+							copyMappingTableCount);
 				}
 			}
 
