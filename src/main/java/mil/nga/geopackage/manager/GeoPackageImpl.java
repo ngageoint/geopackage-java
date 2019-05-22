@@ -35,6 +35,9 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.tiles.user.TileTableReader;
+import mil.nga.geopackage.user.custom.UserCustomDao;
+import mil.nga.geopackage.user.custom.UserCustomTable;
+import mil.nga.geopackage.user.custom.UserCustomTableReader;
 import mil.nga.sf.proj.Projection;
 
 /**
@@ -342,6 +345,17 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 					"No Contents Table exists for table name: " + tableName);
 		}
 		return getAttributesDao(contents);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserCustomDao getUserCustomDao(String tableName) {
+		UserCustomTable table = UserCustomTableReader.readTable(database,
+				tableName);
+		UserCustomDao dao = new UserCustomDao(getName(), database, table);
+		return dao;
 	}
 
 	/**

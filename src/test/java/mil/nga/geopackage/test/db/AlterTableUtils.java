@@ -22,6 +22,10 @@ import mil.nga.geopackage.db.master.SQLiteMaster;
 import mil.nga.geopackage.db.master.SQLiteMasterColumn;
 import mil.nga.geopackage.db.master.SQLiteMasterQuery;
 import mil.nga.geopackage.db.master.SQLiteMasterType;
+import mil.nga.geopackage.db.table.Constraint;
+import mil.nga.geopackage.db.table.ConstraintType;
+import mil.nga.geopackage.db.table.RawConstraint;
+import mil.nga.geopackage.db.table.UniqueConstraint;
 import mil.nga.geopackage.extension.contents.ContentsId;
 import mil.nga.geopackage.extension.contents.ContentsIdExtension;
 import mil.nga.geopackage.extension.coverage.CoverageData;
@@ -52,6 +56,11 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.geopackage.user.custom.UserCustomColumn;
+import mil.nga.geopackage.user.custom.UserCustomDao;
+import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.geopackage.user.custom.UserCustomTable;
+import mil.nga.sf.proj.ProjectionConstants;
 
 /**
  * Alter Table test utils
@@ -1217,6 +1226,164 @@ public class AlterTableUtils {
 			TestCase.assertEquals(0, copyDao2.count());
 
 		}
+	}
+
+	/**
+	 * Test copy user table
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
+	public static void testCopyUserTable(GeoPackage geoPackage)
+			throws SQLException {
+
+		String tableName = "user_test_table";
+		String columnName = "column";
+		int countCount = 0;
+		int rowCount = 100;
+		String copyTableName = "user_test_table2";
+		String copyTableName2 = "user_test_table3";
+
+		List<UserCustomColumn> columns = new ArrayList<>();
+		columns.add(UserCustomColumn
+				.createPrimaryKeyColumn(columnName + ++countCount));
+		columns.add(UserCustomColumn.createColumn(columnName + ++countCount,
+				GeoPackageDataType.TEXT, true));
+		columns.add(UserCustomColumn.createColumn(columnName + ++countCount,
+				GeoPackageDataType.TEXT, true, "default_value"));
+		columns.add(UserCustomColumn.createColumn(columnName + ++countCount,
+				GeoPackageDataType.BOOLEAN));
+		columns.add(UserCustomColumn.createColumn(columnName + ++countCount,
+				GeoPackageDataType.DOUBLE));
+		columns.add(UserCustomColumn.createColumn(columnName + ++countCount,
+				GeoPackageDataType.INTEGER, true));
+
+		UserCustomTable table = new UserCustomTable(tableName, columns);
+
+		table.addConstraint(new UniqueConstraint(tableName + "_unique",
+				columns.get(1), columns.get(2)));
+		table.addConstraint(
+				new UniqueConstraint(columns.get(1), columns.get(2)));
+		table.addConstraint(new RawConstraint("CHECK (column5 < 1.0)"));
+		table.addConstraint(new RawConstraint("CONSTRAINT fk_" + tableName
+				+ " FOREIGN KEY (column6) REFERENCES gpkg_spatial_ref_sys(srs_id)"));
+
+		geoPackage.createUserTable(table);
+
+		long srsId = geoPackage.getSpatialReferenceSystemDao()
+				.getOrCreateFromEpsg(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+				.getId();
+
+		UserCustomDao dao = geoPackage.getUserCustomDao(tableName);
+		for (int i = 0; i < rowCount; i++) {
+			UserCustomRow row = dao.newRow();
+			row.setValue(columnName + 2, UUID.randomUUID().toString());
+			row.setValue(columnName + 3, UUID.randomUUID().toString());
+			row.setValue(columnName + 4, Math.random() < .5);
+			row.setValue(columnName + 5, Math.random());
+			row.setValue(columnName + 6, srsId);
+			dao.create(row);
+		}
+
+		TestCase.assertEquals(rowCount, dao.count());
+
+		int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
+				SQLiteMasterType.TABLE, tableName);
+		int indexCount = indexCount(geoPackage.getDatabase(), tableName);
+		int triggerCount = SQLiteMaster.count(geoPackage.getDatabase(),
+				SQLiteMasterType.TRIGGER, tableName);
+		int viewCount = SQLiteMaster.countViewsOnTable(geoPackage.getDatabase(),
+				tableName);
+
+		geoPackage.copyTable(tableName, copyTableName);
+
+		UserCustomDao copyDao = geoPackage.getUserCustomDao(copyTableName);
+		UserCustomTable copyTable = copyDao.getTable();
+
+		TestCase.assertEquals(columns.size(), table.columnCount());
+		TestCase.assertEquals(columns.size(), copyTable.columnCount());
+		TestCase.assertEquals(rowCount, dao.count());
+		TestCase.assertEquals(rowCount, copyDao.count());
+		testTableCounts(geoPackage.getConnection(), tableName, tableCount,
+				indexCount, triggerCount, viewCount);
+		testTableCounts(geoPackage.getConnection(), copyTableName, tableCount,
+				indexCount, triggerCount, viewCount);
+		TestCase.assertEquals(copyTableName, copyTable.getTableName());
+
+		List<Constraint> copyConstraints = copyTable.getConstraints();
+		TestCase.assertEquals(4, copyConstraints.size());
+		TestCase.assertEquals(copyTableName + "_unique",
+				copyConstraints.get(0).getName());
+		TestCase.assertEquals(ConstraintType.UNIQUE,
+				copyConstraints.get(0).getType());
+		TestCase.assertEquals(
+				"CONSTRAINT \"" + copyTableName
+						+ "_unique\" UNIQUE (column2, column3)",
+				copyConstraints.get(0).buildSql());
+		TestCase.assertNull(copyConstraints.get(1).getName());
+		TestCase.assertEquals(ConstraintType.UNIQUE,
+				copyConstraints.get(1).getType());
+		TestCase.assertEquals(table.getConstraints().get(1).buildSql(),
+				copyConstraints.get(1).buildSql());
+		TestCase.assertNull(copyConstraints.get(2).getName());
+		TestCase.assertEquals(ConstraintType.CHECK,
+				copyConstraints.get(2).getType());
+		TestCase.assertEquals(table.getConstraints().get(2).buildSql(),
+				copyConstraints.get(2).buildSql());
+		TestCase.assertEquals("fk_" + copyTableName,
+				copyConstraints.get(3).getName());
+		TestCase.assertEquals(ConstraintType.FOREIGN_KEY,
+				copyConstraints.get(3).getType());
+		TestCase.assertEquals("CONSTRAINT fk_" + copyTableName
+				+ " FOREIGN KEY (column6) REFERENCES gpkg_spatial_ref_sys(srs_id)",
+				copyConstraints.get(3).buildSql());
+
+		geoPackage.copyTableAsEmpty(tableName, copyTableName2);
+
+		UserCustomDao copyDao2 = geoPackage.getUserCustomDao(copyTableName2);
+		UserCustomTable copyTable2 = copyDao2.getTable();
+
+		TestCase.assertEquals(columns.size(), table.columnCount());
+		TestCase.assertEquals(columns.size(), copyTable2.columnCount());
+		TestCase.assertEquals(rowCount, dao.count());
+		TestCase.assertEquals(0, copyDao2.count());
+		testTableCounts(geoPackage.getConnection(), tableName, tableCount,
+				indexCount, triggerCount, viewCount);
+		testTableCounts(geoPackage.getConnection(), copyTableName2, tableCount,
+				indexCount, triggerCount, viewCount);
+		TestCase.assertEquals(copyTableName2, copyTable2.getTableName());
+
+		List<Constraint> copyConstraints2 = copyTable2.getConstraints();
+		TestCase.assertEquals(copyConstraints.size(), copyConstraints2.size());
+		TestCase.assertEquals(copyTableName2 + "_unique",
+				copyConstraints2.get(0).getName());
+		TestCase.assertEquals(ConstraintType.UNIQUE,
+				copyConstraints2.get(0).getType());
+		TestCase.assertEquals(
+				"CONSTRAINT \"" + copyTableName2
+						+ "_unique\" UNIQUE (column2, column3)",
+				copyConstraints2.get(0).buildSql());
+		TestCase.assertNull(copyConstraints2.get(1).getName());
+		TestCase.assertEquals(ConstraintType.UNIQUE,
+				copyConstraints2.get(1).getType());
+		TestCase.assertEquals(table.getConstraints().get(1).buildSql(),
+				copyConstraints2.get(1).buildSql());
+		TestCase.assertNull(copyConstraints2.get(2).getName());
+		TestCase.assertEquals(ConstraintType.CHECK,
+				copyConstraints2.get(2).getType());
+		TestCase.assertEquals(table.getConstraints().get(2).buildSql(),
+				copyConstraints2.get(2).buildSql());
+		TestCase.assertEquals("fk_" + copyTableName2,
+				copyConstraints2.get(3).getName());
+		TestCase.assertEquals(ConstraintType.FOREIGN_KEY,
+				copyConstraints2.get(3).getType());
+		TestCase.assertEquals("CONSTRAINT fk_" + copyTableName2
+				+ " FOREIGN KEY (column6) REFERENCES gpkg_spatial_ref_sys(srs_id)",
+				copyConstraints2.get(3).buildSql());
+
 	}
 
 }

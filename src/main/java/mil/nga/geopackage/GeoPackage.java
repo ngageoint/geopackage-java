@@ -9,6 +9,7 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.user.custom.UserCustomDao;
 
 /**
  * GeoPackage database connection
@@ -90,6 +91,16 @@ public interface GeoPackage extends GeoPackageCore {
 	 * @since 1.2.1
 	 */
 	public AttributesDao getAttributesDao(String tableName);
+
+	/**
+	 * Get a User Custom DAO from a table name
+	 * 
+	 * @param tableName
+	 *            table name
+	 * @return user custom dao
+	 * @since 3.2.1
+	 */
+	public UserCustomDao getUserCustomDao(String tableName);
 
 	/**
 	 * Perform a query on the database

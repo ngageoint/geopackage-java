@@ -57,4 +57,15 @@ public class AlterTableCreateTest extends CreateGeoPackageTestCase {
 		AlterTableUtils.testCopyAttributesTable(geoPackage);
 	}
 
+	/**
+	 * Test copy user table
+	 * 
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testCopyUserTable() throws SQLException {
+		AlterTableUtils.testCopyUserTable(geoPackage);
+	}
+
 }
