@@ -111,7 +111,7 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	/**
 	 * Commit changes on the connection
 	 * 
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public void commit() {
 		try {

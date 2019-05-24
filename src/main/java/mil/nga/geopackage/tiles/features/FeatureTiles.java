@@ -586,7 +586,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Clear all caches
 	 *
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public void clearCache() {
 		clearStylePaintCache();
@@ -596,7 +596,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Clear the style paint cache
 	 *
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public void clearStylePaintCache() {
 		featurePaintCache.clear();
@@ -607,7 +607,7 @@ public abstract class FeatureTiles {
 	 *
 	 * @param size
 	 *            new size
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public void setStylePaintCacheSize(int size) {
 		featurePaintCache.resize(size);
@@ -616,7 +616,7 @@ public abstract class FeatureTiles {
 	/**
 	 * Clear the icon cache
 	 *
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public void clearIconCache() {
 		iconCache.clear();
@@ -627,7 +627,7 @@ public abstract class FeatureTiles {
 	 *
 	 * @param size
 	 *            new size
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public void setIconCacheSize(int size) {
 		iconCache.resize(size);

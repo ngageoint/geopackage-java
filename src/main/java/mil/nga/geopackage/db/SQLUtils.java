@@ -604,7 +604,7 @@ public class SQLUtils {
 	 * @param connection
 	 *            connection
 	 * @return pre-transaction auto commit value
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public static boolean beginTransaction(Connection connection) {
 		boolean autoCommit;
@@ -626,7 +626,7 @@ public class SQLUtils {
 	 *            connection
 	 * @param successful
 	 *            true to commit, false to rollback
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public static void endTransaction(Connection connection, boolean successful) {
 		endTransaction(connection, successful, null);
@@ -641,7 +641,7 @@ public class SQLUtils {
 	 *            true to commit, false to rollback
 	 * @param autoCommit
 	 *            pre-transaction auto commit value
-	 * @since 3.2.1
+	 * @since 3.3.0
 	 */
 	public static void endTransaction(Connection connection,
 			boolean successful, Boolean autoCommit) {
