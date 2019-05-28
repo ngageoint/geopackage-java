@@ -53,8 +53,8 @@ public class GeoPackageCreateTest extends CreateGeoPackageTestCase {
 	public void testCreateFeatureTableWithMetadataAdditionalColumns()
 			throws SQLException {
 
-		GeoPackageTestUtils
-				.testCreateFeatureTableWithMetadataAdditionalColumns(geoPackage);
+		GeoPackageTestUtils.testCreateFeatureTableWithMetadataAdditionalColumns(
+				geoPackage);
 
 	}
 
@@ -69,7 +69,8 @@ public class GeoPackageCreateTest extends CreateGeoPackageTestCase {
 			throws SQLException {
 
 		GeoPackageTestUtils
-				.testCreateFeatureTableWithMetadataIdColumnAdditionalColumns(geoPackage);
+				.testCreateFeatureTableWithMetadataIdColumnAdditionalColumns(
+						geoPackage);
 
 	}
 
@@ -95,6 +96,16 @@ public class GeoPackageCreateTest extends CreateGeoPackageTestCase {
 	public void testBounds() throws SQLException {
 
 		GeoPackageTestUtils.testBounds(geoPackage);
+
+	}
+
+	/**
+	 * Test vacuum
+	 */
+	@Test
+	public void testVacuum() {
+
+		GeoPackageTestUtils.testVacuum(geoPackage);
 
 	}
 

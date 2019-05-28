@@ -11,6 +11,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Feature Tiles geometry caching
 * GeoPackage User Custom DAO retrieval
 * Table Readers moved to geopackage-core
+* Automatically enable foreign key checks for new connections without preexisting violations
+* GeoPackage table foreign key check
 
 ## [3.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.2.0) (04-02-2019)
 

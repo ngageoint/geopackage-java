@@ -26,11 +26,6 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 			.getLogger(GeoPackageConnection.class.getName());
 
 	/**
-	 * Name column
-	 */
-	private static final String NAME_COLUMN = "name";
-
-	/**
 	 * GeoPackage file
 	 */
 	private final File file;

@@ -5,6 +5,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.logger.LocalLog;
+import com.j256.ormlite.support.ConnectionSource;
+
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.GeoPackageException;
@@ -12,10 +16,6 @@ import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageTableCreator;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.validate.GeoPackageValidate;
-
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.logger.LocalLog;
-import com.j256.ormlite.support.ConnectionSource;
 
 /**
  * GeoPackage Manager used to create and open GeoPackages
@@ -49,8 +49,8 @@ public class GeoPackageManager {
 		}
 
 		if (file.exists()) {
-			throw new GeoPackageException("GeoPackage already exists: "
-					+ file.getAbsolutePath());
+			throw new GeoPackageException(
+					"GeoPackage already exists: " + file.getAbsolutePath());
 		} else {
 			// Create the GeoPackage Connection
 			GeoPackageConnection connection = connect(file);
@@ -147,7 +147,8 @@ public class GeoPackageManager {
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get connection to the SQLite file: "
-							+ file.getAbsolutePath(), e);
+							+ file.getAbsolutePath(),
+					e);
 		}
 
 		ConnectionSource connectionSource;
@@ -156,12 +157,14 @@ public class GeoPackageManager {
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get connection source to the SQLite file: "
-							+ file.getAbsolutePath(), e);
+							+ file.getAbsolutePath(),
+					e);
 		}
 
-		// Create the GeoPackage Connection and table creator
+		// Create the GeoPackage Connection
 		GeoPackageConnection connection = new GeoPackageConnection(file,
 				databaseConnection, connectionSource);
+		connection.enableForeignKeys();
 
 		return connection;
 	}

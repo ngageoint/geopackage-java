@@ -1,5 +1,6 @@
 package mil.nga.geopackage.test;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -182,8 +183,8 @@ public class GeoPackageTestUtils {
 		// blobColumn.setIndex(5);
 
 		// Test setting an index after column creation but before table creation
-		FeatureColumn integerColumn = FeatureColumn.createColumn(
-				"test_integer", GeoPackageDataType.INTEGER);
+		FeatureColumn integerColumn = FeatureColumn.createColumn("test_integer",
+				GeoPackageDataType.INTEGER);
 		columns.add(integerColumn);
 		integerColumn.setIndex(6);
 
@@ -202,8 +203,8 @@ public class GeoPackageTestUtils {
 
 		GeometryColumnsDao dao = geoPackage.getGeometryColumnsDao();
 
-		GeometryColumns queryGeometryColumns = dao.queryForId(geometryColumns
-				.getId());
+		GeometryColumns queryGeometryColumns = dao
+				.queryForId(geometryColumns.getId());
 		TestCase.assertNotNull(queryGeometryColumns);
 
 		TestCase.assertEquals(geometryColumns.getTableName(),
@@ -217,8 +218,8 @@ public class GeoPackageTestUtils {
 		TestCase.assertEquals(geometryColumns.getM(),
 				queryGeometryColumns.getM());
 
-		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns
-				.getTableName());
+		FeatureDao featureDao = geoPackage
+				.getFeatureDao(geometryColumns.getTableName());
 		FeatureRow featureRow = featureDao.newRow();
 
 		TestCase.assertEquals(
@@ -261,6 +262,8 @@ public class GeoPackageTestUtils {
 		TestCase.assertTrue(geometryColumnsDao.isTableExists()
 				|| tileMatrixSetDao.isTableExists());
 
+		geoPackage.foreignKeys(false);
+
 		if (geometryColumnsDao.isTableExists()) {
 
 			TestCase.assertEquals(geoPackage.getFeatureTables().size(),
@@ -285,10 +288,10 @@ public class GeoPackageTestUtils {
 			TestCase.assertTrue(tileMatrixSetDao.isTableExists());
 			TestCase.assertTrue(tileMatrixDao.isTableExists());
 
-			TestCase.assertEquals(
-					geoPackage.getTables(ContentsDataType.TILES).size()
-							+ geoPackage.getTables(
-									ContentsDataType.GRIDDED_COVERAGE).size(),
+			TestCase.assertEquals(geoPackage.getTables(ContentsDataType.TILES)
+					.size()
+					+ geoPackage.getTables(ContentsDataType.GRIDDED_COVERAGE)
+							.size(),
 					tileMatrixSetDao.countOf());
 			for (String tileTable : geoPackage.getTileTables()) {
 				TestCase.assertTrue(geoPackage.isTable(tileTable));
@@ -297,9 +300,9 @@ public class GeoPackageTestUtils {
 				TestCase.assertFalse(geoPackage.isTable(tileTable));
 				TestCase.assertNull(contentsDao.queryForId(tileTable));
 			}
-			TestCase.assertEquals(
-					geoPackage.getTables(ContentsDataType.GRIDDED_COVERAGE)
-							.size(), tileMatrixSetDao.countOf());
+			TestCase.assertEquals(geoPackage
+					.getTables(ContentsDataType.GRIDDED_COVERAGE).size(),
+					tileMatrixSetDao.countOf());
 
 			geoPackage.dropTable(TileMatrix.TABLE_NAME);
 			geoPackage.dropTable(TileMatrixSet.TABLE_NAME);
@@ -336,8 +339,8 @@ public class GeoPackageTestUtils {
 
 		// Create a feature table with empty contents
 		GeometryColumns geometryColumns = new GeometryColumns();
-		geometryColumns.setId(new TableColumnKey("feature_empty_contents",
-				"geom"));
+		geometryColumns
+				.setId(new TableColumnKey("feature_empty_contents", "geom"));
 		geometryColumns.setGeometryType(GeometryType.POINT);
 		geometryColumns.setZ((byte) 0);
 		geometryColumns.setM((byte) 0);
@@ -370,8 +373,7 @@ public class GeoPackageTestUtils {
 				}
 			}
 
-			TestCase.assertEquals(
-					contentsBoundingBox,
+			TestCase.assertEquals(contentsBoundingBox,
 					geoPackage.getContentsBoundingBox(projection,
 							contents.getTableName()));
 			TestCase.assertEquals(contents.getBoundingBox(),
@@ -384,8 +386,8 @@ public class GeoPackageTestUtils {
 
 		BoundingBox geoPackageBoundingBox = geoPackage
 				.getBoundingBox(projection);
-		BoundingBox geoPackageManualBoundingBox = geoPackage.getBoundingBox(
-				projection, true);
+		BoundingBox geoPackageManualBoundingBox = geoPackage
+				.getBoundingBox(projection, true);
 
 		BoundingBox expectedBoundingBox = expectedContentsBoundingBox;
 		BoundingBox expectedManualBoundingBox = expectedContentsBoundingBox;
@@ -421,9 +423,11 @@ public class GeoPackageTestUtils {
 						}
 					}
 					BoundingBox featureProjectionBoundingBox = geoPackage
-							.getBoundingBox(projection, contents.getTableName());
+							.getBoundingBox(projection,
+									contents.getTableName());
 					if (featureProjectionBoundingBox == null) {
-						TestCase.assertNull(expectedFeatureProjectionBoundingBox);
+						TestCase.assertNull(
+								expectedFeatureProjectionBoundingBox);
 					} else {
 						TestCase.assertTrue(expectedBoundingBox
 								.contains(featureProjectionBoundingBox));
@@ -443,10 +447,11 @@ public class GeoPackageTestUtils {
 						}
 					}
 					BoundingBox featureManualProjectionBoundingBox = geoPackage
-							.getBoundingBox(projection,
-									contents.getTableName(), true);
+							.getBoundingBox(projection, contents.getTableName(),
+									true);
 					if (featureManualProjectionBoundingBox == null) {
-						TestCase.assertNull(expectedFeatureManualProjectionBoundingBox);
+						TestCase.assertNull(
+								expectedFeatureManualProjectionBoundingBox);
 					} else {
 						TestCase.assertTrue(expectedManualBoundingBox
 								.contains(featureManualProjectionBoundingBox));
@@ -467,8 +472,8 @@ public class GeoPackageTestUtils {
 									.union(featureBoundingBox);
 						}
 					}
-					BoundingBox featureBox = geoPackage.getBoundingBox(contents
-							.getTableName());
+					BoundingBox featureBox = geoPackage
+							.getBoundingBox(contents.getTableName());
 					if (featureBox == null) {
 						TestCase.assertNull(expectedFeatureBoundingBox);
 					} else {
@@ -500,8 +505,8 @@ public class GeoPackageTestUtils {
 					break;
 				case TILES:
 				case GRIDDED_COVERAGE:
-					TileDao tileDao = geoPackage.getTileDao(contents
-							.getTableName());
+					TileDao tileDao = geoPackage
+							.getTileDao(contents.getTableName());
 					BoundingBox tileBoundingBox = tileDao
 							.getBoundingBox(projection);
 					expectedBoundingBox = expectedBoundingBox
@@ -511,12 +516,10 @@ public class GeoPackageTestUtils {
 
 					BoundingBox expectedProjectionTileBoundingBox = tileBoundingBox
 							.union(contents.getBoundingBox(projection));
-					TestCase.assertEquals(
-							expectedProjectionTileBoundingBox,
+					TestCase.assertEquals(expectedProjectionTileBoundingBox,
 							geoPackage.getBoundingBox(projection,
 									contents.getTableName()));
-					TestCase.assertEquals(
-							expectedProjectionTileBoundingBox,
+					TestCase.assertEquals(expectedProjectionTileBoundingBox,
 							geoPackage.getBoundingBox(projection,
 									contents.getTableName(), true));
 
@@ -540,4 +543,33 @@ public class GeoPackageTestUtils {
 				geoPackageManualBoundingBox);
 
 	}
+
+	/**
+	 * Test the GeoPackage vacuum
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 */
+	public static void testVacuum(GeoPackage geoPackage) {
+
+		String path = geoPackage.getPath();
+		File file = new File(path);
+		long size = file.length();
+
+		for (String table : geoPackage.getTables()) {
+
+			geoPackage.deleteTable(table);
+
+			TestCase.assertEquals(size, file.length());
+
+			geoPackage.vacuum();
+
+			long newSize = file.length();
+			TestCase.assertTrue(size > newSize);
+			size = newSize;
+
+		}
+
+	}
+
 }
