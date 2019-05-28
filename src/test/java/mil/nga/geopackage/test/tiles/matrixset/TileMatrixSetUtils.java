@@ -314,6 +314,7 @@ public class TileMatrixSetUtils {
 				TileMatrixSet tileMatrixSet = results.get(random);
 
 				// Delete the tile matrix set
+				geoPackage.foreignKeys(false);
 				dao.delete(tileMatrixSet);
 
 				// Verify deleted
