@@ -123,8 +123,8 @@ public class AlterTableUtils {
 					indexColumn(db, tableName, column);
 				}
 
-				createView(db, featureTable, "v_", true);
-				createView(db, featureTable, "v2_", false);
+				createViewWithPrefix(db, featureTable, "v_", true);
+				createViewWithPrefix(db, featureTable, "v2_", false);
 
 				int rowCount = dao.count();
 				int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
@@ -341,11 +341,27 @@ public class AlterTableUtils {
 	 *            view name prefix
 	 * @param quoteWrap
 	 */
-	private static void createView(GeoPackageConnection db,
+	private static void createViewWithPrefix(GeoPackageConnection db,
 			FeatureTable featureTable, String namePrefix, boolean quoteWrap) {
+		String viewName = namePrefix + featureTable.getTableName();
+		createViewWithName(db, featureTable, viewName, quoteWrap);
+	}
+
+	/**
+	 * Create a table view
+	 * 
+	 * @param db
+	 *            connection
+	 * @param featureTable
+	 *            feature column
+	 * @param viewName
+	 *            view name
+	 * @param quoteWrap
+	 */
+	private static void createViewWithName(GeoPackageConnection db,
+			FeatureTable featureTable, String viewName, boolean quoteWrap) {
 
 		StringBuilder view = new StringBuilder("CREATE VIEW ");
-		String viewName = namePrefix + featureTable.getTableName();
 		if (quoteWrap) {
 			viewName = CoreSQLUtils.quoteWrap(viewName);
 		}
@@ -460,6 +476,8 @@ public class AlterTableUtils {
 		if (geometryColumnsDao.isTableExists()) {
 			List<GeometryColumns> results = geometryColumnsDao.queryForAll();
 
+			int viewNameCount = 0;
+
 			for (GeometryColumns geometryColumns : results) {
 
 				GeoPackageConnection db = geoPackage.getConnection();
@@ -534,6 +552,10 @@ public class AlterTableUtils {
 					tableStyleIds = featureTableStyles.getAllTableStyleIds();
 					tableIconIds = featureTableStyles.getAllTableIconIds();
 				}
+
+				String viewName = "v_my_" + (++viewNameCount) + "_view";
+				createViewWithName(db, table, viewName, true);
+				createViewWithName(db, table, viewName + "_2", false);
 
 				int rowCount = dao.count();
 				int tableCount = SQLiteMaster.count(geoPackage.getDatabase(),
@@ -679,7 +701,8 @@ public class AlterTableUtils {
 						String mappingTableName = extendedRelation
 								.getMappingTableName();
 						String copyMappingTableName = CoreSQLUtils.createName(
-								mappingTableName, tableName, newTableName);
+								geoPackage.getDatabase(), mappingTableName,
+								tableName, newTableName);
 						ExtendedRelation copyExtendedRelation = mappingTableToRelations
 								.get(copyMappingTableName);
 						TestCase.assertNotNull(copyExtendedRelation);
@@ -969,7 +992,8 @@ public class AlterTableUtils {
 						String mappingTableName = extendedRelation
 								.getMappingTableName();
 						String copyMappingTableName = CoreSQLUtils.createName(
-								mappingTableName, tableName, newTableName);
+								geoPackage.getDatabase(), mappingTableName,
+								tableName, newTableName);
 						ExtendedRelation copyExtendedRelation = mappingTableToRelations
 								.get(copyMappingTableName);
 						TestCase.assertNotNull(copyExtendedRelation);
@@ -1185,7 +1209,8 @@ public class AlterTableUtils {
 					String mappingTableName = extendedRelation
 							.getMappingTableName();
 					String copyMappingTableName = CoreSQLUtils.createName(
-							mappingTableName, tableName, newTableName);
+							geoPackage.getDatabase(), mappingTableName,
+							tableName, newTableName);
 					ExtendedRelation copyExtendedRelation = mappingTableToRelations
 							.get(copyMappingTableName);
 					TestCase.assertNotNull(copyExtendedRelation);
@@ -1243,8 +1268,8 @@ public class AlterTableUtils {
 		String columnName = "column";
 		int countCount = 0;
 		int rowCount = 100;
-		String copyTableName = "user_test_table2";
-		String copyTableName2 = "user_test_table3";
+		String copyTableName = "user_test_copy";
+		String copyTableName2 = "user_test_another_copy";
 
 		List<UserCustomColumn> columns = new ArrayList<>();
 		columns.add(UserCustomColumn
@@ -1261,9 +1286,14 @@ public class AlterTableUtils {
 				GeoPackageDataType.DOUBLE));
 		UserCustomColumn column6 = UserCustomColumn.createColumn(
 				columnName + ++countCount, GeoPackageDataType.INTEGER, true);
-		column6.addConstraint("CONSTRAINT check_" + tableName + " CHECK ("
+		column6.addConstraint("CONSTRAINT check_constraint CHECK ("
 				+ (columnName + countCount) + " >= 0)");
 		columns.add(column6);
+		UserCustomColumn column7 = UserCustomColumn.createColumn(
+				columnName + ++countCount, GeoPackageDataType.INTEGER);
+		column7.addConstraint("CONSTRAINT another_check_constraint_13 CHECK ("
+				+ (columnName + countCount) + " >= 0)");
+		columns.add(column7);
 
 		UserCustomTable table = new UserCustomTable(tableName, columns);
 
@@ -1361,11 +1391,17 @@ public class AlterTableUtils {
 		TestCase.assertEquals("NOT NULL",
 				copyTable.getColumn(5).getConstraints().get(0).buildSql());
 		TestCase.assertEquals(
-				"CONSTRAINT check_" + copyTableName + " CHECK ("
-						+ column6.getName() + " >= 0)",
+				"CONSTRAINT check_constraint_2 CHECK (" + column6.getName()
+						+ " >= 0)",
 				copyTable.getColumn(5).getConstraints().get(1).buildSql());
-		TestCase.assertEquals("check_" + copyTableName,
+		TestCase.assertEquals("check_constraint_2",
 				copyTable.getColumn(5).getConstraints().get(1).getName());
+		TestCase.assertEquals(
+				"CONSTRAINT another_check_constraint_14 CHECK ("
+						+ column7.getName() + " >= 0)",
+				copyTable.getColumn(6).getConstraints().get(0).buildSql());
+		TestCase.assertEquals("another_check_constraint_14",
+				copyTable.getColumn(6).getConstraints().get(0).getName());
 
 		geoPackage.copyTableAsEmpty(tableName, copyTableName2);
 
