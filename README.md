@@ -28,13 +28,13 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
 // File existingGeoPackage = ...;
 
 // Create a new GeoPackage
-boolean created = GeoPackageManager.create(newGeoPackage)
+boolean created = GeoPackageManager.create(newGeoPackage);
 
 // Open a GeoPackage
-GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage)
+GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage);
 
 // GeoPackage Table DAOs
-SpatialReferenceSystemDao srsDao = getSpatialReferenceSystemDao();
+SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
 ContentsDao contentsDao = geoPackage.getContentsDao();
 GeometryColumnsDao geomColumnsDao = geoPackage.getGeometryColumnsDao();
 TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
