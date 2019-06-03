@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.SQLUtils;
+import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.manager.GeoPackageManager;
 
 /**
@@ -206,36 +207,22 @@ public class SQLExec {
 			maxRows = DEFAULT_MAX_ROWS;
 		}
 
+		sql = sql.trim();
+
 		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName());
 		LOGGER.log(Level.INFO, "GeoPackage Path: " + geoPackage.getPath());
 		LOGGER.log(Level.INFO, "SQL: " + sql);
 		LOGGER.log(Level.INFO, "Max Rows: " + maxRows);
 
-		SQLExecResult result = specialCaseSQL(geoPackage, sql, maxRows);
+		RTreeIndexExtension rtree = new RTreeIndexExtension(geoPackage);
+		if (rtree.has()) {
+			rtree.createAllFunctions();
+		}
+
+		SQLExecResult result = SQLExecAlterTable.alterTable(geoPackage, sql);
 		if (result == null) {
 			result = executeQuery(geoPackage, sql, maxRows);
 		}
-
-		return result;
-	}
-
-	/**
-	 * Handle special case SQL statements
-	 * 
-	 * @param geoPackage
-	 *            open GeoPackage
-	 * @param sql
-	 *            SQL statement
-	 * @param maxRows
-	 *            max rows
-	 * @return results if handled, null if not a special case
-	 */
-	private static SQLExecResult specialCaseSQL(GeoPackage geoPackage,
-			String sql, Integer maxRows) {
-
-		SQLExecResult result = null;
-
-		// TODO handle special alter tables and table copies
 
 		return result;
 	}
