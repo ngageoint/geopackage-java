@@ -213,8 +213,7 @@ public class SQLExecAlterTable {
 			}
 
 			if (tableName != null && newTableName != null) {
-				AlterTable.copyTable(geoPackage.getDatabase(), tableName,
-						newTableName);
+				geoPackage.copyTable(tableName, newTableName);
 				result = new SQLExecResult();
 			}
 
