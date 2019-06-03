@@ -35,6 +35,11 @@ public class SQLExecResult {
 	private List<List<String>> rows = new ArrayList<>();
 
 	/**
+	 * Update count
+	 */
+	private Integer updateCount = null;
+
+	/**
 	 * Constructor
 	 */
 	protected SQLExecResult() {
@@ -48,7 +53,9 @@ public class SQLExecResult {
 	 *            table name
 	 */
 	protected void addTable(String table) {
-		tables.add(table);
+		if (table != null && !table.trim().isEmpty()) {
+			tables.add(table.trim());
+		}
 	}
 
 	/**
@@ -203,9 +210,39 @@ public class SQLExecResult {
 	}
 
 	/**
+	 * Set the update count
+	 * 
+	 * @param updateCount
+	 *            update count
+	 */
+	protected void setUpdateCount(Integer updateCount) {
+		this.updateCount = updateCount;
+	}
+
+	/**
+	 * Get the update count
+	 * 
+	 * @return update count
+	 */
+	public Integer getUpdateCount() {
+		return updateCount;
+	}
+
+	/**
+	 * Check if has an update count
+	 * 
+	 * @return true if has an update count
+	 */
+	public boolean hasUpdateCount() {
+		return getUpdateCount() != null;
+	}
+
+	/**
 	 * Print the results using {@link System#out}
 	 */
 	public void printResults() {
+
+		System.out.println();
 
 		if (hasRows()) {
 
@@ -233,6 +270,8 @@ public class SQLExecResult {
 
 			printHorizontalDivider(width);
 
+		} else if (hasUpdateCount()) {
+			System.out.println("Update Count: " + getUpdateCount());
 		} else {
 			System.out.println("No Results");
 		}
@@ -244,18 +283,20 @@ public class SQLExecResult {
 	 */
 	private void printTables() {
 		List<String> tables = getTables();
-		System.out.print("Table");
-		if (tables.size() > 1) {
-			System.out.print("s");
-		}
-		System.out.print(": ");
-		for (int i = 0; i < tables.size(); i++) {
-			if (i > 0) {
-				System.out.print(", ");
+		if (!tables.isEmpty()) {
+			System.out.print("Table");
+			if (tables.size() > 1) {
+				System.out.print("s");
 			}
-			System.out.print(tables.get(i));
+			System.out.print(": ");
+			for (int i = 0; i < tables.size(); i++) {
+				if (i > 0) {
+					System.out.print(", ");
+				}
+				System.out.print(tables.get(i));
+			}
+			System.out.println();
 		}
-		System.out.println();
 	}
 
 	/**

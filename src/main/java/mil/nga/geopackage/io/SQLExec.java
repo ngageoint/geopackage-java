@@ -8,8 +8,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Scanner;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.SQLUtils;
@@ -30,12 +29,6 @@ import mil.nga.geopackage.manager.GeoPackageManager;
  * @since 3.3.0
  */
 public class SQLExec {
-
-	/**
-	 * Logger
-	 */
-	private static final Logger LOGGER = Logger
-			.getLogger(SQLExec.class.getName());
 
 	/**
 	 * Argument prefix
@@ -107,9 +100,9 @@ public class SQLExec {
 				// Set required arguments in order
 				if (geoPackageFile == null) {
 					geoPackageFile = new File(arg);
+					requiredArguments = true;
 				} else if (sql == null) {
 					sql = new StringBuilder(arg);
-					requiredArguments = true;
 				} else {
 					sql.append(" ").append(arg);
 				}
@@ -119,9 +112,55 @@ public class SQLExec {
 		if (!valid || !requiredArguments) {
 			printUsage();
 		} else {
-			SQLExecResult result = executeSQL(geoPackageFile, sql.toString(),
-					maxRows);
-			result.printResults();
+
+			GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile);
+			try {
+
+				System.out.println("GeoPackage: " + geoPackage.getName());
+				System.out.println("Path: " + geoPackage.getPath());
+				System.out.println("Max Rows: "
+						+ (maxRows != null ? maxRows : DEFAULT_MAX_ROWS));
+				System.out.println();
+
+				if (sql != null) {
+
+					try {
+						SQLExecResult result = executeSQL(geoPackage,
+								sql.toString(), maxRows);
+						result.printResults();
+					} catch (Exception e) {
+						System.out.println(e);
+					}
+
+				} else {
+
+					Scanner scanner = new Scanner(System.in);
+					try {
+						System.out.print("sql: ");
+						while (scanner.hasNextLine()) {
+							try {
+								String sqlInput = scanner.nextLine().trim();
+								if (sqlInput.isEmpty()) {
+									break;
+								}
+								SQLExecResult result = executeSQL(geoPackage,
+										sqlInput, maxRows);
+								result.printResults();
+							} catch (Exception e) {
+								System.out.println(e);
+							}
+							System.out.println();
+							System.out.print("sql: ");
+						}
+					} finally {
+						scanner.close();
+					}
+
+				}
+
+			} finally {
+				geoPackage.close();
+			}
 		}
 
 	}
@@ -209,11 +248,6 @@ public class SQLExec {
 
 		sql = sql.trim();
 
-		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName());
-		LOGGER.log(Level.INFO, "GeoPackage Path: " + geoPackage.getPath());
-		LOGGER.log(Level.INFO, "SQL: " + sql);
-		LOGGER.log(Level.INFO, "Max Rows: " + maxRows);
-
 		RTreeIndexExtension rtree = new RTreeIndexExtension(geoPackage);
 		if (rtree.has()) {
 			rtree.createAllFunctions();
@@ -252,61 +286,73 @@ public class SQLExec {
 					.prepareStatement(sql);
 			statement.setMaxRows(maxRows);
 
-			ResultSet resultSet = statement.executeQuery();
+			boolean hasResultSet = statement.execute();
 
-			LOGGER.log(Level.INFO, "Successfully Executed: " + sql);
+			if (hasResultSet) {
 
-			ResultSetMetaData metadata = resultSet.getMetaData();
-			int numColumns = metadata.getColumnCount();
+				ResultSet resultSet = statement.getResultSet();
 
-			int[] columnWidths = new int[numColumns];
-			int[] columnTypes = new int[numColumns];
+				ResultSetMetaData metadata = resultSet.getMetaData();
+				int numColumns = metadata.getColumnCount();
 
-			for (int col = 1; col <= numColumns; col++) {
-				result.addTable(metadata.getTableName(col));
-				String columnName = metadata.getColumnName(col);
-				result.addColumn(columnName);
-				columnTypes[col - 1] = metadata.getColumnType(col);
-				columnWidths[col - 1] = columnName.length();
-			}
+				int[] columnWidths = new int[numColumns];
+				int[] columnTypes = new int[numColumns];
 
-			while (resultSet.next()) {
-
-				List<String> row = new ArrayList<>();
-				result.addRow(row);
 				for (int col = 1; col <= numColumns; col++) {
+					result.addTable(metadata.getTableName(col));
+					String columnName = metadata.getColumnName(col);
+					result.addColumn(columnName);
+					columnTypes[col - 1] = metadata.getColumnType(col);
+					columnWidths[col - 1] = columnName.length();
+				}
 
-					String stringValue = resultSet.getString(col);
+				while (resultSet.next()) {
 
-					if (stringValue != null) {
+					List<String> row = new ArrayList<>();
+					result.addRow(row);
+					for (int col = 1; col <= numColumns; col++) {
 
-						switch (columnTypes[col - 1]) {
-						case Types.BLOB:
-							stringValue = "BLOB";
-							break;
-						default:
+						String stringValue = resultSet.getString(col);
+
+						if (stringValue != null) {
+
+							switch (columnTypes[col - 1]) {
+							case Types.BLOB:
+								stringValue = "BLOB";
+								break;
+							default:
+								stringValue = stringValue
+										.replaceAll("\\s*[\\r\\n]+\\s*", " ");
+							}
+
+							int valueLength = stringValue.length();
+							if (valueLength > columnWidths[col - 1]) {
+								columnWidths[col - 1] = valueLength;
+							}
+
 						}
 
-						int valueLength = stringValue.length();
-						if (valueLength > columnWidths[col - 1]) {
-							columnWidths[col - 1] = valueLength;
-						}
-
+						row.add(stringValue);
 					}
 
-					row.add(stringValue);
+				}
+
+				result.addColumnWidths(columnWidths);
+
+			} else {
+
+				int updateCount = statement.getUpdateCount();
+				if (updateCount >= 0) {
+					result.setUpdateCount(updateCount);
 				}
 
 			}
-
-			result.addColumnWidths(columnWidths);
 
 		} finally {
 			SQLUtils.closeStatement(statement, sql);
 		}
 
 		return result;
-
 	}
 
 	/**
