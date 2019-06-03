@@ -13,6 +13,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Table Readers moved to geopackage-core
 * Automatically enable foreign key checks for new connections without preexisting violations
 * GeoPackage table foreign key check
+* SQLExec Stand Alone Utility for GeoPackage command line SQL execution
 
 ## [3.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.2.0) (04-02-2019)
 
