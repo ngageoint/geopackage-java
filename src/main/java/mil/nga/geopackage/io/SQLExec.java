@@ -425,77 +425,80 @@ public class SQLExec {
 
 		SQLExecResult result = new SQLExecResult();
 
-		PreparedStatement statement = null;
-		try {
+		if (!sql.equals(";")) {
 
-			statement = geoPackage.getConnection().getConnection()
-					.prepareStatement(sql);
-			statement.setMaxRows(maxRows);
+			PreparedStatement statement = null;
+			try {
 
-			boolean hasResultSet = statement.execute();
+				statement = geoPackage.getConnection().getConnection()
+						.prepareStatement(sql);
+				statement.setMaxRows(maxRows);
 
-			if (hasResultSet) {
+				boolean hasResultSet = statement.execute();
 
-				ResultSet resultSet = statement.getResultSet();
+				if (hasResultSet) {
 
-				ResultSetMetaData metadata = resultSet.getMetaData();
-				int numColumns = metadata.getColumnCount();
+					ResultSet resultSet = statement.getResultSet();
 
-				int[] columnWidths = new int[numColumns];
-				int[] columnTypes = new int[numColumns];
+					ResultSetMetaData metadata = resultSet.getMetaData();
+					int numColumns = metadata.getColumnCount();
 
-				for (int col = 1; col <= numColumns; col++) {
-					result.addTable(metadata.getTableName(col));
-					String columnName = metadata.getColumnName(col);
-					result.addColumn(columnName);
-					columnTypes[col - 1] = metadata.getColumnType(col);
-					columnWidths[col - 1] = columnName.length();
-				}
+					int[] columnWidths = new int[numColumns];
+					int[] columnTypes = new int[numColumns];
 
-				while (resultSet.next()) {
-
-					List<String> row = new ArrayList<>();
-					result.addRow(row);
 					for (int col = 1; col <= numColumns; col++) {
+						result.addTable(metadata.getTableName(col));
+						String columnName = metadata.getColumnName(col);
+						result.addColumn(columnName);
+						columnTypes[col - 1] = metadata.getColumnType(col);
+						columnWidths[col - 1] = columnName.length();
+					}
 
-						String stringValue = resultSet.getString(col);
+					while (resultSet.next()) {
 
-						if (stringValue != null) {
+						List<String> row = new ArrayList<>();
+						result.addRow(row);
+						for (int col = 1; col <= numColumns; col++) {
 
-							switch (columnTypes[col - 1]) {
-							case Types.BLOB:
-								stringValue = "BLOB";
-								break;
-							default:
-								stringValue = stringValue
-										.replaceAll("\\s*[\\r\\n]+\\s*", " ");
+							String stringValue = resultSet.getString(col);
+
+							if (stringValue != null) {
+
+								switch (columnTypes[col - 1]) {
+								case Types.BLOB:
+									stringValue = "BLOB";
+									break;
+								default:
+									stringValue = stringValue.replaceAll(
+											"\\s*[\\r\\n]+\\s*", " ");
+								}
+
+								int valueLength = stringValue.length();
+								if (valueLength > columnWidths[col - 1]) {
+									columnWidths[col - 1] = valueLength;
+								}
+
 							}
 
-							int valueLength = stringValue.length();
-							if (valueLength > columnWidths[col - 1]) {
-								columnWidths[col - 1] = valueLength;
-							}
-
+							row.add(stringValue);
 						}
 
-						row.add(stringValue);
+					}
+
+					result.addColumnWidths(columnWidths);
+
+				} else {
+
+					int updateCount = statement.getUpdateCount();
+					if (updateCount >= 0) {
+						result.setUpdateCount(updateCount);
 					}
 
 				}
 
-				result.addColumnWidths(columnWidths);
-
-			} else {
-
-				int updateCount = statement.getUpdateCount();
-				if (updateCount >= 0) {
-					result.setUpdateCount(updateCount);
-				}
-
+			} finally {
+				SQLUtils.closeStatement(statement, sql);
 			}
-
-		} finally {
-			SQLUtils.closeStatement(statement, sql);
 		}
 
 		return result;
