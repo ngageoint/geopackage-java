@@ -73,6 +73,12 @@ public class SQLExecAlterTable {
 	public static final int NEW_TABLE_NAME_GROUP = 2;
 
 	/**
+	 * Drop table pattern
+	 */
+	public static final Pattern DROP_TABLE_PATTERN = Pattern
+			.compile(REGEX_PREFIX + "DROP\\s+TABLE\\s+" + REGEX_NAME);
+
+	/**
 	 * Handle alter table statements that are unsupported, non spec compliant,
 	 * or require additional modifications
 	 * 
@@ -87,12 +93,11 @@ public class SQLExecAlterTable {
 		SQLExecResult result = null;
 
 		sql = sql.trim();
+		if (sql.endsWith(";")) {
+			sql = sql.substring(0, sql.length() - 1);
+		}
 
 		if (ALTER_TABLE_PATTERN.matcher(sql).matches()) {
-
-			if (sql.endsWith(";")) {
-				sql = sql.substring(0, sql.length() - 1);
-			}
 
 			// ALTER TABLE table_name DROP column_name
 			// ALTER TABLE table_name DROP COLUMN column_name
@@ -111,6 +116,11 @@ public class SQLExecAlterTable {
 				}
 
 			}
+
+		} else {
+
+			// DROP TABLE table_name
+			result = dropTable(geoPackage, sql);
 
 		}
 
@@ -223,6 +233,32 @@ public class SQLExecAlterTable {
 				result = new SQLExecResult();
 			}
 
+		}
+
+		return result;
+	}
+
+	/**
+	 * Check for a drop table statement and execute
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param sql
+	 *            SQL statement
+	 * @return result if dropped table, null if not
+	 */
+	private static SQLExecResult dropTable(GeoPackage geoPackage, String sql) {
+
+		SQLExecResult result = null;
+
+		Matcher matcher = DROP_TABLE_PATTERN.matcher(sql);
+		if (matcher.matches()) {
+			String tableName = CoreSQLUtils
+					.quoteUnwrap(matcher.group(TABLE_NAME_GROUP));
+			if (tableName != null) {
+				geoPackage.deleteTable(tableName.trim());
+				result = new SQLExecResult();
+			}
 		}
 
 		return result;
