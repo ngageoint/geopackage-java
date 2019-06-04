@@ -171,6 +171,33 @@ Example:
 
     java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen -bbox -105.0,39.0,-104.0,40.0 -pointRadius 3.0 -pointColor magenta -lineStrokeWidth 2.5 -lineColor red -polygonStrokeWidth 1.5 -polygonColor 0,0,255 -fillPolygon -polygonFillColor 0,255,0,80 /path/geopackage1.gpkg myfeaturetable /path/geopackage2.gpkg mytiletable 2 18
 
+#### SQL Exec ####
+
+Executes SQL statements on a GeoPackage.  Most SQLite statements are supported including: SELECT, INSERT, DELETE, CREATE, ALTER, DROP, PRAGMA, VACUUM, and more.  Providing SQL on the command line executes the single statement. Omitting SQL on the command line starts an interactive SQL shell with additional command options.  Handles special GeoPackage cases and statements including:
+ * Dropping columns (not natively supported in SQLite)
+ * Renaming a user table also updates dependencies throughout the GeoPackage
+ * Copying a table and all dependencies (not a standard SQL alter table command)
+ * Dropping a table also removes dependencies throughout the GeoPackage
+
+To run against the jar:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.SQLExec [-m max_rows] geopackage_file [sql]
+
+Examples:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.SQLExec /path/geopackage.gpkg "SELECT * FROM gpkg_contents"
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.SQLExec /path/geopackage.gpkg
+    sql>PRAGMA integrity_check;
+    sql>PRAGMA table_info(table_name);
+    sql>SELECT * FROM table_name;
+    sql>ALTER TABLE table_name COPY TO table_name_copy;
+    sql>ALTER TABLE table_name RENAME TO new_table_name;
+    sql>ALTER TABLE table_name DROP COLUMN column_name;
+    sql>DROP TABLE table_name_copy;
+    sql>SELECT * from sqlite_master;
+    sql>VACUUM;
+
 ### Dependencies ###
 
 #### Remote ####
