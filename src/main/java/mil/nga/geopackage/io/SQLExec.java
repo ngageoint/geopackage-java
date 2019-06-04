@@ -291,6 +291,7 @@ public class SQLExec {
 		if (number >= 0 && number < history.size()) {
 
 			String sql = history.get(number);
+			System.out.println(sql);
 			executeSQL(geoPackage, sqlBuilder, sql, maxRows, history);
 
 		} else {
