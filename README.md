@@ -137,6 +137,21 @@ Examples:
     sql>SELECT * from sqlite_master;
     sql>VACUUM;
 
+Script:
+
+Drop geopackage-standalone.jar (renamed w/o the version) in the same directory as [gsql.sh](script/gsql.sh).
+
+Add an alias in .bashrc to the script location:
+
+    alias gsql="/path/gsql.sh"
+
+Run from any directory:
+
+    gsql /path/geopackage.gpkg "SELECT * FROM gpkg_contents"
+
+    gsql /path/geopackage.gpkg
+    sql>PRAGMA integrity_check;
+
 #### Tile Writer ####
 
 The tile writer writes tiles from a GeoPackage tile table to the file system.  Images are saved as raw bytes or as a specified format in a z/x/y.ext folder & file structure formatted as GeoPackage, Standard (Google), or TMS (Tile Map Service).  The GeoPackage format writes a tiles.properties file in the base imagery directory.  The mil.nga.geopackage.io.TileWriter functionality is invokable through code or command line.
