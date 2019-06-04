@@ -107,6 +107,15 @@ public class SQLExecResult {
 	}
 
 	/**
+	 * Determine if the results have any columns
+	 * 
+	 * @return true if has columns
+	 */
+	public boolean hasColumns() {
+		return numColumns() > 0;
+	}
+
+	/**
 	 * Add a column width
 	 * 
 	 * @param width
@@ -244,7 +253,7 @@ public class SQLExecResult {
 
 		System.out.println();
 
-		if (hasRows()) {
+		if (hasColumns()) {
 
 			int width = 0;
 
@@ -266,7 +275,7 @@ public class SQLExecResult {
 
 			printHorizontalDivider(width);
 
-			printRows();
+			printRows(width);
 
 			printHorizontalDivider(width);
 
@@ -318,10 +327,20 @@ public class SQLExecResult {
 
 	/**
 	 * Print the result rows
+	 * 
+	 * @param width
+	 *            table width
 	 */
-	private void printRows() {
-		for (int row = 0; row < numRows(); row++) {
-			printRow(row);
+	private void printRows(int width) {
+		if (hasRows()) {
+			for (int row = 0; row < numRows(); row++) {
+				printRow(row);
+			}
+		} else {
+			printVerticalDivider();
+			printSpace(width - 2);
+			printVerticalDivider();
+			System.out.println();
 		}
 	}
 

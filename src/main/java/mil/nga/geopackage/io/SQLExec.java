@@ -136,21 +136,43 @@ public class SQLExec {
 
 					Scanner scanner = new Scanner(System.in);
 					try {
-						System.out.print("sql: ");
+						sql = new StringBuilder();
+						System.out.print("sql> ");
 						while (scanner.hasNextLine()) {
 							try {
 								String sqlInput = scanner.nextLine().trim();
-								if (sqlInput.isEmpty()) {
+
+								int semicolon = sqlInput.indexOf(";");
+								if (semicolon >= 0) {
+									sqlInput = sqlInput.substring(0, semicolon);
+								}
+
+								if (sql.length() > 0) {
+									sql.append(" ");
+								} else if (sqlInput.isEmpty()) {
 									break;
 								}
-								SQLExecResult result = executeSQL(geoPackage,
-										sqlInput, maxRows);
-								result.printResults();
+
+								sql.append(sqlInput);
+
+								if (semicolon >= 0) {
+
+									SQLExecResult result = executeSQL(
+											geoPackage, sql.toString(),
+											maxRows);
+									result.printResults();
+
+									sql = new StringBuilder();
+
+									System.out.println();
+									System.out.print("sql> ");
+								}
 							} catch (Exception e) {
 								System.out.println(e);
+								sql = new StringBuilder();
+								System.out.println();
+								System.out.print("sql> ");
 							}
-							System.out.println();
-							System.out.print("sql: ");
 						}
 					} finally {
 						scanner.close();
