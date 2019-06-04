@@ -86,7 +86,13 @@ public class SQLExecAlterTable {
 
 		SQLExecResult result = null;
 
+		sql = sql.trim();
+
 		if (ALTER_TABLE_PATTERN.matcher(sql).matches()) {
+
+			if (sql.endsWith(";")) {
+				sql = sql.substring(0, sql.length() - 1);
+			}
 
 			// ALTER TABLE table_name DROP column_name
 			// ALTER TABLE table_name DROP COLUMN column_name
