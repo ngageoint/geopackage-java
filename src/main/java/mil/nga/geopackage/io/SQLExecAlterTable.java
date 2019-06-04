@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.AlterTable;
 import mil.nga.geopackage.db.CoreSQLUtils;
 
@@ -256,6 +257,11 @@ public class SQLExecAlterTable {
 			String tableName = CoreSQLUtils
 					.quoteUnwrap(matcher.group(TABLE_NAME_GROUP));
 			if (tableName != null) {
+				tableName = tableName.trim();
+				if (!geoPackage.isTable(tableName)) {
+					throw new GeoPackageException(
+							"Table does not exist: " + tableName);
+				}
 				geoPackage.deleteTable(tableName.trim());
 				result = new SQLExecResult();
 			}
