@@ -158,6 +158,8 @@ public class SQLExec {
 	 */
 	private static void commandPrompt(GeoPackage geoPackage, Integer maxRows) {
 
+		printHelp();
+
 		List<String> history = new ArrayList<>();
 		Scanner scanner = new Scanner(System.in);
 		try {
@@ -192,6 +194,12 @@ public class SQLExec {
 						if (sqlLine.isEmpty()) {
 
 							break;
+
+						} else if (sqlLine.equalsIgnoreCase("help")) {
+
+							printHelp();
+
+							resetCommandPrompt(sqlBuilder);
 
 						} else if (sqlLine.equalsIgnoreCase("history")) {
 
@@ -229,6 +237,27 @@ public class SQLExec {
 			scanner.close();
 		}
 
+	}
+
+	/**
+	 * Print the command prompt help
+	 */
+	private static void printHelp() {
+		System.out.println();
+		System.out.println("- Terminate SQL statements with ;");
+		System.out.println("- Exit with a single empty line");
+		System.out.println();
+		System.out.println("Commands:");
+		System.out.println();
+		System.out.println("\thelp    - print this help information");
+		System.out
+				.println("\thistory - list successfully executed sql commands");
+		System.out.println(
+				"\t!!      - re-execute the last successful sql command");
+		System.out.println(
+				"\t!n      - re-execute a sql statement by history id n");
+		System.out.println(
+				"\t!-n     - re-execute a sql statement n commands back in history");
 	}
 
 	/**
@@ -512,11 +541,14 @@ public class SQLExec {
 		System.out.println("USAGE");
 		System.out.println();
 		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_MAX_ROWS
-				+ " max_rows] geopackage_file sql");
+				+ " max_rows] geopackage_file [sql]");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
 		System.out.println("\tExecutes SQL on a GeoPackage");
+		System.out.println();
+		System.out.println(
+				"\tProvide the SQL to execute the single statement. Omit to start an interactive session.");
 		System.out.println();
 		System.out.println("ARGUMENTS");
 		System.out.println();
