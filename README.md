@@ -137,9 +137,9 @@ Examples:
     sql>SELECT * from sqlite_master;
     sql>VACUUM;
 
-Script:
+##### Script #####
 
-Drop geopackage-standalone.jar (renamed w/o the version) in the same directory as [gsql.sh](script/gsql.sh).
+Place geopackage-standalone.jar (renamed w/o the version) in the same directory as [gsql.sh](script/gsql.sh).
 
 Add an alias in .bashrc to the script location:
 
