@@ -244,7 +244,10 @@ public class SQLExec {
 	 */
 	private static void printHelp() {
 		System.out.println();
-		System.out.println("- Terminate SQL statements with ;");
+		System.out.println("- Supports most SQLite statements including:");
+		System.out.println(
+				"\tSELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, PRAGMA, VACUUM, etc");
+		System.out.println("- Terminate SQL statements with a ;");
 		System.out.println("- Exit with a single empty line");
 		System.out.println();
 		System.out.println("Commands:");
@@ -258,6 +261,24 @@ public class SQLExec {
 				"\t!n      - re-execute a sql statement by history id n");
 		System.out.println(
 				"\t!-n     - re-execute a sql statement n commands back in history");
+		System.out.println();
+		System.out.println("Special Supported Cases:");
+		System.out.println();
+		System.out.println("\tDrop Column  - Not natively supported in SQLite");
+		System.out.println(
+				"\t                  * ALTER TABLE table_name DROP column_name");
+		System.out.println(
+				"\t                  * ALTER TABLE table_name DROP COLUMN column_name");
+		System.out.println(
+				"\tRename Table - User tables are updated throughout the GeoPackage");
+		System.out.println(
+				"\t                  * ALTER TABLE table_name RENAME TO new_table_name");
+		System.out.println("\tCopy Table   - Not a traditional SQL statment");
+		System.out.println(
+				"\t                  * ALTER TABLE table_name COPY TO new_table_name");
+		System.out.println(
+				"\tDrop Table   - User tables are dropped throughout the GeoPackage");
+		System.out.println("\t                  * DROP TABLE table_name");
 	}
 
 	/**
