@@ -9,6 +9,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.SQLUtils;
@@ -44,6 +45,11 @@ public class SQLExec {
 	 * Default max rows
 	 */
 	public static final int DEFAULT_MAX_ROWS = 100;
+
+	/**
+	 * History pattern
+	 */
+	public static final Pattern HISTORY_PATTERN = Pattern.compile("^!-?\\d+$");
 
 	/**
 	 * Main method to execute SQL in a GeoPackage
@@ -120,7 +126,6 @@ public class SQLExec {
 				System.out.println("Path: " + geoPackage.getPath());
 				System.out.println("Max Rows: "
 						+ (maxRows != null ? maxRows : DEFAULT_MAX_ROWS));
-				System.out.println();
 
 				if (sql != null) {
 
@@ -134,49 +139,7 @@ public class SQLExec {
 
 				} else {
 
-					Scanner scanner = new Scanner(System.in);
-					try {
-						sql = new StringBuilder();
-						System.out.print("sql> ");
-						while (scanner.hasNextLine()) {
-							try {
-								String sqlInput = scanner.nextLine().trim();
-
-								int semicolon = sqlInput.indexOf(";");
-								if (semicolon >= 0) {
-									sqlInput = sqlInput.substring(0, semicolon);
-								}
-
-								if (sql.length() > 0) {
-									sql.append(" ");
-								} else if (sqlInput.isEmpty()) {
-									break;
-								}
-
-								sql.append(sqlInput);
-
-								if (semicolon >= 0) {
-
-									SQLExecResult result = executeSQL(
-											geoPackage, sql.toString(),
-											maxRows);
-									result.printResults();
-
-									sql = new StringBuilder();
-
-									System.out.println();
-									System.out.print("sql> ");
-								}
-							} catch (Exception e) {
-								System.out.println(e);
-								sql = new StringBuilder();
-								System.out.println();
-								System.out.print("sql> ");
-							}
-						}
-					} finally {
-						scanner.close();
-					}
+					commandPrompt(geoPackage, maxRows);
 
 				}
 
@@ -185,6 +148,167 @@ public class SQLExec {
 			}
 		}
 
+	}
+
+	/**
+	 * Command prompt accepting SQL statements
+	 * 
+	 * @param geoPackage
+	 *            open GeoPackage
+	 */
+	private static void commandPrompt(GeoPackage geoPackage, Integer maxRows) {
+
+		List<String> history = new ArrayList<>();
+		Scanner scanner = new Scanner(System.in);
+		try {
+			StringBuilder sqlBuilder = new StringBuilder();
+			resetCommandPrompt(sqlBuilder);
+
+			while (scanner.hasNextLine()) {
+				try {
+					String sqlLine = scanner.nextLine().trim();
+
+					int semicolon = sqlLine.indexOf(";");
+					boolean executeSql = semicolon >= 0;
+					if (executeSql) {
+						sqlLine = sqlLine.substring(0, semicolon + 1);
+					}
+
+					boolean singleLine = sqlBuilder.length() == 0;
+					if (!sqlLine.isEmpty()) {
+						if (!singleLine) {
+							sqlBuilder.append(" ");
+						}
+						sqlBuilder.append(sqlLine);
+					}
+
+					if (executeSql) {
+
+						executeSQL(geoPackage, sqlBuilder,
+								sqlBuilder.toString(), maxRows, history);
+
+					} else if (singleLine) {
+
+						if (sqlLine.isEmpty()) {
+
+							break;
+
+						} else if (sqlLine.equalsIgnoreCase("history")) {
+
+							for (int i = 0; i < history.size(); i++) {
+								System.out.println(
+										" " + String.format("%4d", i + 1) + "  "
+												+ history.get(i));
+							}
+
+							resetCommandPrompt(sqlBuilder);
+
+						} else if (sqlLine.equals("!!")) {
+
+							executeSQL(geoPackage, sqlBuilder, history.size(),
+									maxRows, history);
+
+						} else if (HISTORY_PATTERN.matcher(sqlLine).matches()) {
+
+							int historyNumber = Integer.parseInt(
+									sqlLine.substring(1, sqlLine.length()));
+
+							executeSQL(geoPackage, sqlBuilder, historyNumber,
+									maxRows, history);
+
+						}
+
+					}
+
+				} catch (Exception e) {
+					System.out.println(e);
+					resetCommandPrompt(sqlBuilder);
+				}
+			}
+		} finally {
+			scanner.close();
+		}
+
+	}
+
+	/**
+	 * Execute the SQL
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param historyNumber
+	 *            history number
+	 * @param maxRows
+	 *            max rows
+	 * @param history
+	 *            history
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void executeSQL(GeoPackage geoPackage,
+			StringBuilder sqlBuilder, int historyNumber, Integer maxRows,
+			List<String> history) throws SQLException {
+
+		int number = historyNumber;
+
+		if (number < 0) {
+			number += history.size();
+		} else {
+			number--;
+		}
+
+		if (number >= 0 && number < history.size()) {
+
+			String sql = history.get(number);
+			executeSQL(geoPackage, sqlBuilder, sql, maxRows, history);
+
+		} else {
+			System.out.println("No History at " + historyNumber);
+			resetCommandPrompt(sqlBuilder);
+		}
+
+	}
+
+	/**
+	 * Execute the SQL
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param sql
+	 *            SQL statement
+	 * @param maxRows
+	 *            max rows
+	 * @param history
+	 *            history
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void executeSQL(GeoPackage geoPackage,
+			StringBuilder sqlBuilder, String sql, Integer maxRows,
+			List<String> history) throws SQLException {
+
+		SQLExecResult result = executeSQL(geoPackage, sql, maxRows);
+		result.printResults();
+
+		history.add(sql);
+
+		resetCommandPrompt(sqlBuilder);
+	}
+
+	/**
+	 * Reset the command prompt
+	 * 
+	 * @param sqlBuilder
+	 *            sql builder
+	 */
+	private static void resetCommandPrompt(StringBuilder sqlBuilder) {
+		sqlBuilder.setLength(0);
+		System.out.println();
+		System.out.print("sql> ");
 	}
 
 	/**
