@@ -116,8 +116,8 @@ Executes SQL statements on a SQLite database, including GeoPackages.  Most SQLit
  * Dropping columns (not natively supported in SQLite)
  * Copying a table and all dependencies (not a standard SQL alter table command)
  * For GeoPackages
- ** Renaming a user table also updates dependencies throughout the GeoPackage
- ** Dropping a table also removes dependencies throughout the GeoPackage
+   * Renaming a user table also updates dependencies throughout the GeoPackage
+   * Dropping a table also removes dependencies throughout the GeoPackage
 
 To run against the jar:
 
