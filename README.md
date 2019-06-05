@@ -128,15 +128,15 @@ Examples:
     java -jar geopackage-*standalone.jar /path/geopackage.gpkg "SELECT * FROM gpkg_contents"
 
     java -jar geopackage-*standalone.jar /path/geopackage.gpkg
-    sql>PRAGMA integrity_check;
-    sql>PRAGMA table_info(table_name);
-    sql>SELECT * FROM table_name;
-    sql>ALTER TABLE table_name COPY TO table_name_copy;
-    sql>ALTER TABLE table_name RENAME TO new_table_name;
-    sql>ALTER TABLE table_name DROP COLUMN column_name;
-    sql>DROP TABLE table_name_copy;
-    sql>SELECT * from sqlite_master;
-    sql>VACUUM;
+    sql> PRAGMA integrity_check;
+    sql> PRAGMA table_info(table_name);
+    sql> SELECT * FROM table_name;
+    sql> ALTER TABLE table_name COPY TO table_name_copy;
+    sql> ALTER TABLE table_name RENAME TO new_table_name;
+    sql> ALTER TABLE table_name DROP COLUMN column_name;
+    sql> DROP TABLE table_name_copy;
+    sql> SELECT * from sqlite_master;
+    sql> VACUUM;
 
 ##### Script #####
 
@@ -151,7 +151,7 @@ Run from any directory:
     sql /path/geopackage.gpkg "SELECT * FROM gpkg_contents"
 
     sql /path/geopackage.gpkg
-    sql>PRAGMA integrity_check;
+    sql> PRAGMA integrity_check;
 
 #### Tile Writer ####
 
