@@ -52,6 +52,46 @@ public class SQLExec {
 	public static final Pattern HISTORY_PATTERN = Pattern.compile("^!-?\\d+$");
 
 	/**
+	 * Command prompt
+	 */
+	public static final String COMMAND_PROMPT = "sql> ";
+
+	/**
+	 * Help command
+	 */
+	public static final String COMMAND_HELP = "help";
+
+	/**
+	 * Tables command
+	 */
+	public static final String COMMAND_TABLES = "tables";
+
+	/**
+	 * Tables command SQL
+	 */
+	public static final String COMMAND_TABLES_SQL = "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name;";
+
+	/**
+	 * Tables command max rows
+	 */
+	public static final int COMMAND_TABLES_MAX_ROWS = 2147483646;
+
+	/**
+	 * History command
+	 */
+	public static final String COMMAND_HISTORY = "history";
+
+	/**
+	 * Previous command
+	 */
+	public static final String COMMAND_PREVIOUS = "!!";
+
+	/**
+	 * Blob display value
+	 */
+	public static final String BLOB_DISPLAY_VALUE = "BLOB";
+
+	/**
 	 * Main method to execute SQL in a GeoPackage
 	 * 
 	 * @param args
@@ -196,13 +236,19 @@ public class SQLExec {
 
 							break;
 
-						} else if (sqlLine.equalsIgnoreCase("help")) {
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_HELP)) {
 
 							printHelp();
 
 							resetCommandPrompt(sqlBuilder);
 
-						} else if (sqlLine.equalsIgnoreCase("history")) {
+						} else if (sqlLine.equals(COMMAND_TABLES)) {
+
+							executeSQL(geoPackage, sqlBuilder,
+									COMMAND_TABLES_SQL, COMMAND_TABLES_MAX_ROWS,
+									history);
+
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_HISTORY)) {
 
 							for (int i = 0; i < history.size(); i++) {
 								System.out.println(
@@ -212,7 +258,7 @@ public class SQLExec {
 
 							resetCommandPrompt(sqlBuilder);
 
-						} else if (sqlLine.equals("!!")) {
+						} else if (sqlLine.equals(COMMAND_PREVIOUS)) {
 
 							executeSQL(geoPackage, sqlBuilder, history.size(),
 									maxRows, history);
@@ -253,11 +299,13 @@ public class SQLExec {
 		System.out.println();
 		System.out.println("Commands:");
 		System.out.println();
-		System.out.println("\thelp    - print this help information");
-		System.out
-				.println("\thistory - list successfully executed sql commands");
 		System.out.println(
-				"\t!!      - re-execute the last successful sql command");
+				"\t" + COMMAND_HELP + "    - print this help information");
+		System.out.println("\t" + COMMAND_TABLES + "  - list database tables");
+		System.out.println("\t" + COMMAND_HISTORY
+				+ " - list successfully executed sql commands");
+		System.out.println("\t" + COMMAND_PREVIOUS
+				+ "      - re-execute the last successful sql command");
 		System.out.println(
 				"\t!n      - re-execute a sql statement by history id n");
 		System.out.println(
@@ -360,7 +408,7 @@ public class SQLExec {
 	private static void resetCommandPrompt(StringBuilder sqlBuilder) {
 		sqlBuilder.setLength(0);
 		System.out.println();
-		System.out.print("sql> ");
+		System.out.print(COMMAND_PROMPT);
 	}
 
 	/**
@@ -518,7 +566,7 @@ public class SQLExec {
 
 								switch (columnTypes[col - 1]) {
 								case Types.BLOB:
-									stringValue = "BLOB";
+									stringValue = BLOB_DISPLAY_VALUE;
 									break;
 								default:
 									stringValue = stringValue.replaceAll(
