@@ -84,13 +84,13 @@ public class SQLExecAlterTable {
 	 * Handle alter table statements that are unsupported, non spec compliant,
 	 * or require additional modifications
 	 * 
-	 * @param geoPackage
-	 *            open GeoPackage
+	 * @param database
+	 *            open database
 	 * @param sql
 	 *            SQL statement
 	 * @return results if handled, null if not a special case
 	 */
-	public static SQLExecResult alterTable(GeoPackage geoPackage, String sql) {
+	public static SQLExecResult alterTable(GeoPackage database, String sql) {
 
 		SQLExecResult result = null;
 
@@ -103,17 +103,17 @@ public class SQLExecAlterTable {
 
 			// ALTER TABLE table_name DROP column_name
 			// ALTER TABLE table_name DROP COLUMN column_name
-			result = dropColumn(geoPackage, sql);
+			result = dropColumn(database, sql);
 
 			if (result == null) {
 
 				// ALTER TABLE table_name RENAME TO new_table_name
-				result = renameTable(geoPackage, sql);
+				result = renameTable(database, sql);
 
 				if (result == null) {
 
 					// ALTER TABLE table_name COPY TO new_table_name
-					result = copyTable(geoPackage, sql);
+					result = copyTable(database, sql);
 
 				}
 
@@ -122,7 +122,7 @@ public class SQLExecAlterTable {
 		} else {
 
 			// DROP TABLE table_name
-			result = dropTable(geoPackage, sql);
+			result = dropTable(database, sql);
 
 		}
 
@@ -132,13 +132,13 @@ public class SQLExecAlterTable {
 	/**
 	 * Check for a drop column statement and execute
 	 * 
-	 * @param geoPackage
-	 *            GeoPackage
+	 * @param database
+	 *            database
 	 * @param sql
 	 *            SQL statement
 	 * @return result if dropped column, null if not
 	 */
-	private static SQLExecResult dropColumn(GeoPackage geoPackage, String sql) {
+	private static SQLExecResult dropColumn(GeoPackage database, String sql) {
 
 		SQLExecResult result = null;
 
@@ -156,7 +156,7 @@ public class SQLExecAlterTable {
 			}
 
 			if (tableName != null && columnName != null) {
-				AlterTable.dropColumn(geoPackage.getDatabase(), tableName,
+				AlterTable.dropColumn(database.getDatabase(), tableName,
 						columnName);
 				result = new SQLExecResult();
 			}
@@ -169,19 +169,18 @@ public class SQLExecAlterTable {
 	/**
 	 * Check for a rename table statement and execute
 	 * 
-	 * @param geoPackage
-	 *            GeoPackage
+	 * @param database
+	 *            database
 	 * @param sql
 	 *            SQL statement
 	 * @return result if renamed table, null if not
 	 */
-	private static SQLExecResult renameTable(GeoPackage geoPackage,
-			String sql) {
+	private static SQLExecResult renameTable(GeoPackage database, String sql) {
 
 		SQLExecResult result = null;
 
 		Matcher matcher = RENAME_TABLE_PATTERN.matcher(sql);
-		if (matcher.find() && GeoPackageValidate.hasMinimumTables(geoPackage)) {
+		if (matcher.find() && GeoPackageValidate.hasMinimumTables(database)) {
 			String tableName = CoreSQLUtils
 					.quoteUnwrap(matcher.group(TABLE_NAME_GROUP));
 			if (tableName != null) {
@@ -194,8 +193,8 @@ public class SQLExecAlterTable {
 			}
 
 			if (tableName != null && newTableName != null
-					&& geoPackage.getTableDataType(tableName) != null) {
-				geoPackage.renameTable(tableName, newTableName);
+					&& database.getTableDataType(tableName) != null) {
+				database.renameTable(tableName, newTableName);
 				result = new SQLExecResult();
 			}
 
@@ -207,13 +206,13 @@ public class SQLExecAlterTable {
 	/**
 	 * Check for a copy table statement and execute
 	 * 
-	 * @param geoPackage
-	 *            GeoPackage
+	 * @param database
+	 *            database
 	 * @param sql
 	 *            SQL statement
 	 * @return result if copied table, null if not
 	 */
-	private static SQLExecResult copyTable(GeoPackage geoPackage, String sql) {
+	private static SQLExecResult copyTable(GeoPackage database, String sql) {
 
 		SQLExecResult result = null;
 
@@ -232,10 +231,10 @@ public class SQLExecAlterTable {
 
 			if (tableName != null && newTableName != null) {
 
-				if (GeoPackageValidate.hasMinimumTables(geoPackage)) {
-					geoPackage.copyTable(tableName, newTableName);
+				if (GeoPackageValidate.hasMinimumTables(database)) {
+					database.copyTable(tableName, newTableName);
 				} else {
-					AlterTable.copyTable(geoPackage.getDatabase(), tableName,
+					AlterTable.copyTable(database.getDatabase(), tableName,
 							newTableName);
 				}
 
@@ -251,28 +250,28 @@ public class SQLExecAlterTable {
 	/**
 	 * Check for a drop table statement and execute
 	 * 
-	 * @param geoPackage
-	 *            GeoPackage
+	 * @param database
+	 *            database
 	 * @param sql
 	 *            SQL statement
 	 * @return result if dropped table, null if not
 	 */
-	private static SQLExecResult dropTable(GeoPackage geoPackage, String sql) {
+	private static SQLExecResult dropTable(GeoPackage database, String sql) {
 
 		SQLExecResult result = null;
 
 		Matcher matcher = DROP_TABLE_PATTERN.matcher(sql);
 		if (matcher.matches()
-				&& GeoPackageValidate.hasMinimumTables(geoPackage)) {
+				&& GeoPackageValidate.hasMinimumTables(database)) {
 			String tableName = CoreSQLUtils
 					.quoteUnwrap(matcher.group(TABLE_NAME_GROUP));
 			if (tableName != null) {
 				tableName = tableName.trim();
-				if (!geoPackage.isTable(tableName)) {
+				if (!database.isTable(tableName)) {
 					throw new GeoPackageException(
 							"Table does not exist: " + tableName);
 				}
-				geoPackage.deleteTable(tableName.trim());
+				database.deleteTable(tableName.trim());
 				result = new SQLExecResult();
 			}
 		}

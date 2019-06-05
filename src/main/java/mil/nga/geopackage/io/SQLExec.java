@@ -15,16 +15,18 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.manager.GeoPackageManager;
+import mil.nga.geopackage.validate.GeoPackageValidate;
 
 /**
- * Executes SQL on a GeoPackage
+ * Executes SQL on a SQLite database
  * 
  * To run from command line, build with the standalone profile:
  * 
  * mvn clean install -Pstandalone
  * 
- * java -classpath geopackage-*-standalone.jar mil.nga.geopackage.io.SQLExec
- * +usage_arguments
+ * java -jar name.jar +usage_arguments
+ * 
+ * java -classpath name.jar mil.nga.geopackage.io.SQLExec +usage_arguments
  * 
  * @author osbornb
  * @since 3.3.0
@@ -92,7 +94,7 @@ public class SQLExec {
 	public static final String BLOB_DISPLAY_VALUE = "BLOB";
 
 	/**
-	 * Main method to execute SQL in a GeoPackage
+	 * Main method to execute SQL in a SQLite database
 	 * 
 	 * @param args
 	 *            arguments
@@ -104,7 +106,7 @@ public class SQLExec {
 		boolean valid = true;
 		boolean requiredArguments = false;
 
-		File geoPackageFile = null;
+		File sqliteFile = null;
 		Integer maxRows = null;
 		StringBuilder sql = null;
 
@@ -144,8 +146,8 @@ public class SQLExec {
 
 			} else {
 				// Set required arguments in order
-				if (geoPackageFile == null) {
-					geoPackageFile = new File(arg);
+				if (sqliteFile == null) {
+					sqliteFile = new File(arg);
 					requiredArguments = true;
 				} else if (sql == null) {
 					sql = new StringBuilder(arg);
@@ -159,19 +161,23 @@ public class SQLExec {
 			printUsage();
 		} else {
 
-			GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile,
-					false);
+			GeoPackage database = GeoPackageManager.open(sqliteFile, false);
 			try {
 
-				System.out.println("GeoPackage: " + geoPackage.getName());
-				System.out.println("Path: " + geoPackage.getPath());
+				if (GeoPackageValidate.hasMinimumTables(database)) {
+					System.out.print("GeoPackage");
+				} else {
+					System.out.print("Database");
+				}
+				System.out.println(": " + database.getName());
+				System.out.println("Path: " + database.getPath());
 				System.out.println("Max Rows: "
 						+ (maxRows != null ? maxRows : DEFAULT_MAX_ROWS));
 
 				if (sql != null) {
 
 					try {
-						SQLExecResult result = executeSQL(geoPackage,
+						SQLExecResult result = executeSQL(database,
 								sql.toString(), maxRows);
 						result.printResults();
 					} catch (Exception e) {
@@ -180,12 +186,12 @@ public class SQLExec {
 
 				} else {
 
-					commandPrompt(geoPackage, maxRows);
+					commandPrompt(database, maxRows);
 
 				}
 
 			} finally {
-				geoPackage.close();
+				database.close();
 			}
 		}
 
@@ -194,12 +200,12 @@ public class SQLExec {
 	/**
 	 * Command prompt accepting SQL statements
 	 * 
-	 * @param geoPackage
-	 *            open GeoPackage
+	 * @param database
+	 *            open database
 	 */
-	private static void commandPrompt(GeoPackage geoPackage, Integer maxRows) {
+	private static void commandPrompt(GeoPackage database, Integer maxRows) {
 
-		printHelp();
+		printHelp(database);
 
 		List<String> history = new ArrayList<>();
 		Scanner scanner = new Scanner(System.in);
@@ -227,8 +233,8 @@ public class SQLExec {
 
 					if (executeSql) {
 
-						executeSQL(geoPackage, sqlBuilder,
-								sqlBuilder.toString(), maxRows, history);
+						executeSQL(database, sqlBuilder, sqlBuilder.toString(),
+								maxRows, history);
 
 					} else if (singleLine) {
 
@@ -238,15 +244,14 @@ public class SQLExec {
 
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_HELP)) {
 
-							printHelp();
+							printHelp(database);
 
 							resetCommandPrompt(sqlBuilder);
 
 						} else if (sqlLine.equals(COMMAND_TABLES)) {
 
-							executeSQL(geoPackage, sqlBuilder,
-									COMMAND_TABLES_SQL, COMMAND_TABLES_MAX_ROWS,
-									history);
+							executeSQL(database, sqlBuilder, COMMAND_TABLES_SQL,
+									COMMAND_TABLES_MAX_ROWS, history);
 
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_HISTORY)) {
 
@@ -260,7 +265,7 @@ public class SQLExec {
 
 						} else if (sqlLine.equals(COMMAND_PREVIOUS)) {
 
-							executeSQL(geoPackage, sqlBuilder, history.size(),
+							executeSQL(database, sqlBuilder, history.size(),
 									maxRows, history);
 
 						} else if (HISTORY_PATTERN.matcher(sqlLine).matches()) {
@@ -268,7 +273,7 @@ public class SQLExec {
 							int historyNumber = Integer.parseInt(
 									sqlLine.substring(1, sqlLine.length()));
 
-							executeSQL(geoPackage, sqlBuilder, historyNumber,
+							executeSQL(database, sqlBuilder, historyNumber,
 									maxRows, history);
 
 						}
@@ -288,8 +293,11 @@ public class SQLExec {
 
 	/**
 	 * Print the command prompt help
+	 * 
+	 * @param database
+	 *            database
 	 */
-	private static void printHelp() {
+	private static void printHelp(GeoPackage database) {
 		System.out.println();
 		System.out.println("- Supports most SQLite statements including:");
 		System.out.println(
@@ -318,23 +326,25 @@ public class SQLExec {
 				"\t                  * ALTER TABLE table_name DROP column_name");
 		System.out.println(
 				"\t                  * ALTER TABLE table_name DROP COLUMN column_name");
-		System.out.println(
-				"\tRename Table - User tables are updated throughout the GeoPackage");
-		System.out.println(
-				"\t                  * ALTER TABLE table_name RENAME TO new_table_name");
 		System.out.println("\tCopy Table   - Not a traditional SQL statment");
 		System.out.println(
 				"\t                  * ALTER TABLE table_name COPY TO new_table_name");
-		System.out.println(
-				"\tDrop Table   - User tables are dropped throughout the GeoPackage");
-		System.out.println("\t                  * DROP TABLE table_name");
+		if (GeoPackageValidate.hasMinimumTables(database)) {
+			System.out.println(
+					"\tRename Table - User tables are updated throughout the GeoPackage");
+			System.out.println(
+					"\t                  * ALTER TABLE table_name RENAME TO new_table_name");
+			System.out.println(
+					"\tDrop Table   - User tables are dropped throughout the GeoPackage");
+			System.out.println("\t                  * DROP TABLE table_name");
+		}
 	}
 
 	/**
 	 * Execute the SQL
 	 * 
-	 * @param geoPackage
-	 *            GeoPackage
+	 * @param database
+	 *            database
 	 * @param sqlBuilder
 	 *            SQL builder
 	 * @param historyNumber
@@ -346,7 +356,7 @@ public class SQLExec {
 	 * @throws SQLException
 	 *             upon error
 	 */
-	private static void executeSQL(GeoPackage geoPackage,
+	private static void executeSQL(GeoPackage database,
 			StringBuilder sqlBuilder, int historyNumber, Integer maxRows,
 			List<String> history) throws SQLException {
 
@@ -362,7 +372,7 @@ public class SQLExec {
 
 			String sql = history.get(number);
 			System.out.println(sql);
-			executeSQL(geoPackage, sqlBuilder, sql, maxRows, history);
+			executeSQL(database, sqlBuilder, sql, maxRows, history);
 
 		} else {
 			System.out.println("No History at " + historyNumber);
@@ -374,8 +384,8 @@ public class SQLExec {
 	/**
 	 * Execute the SQL
 	 * 
-	 * @param geoPackage
-	 *            GeoPackage
+	 * @param database
+	 *            database
 	 * @param sqlBuilder
 	 *            SQL builder
 	 * @param sql
@@ -387,11 +397,11 @@ public class SQLExec {
 	 * @throws SQLException
 	 *             upon error
 	 */
-	private static void executeSQL(GeoPackage geoPackage,
+	private static void executeSQL(GeoPackage database,
 			StringBuilder sqlBuilder, String sql, Integer maxRows,
 			List<String> history) throws SQLException {
 
-		SQLExecResult result = executeSQL(geoPackage, sql, maxRows);
+		SQLExecResult result = executeSQL(database, sql, maxRows);
 		result.printResults();
 
 		history.add(sql);
@@ -412,26 +422,26 @@ public class SQLExec {
 	}
 
 	/**
-	 * Execute the SQL on the GeoPackage
+	 * Execute the SQL on the database
 	 * 
-	 * @param geoPackageFile
-	 *            GeoPackage file
+	 * @param databaseFile
+	 *            database file
 	 * @param sql
 	 *            SQL statement
 	 * @return results
 	 * @throws SQLException
 	 *             upon SQL error
 	 */
-	public static SQLExecResult executeSQL(File geoPackageFile, String sql)
+	public static SQLExecResult executeSQL(File databaseFile, String sql)
 			throws SQLException {
-		return executeSQL(geoPackageFile, sql, null);
+		return executeSQL(databaseFile, sql, null);
 	}
 
 	/**
-	 * Execute the SQL on the GeoPackage
+	 * Execute the SQL on the database
 	 * 
-	 * @param geoPackageFile
-	 *            GeoPackage file
+	 * @param databaseFile
+	 *            database file
 	 * @param sql
 	 *            SQL statement
 	 * @param maxRows
@@ -440,42 +450,42 @@ public class SQLExec {
 	 * @throws SQLException
 	 *             upon SQL error
 	 */
-	public static SQLExecResult executeSQL(File geoPackageFile, String sql,
+	public static SQLExecResult executeSQL(File databaseFile, String sql,
 			Integer maxRows) throws SQLException {
 
 		SQLExecResult result = null;
 
-		GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile);
+		GeoPackage database = GeoPackageManager.open(databaseFile);
 		try {
-			result = executeSQL(geoPackage, sql, maxRows);
+			result = executeSQL(database, sql, maxRows);
 		} finally {
-			geoPackage.close();
+			database.close();
 		}
 
 		return result;
 	}
 
 	/**
-	 * Execute the SQL on the GeoPackage
+	 * Execute the SQL on the database
 	 * 
-	 * @param geoPackage
-	 *            open GeoPackage
+	 * @param database
+	 *            open database
 	 * @param sql
 	 *            SQL statement
 	 * @return results
 	 * @throws SQLException
 	 *             upon SQL error
 	 */
-	public static SQLExecResult executeSQL(GeoPackage geoPackage, String sql)
+	public static SQLExecResult executeSQL(GeoPackage database, String sql)
 			throws SQLException {
-		return executeSQL(geoPackage, sql, null);
+		return executeSQL(database, sql, null);
 	}
 
 	/**
-	 * Execute the SQL on the GeoPackage
+	 * Execute the SQL on the GeoPadatabaseckage
 	 * 
-	 * @param geoPackage
-	 *            open GeoPackage
+	 * @param database
+	 *            open database
 	 * @param sql
 	 *            SQL statement
 	 * @param maxRows
@@ -484,7 +494,7 @@ public class SQLExec {
 	 * @throws SQLException
 	 *             upon SQL error
 	 */
-	public static SQLExecResult executeSQL(GeoPackage geoPackage, String sql,
+	public static SQLExecResult executeSQL(GeoPackage database, String sql,
 			Integer maxRows) throws SQLException {
 
 		// If no max number of results, use the default
@@ -494,24 +504,24 @@ public class SQLExec {
 
 		sql = sql.trim();
 
-		RTreeIndexExtension rtree = new RTreeIndexExtension(geoPackage);
+		RTreeIndexExtension rtree = new RTreeIndexExtension(database);
 		if (rtree.has()) {
 			rtree.createAllFunctions();
 		}
 
-		SQLExecResult result = SQLExecAlterTable.alterTable(geoPackage, sql);
+		SQLExecResult result = SQLExecAlterTable.alterTable(database, sql);
 		if (result == null) {
-			result = executeQuery(geoPackage, sql, maxRows);
+			result = executeQuery(database, sql, maxRows);
 		}
 
 		return result;
 	}
 
 	/**
-	 * Execute the query against the GeoPackage
+	 * Execute the query against the database
 	 * 
-	 * @param geoPackage
-	 *            open GeoPackage
+	 * @param database
+	 *            open database
 	 * @param sql
 	 *            SQL statement
 	 * @param maxRows
@@ -520,7 +530,7 @@ public class SQLExec {
 	 * @throws SQLException
 	 *             upon SQL error
 	 */
-	private static SQLExecResult executeQuery(GeoPackage geoPackage, String sql,
+	private static SQLExecResult executeQuery(GeoPackage database, String sql,
 			int maxRows) throws SQLException {
 
 		SQLExecResult result = new SQLExecResult();
@@ -530,7 +540,7 @@ public class SQLExec {
 			PreparedStatement statement = null;
 			try {
 
-				statement = geoPackage.getConnection().getConnection()
+				statement = database.getConnection().getConnection()
 						.prepareStatement(sql);
 				statement.setMaxRows(maxRows);
 
@@ -612,14 +622,14 @@ public class SQLExec {
 		System.out.println("USAGE");
 		System.out.println();
 		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_MAX_ROWS
-				+ " max_rows] geopackage_file [sql]");
+				+ " max_rows] sqlite_file [sql]");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
-		System.out.println("\tExecutes SQL on a GeoPackage");
+		System.out.println("\tExecutes SQL on a SQLite database");
 		System.out.println();
 		System.out.println(
-				"\tProvide the SQL to execute the single statement. Omit to start an interactive session.");
+				"\tProvide the SQL to execute a single statement. Omit to start an interactive session.");
 		System.out.println();
 		System.out.println("ARGUMENTS");
 		System.out.println();
@@ -628,9 +638,8 @@ public class SQLExec {
 		System.out.println("\t\tMax rows to query and display" + " (Default is "
 				+ DEFAULT_MAX_ROWS + ")");
 		System.out.println();
-		System.out.println("\tgeopackage_file");
-		System.out.println(
-				"\t\tpath to the GeoPackage file containing the tiles");
+		System.out.println("\tsqlite_file");
+		System.out.println("\t\tpath to the SQLite database file");
 		System.out.println();
 		System.out.println("\tsql");
 		System.out.println("\t\tSQL statement to execute");
