@@ -79,7 +79,21 @@ public class GeoPackageManager {
 	 * @return GeoPackage
 	 */
 	public static GeoPackage open(File file) {
-		return open(file.getName(), file);
+		return open(file, true);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param file
+	 *            file
+	 * @param validate
+	 *            validate the GeoPackage
+	 * @return GeoPackage
+	 * @since 3.3.0
+	 */
+	public static GeoPackage open(File file, boolean validate) {
+		return open(file.getName(), file, validate);
 	}
 
 	/**
@@ -93,13 +107,31 @@ public class GeoPackageManager {
 	 * @since 3.0.2
 	 */
 	public static GeoPackage open(String name, File file) {
+		return open(name, file, true);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage name
+	 * @param file
+	 *            GeoPackage file
+	 * @param validate
+	 *            validate the GeoPackage
+	 * @return GeoPackage
+	 * @since 3.3.0
+	 */
+	public static GeoPackage open(String name, File file, boolean validate) {
 
 		// Validate or add the file extension
-		if (GeoPackageIOUtils.hasFileExtension(file)) {
-			GeoPackageValidate.validateGeoPackageExtension(file);
-		} else {
-			file = GeoPackageIOUtils.addFileExtension(file,
-					GeoPackageConstants.GEOPACKAGE_EXTENSION);
+		if (validate) {
+			if (GeoPackageIOUtils.hasFileExtension(file)) {
+				GeoPackageValidate.validateGeoPackageExtension(file);
+			} else {
+				file = GeoPackageIOUtils.addFileExtension(file,
+						GeoPackageConstants.GEOPACKAGE_EXTENSION);
+			}
 		}
 
 		// Create the GeoPackage Connection and table creator
@@ -112,11 +144,13 @@ public class GeoPackageManager {
 				tableCreator);
 
 		// Validate the GeoPackage has the minimum required tables
-		try {
-			GeoPackageValidate.validateMinimumTables(geoPackage);
-		} catch (RuntimeException e) {
-			geoPackage.close();
-			throw e;
+		if (validate) {
+			try {
+				GeoPackageValidate.validateMinimumTables(geoPackage);
+			} catch (RuntimeException e) {
+				geoPackage.close();
+				throw e;
+			}
 		}
 
 		return geoPackage;
