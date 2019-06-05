@@ -112,15 +112,16 @@ To build the jar into a standalone jar that includes all dependencies:
 
 #### SQL Exec ####
 
-Executes SQL statements on a GeoPackage.  Most SQLite statements are supported including: SELECT, INSERT, DELETE, CREATE, ALTER, DROP, PRAGMA, VACUUM, and more.  Providing SQL on the command line executes the single statement. Omitting SQL on the command line starts an interactive SQL shell with additional command options.  Handles special GeoPackage cases and statements including:
+Executes SQL statements on a SQLite database, including GeoPackages.  Most SQLite statements are supported including: SELECT, INSERT, DELETE, CREATE, ALTER, DROP, PRAGMA, VACUUM, and more.  Providing SQL on the command line executes the single statement. Omitting SQL on the command line starts an interactive SQL shell with additional command options.  Handles special SQLite and GeoPackage cases and statements including:
  * Dropping columns (not natively supported in SQLite)
- * Renaming a user table also updates dependencies throughout the GeoPackage
  * Copying a table and all dependencies (not a standard SQL alter table command)
- * Dropping a table also removes dependencies throughout the GeoPackage
+ * For GeoPackages
+ ** Renaming a user table also updates dependencies throughout the GeoPackage
+ ** Dropping a table also removes dependencies throughout the GeoPackage
 
 To run against the jar:
 
-    java -jar geopackage-*standalone.jar [-m max_rows] geopackage_file [sql]
+    java -jar geopackage-*standalone.jar [-m max_rows] sqlite_file [sql]
 
 Examples:
 
@@ -139,17 +140,17 @@ Examples:
 
 ##### Script #####
 
-Place geopackage-standalone.jar (renamed w/o the version) in the same directory as [gsql.sh](script/gsql.sh).
+Rename geopackage-standalone.jar to sqlite-exec.jar and place in the same directory as [sqlite-exec.sh](script/sqlite-exec.sh).
 
 Add an alias in .bashrc to the script location:
 
-    alias gsql="/path/gsql.sh"
+    alias sql="/path/sqlite-exec.sh"
 
 Run from any directory:
 
-    gsql /path/geopackage.gpkg "SELECT * FROM gpkg_contents"
+    sql /path/geopackage.gpkg "SELECT * FROM gpkg_contents"
 
-    gsql /path/geopackage.gpkg
+    sql /path/geopackage.gpkg
     sql>PRAGMA integrity_check;
 
 #### Tile Writer ####
