@@ -119,7 +119,8 @@ public class SQLExec {
 			printUsage();
 		} else {
 
-			GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile);
+			GeoPackage geoPackage = GeoPackageManager.open(geoPackageFile,
+					false);
 			try {
 
 				System.out.println("GeoPackage: " + geoPackage.getName());
