@@ -388,6 +388,8 @@ public class SQLExec {
 		System.out.println(
 				"\t        - write blobs from the previous successful sql command to the file system");
 		System.out.println(
+				"\t              ([directory]|blobs)/table_name/column_name/(pk_values|result_index|[pattern])[.file_extension]");
+		System.out.println(
 				"\t           file_extension - file extension added to each saved blob file");
 		System.out.println(
 				"\t           directory      - base directory to save table_name/column_name/blobs (default is ./"
@@ -395,7 +397,9 @@ public class SQLExec {
 		System.out.println(
 				"\t           pattern        - file directory and/or name pattern consisting of column names in parentheses");
 		System.out.println(
-				"\t              ([directory]|blobs)/table_name/column_name/(pk_values|result_index|[pattern])[.file_extension]");
+				"\t                             (column_name)-(column_name2)");
+		System.out.println(
+				"\t                             (column_name)/(column_name2)");
 		System.out.println();
 		System.out.println("Special Supported Cases:");
 		System.out.println();
