@@ -390,8 +390,8 @@ public class SQLExec {
 		System.out.println(
 				"\t           file_extension - file extension added to each saved blob file");
 		System.out.println(
-				"\t           directory      - base directory to save table_name/column_name/blobs (default is ./\""
-						+ BLOBS_WRITE_DEFAULT_DIRECTORY + "\")");
+				"\t           directory      - base directory to save table_name/column_name/blobs (default is ./"
+						+ BLOBS_WRITE_DEFAULT_DIRECTORY + ")");
 		System.out.println(
 				"\t           pattern        - file directory and/or name pattern consisting of column names in parentheses");
 		System.out.println(
