@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackage;
@@ -120,6 +121,33 @@ public class SQLExec {
 	 * Blobs directory argument
 	 */
 	public static final String BLOBS_ARGUMENT_DIRECTORY = "d";
+
+	/**
+	 * Blobs pattern argument
+	 */
+	public static final String BLOBS_ARGUMENT_PATTERN = "p";
+
+	/**
+	 * Blobs column start regex
+	 */
+	public static final String BLOBS_COLUMN_START_REGEX = "\\(";
+
+	/**
+	 * Blobs column end regex
+	 */
+	public static final String BLOBS_COLUMN_END_REGEX = "\\)";
+
+	/**
+	 * Blobs column pattern
+	 */
+	public static final Pattern BLOBS_COLUMN_PATTERN = Pattern
+			.compile(BLOBS_COLUMN_START_REGEX + "([^" + BLOBS_COLUMN_END_REGEX
+					+ "]+)" + BLOBS_COLUMN_END_REGEX);
+
+	/**
+	 * Blobs column pattern group
+	 */
+	public static final int BLOBS_COLUMN_PATTERN_GROUP = 1;
 
 	/**
 	 * Main method to execute SQL in a SQLite database
@@ -355,11 +383,19 @@ public class SQLExec {
 				"\t!-n     - re-execute a sql statement n commands back in history");
 		System.out.println("\t" + COMMAND_WRITE_BLOBS + " [" + ARGUMENT_PREFIX
 				+ BLOBS_ARGUMENT_EXTENSION + " file_extension] ["
-				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_DIRECTORY + " directory]");
+				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_DIRECTORY + " directory] ["
+				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_PATTERN + " pattern]");
 		System.out.println(
 				"\t        - write blobs from the previous successful sql command to the file system");
 		System.out.println(
-				"\t             ([directory]|blobs)/table_name/column_name/file[.file_extension]");
+				"\t           file_extension - file extension added to each saved blob file");
+		System.out.println(
+				"\t           directory      - base directory to save table_name/column_name/blobs (default is ./\""
+						+ BLOBS_WRITE_DEFAULT_DIRECTORY + "\")");
+		System.out.println(
+				"\t           pattern        - file directory and/or name pattern consisting of column names in parentheses");
+		System.out.println(
+				"\t              ([directory]|blobs)/table_name/column_name/(pk_values|result_index|[pattern])[.file_extension]");
 		System.out.println();
 		System.out.println("Special Supported Cases:");
 		System.out.println();
@@ -686,6 +722,8 @@ public class SQLExec {
 
 			String extension = null;
 			String directory = null;
+			String pattern = null;
+			List<String> patternColumns = new ArrayList<>();
 
 			if (args != null && !args.isEmpty()) {
 
@@ -723,6 +761,31 @@ public class SQLExec {
 										"Error: Blobs directory argument '"
 												+ arg
 												+ "' must be followed by a directory location");
+							}
+							break;
+
+						case BLOBS_ARGUMENT_PATTERN:
+							if (i < argParts.length) {
+								pattern = argParts[++i];
+								Matcher matcher = BLOBS_COLUMN_PATTERN
+										.matcher(pattern);
+								while (matcher.find()) {
+									String columnName = matcher
+											.group(BLOBS_COLUMN_PATTERN_GROUP);
+									patternColumns.add(columnName);
+								}
+								if (patternColumns.isEmpty()) {
+									valid = false;
+									System.out.println(
+											"Error: Blobs pattern argument '"
+													+ arg
+													+ "' must be followed by a save pattern with at least one column surrounded by parentheses");
+								}
+							} else {
+								valid = false;
+								System.out.println(
+										"Error: Blobs pattern argument '" + arg
+												+ "' must be followed by a save pattern");
 							}
 							break;
 
@@ -770,7 +833,7 @@ public class SQLExec {
 						List<Integer> blobColumns = new ArrayList<>();
 						List<String> tables = new ArrayList<>();
 						List<String> columnNames = new ArrayList<>();
-						Map<String, List<Integer>> tablePkColumns = new HashMap<>();
+						Map<String, List<Integer>> tableNameColumns = new HashMap<>();
 
 						Map<String, Integer> columnNameIndexes = new HashMap<>();
 						for (int col = 1; col <= numColumns; col++) {
@@ -782,24 +845,39 @@ public class SQLExec {
 							if (metadata.getColumnType(col) == Types.BLOB) {
 								blobColumns.add(col);
 								String tableName = metadata.getTableName(col);
-								List<Integer> pkColumns = tablePkColumns
+								List<Integer> nameColumns = tableNameColumns
 										.get(tableName);
-								if (pkColumns == null) {
-									pkColumns = new ArrayList<>();
+								if (nameColumns == null) {
+									nameColumns = new ArrayList<>();
 									TableInfo tableInfo = TableInfo.info(
 											database.getConnection(),
 											tableName);
-									if (tableInfo.hasPrimaryKey()) {
+									List<String> nameColumnNames = null;
+									if (pattern != null) {
+										nameColumnNames = patternColumns;
+									} else if (tableInfo.hasPrimaryKey()) {
+										nameColumnNames = new ArrayList<>();
 										for (TableColumn tableColumn : tableInfo
 												.getPrimaryKeys()) {
-											Integer columnIndex = columnNameIndexes
-													.get(tableColumn.getName());
-											if (columnIndex != null) {
-												pkColumns.add(columnIndex);
-											}
+											nameColumnNames
+													.add(tableColumn.getName());
 										}
 									}
-									tablePkColumns.put(tableName, pkColumns);
+									if (nameColumnNames != null) {
+										for (String columnName : nameColumnNames) {
+											Integer columnIndex = columnNameIndexes
+													.get(columnName);
+											if (columnIndex == null
+													&& pattern != null) {
+												throw new IllegalArgumentException(
+														"Pattern column not found in query: "
+																+ columnName);
+											}
+											nameColumns.add(columnIndex);
+										}
+									}
+									tableNameColumns.put(tableName,
+											nameColumns);
 								}
 								tables.add(tableName);
 								columnNames.add(metadata.getColumnName(col));
@@ -837,21 +915,40 @@ public class SQLExec {
 										File columnDirectory = new File(
 												tableDirectory,
 												columnNames.get(i));
-										columnDirectory.mkdirs();
 
 										String name = null;
 
-										List<Integer> pkColumns = tablePkColumns
+										if (pattern != null) {
+											name = pattern;
+										}
+
+										List<Integer> nameColumns = tableNameColumns
 												.get(tableName);
-										if (!pkColumns.isEmpty()) {
-											for (int pkColumn : pkColumns) {
-												String pkValue = resultSet
-														.getString(pkColumn);
-												if (pkValue != null) {
-													if (name == null) {
-														name = pkValue;
-													} else {
-														name += "-" + pkValue;
+										if (!nameColumns.isEmpty()) {
+											for (int j = 0; j < nameColumns
+													.size(); j++) {
+												Integer nameColumn = nameColumns
+														.get(j);
+												if (nameColumn != null) {
+													String columnValue = resultSet
+															.getString(
+																	nameColumn);
+													if (columnValue != null) {
+														if (pattern != null) {
+															String columnName = patternColumns
+																	.get(j);
+															name = name
+																	.replaceAll(
+																			BLOBS_COLUMN_START_REGEX
+																					+ columnName
+																					+ BLOBS_COLUMN_END_REGEX,
+																			columnValue);
+														} else if (name == null) {
+															name = columnValue;
+														} else {
+															name += "-"
+																	+ columnValue;
+														}
 													}
 												}
 											}
@@ -867,6 +964,7 @@ public class SQLExec {
 
 										File blobFile = new File(
 												columnDirectory, name);
+										blobFile.getParentFile().mkdirs();
 
 										FileOutputStream fos = new FileOutputStream(
 												blobFile);
