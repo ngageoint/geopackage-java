@@ -1,18 +1,26 @@
 package mil.nga.geopackage.io;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.SQLUtils;
+import mil.nga.geopackage.db.table.TableColumn;
+import mil.nga.geopackage.db.table.TableInfo;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.validate.GeoPackageValidate;
@@ -89,9 +97,29 @@ public class SQLExec {
 	public static final String COMMAND_PREVIOUS = "!!";
 
 	/**
+	 * Write blobs command
+	 */
+	public static final String COMMAND_WRITE_BLOBS = "write blobs";
+
+	/**
 	 * Blob display value
 	 */
 	public static final String BLOB_DISPLAY_VALUE = "BLOB";
+
+	/**
+	 * Default write directory for blobs
+	 */
+	public static final String BLOBS_WRITE_DEFAULT_DIRECTORY = "blobs";
+
+	/**
+	 * Blobs extension argument
+	 */
+	public static final String BLOBS_ARGUMENT_EXTENSION = "e";
+
+	/**
+	 * Blobs directory argument
+	 */
+	public static final String BLOBS_ARGUMENT_DIRECTORY = "d";
 
 	/**
 	 * Main method to execute SQL in a SQLite database
@@ -248,7 +276,7 @@ public class SQLExec {
 
 							resetCommandPrompt(sqlBuilder);
 
-						} else if (sqlLine.equals(COMMAND_TABLES)) {
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_TABLES)) {
 
 							executeSQL(database, sqlBuilder, COMMAND_TABLES_SQL,
 									COMMAND_TABLES_MAX_ROWS, history);
@@ -267,6 +295,13 @@ public class SQLExec {
 
 							executeSQL(database, sqlBuilder, history.size(),
 									maxRows, history);
+
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_WRITE_BLOBS)) {
+
+							writeBlobs(database, sqlBuilder, maxRows, history,
+									sqlLine.substring(
+											COMMAND_WRITE_BLOBS.length()));
 
 						} else if (HISTORY_PATTERN.matcher(sqlLine).matches()) {
 
@@ -313,11 +348,18 @@ public class SQLExec {
 		System.out.println("\t" + COMMAND_HISTORY
 				+ " - list successfully executed sql commands");
 		System.out.println("\t" + COMMAND_PREVIOUS
-				+ "      - re-execute the last successful sql command");
+				+ "      - re-execute the previous successful sql command");
 		System.out.println(
 				"\t!n      - re-execute a sql statement by history id n");
 		System.out.println(
 				"\t!-n     - re-execute a sql statement n commands back in history");
+		System.out.println("\t" + COMMAND_WRITE_BLOBS + " [" + ARGUMENT_PREFIX
+				+ BLOBS_ARGUMENT_EXTENSION + " file_extension] ["
+				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_DIRECTORY + " directory]");
+		System.out.println(
+				"\t        - write blobs from the previous successful sql command to the file system");
+		System.out.println(
+				"\t             ([directory]|blobs)/table_name/column_name/file[.file_extension]");
 		System.out.println();
 		System.out.println("Special Supported Cases:");
 		System.out.println();
@@ -612,6 +654,255 @@ public class SQLExec {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Write blobs from the query
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param maxRows
+	 *            max rows
+	 * @param history
+	 *            history
+	 * @param args
+	 *            write blob arguments
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void writeBlobs(GeoPackage database,
+			StringBuilder sqlBuilder, Integer maxRows, List<String> history,
+			String args) throws SQLException, IOException {
+
+		if (history.isEmpty()) {
+			System.out.println("No previous query with blobs");
+		} else {
+
+			boolean valid = true;
+
+			String extension = null;
+			String directory = null;
+
+			if (args != null && !args.isEmpty()) {
+
+				String[] argParts = args.trim().split("\\s+");
+
+				for (int i = 0; valid && i < argParts.length; i++) {
+
+					String arg = argParts[i];
+
+					if (arg.startsWith(ARGUMENT_PREFIX)) {
+
+						String argument = arg
+								.substring(ARGUMENT_PREFIX.length());
+
+						switch (argument) {
+
+						case BLOBS_ARGUMENT_EXTENSION:
+							if (i < argParts.length) {
+								extension = argParts[++i];
+							} else {
+								valid = false;
+								System.out.println(
+										"Error: Blobs extension argument '"
+												+ arg
+												+ "' must be followed by a file extension");
+							}
+							break;
+
+						case BLOBS_ARGUMENT_DIRECTORY:
+							if (i < argParts.length) {
+								directory = argParts[++i];
+							} else {
+								valid = false;
+								System.out.println(
+										"Error: Blobs directory argument '"
+												+ arg
+												+ "' must be followed by a directory location");
+							}
+							break;
+
+						default:
+							valid = false;
+							System.out.println(
+									"Error: Unsupported arg: '" + arg + "'");
+						}
+
+					} else {
+						valid = false;
+						System.out.println(
+								"Error: Unsupported arg: '" + arg + "'");
+					}
+				}
+			}
+
+			if (valid) {
+
+				String sql = history.get(history.size() - 1);
+
+				if (maxRows == null) {
+					maxRows = DEFAULT_MAX_ROWS;
+				}
+
+				Set<String> blobsWritten = new LinkedHashSet<>();
+				int blobsWrittenCount = 0;
+
+				PreparedStatement statement = null;
+				try {
+
+					statement = database.getConnection().getConnection()
+							.prepareStatement(sql);
+					statement.setMaxRows(maxRows);
+
+					boolean hasResultSet = statement.execute();
+
+					if (hasResultSet) {
+
+						ResultSet resultSet = statement.getResultSet();
+
+						ResultSetMetaData metadata = resultSet.getMetaData();
+						int numColumns = metadata.getColumnCount();
+
+						List<Integer> blobColumns = new ArrayList<>();
+						List<String> tables = new ArrayList<>();
+						List<String> columnNames = new ArrayList<>();
+						Map<String, List<Integer>> tablePkColumns = new HashMap<>();
+
+						Map<String, Integer> columnNameIndexes = new HashMap<>();
+						for (int col = 1; col <= numColumns; col++) {
+							columnNameIndexes.put(metadata.getColumnName(col),
+									col);
+						}
+
+						for (int col = 1; col <= numColumns; col++) {
+							if (metadata.getColumnType(col) == Types.BLOB) {
+								blobColumns.add(col);
+								String tableName = metadata.getTableName(col);
+								List<Integer> pkColumns = tablePkColumns
+										.get(tableName);
+								if (pkColumns == null) {
+									pkColumns = new ArrayList<>();
+									TableInfo tableInfo = TableInfo.info(
+											database.getConnection(),
+											tableName);
+									if (tableInfo.hasPrimaryKey()) {
+										for (TableColumn tableColumn : tableInfo
+												.getPrimaryKeys()) {
+											Integer columnIndex = columnNameIndexes
+													.get(tableColumn.getName());
+											if (columnIndex != null) {
+												pkColumns.add(columnIndex);
+											}
+										}
+									}
+									tablePkColumns.put(tableName, pkColumns);
+								}
+								tables.add(tableName);
+								columnNames.add(metadata.getColumnName(col));
+							}
+						}
+
+						if (!blobColumns.isEmpty()) {
+
+							if (extension != null
+									&& !extension.startsWith(".")) {
+								extension = "." + extension;
+							}
+
+							if (directory == null) {
+								directory = BLOBS_WRITE_DEFAULT_DIRECTORY;
+							}
+							File blobsDirectory = new File(directory);
+
+							int resultCount = 0;
+							while (resultSet.next()) {
+
+								resultCount++;
+
+								for (int i = 0; i < blobColumns.size(); i++) {
+									int col = blobColumns.get(i);
+
+									byte[] blobBytes = resultSet.getBytes(col);
+
+									if (blobBytes != null) {
+
+										String tableName = tables.get(i);
+
+										File tableDirectory = new File(
+												blobsDirectory, tableName);
+										File columnDirectory = new File(
+												tableDirectory,
+												columnNames.get(i));
+										columnDirectory.mkdirs();
+
+										String name = null;
+
+										List<Integer> pkColumns = tablePkColumns
+												.get(tableName);
+										if (!pkColumns.isEmpty()) {
+											for (int pkColumn : pkColumns) {
+												String pkValue = resultSet
+														.getString(pkColumn);
+												if (pkValue != null) {
+													if (name == null) {
+														name = pkValue;
+													} else {
+														name += "-" + pkValue;
+													}
+												}
+											}
+										}
+
+										if (name == null) {
+											name = String.valueOf(resultCount);
+										}
+
+										if (extension != null) {
+											name += extension;
+										}
+
+										File blobFile = new File(
+												columnDirectory, name);
+
+										FileOutputStream fos = new FileOutputStream(
+												blobFile);
+										fos.write(blobBytes);
+										fos.close();
+
+										blobsWrittenCount++;
+										blobsWritten.add(columnDirectory
+												.getAbsolutePath());
+									}
+								}
+
+							}
+
+						}
+
+					}
+
+				} finally {
+					SQLUtils.closeStatement(statement, sql);
+				}
+
+				if (blobsWrittenCount <= 0) {
+					System.out.println("No Blobs in previous query: " + sql);
+				} else {
+					System.out
+							.println(blobsWrittenCount + " Blobs written to:");
+					for (String location : blobsWritten) {
+						System.out.println(location);
+					}
+				}
+			}
+
+		}
+
+		resetCommandPrompt(sqlBuilder);
 	}
 
 	/**
