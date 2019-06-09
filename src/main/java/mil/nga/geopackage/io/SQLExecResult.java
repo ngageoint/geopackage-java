@@ -40,6 +40,11 @@ public class SQLExecResult {
 	private Integer updateCount = null;
 
 	/**
+	 * Max rows queried
+	 */
+	private Integer maxRows = null;
+
+	/**
 	 * Constructor
 	 */
 	protected SQLExecResult() {
@@ -247,6 +252,34 @@ public class SQLExecResult {
 	}
 
 	/**
+	 * Set the max rows queried
+	 * 
+	 * @param maxRows
+	 *            max rows
+	 */
+	protected void setMaxRows(Integer maxRows) {
+		this.maxRows = maxRows;
+	}
+
+	/**
+	 * Get the max rows queried
+	 * 
+	 * @return max rows
+	 */
+	public Integer getMaxRows() {
+		return maxRows;
+	}
+
+	/**
+	 * Determine if the result has the max number of results
+	 * 
+	 * @return true if max results
+	 */
+	public boolean hasMaxResults() {
+		return maxRows != null && numRows() >= maxRows;
+	}
+
+	/**
 	 * Print the results using {@link System#out}
 	 */
 	public void printResults() {
@@ -279,12 +312,22 @@ public class SQLExecResult {
 
 			printHorizontalDivider(width);
 
+			printRowCount();
+
 		} else if (hasUpdateCount()) {
 			System.out.println("Update Count: " + getUpdateCount());
 		} else {
 			System.out.println("No Results");
 		}
 
+	}
+
+	/**
+	 * Print the row count
+	 */
+	private void printRowCount() {
+		System.out.println(
+				"Rows: " + numRows() + (hasMaxResults() ? " (max)" : ""));
 	}
 
 	/**

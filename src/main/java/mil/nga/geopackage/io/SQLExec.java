@@ -20,6 +20,10 @@ import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.SQLUtils;
+import mil.nga.geopackage.db.master.SQLiteMaster;
+import mil.nga.geopackage.db.master.SQLiteMasterColumn;
+import mil.nga.geopackage.db.master.SQLiteMasterQuery;
+import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.db.table.TableColumn;
 import mil.nga.geopackage.db.table.TableInfo;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
@@ -83,9 +87,39 @@ public class SQLExec {
 	public static final String COMMAND_TABLES_SQL = "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name;";
 
 	/**
-	 * Tables command max rows
+	 * Indexes command
 	 */
-	public static final int COMMAND_TABLES_MAX_ROWS = 2147483646;
+	public static final String COMMAND_INDEXES = "indexes";
+
+	/**
+	 * Indexes command SQL
+	 */
+	public static final String COMMAND_INDEXES_SQL = "SELECT name, tbl_name FROM sqlite_master WHERE type = 'index' AND name NOT LIKE 'sqlite_%' ORDER BY name;";
+
+	/**
+	 * Views command
+	 */
+	public static final String COMMAND_VIEWS = "views";
+
+	/**
+	 * Views command SQL
+	 */
+	public static final String COMMAND_VIEWS_SQL = "SELECT name FROM sqlite_master WHERE type = 'view' ORDER BY name;";
+
+	/**
+	 * Triggers command
+	 */
+	public static final String COMMAND_TRIGGERS = "triggers";
+
+	/**
+	 * Triggers command SQL
+	 */
+	public static final String COMMAND_TRIGGERS_SQL = "SELECT name, tbl_name FROM sqlite_master WHERE type = 'trigger' ORDER BY name;";
+
+	/**
+	 * Command with all rows
+	 */
+	public static final int COMMAND_ALL_ROWS = 2147483646;
 
 	/**
 	 * History command
@@ -100,7 +134,22 @@ public class SQLExec {
 	/**
 	 * Write blobs command
 	 */
-	public static final String COMMAND_WRITE_BLOBS = "write blobs";
+	public static final String COMMAND_WRITE_BLOBS = "blobs";
+
+	/**
+	 * Max rows command
+	 */
+	public static final String COMMAND_MAX_ROWS = "rows";
+
+	/**
+	 * Table Info command
+	 */
+	public static final String COMMAND_TABLE_INFO = "info";
+
+	/**
+	 * SQLite Master command
+	 */
+	public static final String COMMAND_SQLITE_MASTER = "sqlite_master";
 
 	/**
 	 * Blob display value
@@ -287,12 +336,14 @@ public class SQLExec {
 						sqlBuilder.append(sqlLine);
 					}
 
-					if (executeSql) {
+					if (singleLine) {
 
-						executeSQL(database, sqlBuilder, sqlBuilder.toString(),
-								maxRows, history);
+						if (executeSql) {
+							sqlLine = sqlLine.substring(0, sqlLine.length() - 1)
+									.trim();
+						}
 
-					} else if (singleLine) {
+						boolean command = true;
 
 						if (sqlLine.isEmpty()) {
 
@@ -307,7 +358,24 @@ public class SQLExec {
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_TABLES)) {
 
 							executeSQL(database, sqlBuilder, COMMAND_TABLES_SQL,
-									COMMAND_TABLES_MAX_ROWS, history);
+									COMMAND_ALL_ROWS, history);
+
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_INDEXES)) {
+
+							executeSQL(database, sqlBuilder,
+									COMMAND_INDEXES_SQL, COMMAND_ALL_ROWS,
+									history);
+
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_VIEWS)) {
+
+							executeSQL(database, sqlBuilder, COMMAND_VIEWS_SQL,
+									COMMAND_ALL_ROWS, history);
+
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_TRIGGERS)) {
+
+							executeSQL(database, sqlBuilder,
+									COMMAND_TRIGGERS_SQL, COMMAND_ALL_ROWS,
+									history);
 
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_HISTORY)) {
 
@@ -319,7 +387,7 @@ public class SQLExec {
 
 							resetCommandPrompt(sqlBuilder);
 
-						} else if (sqlLine.equals(COMMAND_PREVIOUS)) {
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_PREVIOUS)) {
 
 							executeSQL(database, sqlBuilder, history.size(),
 									maxRows, history);
@@ -339,7 +407,57 @@ public class SQLExec {
 							executeSQL(database, sqlBuilder, historyNumber,
 									maxRows, history);
 
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_MAX_ROWS)) {
+
+							maxRows = Integer.parseInt(
+									sqlLine.substring(COMMAND_MAX_ROWS.length(),
+											sqlLine.length()).trim());
+							System.out.println("Max Rows: " + maxRows);
+							resetCommandPrompt(sqlBuilder);
+
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_TABLE_INFO)) {
+
+							executeSQL(database, sqlBuilder,
+									"PRAGMA table_info(\""
+											+ sqlLine
+													.substring(
+															COMMAND_TABLE_INFO
+																	.length(),
+															sqlLine.length())
+													.trim()
+											+ "\");",
+									COMMAND_ALL_ROWS, history);
+
+						} else if (sqlLine
+								.equalsIgnoreCase(COMMAND_SQLITE_MASTER)
+								|| SQLiteMaster.count(database.getDatabase(),
+										new SQLiteMasterType[] {
+												SQLiteMasterType.TABLE,
+												SQLiteMasterType.VIEW },
+										SQLiteMasterQuery.create(
+												SQLiteMasterColumn.NAME,
+												sqlLine)) > 0) {
+
+							executeSQL(database, sqlBuilder,
+									"SELECT * FROM \"" + sqlLine + "\";",
+									maxRows, history);
+
+						} else {
+
+							command = false;
 						}
+
+						if (command) {
+							executeSql = false;
+						}
+					}
+
+					if (executeSql) {
+
+						executeSQL(database, sqlBuilder, sqlBuilder.toString(),
+								maxRows, history);
 
 					}
 
@@ -371,35 +489,47 @@ public class SQLExec {
 		System.out.println("Commands:");
 		System.out.println();
 		System.out.println(
-				"\t" + COMMAND_HELP + "    - print this help information");
-		System.out.println("\t" + COMMAND_TABLES + "  - list database tables");
+				"\t" + COMMAND_HELP + "         - print this help information");
+		System.out.println(
+				"\t" + COMMAND_TABLES + "       - list database tables");
+		System.out.println(
+				"\t" + COMMAND_INDEXES + "      - list database indexes");
+		System.out.println(
+				"\t" + COMMAND_VIEWS + "        - list database views");
+		System.out.println(
+				"\t" + COMMAND_TRIGGERS + "     - list database triggers");
+		System.out.println("\t" + COMMAND_MAX_ROWS
+				+ " n       - set the max rows per query to n");
 		System.out.println("\t" + COMMAND_HISTORY
-				+ " - list successfully executed sql commands");
+				+ "      - list successfully executed sql commands");
 		System.out.println("\t" + COMMAND_PREVIOUS
-				+ "      - re-execute the previous successful sql command");
+				+ "           - re-execute the previous successful sql command");
 		System.out.println(
-				"\t!n      - re-execute a sql statement by history id n");
+				"\t!n           - re-execute a sql statement by history id n");
 		System.out.println(
-				"\t!-n     - re-execute a sql statement n commands back in history");
+				"\t!-n          - re-execute a sql statement n commands back in history");
 		System.out.println("\t" + COMMAND_WRITE_BLOBS + " [" + ARGUMENT_PREFIX
 				+ BLOBS_ARGUMENT_EXTENSION + " file_extension] ["
 				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_DIRECTORY + " directory] ["
 				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_PATTERN + " pattern]");
 		System.out.println(
-				"\t        - write blobs from the previous successful sql command to the file system");
+				"\t             - write blobs from the previous successful sql command to the file system");
 		System.out.println(
-				"\t              ([directory]|blobs)/table_name/column_name/(pk_values|result_index|[pattern])[.file_extension]");
+				"\t                   ([directory]|blobs)/table_name/column_name/(pk_values|result_index|[pattern])[.file_extension]");
 		System.out.println(
-				"\t           file_extension - file extension added to each saved blob file");
+				"\t                file_extension - file extension added to each saved blob file");
 		System.out.println(
-				"\t           directory      - base directory to save table_name/column_name/blobs (default is ./"
+				"\t                directory      - base directory to save table_name/column_name/blobs (default is ./"
 						+ BLOBS_WRITE_DEFAULT_DIRECTORY + ")");
 		System.out.println(
-				"\t           pattern        - file directory and/or name pattern consisting of column names in parentheses");
+				"\t                pattern        - file directory and/or name pattern consisting of column names in parentheses");
 		System.out.println(
-				"\t                             (column_name)-(column_name2)");
+				"\t                                  (column_name)-(column_name2)");
 		System.out.println(
-				"\t                             (column_name)/(column_name2)");
+				"\t                                  (column_name)/(column_name2)");
+		System.out.println("\t" + COMMAND_TABLE_INFO
+				+ " <name>  - PRAGMA table_info(<name>);");
+		System.out.println("\t<name>       - SELECT * FROM <name>;");
 		System.out.println();
 		System.out.println("Special Supported Cases:");
 		System.out.println();
@@ -625,6 +755,8 @@ public class SQLExec {
 				statement = database.getConnection().getConnection()
 						.prepareStatement(sql);
 				statement.setMaxRows(maxRows);
+
+				result.setMaxRows(maxRows);
 
 				boolean hasResultSet = statement.execute();
 
