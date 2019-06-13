@@ -153,9 +153,19 @@ public class SQLExec {
 	public static final String COMMAND_SQLITE_MASTER = "sqlite_master";
 
 	/**
-	 * GeoPackage contents
+	 * GeoPackage contents command
 	 */
 	public static final String COMMAND_CONTENTS = "contents";
+
+	/**
+	 * GeoPackage Info command
+	 */
+	public static final String COMMAND_GEOPACKAGE_INFO = "ginfo";
+
+	/**
+	 * GeoPackage extensions command
+	 */
+	public static final String COMMAND_EXTENSIONS = "extensions";
 
 	/**
 	 * Blob display value
@@ -425,15 +435,12 @@ public class SQLExec {
 						} else if (sqlLine.toLowerCase()
 								.startsWith(COMMAND_TABLE_INFO)) {
 
+							String tableName = sqlLine
+									.substring(COMMAND_TABLE_INFO.length(),
+											sqlLine.length())
+									.trim();
 							executeSQL(database, sqlBuilder,
-									"PRAGMA table_info(\""
-											+ sqlLine
-													.substring(
-															COMMAND_TABLE_INFO
-																	.length(),
-															sqlLine.length())
-													.trim()
-											+ "\");",
+									"PRAGMA table_info(\"" + tableName + "\");",
 									COMMAND_ALL_ROWS, history);
 
 						} else if (sqlLine
@@ -456,6 +463,80 @@ public class SQLExec {
 
 							executeSQL(database, sqlBuilder,
 									"SELECT table_name, data_type FROM gpkg_contents ORDER BY table_name",
+									COMMAND_ALL_ROWS, history);
+
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_GEOPACKAGE_INFO)
+								&& GeoPackageValidate
+										.hasMinimumTables(database)) {
+
+							String tableName = sqlLine
+									.substring(COMMAND_GEOPACKAGE_INFO.length(),
+											sqlLine.length())
+									.trim();
+
+							executeSQL(database, sqlBuilder,
+									"SELECT * FROM gpkg_contents WHERE LOWER(table_name) = '"
+											+ tableName.toLowerCase() + "'",
+									COMMAND_ALL_ROWS, history, false);
+
+							ContentsDataType dataType = database
+									.getTableDataType(tableName);
+							if (dataType != null) {
+								switch (dataType) {
+								case ATTRIBUTES:
+
+									break;
+								case FEATURES:
+									executeSQL(database, sqlBuilder,
+											"SELECT * FROM gpkg_geometry_columns WHERE table_name = '"
+													+ tableName + "'",
+											COMMAND_ALL_ROWS, history, false);
+									break;
+								case GRIDDED_COVERAGE:
+									executeSQL(database, sqlBuilder,
+											"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
+													+ tableName + "'",
+											COMMAND_ALL_ROWS, history, false);
+									executeSQL(database, sqlBuilder,
+											"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
+													+ tableName + "'",
+											COMMAND_ALL_ROWS, history, false);
+								case TILES:
+									executeSQL(database, sqlBuilder,
+											"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"
+													+ tableName + "'",
+											COMMAND_ALL_ROWS, history, false);
+									executeSQL(database, sqlBuilder,
+											"SELECT * FROM gpkg_tile_matrix WHERE table_name = '"
+													+ tableName + "'",
+											COMMAND_ALL_ROWS, history, false);
+									break;
+								}
+							}
+
+							executeSQL(database, sqlBuilder,
+									"PRAGMA table_info(\"" + tableName + "\");",
+									COMMAND_ALL_ROWS, history, false);
+
+							resetCommandPrompt(sqlBuilder);
+
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_EXTENSIONS)
+								&& GeoPackageValidate
+										.hasMinimumTables(database)) {
+
+							String tableName = sqlLine
+									.substring(COMMAND_EXTENSIONS.length(),
+											sqlLine.length())
+									.trim();
+							String sql = "SELECT table_name, column_name, extension_name, definition FROM gpkg_extensions";
+							if (!tableName.isEmpty()) {
+								sql += " WHERE LOWER(table_name) = '"
+										+ tableName.toLowerCase() + "'";
+							}
+
+							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, history);
 
 						} else if (GeoPackageValidate.hasMinimumTables(database)
@@ -515,57 +596,61 @@ public class SQLExec {
 		System.out.println();
 		System.out.println("Commands:");
 		System.out.println();
+		System.out.println("\t" + COMMAND_HELP
+				+ "              - print this help information");
 		System.out.println(
-				"\t" + COMMAND_HELP + "         - print this help information");
+				"\t" + COMMAND_TABLES + "            - list database tables");
 		System.out.println(
-				"\t" + COMMAND_TABLES + "       - list database tables");
+				"\t" + COMMAND_INDEXES + "           - list database indexes");
 		System.out.println(
-				"\t" + COMMAND_INDEXES + "      - list database indexes");
+				"\t" + COMMAND_VIEWS + "             - list database views");
 		System.out.println(
-				"\t" + COMMAND_VIEWS + "        - list database views");
-		System.out.println(
-				"\t" + COMMAND_TRIGGERS + "     - list database triggers");
+				"\t" + COMMAND_TRIGGERS + "          - list database triggers");
 		System.out.println("\t" + COMMAND_MAX_ROWS
-				+ " n       - set the max rows per query to n");
+				+ " n            - set the max rows per query to n");
 		System.out.println("\t" + COMMAND_HISTORY
-				+ "      - list successfully executed sql commands");
+				+ "           - list successfully executed sql commands");
 		System.out.println("\t" + COMMAND_PREVIOUS
-				+ "           - re-execute the previous successful sql command");
+				+ "                - re-execute the previous successful sql command");
 		System.out.println(
-				"\t!n           - re-execute a sql statement by history id n");
+				"\t!n                - re-execute a sql statement by history id n");
 		System.out.println(
-				"\t!-n          - re-execute a sql statement n commands back in history");
+				"\t!-n               - re-execute a sql statement n commands back in history");
 		System.out.println("\t" + COMMAND_WRITE_BLOBS + " [" + ARGUMENT_PREFIX
 				+ BLOBS_ARGUMENT_EXTENSION + " file_extension] ["
 				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_DIRECTORY + " directory] ["
 				+ ARGUMENT_PREFIX + BLOBS_ARGUMENT_PATTERN + " pattern]");
 		System.out.println(
-				"\t             - write blobs from the previous successful sql command to the file system");
+				"\t                  - write blobs from the previous successful sql command to the file system");
 		System.out.println(
-				"\t                   ([directory]|blobs)/table_name/column_name/(pk_values|result_index|[pattern])[.file_extension]");
+				"\t                        ([directory]|blobs)/table_name/column_name/(pk_values|result_index|[pattern])[.file_extension]");
 		System.out.println(
-				"\t                file_extension - file extension added to each saved blob file");
+				"\t                     file_extension - file extension added to each saved blob file");
 		System.out.println(
-				"\t                directory      - base directory to save table_name/column_name/blobs (default is ./"
+				"\t                     directory      - base directory to save table_name/column_name/blobs (default is ./"
 						+ BLOBS_WRITE_DEFAULT_DIRECTORY + ")");
 		System.out.println(
-				"\t                pattern        - file directory and/or name pattern consisting of column names in parentheses");
+				"\t                     pattern        - file directory and/or name pattern consisting of column names in parentheses");
 		System.out.println(
-				"\t                                  (column_name)-(column_name2)");
+				"\t                                       (column_name)-(column_name2)");
 		System.out.println(
-				"\t                                  (column_name)/(column_name2)");
+				"\t                                       (column_name)/(column_name2)");
 		System.out.println("\t" + COMMAND_TABLE_INFO
-				+ " <name>  - PRAGMA table_info(<name>);");
-		System.out.println("\t<name>       - SELECT * FROM <name>;");
+				+ " <name>       - PRAGMA table_info(<name>);");
+		System.out.println("\t<name>            - SELECT * FROM <name>;");
 		if (GeoPackageValidate.hasMinimumTables(database)) {
 			System.out.println("\t" + COMMAND_CONTENTS
-					+ "     - List GeoPackage contents");
+					+ "          - List GeoPackage contents");
 			System.out.println("\t" + ContentsDataType.ATTRIBUTES.getName()
-					+ "   - List GeoPackage attributes tables");
+					+ "        - List GeoPackage attributes tables");
 			System.out.println("\t" + ContentsDataType.FEATURES.getName()
-					+ "     - List GeoPackage feature tables");
+					+ "          - List GeoPackage feature tables");
 			System.out.println("\t" + ContentsDataType.TILES.getName()
-					+ "        - List GeoPackage tile tables");
+					+ "             - List GeoPackage tile tables");
+			System.out.println("\t" + COMMAND_GEOPACKAGE_INFO
+					+ " <name>      - Query GeoPackage metadata for the table name");
+			System.out.println("\t" + COMMAND_EXTENSIONS
+					+ " <name> - List extensions for the table name");
 		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
@@ -649,13 +734,40 @@ public class SQLExec {
 	private static void executeSQL(GeoPackage database,
 			StringBuilder sqlBuilder, String sql, Integer maxRows,
 			List<String> history) throws SQLException {
+		executeSQL(database, sqlBuilder, sql, maxRows, history, true);
+	}
+
+	/**
+	 * Execute the SQL
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param sql
+	 *            SQL statement
+	 * @param maxRows
+	 *            max rows
+	 * @param history
+	 *            history
+	 * @param resetCommandPrompt
+	 *            reset command prompt
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void executeSQL(GeoPackage database,
+			StringBuilder sqlBuilder, String sql, Integer maxRows,
+			List<String> history, boolean resetCommandPrompt)
+			throws SQLException {
 
 		SQLExecResult result = executeSQL(database, sql, maxRows);
 		result.printResults();
 
 		history.add(sql);
 
-		resetCommandPrompt(sqlBuilder);
+		if (resetCommandPrompt) {
+			resetCommandPrompt(sqlBuilder);
+		}
 	}
 
 	/**
