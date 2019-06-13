@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.master.SQLiteMaster;
 import mil.nga.geopackage.db.master.SQLiteMasterColumn;
@@ -150,6 +151,11 @@ public class SQLExec {
 	 * SQLite Master command
 	 */
 	public static final String COMMAND_SQLITE_MASTER = "sqlite_master";
+
+	/**
+	 * GeoPackage contents
+	 */
+	public static final String COMMAND_CONTENTS = "contents";
 
 	/**
 	 * Blob display value
@@ -444,6 +450,27 @@ public class SQLExec {
 									"SELECT * FROM \"" + sqlLine + "\";",
 									maxRows, history);
 
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_CONTENTS)
+								&& GeoPackageValidate
+										.hasMinimumTables(database)) {
+
+							executeSQL(database, sqlBuilder,
+									"SELECT table_name, data_type FROM gpkg_contents ORDER BY table_name",
+									COMMAND_ALL_ROWS, history);
+
+						} else if (GeoPackageValidate.hasMinimumTables(database)
+								&& ContentsDataType
+										.fromName(sqlLine.toLowerCase()) != null
+								|| !database.getTables(sqlLine.toLowerCase())
+										.isEmpty()
+								|| !database.getTables(sqlLine).isEmpty()) {
+
+							executeSQL(database, sqlBuilder,
+									"SELECT table_name FROM gpkg_contents WHERE LOWER(data_type) = '"
+											+ sqlLine.toLowerCase()
+											+ "' ORDER BY table_name",
+									COMMAND_ALL_ROWS, history);
+
 						} else {
 
 							command = false;
@@ -530,6 +557,16 @@ public class SQLExec {
 		System.out.println("\t" + COMMAND_TABLE_INFO
 				+ " <name>  - PRAGMA table_info(<name>);");
 		System.out.println("\t<name>       - SELECT * FROM <name>;");
+		if (GeoPackageValidate.hasMinimumTables(database)) {
+			System.out.println("\t" + COMMAND_CONTENTS
+					+ "     - List GeoPackage contents");
+			System.out.println("\t" + ContentsDataType.ATTRIBUTES.getName()
+					+ "   - List GeoPackage attributes tables");
+			System.out.println("\t" + ContentsDataType.FEATURES.getName()
+					+ "     - List GeoPackage feature tables");
+			System.out.println("\t" + ContentsDataType.TILES.getName()
+					+ "        - List GeoPackage tile tables");
+		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
 		System.out.println();
