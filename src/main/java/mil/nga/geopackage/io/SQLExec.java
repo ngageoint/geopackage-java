@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.ContentsDataType;
+import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.master.SQLiteMaster;
 import mil.nga.geopackage.db.master.SQLiteMasterColumn;
@@ -83,19 +84,9 @@ public class SQLExec {
 	public static final String COMMAND_TABLES = "tables";
 
 	/**
-	 * Tables command SQL
-	 */
-	public static final String COMMAND_TABLES_SQL = "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name;";
-
-	/**
 	 * Indexes command
 	 */
 	public static final String COMMAND_INDEXES = "indexes";
-
-	/**
-	 * Indexes command SQL
-	 */
-	public static final String COMMAND_INDEXES_SQL = "SELECT name, tbl_name FROM sqlite_master WHERE type = 'index' AND name NOT LIKE 'sqlite_%' ORDER BY name;";
 
 	/**
 	 * Views command
@@ -103,19 +94,9 @@ public class SQLExec {
 	public static final String COMMAND_VIEWS = "views";
 
 	/**
-	 * Views command SQL
-	 */
-	public static final String COMMAND_VIEWS_SQL = "SELECT name FROM sqlite_master WHERE type = 'view' ORDER BY name;";
-
-	/**
 	 * Triggers command
 	 */
 	public static final String COMMAND_TRIGGERS = "triggers";
-
-	/**
-	 * Triggers command SQL
-	 */
-	public static final String COMMAND_TRIGGERS_SQL = "SELECT name, tbl_name FROM sqlite_master WHERE type = 'trigger' ORDER BY name;";
 
 	/**
 	 * Command with all rows
@@ -371,27 +352,53 @@ public class SQLExec {
 
 							resetCommandPrompt(sqlBuilder);
 
-						} else if (sqlLine.equalsIgnoreCase(COMMAND_TABLES)) {
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_TABLES)) {
 
-							executeSQL(database, sqlBuilder, COMMAND_TABLES_SQL,
+							String name = sqlLine
+									.substring(COMMAND_TABLES.length(),
+											sqlLine.length())
+									.trim();
+							String sql = buildSqlMasterQuery(false,
+									SQLiteMasterType.TABLE, name);
+							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, history);
 
-						} else if (sqlLine.equalsIgnoreCase(COMMAND_INDEXES)) {
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_INDEXES)) {
 
-							executeSQL(database, sqlBuilder,
-									COMMAND_INDEXES_SQL, COMMAND_ALL_ROWS,
-									history);
-
-						} else if (sqlLine.equalsIgnoreCase(COMMAND_VIEWS)) {
-
-							executeSQL(database, sqlBuilder, COMMAND_VIEWS_SQL,
+							String name = sqlLine
+									.substring(COMMAND_INDEXES.length(),
+											sqlLine.length())
+									.trim();
+							String sql = buildSqlMasterQuery(true,
+									SQLiteMasterType.INDEX, name);
+							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, history);
 
-						} else if (sqlLine.equalsIgnoreCase(COMMAND_TRIGGERS)) {
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_VIEWS)) {
 
-							executeSQL(database, sqlBuilder,
-									COMMAND_TRIGGERS_SQL, COMMAND_ALL_ROWS,
-									history);
+							String name = sqlLine
+									.substring(COMMAND_VIEWS.length(),
+											sqlLine.length())
+									.trim();
+							String sql = buildSqlMasterQuery(false,
+									SQLiteMasterType.VIEW, name);
+							executeSQL(database, sqlBuilder, sql,
+									COMMAND_ALL_ROWS, history);
+
+						} else if (sqlLine.toLowerCase()
+								.startsWith(COMMAND_TRIGGERS)) {
+
+							String name = sqlLine
+									.substring(COMMAND_TRIGGERS.length(),
+											sqlLine.length())
+									.trim();
+							String sql = buildSqlMasterQuery(true,
+									SQLiteMasterType.TRIGGER, name);
+							executeSQL(database, sqlBuilder, sql,
+									COMMAND_ALL_ROWS, history);
 
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_HISTORY)) {
 
@@ -464,10 +471,22 @@ public class SQLExec {
 
 						} else if (isGeoPackage(database)) {
 
-							if (sqlLine.equalsIgnoreCase(COMMAND_CONTENTS)) {
+							if (sqlLine.toLowerCase()
+									.startsWith(COMMAND_CONTENTS)) {
 
-								executeSQL(database, sqlBuilder,
-										"SELECT table_name, data_type FROM gpkg_contents ORDER BY table_name",
+								String tableName = sqlLine
+										.substring(COMMAND_CONTENTS.length(),
+												sqlLine.length())
+										.trim();
+								StringBuilder sql = new StringBuilder(
+										"SELECT table_name, data_type FROM gpkg_contents");
+								if (!tableName.isEmpty()) {
+									sql.append(" WHERE table_name LIKE ");
+									sql.append(
+											CoreSQLUtils.quoteWrap(tableName));
+								}
+								sql.append(" ORDER BY table_name;");
+								executeSQL(database, sqlBuilder, sql.toString(),
 										COMMAND_ALL_ROWS, history);
 
 							} else if (sqlLine.toLowerCase()
@@ -482,7 +501,7 @@ public class SQLExec {
 									executeSQL(database, sqlBuilder,
 											"SELECT * FROM gpkg_contents WHERE LOWER(table_name) = '"
 													+ tableName.toLowerCase()
-													+ "'",
+													+ "';",
 											COMMAND_ALL_ROWS, history, false);
 
 									ContentsDataType dataType = database
@@ -495,30 +514,30 @@ public class SQLExec {
 										case FEATURES:
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_geometry_columns WHERE table_name = '"
-															+ tableName + "'",
+															+ tableName + "';",
 													COMMAND_ALL_ROWS, history,
 													false);
 											break;
 										case GRIDDED_COVERAGE:
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
-															+ tableName + "'",
+															+ tableName + "';",
 													COMMAND_ALL_ROWS, history,
 													false);
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
-															+ tableName + "'",
+															+ tableName + "';",
 													COMMAND_ALL_ROWS, history,
 													false);
 										case TILES:
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"
-															+ tableName + "'",
+															+ tableName + "';",
 													COMMAND_ALL_ROWS, history,
 													false);
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_tile_matrix WHERE table_name = '"
-															+ tableName + "'",
+															+ tableName + "';",
 													COMMAND_ALL_ROWS, history,
 													false);
 											break;
@@ -540,31 +559,58 @@ public class SQLExec {
 										.substring(COMMAND_EXTENSIONS.length(),
 												sqlLine.length())
 										.trim();
-								String sql = "SELECT table_name, column_name, extension_name, definition FROM gpkg_extensions";
+								StringBuilder sql = new StringBuilder(
+										"SELECT table_name, column_name, extension_name, definition FROM gpkg_extensions");
 								if (!tableName.isEmpty()) {
-									sql += " WHERE LOWER(table_name) = '"
-											+ tableName.toLowerCase() + "'";
+									sql.append(
+											" WHERE LOWER(table_name) LIKE ");
+									sql.append(CoreSQLUtils.quoteWrap(
+											tableName.toLowerCase()));
 								}
+								sql.append(";");
 
-								executeSQL(database, sqlBuilder, sql,
-										COMMAND_ALL_ROWS, history);
-
-							} else if (ContentsDataType
-									.fromName(sqlLine.toLowerCase()) != null
-									|| !database
-											.getTables(sqlLine.toLowerCase())
-											.isEmpty()
-									|| !database.getTables(sqlLine).isEmpty()) {
-
-								executeSQL(database, sqlBuilder,
-										"SELECT table_name FROM gpkg_contents WHERE LOWER(data_type) = '"
-												+ sqlLine.toLowerCase()
-												+ "' ORDER BY table_name",
+								executeSQL(database, sqlBuilder, sql.toString(),
 										COMMAND_ALL_ROWS, history);
 
 							} else {
 
-								command = false;
+								String[] parts = sqlLine.split("\\s+");
+								String dataType = parts[0];
+
+								if (ContentsDataType.fromName(
+										dataType.toLowerCase()) != null
+										|| !database
+												.getTables(
+														dataType.toLowerCase())
+												.isEmpty()
+										|| !database.getTables(dataType)
+												.isEmpty()) {
+
+									StringBuilder sql = new StringBuilder(
+											"SELECT table_name FROM gpkg_contents WHERE LOWER(data_type) = '");
+									sql.append(dataType.toLowerCase());
+									sql.append("'");
+									if (parts.length > 0) {
+										String tableName = sqlLine
+												.substring(dataType.length(),
+														sqlLine.length())
+												.trim();
+										if (!tableName.isEmpty()) {
+											sql.append(" AND table_name LIKE ");
+											sql.append(CoreSQLUtils
+													.quoteWrap(tableName));
+										}
+									}
+									sql.append(" ORDER BY table_name;");
+
+									executeSQL(database, sqlBuilder,
+											sql.toString(), COMMAND_ALL_ROWS,
+											history);
+
+								} else {
+									command = false;
+								}
+
 							}
 
 						} else {
@@ -596,6 +642,53 @@ public class SQLExec {
 	}
 
 	/**
+	 * Build a SQLite Master table query
+	 * 
+	 * @param tableName
+	 *            true to include table name
+	 * @param type
+	 *            SQLite Master type
+	 * @param name
+	 *            name LIKE value
+	 * @return SQL
+	 */
+	private static String buildSqlMasterQuery(boolean tableName,
+			SQLiteMasterType type, String name) {
+
+		StringBuilder sql = new StringBuilder("SELECT ");
+		sql.append(SQLiteMasterColumn.NAME.name().toLowerCase());
+		if (tableName) {
+			sql.append(", ");
+			sql.append(SQLiteMasterColumn.TBL_NAME.name().toLowerCase());
+		}
+		sql.append(" FROM ");
+		sql.append(SQLiteMaster.TABLE_NAME);
+		sql.append(" WHERE ");
+		sql.append(SQLiteMasterColumn.TYPE.name().toLowerCase());
+		sql.append(" = '");
+		sql.append(type.name().toLowerCase());
+		sql.append("' AND ");
+		sql.append(SQLiteMasterColumn.NAME.name().toLowerCase());
+		sql.append(" NOT LIKE 'sqlite_%'");
+
+		if (name != null) {
+			name = name.trim();
+			if (!name.isEmpty()) {
+				sql.append(" AND ");
+				sql.append(SQLiteMasterColumn.NAME.name().toLowerCase());
+				sql.append(" LIKE ");
+				sql.append(CoreSQLUtils.quoteWrap(name));
+			}
+		}
+
+		sql.append(" ORDER BY ");
+		sql.append(SQLiteMasterColumn.NAME.name().toLowerCase());
+		sql.append(";");
+
+		return sql.toString();
+	}
+
+	/**
 	 * Print the command prompt help
 	 * 
 	 * @param database
@@ -616,14 +709,14 @@ public class SQLExec {
 		System.out.println();
 		System.out.println("\t" + COMMAND_HELP
 				+ "              - print this help information");
-		System.out.println(
-				"\t" + COMMAND_TABLES + "            - list database tables");
-		System.out.println(
-				"\t" + COMMAND_INDEXES + "           - list database indexes");
-		System.out.println(
-				"\t" + COMMAND_VIEWS + "             - list database views");
-		System.out.println(
-				"\t" + COMMAND_TRIGGERS + "          - list database triggers");
+		System.out.println("\t" + COMMAND_TABLES
+				+ " [name]     - list database tables (all or LIKE table name)");
+		System.out.println("\t" + COMMAND_INDEXES
+				+ " [name]    - list database indexes (all or LIKE index name)");
+		System.out.println("\t" + COMMAND_VIEWS
+				+ " [name]      - list database views (all or LIKE view name)");
+		System.out.println("\t" + COMMAND_TRIGGERS
+				+ " [name]   - list database triggers (all or LIKE trigger name)");
 		System.out.println("\t" + COMMAND_MAX_ROWS
 				+ " n            - set the max rows per query to n");
 		System.out.println("\t" + COMMAND_HISTORY
@@ -658,17 +751,17 @@ public class SQLExec {
 		System.out.println("\t<name>            - SELECT * FROM <name>;");
 		if (isGeoPackage) {
 			System.out.println("\t" + COMMAND_CONTENTS
-					+ "          - List GeoPackage contents");
+					+ " [name]   - List GeoPackage contents (all or LIKE table name)");
 			System.out.println("\t" + ContentsDataType.ATTRIBUTES.getName()
-					+ "        - List GeoPackage attributes tables");
+					+ " [name] - List GeoPackage attributes tables (all or LIKE table name)");
 			System.out.println("\t" + ContentsDataType.FEATURES.getName()
-					+ "          - List GeoPackage feature tables");
+					+ " [name]   - List GeoPackage feature tables (all or LIKE table name)");
 			System.out.println("\t" + ContentsDataType.TILES.getName()
-					+ "             - List GeoPackage tile tables");
+					+ " [name]      - List GeoPackage tile tables (all or LIKE table name)");
 			System.out.println("\t" + COMMAND_GEOPACKAGE_INFO
 					+ " <name>      - Query GeoPackage metadata for the table name");
 			System.out.println("\t" + COMMAND_EXTENSIONS
-					+ " [name] - List of all or table specific extensions");
+					+ " [name] - List GeoPackage extensions (all or LIKE table name)");
 		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
