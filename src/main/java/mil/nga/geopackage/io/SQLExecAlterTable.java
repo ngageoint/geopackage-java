@@ -7,7 +7,6 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.AlterTable;
 import mil.nga.geopackage.db.CoreSQLUtils;
-import mil.nga.geopackage.validate.GeoPackageValidate;
 
 /**
  * Execute special Alter Table statement cases including unsupported, non
@@ -180,7 +179,7 @@ public class SQLExecAlterTable {
 		SQLExecResult result = null;
 
 		Matcher matcher = RENAME_TABLE_PATTERN.matcher(sql);
-		if (matcher.find() && GeoPackageValidate.hasMinimumTables(database)) {
+		if (matcher.find() && SQLExec.isGeoPackage(database)) {
 			String tableName = CoreSQLUtils
 					.quoteUnwrap(matcher.group(TABLE_NAME_GROUP));
 			if (tableName != null) {
@@ -231,7 +230,7 @@ public class SQLExecAlterTable {
 
 			if (tableName != null && newTableName != null) {
 
-				if (GeoPackageValidate.hasMinimumTables(database)) {
+				if (SQLExec.isGeoPackage(database)) {
 					database.copyTable(tableName, newTableName);
 				} else {
 					AlterTable.copyTable(database.getDatabase(), tableName,
@@ -261,8 +260,7 @@ public class SQLExecAlterTable {
 		SQLExecResult result = null;
 
 		Matcher matcher = DROP_TABLE_PATTERN.matcher(sql);
-		if (matcher.matches()
-				&& GeoPackageValidate.hasMinimumTables(database)) {
+		if (matcher.matches() && SQLExec.isGeoPackage(database)) {
 			String tableName = CoreSQLUtils
 					.quoteUnwrap(matcher.group(TABLE_NAME_GROUP));
 			if (tableName != null) {

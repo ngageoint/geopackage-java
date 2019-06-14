@@ -285,7 +285,7 @@ public class SQLExec {
 			GeoPackage database = GeoPackageManager.open(sqliteFile, false);
 			try {
 
-				if (GeoPackageValidate.hasMinimumTables(database)) {
+				if (isGeoPackage(database)) {
 					System.out.print("GeoPackage");
 				} else {
 					System.out.print("Database");
@@ -439,9 +439,14 @@ public class SQLExec {
 									.substring(COMMAND_TABLE_INFO.length(),
 											sqlLine.length())
 									.trim();
-							executeSQL(database, sqlBuilder,
-									"PRAGMA table_info(\"" + tableName + "\");",
-									COMMAND_ALL_ROWS, history);
+							if (!tableName.isEmpty()) {
+								executeSQL(database, sqlBuilder,
+										"PRAGMA table_info(\"" + tableName
+												+ "\");",
+										COMMAND_ALL_ROWS, history);
+							} else {
+								resetCommandPrompt(sqlBuilder);
+							}
 
 						} else if (sqlLine
 								.equalsIgnoreCase(COMMAND_SQLITE_MASTER)
@@ -457,100 +462,110 @@ public class SQLExec {
 									"SELECT * FROM \"" + sqlLine + "\";",
 									maxRows, history);
 
-						} else if (sqlLine.equalsIgnoreCase(COMMAND_CONTENTS)
-								&& GeoPackageValidate
-										.hasMinimumTables(database)) {
+						} else if (isGeoPackage(database)) {
 
-							executeSQL(database, sqlBuilder,
-									"SELECT table_name, data_type FROM gpkg_contents ORDER BY table_name",
-									COMMAND_ALL_ROWS, history);
+							if (sqlLine.equalsIgnoreCase(COMMAND_CONTENTS)) {
 
-						} else if (sqlLine.toLowerCase()
-								.startsWith(COMMAND_GEOPACKAGE_INFO)
-								&& GeoPackageValidate
-										.hasMinimumTables(database)) {
+								executeSQL(database, sqlBuilder,
+										"SELECT table_name, data_type FROM gpkg_contents ORDER BY table_name",
+										COMMAND_ALL_ROWS, history);
 
-							String tableName = sqlLine
-									.substring(COMMAND_GEOPACKAGE_INFO.length(),
-											sqlLine.length())
-									.trim();
+							} else if (sqlLine.toLowerCase()
+									.startsWith(COMMAND_GEOPACKAGE_INFO)) {
 
-							executeSQL(database, sqlBuilder,
-									"SELECT * FROM gpkg_contents WHERE LOWER(table_name) = '"
-											+ tableName.toLowerCase() + "'",
-									COMMAND_ALL_ROWS, history, false);
+								String tableName = sqlLine.substring(
+										COMMAND_GEOPACKAGE_INFO.length(),
+										sqlLine.length()).trim();
 
-							ContentsDataType dataType = database
-									.getTableDataType(tableName);
-							if (dataType != null) {
-								switch (dataType) {
-								case ATTRIBUTES:
+								if (!tableName.isEmpty()) {
 
-									break;
-								case FEATURES:
 									executeSQL(database, sqlBuilder,
-											"SELECT * FROM gpkg_geometry_columns WHERE table_name = '"
-													+ tableName + "'",
+											"SELECT * FROM gpkg_contents WHERE LOWER(table_name) = '"
+													+ tableName.toLowerCase()
+													+ "'",
 											COMMAND_ALL_ROWS, history, false);
-									break;
-								case GRIDDED_COVERAGE:
+
+									ContentsDataType dataType = database
+											.getTableDataType(tableName);
+									if (dataType != null) {
+										switch (dataType) {
+										case ATTRIBUTES:
+
+											break;
+										case FEATURES:
+											executeSQL(database, sqlBuilder,
+													"SELECT * FROM gpkg_geometry_columns WHERE table_name = '"
+															+ tableName + "'",
+													COMMAND_ALL_ROWS, history,
+													false);
+											break;
+										case GRIDDED_COVERAGE:
+											executeSQL(database, sqlBuilder,
+													"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
+															+ tableName + "'",
+													COMMAND_ALL_ROWS, history,
+													false);
+											executeSQL(database, sqlBuilder,
+													"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
+															+ tableName + "'",
+													COMMAND_ALL_ROWS, history,
+													false);
+										case TILES:
+											executeSQL(database, sqlBuilder,
+													"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"
+															+ tableName + "'",
+													COMMAND_ALL_ROWS, history,
+													false);
+											executeSQL(database, sqlBuilder,
+													"SELECT * FROM gpkg_tile_matrix WHERE table_name = '"
+															+ tableName + "'",
+													COMMAND_ALL_ROWS, history,
+													false);
+											break;
+										}
+									}
+
 									executeSQL(database, sqlBuilder,
-											"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
-													+ tableName + "'",
+											"PRAGMA table_info(\"" + tableName
+													+ "\");",
 											COMMAND_ALL_ROWS, history, false);
-									executeSQL(database, sqlBuilder,
-											"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
-													+ tableName + "'",
-											COMMAND_ALL_ROWS, history, false);
-								case TILES:
-									executeSQL(database, sqlBuilder,
-											"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"
-													+ tableName + "'",
-											COMMAND_ALL_ROWS, history, false);
-									executeSQL(database, sqlBuilder,
-											"SELECT * FROM gpkg_tile_matrix WHERE table_name = '"
-													+ tableName + "'",
-											COMMAND_ALL_ROWS, history, false);
-									break;
 								}
+
+								resetCommandPrompt(sqlBuilder);
+
+							} else if (sqlLine.toLowerCase()
+									.startsWith(COMMAND_EXTENSIONS)) {
+
+								String tableName = sqlLine
+										.substring(COMMAND_EXTENSIONS.length(),
+												sqlLine.length())
+										.trim();
+								String sql = "SELECT table_name, column_name, extension_name, definition FROM gpkg_extensions";
+								if (!tableName.isEmpty()) {
+									sql += " WHERE LOWER(table_name) = '"
+											+ tableName.toLowerCase() + "'";
+								}
+
+								executeSQL(database, sqlBuilder, sql,
+										COMMAND_ALL_ROWS, history);
+
+							} else if (ContentsDataType
+									.fromName(sqlLine.toLowerCase()) != null
+									|| !database
+											.getTables(sqlLine.toLowerCase())
+											.isEmpty()
+									|| !database.getTables(sqlLine).isEmpty()) {
+
+								executeSQL(database, sqlBuilder,
+										"SELECT table_name FROM gpkg_contents WHERE LOWER(data_type) = '"
+												+ sqlLine.toLowerCase()
+												+ "' ORDER BY table_name",
+										COMMAND_ALL_ROWS, history);
+
+							} else {
+
+								command = false;
 							}
-
-							executeSQL(database, sqlBuilder,
-									"PRAGMA table_info(\"" + tableName + "\");",
-									COMMAND_ALL_ROWS, history, false);
-
-							resetCommandPrompt(sqlBuilder);
-
-						} else if (sqlLine.toLowerCase()
-								.startsWith(COMMAND_EXTENSIONS)
-								&& GeoPackageValidate
-										.hasMinimumTables(database)) {
-
-							String tableName = sqlLine
-									.substring(COMMAND_EXTENSIONS.length(),
-											sqlLine.length())
-									.trim();
-							String sql = "SELECT table_name, column_name, extension_name, definition FROM gpkg_extensions";
-							if (!tableName.isEmpty()) {
-								sql += " WHERE LOWER(table_name) = '"
-										+ tableName.toLowerCase() + "'";
-							}
-
-							executeSQL(database, sqlBuilder, sql,
-									COMMAND_ALL_ROWS, history);
-
-						} else if (GeoPackageValidate.hasMinimumTables(database)
-								&& ContentsDataType
-										.fromName(sqlLine.toLowerCase()) != null
-								|| !database.getTables(sqlLine.toLowerCase())
-										.isEmpty()
-								|| !database.getTables(sqlLine).isEmpty()) {
-
-							executeSQL(database, sqlBuilder,
-									"SELECT table_name FROM gpkg_contents WHERE LOWER(data_type) = '"
-											+ sqlLine.toLowerCase()
-											+ "' ORDER BY table_name",
-									COMMAND_ALL_ROWS, history);
 
 						} else {
 
@@ -587,6 +602,9 @@ public class SQLExec {
 	 *            database
 	 */
 	private static void printHelp(GeoPackage database) {
+
+		boolean isGeoPackage = isGeoPackage(database);
+
 		System.out.println();
 		System.out.println("- Supports most SQLite statements including:");
 		System.out.println(
@@ -638,7 +656,7 @@ public class SQLExec {
 		System.out.println("\t" + COMMAND_TABLE_INFO
 				+ " <name>       - PRAGMA table_info(<name>);");
 		System.out.println("\t<name>            - SELECT * FROM <name>;");
-		if (GeoPackageValidate.hasMinimumTables(database)) {
+		if (isGeoPackage) {
 			System.out.println("\t" + COMMAND_CONTENTS
 					+ "          - List GeoPackage contents");
 			System.out.println("\t" + ContentsDataType.ATTRIBUTES.getName()
@@ -650,7 +668,7 @@ public class SQLExec {
 			System.out.println("\t" + COMMAND_GEOPACKAGE_INFO
 					+ " <name>      - Query GeoPackage metadata for the table name");
 			System.out.println("\t" + COMMAND_EXTENSIONS
-					+ " <name> - List extensions for the table name");
+					+ " [name] - List of all or table specific extensions");
 		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
@@ -663,7 +681,7 @@ public class SQLExec {
 		System.out.println("\tCopy Table   - Not a traditional SQL statment");
 		System.out.println(
 				"\t                  * ALTER TABLE table_name COPY TO new_table_name");
-		if (GeoPackageValidate.hasMinimumTables(database)) {
+		if (isGeoPackage) {
 			System.out.println(
 					"\tRename Table - User tables are updated throughout the GeoPackage");
 			System.out.println(
@@ -1318,6 +1336,17 @@ public class SQLExec {
 		System.out.println("\tsql");
 		System.out.println("\t\tSQL statement to execute");
 		System.out.println();
+	}
+
+	/**
+	 * Check if the SQLite database is a GeoPackage
+	 * 
+	 * @param database
+	 *            SQLite database
+	 * @return true if a GeoPackage
+	 */
+	public static boolean isGeoPackage(GeoPackage database) {
+		return GeoPackageValidate.hasMinimumTables(database);
 	}
 
 }
