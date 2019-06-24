@@ -3,6 +3,7 @@ package mil.nga.geopackage.test.features;
 import java.io.File;
 import java.sql.SQLException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import junit.framework.TestCase;
@@ -17,10 +18,11 @@ import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 
 /**
- * WFS Feature Generator Test
+ * OGC OpenAPI Feature Generator Test
  * 
  * @author osbornb
  */
+@Ignore // remove to run
 public class OpenAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 
 	/**
