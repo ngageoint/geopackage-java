@@ -1,6 +1,7 @@
 package mil.nga.geopackage.features;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,11 +13,11 @@ import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.sf.Geometry;
 
 /**
- * WFS Feature Generator
+ * OGC OpenAPI Feature Generator
  * 
  * @author osbornb
  */
-public class WfsFeatureGenerator extends WfsFeatureCoreGenerator {
+public class OpenAPIFeatureGenerator extends OpenAPIFeatureCoreGenerator {
 
 	/**
 	 * Feature DAO
@@ -35,7 +36,7 @@ public class WfsFeatureGenerator extends WfsFeatureCoreGenerator {
 	 * @param name
 	 *            collection identifier
 	 */
-	public WfsFeatureGenerator(GeoPackage geoPackage, String tableName,
+	public OpenAPIFeatureGenerator(GeoPackage geoPackage, String tableName,
 			String server, String name) {
 		super(geoPackage, tableName, server, name);
 	}
@@ -81,18 +82,19 @@ public class WfsFeatureGenerator extends WfsFeatureCoreGenerator {
 			featureDao = getGeoPackage().getFeatureDao(geometryColumns);
 		}
 
+		Map<String, Object> values = new HashMap<>();
+
+		for (Entry<String, Object> property : properties.entrySet()) {
+			String column = property.getKey();
+			Object value = getValue(column, property.getValue());
+			values.put(column, value);
+		}
+
 		FeatureRow featureRow = featureDao.newRow();
 
 		featureRow.setGeometry(createGeometryData(geometry));
-
-		for (Entry<String, Object> property : properties.entrySet()) {
-
-			String column = property.getKey();
-
-			Object value = getValue(column, property.getValue());
-
-			featureRow.setValue(column, value);
-
+		for (Entry<String, Object> value : values.entrySet()) {
+			featureRow.setValue(value.getKey(), value.getValue());
 		}
 
 		saveFeature(featureRow);
