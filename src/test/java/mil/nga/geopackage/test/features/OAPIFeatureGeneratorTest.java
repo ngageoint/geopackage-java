@@ -11,19 +11,19 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
-import mil.nga.geopackage.features.OpenAPIFeatureGenerator;
+import mil.nga.geopackage.features.OAPIFeatureGenerator;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.SQLExec;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 
 /**
- * OGC OpenAPI Feature Generator Test
+ * OGC API Feature Generator Test
  * 
  * @author osbornb
  */
 @Ignore // remove to run
-public class OpenAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
+public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 
 	/**
 	 * GeoPackage save path
@@ -164,8 +164,8 @@ public class OpenAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 		GeoPackageManager.create(file);
 		GeoPackage geoPackage = GeoPackageManager.open(file);
 
-		OpenAPIFeatureGenerator generator = new OpenAPIFeatureGenerator(
-				geoPackage, name, server, collection);
+		OAPIFeatureGenerator generator = new OAPIFeatureGenerator(geoPackage,
+				name, server, collection);
 		generator.setLimit(limit);
 		generator.setTotalLimit(totalLimit);
 		generator.setBoundingBox(boundingBox);

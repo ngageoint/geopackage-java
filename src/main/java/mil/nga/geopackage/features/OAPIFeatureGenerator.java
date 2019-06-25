@@ -13,11 +13,11 @@ import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.sf.Geometry;
 
 /**
- * OGC OpenAPI Feature Generator
+ * OGC API Feature Generator
  * 
  * @author osbornb
  */
-public class OpenAPIFeatureGenerator extends OpenAPIFeatureCoreGenerator {
+public class OAPIFeatureGenerator extends OAPIFeatureCoreGenerator {
 
 	/**
 	 * Feature DAO
@@ -36,7 +36,7 @@ public class OpenAPIFeatureGenerator extends OpenAPIFeatureCoreGenerator {
 	 * @param name
 	 *            collection identifier
 	 */
-	public OpenAPIFeatureGenerator(GeoPackage geoPackage, String tableName,
+	public OAPIFeatureGenerator(GeoPackage geoPackage, String tableName,
 			String server, String name) {
 		super(geoPackage, tableName, server, name);
 	}
