@@ -28,7 +28,7 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	/**
 	 * GeoPackage save path
 	 */
-	private static final String PATH = "/Users/osbornb/ogc/";
+	private static final String PATH = "/tmp/";
 
 	/**
 	 * Test opendata_1h
