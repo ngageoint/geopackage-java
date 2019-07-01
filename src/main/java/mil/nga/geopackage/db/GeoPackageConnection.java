@@ -104,10 +104,9 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	}
 
 	/**
-	 * Commit changes on the connection
-	 * 
-	 * @since 3.3.0
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void commit() {
 		try {
 			connection.commit();

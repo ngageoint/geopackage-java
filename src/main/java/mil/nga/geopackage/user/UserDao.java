@@ -47,7 +47,8 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 *            table
 	 */
 	protected UserDao(String database, GeoPackageConnection db,
-			UserConnection<TColumn, TTable, TRow, TResult> userDb, TTable table) {
+			UserConnection<TColumn, TTable, TRow, TResult> userDb,
+			TTable table) {
 		super(database, db, userDb, table);
 		this.connection = db.getConnection();
 		userDb.setTable(table);
@@ -100,10 +101,9 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	}
 
 	/**
-	 * Commit changes on the connection
-	 * 
-	 * @since 3.3.0
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void commit() {
 		try {
 			connection.commit();
@@ -120,9 +120,8 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 		ContentValues contentValues = row.toContentValues();
 		int updated = 0;
 		if (contentValues.size() > 0) {
-			updated = SQLUtils.update(connection, getTableName(),
-					contentValues, getPkWhere(row.getId()),
-					getPkWhereArgs(row.getId()));
+			updated = SQLUtils.update(connection, getTableName(), contentValues,
+					getPkWhere(row.getId()), getPkWhereArgs(row.getId()));
 		}
 		return updated;
 	}
