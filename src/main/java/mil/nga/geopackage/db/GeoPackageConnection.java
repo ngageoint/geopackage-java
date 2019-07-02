@@ -119,6 +119,14 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean inTransaction() {
+		return autoCommit != null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int delete(String table, String whereClause, String[] whereArgs) {
 		return SQLUtils.delete(connection, table, whereClause, whereArgs);
 	}

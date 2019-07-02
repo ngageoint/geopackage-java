@@ -116,6 +116,14 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean inTransaction() {
+		return autoCommit != null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int update(TRow row) {
 		ContentValues contentValues = row.toContentValues();
 		int updated = 0;
