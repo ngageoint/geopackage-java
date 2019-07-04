@@ -13,6 +13,7 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.features.OAPIFeatureGenerator;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.io.Progress;
 import mil.nga.geopackage.io.SQLExec;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
@@ -39,9 +40,9 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testOpenData1h() throws SQLException {
 
-		testServer("http://beta.fmi.fi/data/3/wfs/sofp", "opendata_1h", 30, 15,
+		testServer("http://beta.fmi.fi/data/3/wfs/sofp", "opendata_1h", 5, 15,
 				new BoundingBox(20.0, 60.0, 22.0, 62.0), "20190519T140000",
-				"20190619T140000");
+				"20190619T140000", 10);
 
 	}
 
@@ -55,7 +56,7 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	public void testLakes() throws SQLException {
 
 		testServer("https://demo.pygeoapi.io/master", "lakes", 30, 25, null,
-				null, null);
+				null, null, 12);
 
 	}
 
@@ -69,9 +70,10 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	public void testFlurstueck() throws SQLException {
 
 		testServer("https://www.ldproxy.nrw.de/kataster", "flurstueck", 15,
-				1000, new BoundingBox(8.683250427246094, 51.47780990600586,
+				1000,
+				new BoundingBox(8.683250427246094, 51.47780990600586,
 						9.093862533569336, 51.520809173583984),
-				null, null);
+				null, null, 100);
 
 	}
 
@@ -86,7 +88,7 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 
 		testServer(
 				"https://beta-paikkatieto.maanmittauslaitos.fi/maastotiedot/wfs3/v1",
-				"rakennus", 1000, 10000, null, null, null);
+				"rakennus", 1000, 10000, null, null, null, 900);
 
 	}
 
@@ -100,7 +102,8 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	public void testMAGE() throws SQLException {
 
 		testServer("https://mageogc.geointservices.io/api/ogc/features",
-				"event:1:observations", "mage", null, null, null, null, null);
+				"event:1:observations", "mage", null, null, null, null, null,
+				5);
 
 	}
 
@@ -121,14 +124,16 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	 *            time
 	 * @param period
 	 *            period or end time
+	 * @param progressFrequency
+	 *            progress frequency
 	 * @throws SQLException
 	 *             upon error
 	 */
 	private void testServer(String server, String collection, Integer limit,
 			Integer totalLimit, BoundingBox boundingBox, String time,
-			String period) throws SQLException {
+			String period, int progressFrequency) throws SQLException {
 		testServer(server, collection, collection, limit, totalLimit,
-				boundingBox, time, period);
+				boundingBox, time, period, progressFrequency);
 	}
 
 	/**
@@ -150,12 +155,15 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	 *            time
 	 * @param period
 	 *            period or end time
+	 * @param progressFrequency
+	 *            progress frequency
 	 * @throws SQLException
 	 *             upon error
 	 */
 	private void testServer(String server, String collection, String name,
 			Integer limit, Integer totalLimit, BoundingBox boundingBox,
-			String time, String period) throws SQLException {
+			String time, String period, int progressFrequency)
+			throws SQLException {
 
 		File file = new File(PATH + name + ".gpkg");
 
@@ -172,6 +180,7 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 		generator.setTime(time);
 		generator.setPeriod(period);
 		generator.setDownloadAttempts(3);
+		generator.setProgress(new Progress(collection, progressFrequency, 10));
 
 		int count = generator.generateFeatures();
 		if (totalLimit != null) {
