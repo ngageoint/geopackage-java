@@ -160,8 +160,10 @@ public class Progress implements GeoPackageProgress {
 	 * Get the string percentage of the count and total
 	 * 
 	 * @param count
+	 *            current count
 	 * @param total
-	 * @return
+	 *            total count
+	 * @return string percentage
 	 */
 	protected String getPercentage(int count, int total) {
 		return decimalFormat.format((count / (double) total * 100.0f)) + "%";
