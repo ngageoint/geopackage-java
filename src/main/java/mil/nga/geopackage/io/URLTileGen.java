@@ -94,7 +94,7 @@ public class URLTileGen {
 	/**
 	 * Tile progress
 	 */
-	private static Progress progress = new Progress("URL Tile Generation",
+	private static ZoomLevelProgress progress = new ZoomLevelProgress("URL Tile Generation",
 			LOG_TILE_FREQUENCY, LOG_TILE_TIME_FREQUENCY);
 
 	/**

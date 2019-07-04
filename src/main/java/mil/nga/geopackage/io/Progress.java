@@ -2,8 +2,6 @@ package mil.nga.geopackage.io;
 
 import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,75 +9,60 @@ import java.util.logging.Logger;
  * Progress logger
  * 
  * @author osbornb
- * @since 1.1.2
+ * @since 3.3.0
  */
-public class Progress implements GeoPackageZoomLevelProgress {
+public class Progress implements GeoPackageProgress {
 
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(Progress.class
-			.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(Progress.class.getName());
 
 	/**
 	 * Decimal format
 	 */
-	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+	protected DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
 	/**
-	 * Max number of tiles
+	 * Max number
 	 */
-	private Integer max = null;
-
-	/**
-	 * Zoom level max number of tiles
-	 */
-	private Map<Integer, Integer> zoomLevelMax = new HashMap<>();
+	protected Integer max = null;
 
 	/**
 	 * Total progress
 	 */
-	private int progress = 0;
-
-	/**
-	 * Zoom level progress
-	 */
-	private Map<Integer, Integer> zoomLevelProgress = new HashMap<>();
-
-	/**
-	 * Current zoom level
-	 */
-	private int currentZoom = -1;
+	protected int progress = 0;
 
 	/**
 	 * Active flag
 	 */
-	private boolean active = true;
+	protected boolean active = true;
 
 	/**
 	 * Log Title
 	 */
-	private final String title;
+	protected final String title;
 
 	/**
 	 * Log count frequency
 	 */
-	private final int countFrequency;
+	protected final int countFrequency;
 
 	/**
 	 * Log time frequency
 	 */
-	private final int timeFrequency;
+	protected final int timeFrequency;
 
 	/**
 	 * Local count between logs
 	 */
-	private int localCount = 0;
+	protected int localCount = 0;
 
 	/**
 	 * Local time between logs
 	 */
-	private Date localTime = new Date();
+	protected Date localTime = new Date();
 
 	/**
 	 * Constructor
@@ -109,45 +92,27 @@ public class Progress implements GeoPackageZoomLevelProgress {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setZoomLevelMax(int zoomLevel, int max) {
-		zoomLevelMax.put(zoomLevel, max);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void addProgress(int progress) {
 		this.progress += progress;
 		localCount += progress;
 		if (localCount >= countFrequency
-				|| localTime.getTime() + timeFrequency <= (new Date())
-						.getTime()) {
-			int zoomCount = getZoomLevelProgress(currentZoom);
-			int zoomTotal = getZoomLevelMax(currentZoom);
-			LOGGER.log(Level.INFO, title + " - " + this.progress + " of " + max
-					+ " (" + getPercentage(this.progress, max) + "), Zoom "
-					+ currentZoom + " - " + zoomCount + " of " + zoomTotal
-					+ " (" + getPercentage(zoomCount, zoomTotal) + ")");
+				|| localTime.getTime() + timeFrequency <= (new Date()).getTime()
+				|| (max != null && max == this.progress)) {
+			logProgress();
 			localCount = 0;
 			localTime = new Date();
 		}
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Log the progress
 	 */
-	@Override
-	public void addZoomLevelProgress(int zoomLevel, int progress) {
-		Integer zoomProgress = getZoomLevelProgress(zoomLevel);
-		zoomProgress += progress;
-		zoomLevelProgress.put(zoomLevel, zoomProgress);
-		if (currentZoom > -1 && currentZoom != zoomLevel) {
-			LOGGER.log(Level.INFO, title + " - Finished Zoom Level "
-					+ currentZoom + ", Tiles: "
-					+ getZoomLevelProgress(currentZoom));
-		}
-		currentZoom = zoomLevel;
+	protected void logProgress() {
+		LOGGER.log(Level.INFO,
+				title + " - " + this.progress
+						+ (max != null ? " of " + max + " ("
+								+ getPercentage(this.progress, max) + ")"
+								: ""));
 	}
 
 	/**
@@ -183,21 +148,6 @@ public class Progress implements GeoPackageZoomLevelProgress {
 	}
 
 	/**
-	 * Get the max at the zoom level
-	 * 
-	 * @param zoomLevel
-	 *            zoom level
-	 * @return max
-	 */
-	public Integer getZoomLevelMax(int zoomLevel) {
-		Integer zoomMax = zoomLevelMax.get(zoomLevel);
-		if (zoomMax == null) {
-			zoomMax = 0;
-		}
-		return zoomMax;
-	}
-
-	/**
 	 * Get the total progress
 	 * 
 	 * @return progress
@@ -207,28 +157,13 @@ public class Progress implements GeoPackageZoomLevelProgress {
 	}
 
 	/**
-	 * Get the total progress at the zoom level
-	 * 
-	 * @param zoomLevel
-	 *            zoom level
-	 * @return progress
-	 */
-	public int getZoomLevelProgress(int zoomLevel) {
-		Integer zoomProgress = zoomLevelProgress.get(zoomLevel);
-		if (zoomProgress == null) {
-			zoomProgress = 0;
-		}
-		return zoomProgress;
-	}
-
-	/**
 	 * Get the string percentage of the count and total
 	 * 
 	 * @param count
 	 * @param total
 	 * @return
 	 */
-	private String getPercentage(int count, int total) {
+	protected String getPercentage(int count, int total) {
 		return decimalFormat.format((count / (double) total * 100.0f)) + "%";
 	}
 

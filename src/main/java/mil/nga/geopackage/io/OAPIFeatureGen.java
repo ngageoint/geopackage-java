@@ -386,7 +386,7 @@ public class OAPIFeatureGen {
 						? ", Transaction Limit: " + transactionLimit
 						: ""));
 
-		// featureGenerator.setProgress(progress); TODO
+		featureGenerator.setProgress(progress);
 
 		LOGGER.log(Level.INFO, "Generating Features...");
 
@@ -397,6 +397,37 @@ public class OAPIFeatureGen {
 					e);
 		}
 
+		finish();
+	}
+
+	/**
+	 * Finish tile generation
+	 */
+	private static void finish() {
+
+		if (progress.getMax() != null) {
+
+			StringBuilder output = new StringBuilder();
+			output.append("\nFeature Generation: ")
+					.append(progress.getProgress()).append(" of ")
+					.append(progress.getMax());
+
+			if (geoPackage != null) {
+				try {
+					GeoPackageTextOutput textOutput = new GeoPackageTextOutput(
+							geoPackage);
+					output.append("\n\n");
+					output.append(textOutput.header());
+					output.append("\n\n");
+					output.append(textOutput.featureTable(tableName));
+
+				} finally {
+					geoPackage.close();
+				}
+			}
+
+			System.out.println(output.toString());
+		}
 	}
 
 	/**

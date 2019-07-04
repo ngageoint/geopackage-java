@@ -201,7 +201,7 @@ public class FeatureTileGen {
 	/**
 	 * Tile progress
 	 */
-	private static Progress progress = new Progress("Feature Tile Generation",
+	private static ZoomLevelProgress progress = new ZoomLevelProgress("Feature Tile Generation",
 			LOG_TILE_FREQUENCY, LOG_TILE_TIME_FREQUENCY);
 
 	/**
@@ -827,7 +827,7 @@ public class FeatureTileGen {
 					"Indexing GeoPackage '" + featureGeoPackage.getName()
 							+ "' feature table '" + featureTable + "' with "
 							+ numFeatures + " features");
-			Progress indexProgress = new Progress("Feature Indexer",
+			ZoomLevelProgress indexProgress = new ZoomLevelProgress("Feature Indexer",
 					LOG_INDEX_FREQUENCY, LOG_INDEX_TIME_FREQUENCY);
 			indexProgress.setMax(numFeatures);
 			featureIndex.setProgress(indexProgress);

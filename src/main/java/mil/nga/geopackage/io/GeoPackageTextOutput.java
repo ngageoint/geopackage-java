@@ -4,6 +4,8 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
@@ -63,11 +65,11 @@ public class GeoPackageTextOutput {
 
 		TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
 
-		output.append("\n\nContents\n\n").append(
-				textOutput(tileMatrixSet.getContents()));
+		output.append("\n\nContents\n\n")
+				.append(textOutput(tileMatrixSet.getContents()));
 
-		output.append("\n\nTile Matrix Set\n\n").append(
-				textOutput(tileMatrixSet));
+		output.append("\n\nTile Matrix Set\n\n")
+				.append(textOutput(tileMatrixSet));
 
 		output.append("\n\n Tile Matrices");
 
@@ -77,10 +79,35 @@ public class GeoPackageTextOutput {
 				output.append("\n\n").append(textOutput(tileMatrix));
 				output.append("\n\tTiles: " + tileDao.count(zoom));
 				BoundingBox boundingBox = tileDao.getBoundingBox(zoom);
-				output.append("\n\tTile Bounds: \n").append(
-						textOutput(boundingBox));
+				output.append("\n\tTile Bounds: \n")
+						.append(textOutput(boundingBox));
 			}
 		}
+
+		return output.toString();
+	}
+
+	/**
+	 * Build text from a feature table
+	 * 
+	 * @param table
+	 *            feature table
+	 * @return text
+	 */
+	public String featureTable(String table) {
+
+		StringBuilder output = new StringBuilder();
+		FeatureDao featureDao = geoPackage.getFeatureDao(table);
+		output.append("Table Name: " + featureDao.getTableName());
+		output.append("\nFeatures: " + featureDao.count());
+
+		GeometryColumns geometryColumns = featureDao.getGeometryColumns();
+
+		output.append("\n\nContents\n\n")
+				.append(textOutput(geometryColumns.getContents()));
+
+		output.append("\n\nGeometry Columns\n\n")
+				.append(textOutput(geometryColumns));
 
 		return output.toString();
 	}
@@ -123,14 +150,14 @@ public class GeoPackageTextOutput {
 				+ contents.getDescription());
 		output.append("\n\t" + Contents.COLUMN_LAST_CHANGE + ": "
 				+ contents.getLastChange());
-		output.append("\n\t" + Contents.COLUMN_MIN_X + ": "
-				+ contents.getMinX());
-		output.append("\n\t" + Contents.COLUMN_MIN_Y + ": "
-				+ contents.getMinY());
-		output.append("\n\t" + Contents.COLUMN_MAX_X + ": "
-				+ contents.getMaxX());
-		output.append("\n\t" + Contents.COLUMN_MAX_Y + ": "
-				+ contents.getMaxY());
+		output.append(
+				"\n\t" + Contents.COLUMN_MIN_X + ": " + contents.getMinX());
+		output.append(
+				"\n\t" + Contents.COLUMN_MIN_Y + ": " + contents.getMinY());
+		output.append(
+				"\n\t" + Contents.COLUMN_MAX_X + ": " + contents.getMaxX());
+		output.append(
+				"\n\t" + Contents.COLUMN_MAX_Y + ": " + contents.getMaxY());
 		output.append("\n" + textOutput(contents.getSrs()));
 		return output.toString();
 	}
@@ -199,6 +226,29 @@ public class GeoPackageTextOutput {
 		output.append("\n\tMin Latitude: " + boundingBox.getMinLatitude());
 		output.append("\n\tMax Longitude: " + boundingBox.getMaxLongitude());
 		output.append("\n\tMax Latitude: " + boundingBox.getMaxLatitude());
+		return output.toString();
+	}
+
+	/**
+	 * Text output from a GeometryColumns
+	 * 
+	 * @param geometryColumns
+	 *            geometry columns
+	 * @return text
+	 */
+	public String textOutput(GeometryColumns geometryColumns) {
+		StringBuilder output = new StringBuilder();
+		output.append("\t" + GeometryColumns.COLUMN_TABLE_NAME + ": "
+				+ geometryColumns.getTableName());
+		output.append("\n\t" + GeometryColumns.COLUMN_COLUMN_NAME + ": "
+				+ geometryColumns.getColumnName());
+		output.append("\n\t" + GeometryColumns.COLUMN_GEOMETRY_TYPE_NAME + ": "
+				+ geometryColumns.getGeometryTypeName());
+		output.append("\n" + textOutput(geometryColumns.getSrs()));
+		output.append("\n\t" + GeometryColumns.COLUMN_Z + ": "
+				+ geometryColumns.getZ());
+		output.append("\n\t" + GeometryColumns.COLUMN_M + ": "
+				+ geometryColumns.getM());
 		return output.toString();
 	}
 
