@@ -214,6 +214,18 @@ Example:
 
     java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen -bbox -105.0,39.0,-104.0,40.0 -pointRadius 3.0 -pointColor magenta -lineStrokeWidth 2.5 -lineColor red -polygonStrokeWidth 1.5 -polygonColor 0,0,255 -fillPolygon -polygonFillColor 0,255,0,80 /path/geopackage1.gpkg myfeaturetable /path/geopackage2.gpkg mytiletable 2 18
 
+#### OGC API Features Generator ####
+
+The OGC API feature generator creates features within a GeoPackage by requesting from an OGC API server. Features are downloaded from the server using a specified collection id.
+
+To run against the jar:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.OAPIFeatureGen [-limit limit] [-bbox minLon,minLat,maxLon,maxLat] [-bbox-proj authority,code] [-time time] [-proj authority,code] [-totalLimit total_limit] [-transactionLimit transaction_limit] geopackage_file table_name server_url collection_id
+
+Example:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.OAPIFeatureGen -limit 1000 -bbox 20.0,60.0,22.0,62.0 -time 20190519T140000/20190619T140000 -totalLimit 10000 -transactionLimit 100 /path/geopackage.gpkg myfeaturetable http://url collectionId
+
 ### Dependencies ###
 
 #### Remote ####
