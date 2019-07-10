@@ -135,7 +135,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -148,12 +148,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.1.1</version>
 				<configuration>
 					<links>
 						<link>http://ngageoint.github.io/geopackage-core-java/docs/api/</link>
-						<link>http://ngageoint.github.io/simple-features-wkb-java/docs/api/</link>
 						<link>http://ngageoint.github.io/simple-features-java/docs/api/</link>
+						<link>http://ngageoint.github.io/simple-features-wkb-java/docs/api/</link>
+						<link>http://ngageoint.github.io/simple-features-proj-java/docs/api/</link>
+						<link>http://ngageoint.github.io/simple-features-geojson-java/docs/api/</link>
+						<link>http://ngageoint.github.io/ogc-api-features-json-java/docs/api/</link>
 						<link>http://ngageoint.github.io/tiff-java/docs/api/</link>
 						<link>http://ormlite.com/javadoc/ormlite-core/</link>
 						<link>http://ormlite.com/javadoc/ormlite-jdbc/</link>
