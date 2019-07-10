@@ -17,10 +17,29 @@ Executes SQL statements on a SQLite database, including GeoPackages.  Most SQLit
 
     java -jar sqlite-exec.jar [-m max_rows] sqlite_file [sql]
 
-## Alias
+### Alias
 
-Add an alias to run from any location
+Add an alias to your shell to run from any location
 
     alias sql="~/sqlite-exec/sqlite-exec.sh"
 
+And run
+
     sql sqlite_file [sql]
+
+## Examples:
+
+Run using the script, Jar, or alias.
+
+    sql /path/geopackage.gpkg "SELECT * FROM gpkg_contents"
+
+    sql /path/geopackage.gpkg
+    sql> PRAGMA integrity_check;
+    sql> PRAGMA table_info(table_name);
+    sql> SELECT * FROM table_name;
+    sql> ALTER TABLE table_name COPY TO table_name_copy;
+    sql> ALTER TABLE table_name RENAME TO new_table_name;
+    sql> ALTER TABLE table_name DROP COLUMN column_name;
+    sql> DROP TABLE table_name_copy;
+    sql> SELECT * from sqlite_master;
+    sql> VACUUM;
