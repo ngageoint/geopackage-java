@@ -112,7 +112,7 @@ To build the jar into a standalone jar that includes all dependencies:
 
 #### SQL Exec ####
 
-Executes SQL statements on a SQLite database, including GeoPackages. Download [sqlite-exec.zip](https://github.com/ngageoint/geopackage-java/releases/latest) and follow the [instructions](script/sqlite-exec/).
+Executes SQL statements on a SQLite database, including GeoPackages. Download [sqlite-exec.zip](https://github.com/ngageoint/geopackage-java/releases/latest/download/sqlite-exec.zip) and follow the [instructions](script/sqlite-exec/).
 
 Or run against the jar:
 
