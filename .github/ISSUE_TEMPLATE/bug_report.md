@@ -1,3 +1,12 @@
+---
+name: Bug report
+about: Report an issue
+title: ''
+labels: bug
+assignees: ''
+
+---
+
 Please fill out as much known and relevant information as possible.
 
 #### Version Information:
