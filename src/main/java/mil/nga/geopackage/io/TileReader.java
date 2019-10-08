@@ -611,8 +611,8 @@ public class TileReader {
 			Integer tileHeight = null;
 
 			// Determine the matrix width and height
-			TileGrid zoomTotalTileGrid = TileBoundingBoxUtils.getTileGrid(
-					totalWebMercatorBoundingBox, zoomDirectory.zoom);
+			TileGrid zoomTotalTileGrid = TileBoundingBoxUtils.tileGridZoom(
+					totalTileGrid, tileDirectory.minZoom, zoomDirectory.zoom);
 			long matrixWidth = zoomTotalTileGrid.getMaxX()
 					- zoomTotalTileGrid.getMinX() + 1;
 			long matrixHeight = zoomTotalTileGrid.getMaxY()
@@ -626,10 +626,10 @@ public class TileReader {
 			// than the bounds of the minimum zoom value
 			int minColumn, maxColumn, minRow, maxRow;
 			if (rawImage) {
-				minColumn = zoomDirectory.minX;
-				maxColumn = zoomDirectory.maxX;
-				minRow = zoomDirectory.minY;
-				maxRow = zoomDirectory.maxY;
+				minColumn = zoomDirectory.minX - (int) zoomTotalTileGrid.getMinX();
+				maxColumn = zoomDirectory.maxX - (int) zoomTotalTileGrid.getMinX();
+				minRow = zoomDirectory.minY - (int) zoomTotalTileGrid.getMinY();
+				maxRow = zoomDirectory.maxY - (int) zoomTotalTileGrid.getMinY();
 			} else {
 				minColumn = 0;
 				maxColumn = (int) matrixWidth - 1;
