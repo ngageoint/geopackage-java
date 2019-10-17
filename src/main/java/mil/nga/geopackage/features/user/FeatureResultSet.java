@@ -2,7 +2,6 @@ package mil.nga.geopackage.features.user;
 
 import java.sql.ResultSet;
 
-import mil.nga.geopackage.db.ResultUtils;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.user.UserResultSet;
 
@@ -11,8 +10,8 @@ import mil.nga.geopackage.user.UserResultSet;
  * 
  * @author osbornb
  */
-public class FeatureResultSet extends
-		UserResultSet<FeatureColumn, FeatureTable, FeatureRow> {
+public class FeatureResultSet
+		extends UserResultSet<FeatureColumn, FeatureTable, FeatureRow> {
 
 	/**
 	 * Constructor
@@ -24,7 +23,8 @@ public class FeatureResultSet extends
 	 * @param count
 	 *            count
 	 */
-	public FeatureResultSet(FeatureTable table, ResultSet resultSet, int count) {
+	public FeatureResultSet(FeatureTable table, ResultSet resultSet,
+			int count) {
 		super(table, resultSet, count);
 	}
 
@@ -62,14 +62,9 @@ public class FeatureResultSet extends
 		GeoPackageGeometryData geometry = null;
 
 		int columnIndex = getTable().getGeometryColumnIndex();
-		int type = getType(columnIndex);
-
-		if (type != ResultUtils.FIELD_TYPE_NULL) {
-			byte[] geometryBytes = getBlob(columnIndex);
-
-			if (geometryBytes != null) {
-				geometry = new GeoPackageGeometryData(geometryBytes);
-			}
+		byte[] geometryBytes = getBlob(columnIndex);
+		if (geometryBytes != null) {
+			geometry = new GeoPackageGeometryData(geometryBytes);
 		}
 
 		return geometry;

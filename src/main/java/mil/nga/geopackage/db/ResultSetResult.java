@@ -3,6 +3,7 @@ package mil.nga.geopackage.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.logging.Logger;
 
 import mil.nga.geopackage.GeoPackageException;
 
@@ -14,6 +15,12 @@ import mil.nga.geopackage.GeoPackageException;
  * @since 3.1.0
  */
 public class ResultSetResult implements Result {
+
+	/**
+	 * Logger
+	 */
+	private static final Logger logger = Logger
+			.getLogger(ResultSetResult.class.getName());
 
 	/**
 	 * Result Set
@@ -44,7 +51,7 @@ public class ResultSetResult implements Result {
 	 */
 	@Override
 	public Object getValue(int index) {
-		return ResultUtils.getValue(this, index);
+		return getValue(index, null);
 	}
 
 	/**
@@ -52,7 +59,18 @@ public class ResultSetResult implements Result {
 	 */
 	@Override
 	public Object getValue(int index, GeoPackageDataType dataType) {
-		return ResultUtils.getValue(this, index, dataType);
+
+		Object value;
+		try {
+			value = resultSet.getObject(resultIndexToResultSetIndex(index));
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to get value for column index: " + index, e);
+		}
+
+		value = ResultUtils.getValue(value, dataType);
+
+		return value;
 	}
 
 	/**
@@ -132,12 +150,13 @@ public class ResultSetResult implements Result {
 	public int getColumnIndex(String columnName) {
 		int index;
 		try {
-			index = resultSetIndexToResultIndex(resultSet
-					.findColumn(columnName));
+			index = resultSetIndexToResultIndex(
+					resultSet.findColumn(columnName));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to find column index for column name: "
-							+ columnName, e);
+							+ columnName,
+					e);
 		}
 		return index;
 	}
@@ -149,13 +168,13 @@ public class ResultSetResult implements Result {
 	public int getType(int columnIndex) {
 		int type;
 		try {
-			int resultSetMetadataType = resultSet.getMetaData().getColumnType(
-					resultIndexToResultSetIndex(columnIndex));
-			type = resultSetTypeToSqlLite(resultSetMetadataType);
+			type = resultSet.getMetaData()
+					.getColumnType(resultIndexToResultSetIndex(columnIndex));
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get column type for column index: "
-							+ columnIndex, e);
+							+ columnIndex,
+					e);
 		}
 		return type;
 	}
@@ -172,7 +191,8 @@ public class ResultSetResult implements Result {
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get String value for column index: "
-							+ columnIndex, e);
+							+ columnIndex,
+					e);
 		}
 		return value;
 	}
@@ -238,7 +258,8 @@ public class ResultSetResult implements Result {
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get short value for column index: "
-							+ columnIndex, e);
+							+ columnIndex,
+					e);
 		}
 		return value;
 	}
@@ -255,7 +276,8 @@ public class ResultSetResult implements Result {
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get double value for column index: "
-							+ columnIndex, e);
+							+ columnIndex,
+					e);
 		}
 		return value;
 	}
@@ -272,7 +294,8 @@ public class ResultSetResult implements Result {
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get float value for column index: "
-							+ columnIndex, e);
+							+ columnIndex,
+					e);
 		}
 		return value;
 	}
@@ -299,8 +322,8 @@ public class ResultSetResult implements Result {
 		try {
 			resultSet.getStatement().close();
 		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to close ResultSet Statement", e);
+			throw new GeoPackageException("Failed to close ResultSet Statement",
+					e);
 		}
 		try {
 			resultSet.close();
@@ -352,14 +375,20 @@ public class ResultSetResult implements Result {
 			break;
 		case Types.VARCHAR:
 		case Types.DATE:
+		case Types.TIMESTAMP:
+		case Types.CLOB:
+		case Types.CHAR:
+		case Types.NUMERIC:
 			type = ResultUtils.FIELD_TYPE_STRING;
 			break;
 		case Types.REAL:
 		case Types.FLOAT:
 		case Types.DOUBLE:
+		case Types.DECIMAL:
 			type = ResultUtils.FIELD_TYPE_FLOAT;
 			break;
 		case Types.BLOB:
+		case Types.BINARY:
 			type = ResultUtils.FIELD_TYPE_BLOB;
 			break;
 		case Types.NULL:
@@ -367,7 +396,8 @@ public class ResultSetResult implements Result {
 			break;
 		default:
 			throw new GeoPackageException(
-					"Unsupported ResultSet Metadata Column Type: " + columnType);
+					"Unsupported ResultSet Metadata Column Type: "
+							+ columnType);
 		}
 
 		return type;

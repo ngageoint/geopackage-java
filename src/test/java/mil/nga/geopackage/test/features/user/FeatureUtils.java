@@ -1063,8 +1063,8 @@ public class FeatureUtils {
 						case ResultUtils.FIELD_TYPE_FLOAT:
 							switch (readFeatureColumn.getDataType()) {
 							case FLOAT:
-								TestCase.assertEquals(updatedFloat, readRow
-										.getValue(readFeatureColumn.getIndex()));
+								TestCase.assertEquals(updatedFloat,
+										((Number)readRow.getValue(readFeatureColumn.getIndex())).floatValue());
 								break;
 							case DOUBLE:
 							case REAL:
