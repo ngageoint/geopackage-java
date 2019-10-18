@@ -11,6 +11,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Tile Reader bug fix causing file system tiles to be skipped
 * Database result column value fixes for new sqlite-jdbc version
 * Feature Index Manager catches and logs index type errors, attempts next index type
+* Fixed out of bounds iteration errors on Manual Feature Query Results and Feature Index List Results
 
 ## [3.3.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.3.0) (07-10-2019)
 
