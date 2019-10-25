@@ -5,6 +5,9 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.j256.ormlite.misc.TransactionManager;
+import com.j256.ormlite.support.ConnectionSource;
+
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.features.user.FeatureDao;
@@ -12,9 +15,6 @@ import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureRowSync;
 import mil.nga.sf.proj.Projection;
-
-import com.j256.ormlite.misc.TransactionManager;
-import com.j256.ormlite.support.ConnectionSource;
 
 /**
  * Feature Table Index NGA Extension implementation. This extension is used to
@@ -31,8 +31,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	/**
 	 * Logger
 	 */
-	private static final Logger log = Logger.getLogger(FeatureTableIndex.class
-			.getName());
+	private static final Logger log = Logger
+			.getLogger(FeatureTableIndex.class.getName());
 
 	/**
 	 * Feature DAO
@@ -53,8 +53,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            feature dao
 	 */
 	public FeatureTableIndex(GeoPackage geoPackage, FeatureDao featureDao) {
-		super(geoPackage, featureDao.getTableName(), featureDao
-				.getGeometryColumnName());
+		super(geoPackage, featureDao.getTableName(),
+				featureDao.getGeometryColumnName());
 		this.featureDao = featureDao;
 	}
 
@@ -134,7 +134,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 				throw new GeoPackageException(
 						"Failed to Index Table. GeoPackage: "
 								+ getGeoPackage().getName() + ", Table: "
-								+ getTableName(), e);
+								+ getTableName(),
+						e);
 			}
 
 			offset += chunkLimit;
@@ -178,9 +179,11 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 						progress.addProgress(1);
 					}
 				} catch (Exception e) {
-					log.log(Level.SEVERE, "Failed to index feature. Table: "
-							+ tableIndex.getTableName() + ", Position: "
-							+ resultSet.getPosition(), e);
+					log.log(Level.SEVERE,
+							"Failed to index feature. Table: "
+									+ tableIndex.getTableName() + ", Position: "
+									+ resultSet.getPosition(),
+							e);
 				}
 			}
 		} finally {
@@ -224,6 +227,15 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 		}
 
 		return row;
+	}
+
+	/**
+	 * Query for all Geometry Index objects
+	 * 
+	 * @return geometry indices iterator
+	 */
+	public FeatureResultSet queryFeatures() {
+		return featureDao.queryIn(queryIdsSQL());
 	}
 
 }

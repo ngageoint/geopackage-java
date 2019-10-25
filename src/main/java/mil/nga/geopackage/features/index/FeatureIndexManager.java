@@ -723,17 +723,15 @@ public class FeatureIndexManager {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
-					long count = featureTableIndex.count();
-					CloseableIterator<GeometryIndex> geometryIndices = featureTableIndex
-							.query();
-					results = new FeatureIndexGeoPackageResults(
-							featureTableIndex, count, geometryIndices);
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeatures();
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
 					break;
 				case RTREE:
-					UserCustomResultSet resultSet = rTreeIndexTableDao
-							.queryForAll();
-					results = new FeatureIndexRTreeResults(rTreeIndexTableDao,
-							resultSet);
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryForAllFeatures();
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
 					throw new GeoPackageException(
@@ -1109,7 +1107,7 @@ public class FeatureIndexManager {
 	 * @return feature index type
 	 * @since 3.3.1
 	 */
-	public FeatureIndexType getIndexedTypeTODO() {
+	public FeatureIndexType getIndexedType() {
 
 		FeatureIndexType indexType = FeatureIndexType.NONE;
 

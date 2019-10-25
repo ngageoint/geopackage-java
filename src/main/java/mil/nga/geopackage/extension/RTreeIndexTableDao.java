@@ -6,6 +6,7 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.user.custom.UserCustomDao;
@@ -206,6 +207,16 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
+	 * Query for all features
+	 * 
+	 * @return feature results
+	 */
+	public FeatureResultSet queryForAllFeatures() {
+		validateRTree();
+		return featureDao.queryIn(queryForAllIdsSQL());
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -224,7 +235,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 						+ RTreeIndexExtension.COLUMN_MIN_Y + "), MAX("
 						+ RTreeIndexExtension.COLUMN_MAX_X + "), MAX("
 						+ RTreeIndexExtension.COLUMN_MAX_Y + ") FROM "
-						+ CoreSQLUtils.quoteWrap(getTableName()), null);
+						+ CoreSQLUtils.quoteWrap(getTableName()),
+				null);
 		BoundingBox boundingBox = new BoundingBox(values.get(0), values.get(1),
 				values.get(2), values.get(3));
 		return boundingBox;
@@ -237,8 +249,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	public BoundingBox getBoundingBox(Projection projection) {
 		BoundingBox boundingBox = getBoundingBox();
 		if (boundingBox != null && projection != null) {
-			ProjectionTransform projectionTransform = featureDao
-					.getProjection().getTransformation(projection);
+			ProjectionTransform projectionTransform = featureDao.getProjection()
+					.getTransformation(projection);
 			boundingBox = boundingBox.transform(projectionTransform);
 		}
 		return boundingBox;
@@ -305,8 +317,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @return results
 	 */
 	public UserCustomResultSet query(GeometryEnvelope envelope) {
-		return query(envelope.getMinX(), envelope.getMinY(),
-				envelope.getMaxX(), envelope.getMaxY());
+		return query(envelope.getMinX(), envelope.getMinY(), envelope.getMaxX(),
+				envelope.getMaxY());
 	}
 
 	/**
@@ -317,8 +329,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @return count
 	 */
 	public long count(GeometryEnvelope envelope) {
-		return count(envelope.getMinX(), envelope.getMinY(),
-				envelope.getMaxX(), envelope.getMaxY());
+		return count(envelope.getMinX(), envelope.getMinY(), envelope.getMaxX(),
+				envelope.getMaxY());
 	}
 
 	/**
@@ -386,7 +398,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max y
 	 * @return where clause
 	 */
-	private String buildWhere(double minX, double minY, double maxX, double maxY) {
+	private String buildWhere(double minX, double minY, double maxX,
+			double maxY) {
 
 		StringBuilder where = new StringBuilder();
 		where.append(buildWhere(RTreeIndexExtension.COLUMN_MIN_X, maxX, "<="));

@@ -105,14 +105,8 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	public TResult query(String table, String[] columns, String[] columnsAs,
 			String selection, String[] selectionArgs, String groupBy,
 			String having, String orderBy) {
-
-		String sql = SQLiteQueryBuilder.buildQueryString(false, table, columns,
-				columnsAs, selection, groupBy, having, orderBy, null);
-
-		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
-		int count = SQLUtils.count(connection, sql, selectionArgs);
-
-		return createResult(resultSet, count);
+		return query(table, columns, columnsAs, selection, selectionArgs,
+				groupBy, having, orderBy, null);
 	}
 
 	/**
@@ -134,13 +128,54 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 			String selection, String[] selectionArgs, String groupBy,
 			String having, String orderBy, String limit) {
 
-		String sql = SQLiteQueryBuilder.buildQueryString(false, table, columns,
-				columnsAs, selection, groupBy, having, orderBy, limit);
+		String sql = querySQL(table, columns, columnsAs, selection, groupBy,
+				having, orderBy, limit);
 
 		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
 		int count = SQLUtils.count(connection, sql, selectionArgs);
 
 		return createResult(resultSet, count);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String querySQL(String table, String[] columns, String selection,
+			String groupBy, String having, String orderBy) {
+		return querySQL(table, columns, null, selection, groupBy, having,
+				orderBy, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String querySQL(String table, String[] columns, String[] columnsAs,
+			String selection, String groupBy, String having, String orderBy) {
+		return querySQL(table, columns, columnsAs, selection, groupBy, having,
+				orderBy, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String querySQL(String table, String[] columns, String selection,
+			String groupBy, String having, String orderBy, String limit) {
+		return querySQL(table, columns, null, selection, groupBy, having,
+				orderBy, limit);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String querySQL(String table, String[] columns, String[] columnsAs,
+			String selection, String groupBy, String having, String orderBy,
+			String limit) {
+		return SQLiteQueryBuilder.buildQueryString(false, table, columns,
+				columnsAs, selection, groupBy, having, orderBy, limit);
 	}
 
 }
