@@ -8,12 +8,14 @@ import java.util.logging.Logger;
 import com.j256.ormlite.misc.TransactionManager;
 import com.j256.ormlite.support.ConnectionSource;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureRowSync;
+import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.proj.Projection;
 
 /**
@@ -230,12 +232,54 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
-	 * Query for all Geometry Index objects
+	 * Query for all Features
 	 * 
-	 * @return geometry indices iterator
+	 * @return feature results
+	 * @since 3.3.1
 	 */
 	public FeatureResultSet queryFeatures() {
 		return featureDao.queryIn(queryIdsSQL());
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param boundingBox
+	 *            bounding box
+	 * @return feature results
+	 * @since 3.3.1
+	 */
+	public FeatureResultSet queryFeatures(BoundingBox boundingBox) {
+		return queryFeatures(boundingBox.buildEnvelope());
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @return feature results
+	 * @since 3.3.1
+	 */
+	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
+			Projection projection) {
+		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
+				projection);
+		return queryFeatures(featureBoundingBox);
+	}
+
+	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param envelope
+	 *            geometry envelope
+	 * @return feature results
+	 * @since 3.3.1
+	 */
+	public FeatureResultSet queryFeatures(GeometryEnvelope envelope) {
+		return featureDao.queryIn(queryIdsSQL(envelope));
 	}
 
 }

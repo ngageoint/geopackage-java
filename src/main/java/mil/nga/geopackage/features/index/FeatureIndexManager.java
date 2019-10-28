@@ -11,22 +11,17 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.j256.ormlite.dao.CloseableIterator;
-
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.FeatureIndexRTreeResults;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.extension.RTreeIndexTableDao;
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
-import mil.nga.geopackage.extension.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.ManualFeatureQuery;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.geopackage.user.custom.UserCustomResultSet;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.proj.Projection;
 
@@ -870,17 +865,15 @@ public class FeatureIndexManager {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
-					long count = featureTableIndex.count(boundingBox);
-					CloseableIterator<GeometryIndex> geometryIndices = featureTableIndex
-							.query(boundingBox);
-					results = new FeatureIndexGeoPackageResults(
-							featureTableIndex, count, geometryIndices);
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeatures(boundingBox);
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
 					break;
 				case RTREE:
-					UserCustomResultSet resultSet = rTreeIndexTableDao
-							.query(boundingBox);
-					results = new FeatureIndexRTreeResults(rTreeIndexTableDao,
-							resultSet);
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryFeatures(boundingBox);
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
 					throw new GeoPackageException(
@@ -946,17 +939,15 @@ public class FeatureIndexManager {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
-					long count = featureTableIndex.count(envelope);
-					CloseableIterator<GeometryIndex> geometryIndices = featureTableIndex
-							.query(envelope);
-					results = new FeatureIndexGeoPackageResults(
-							featureTableIndex, count, geometryIndices);
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeatures(envelope);
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
 					break;
 				case RTREE:
-					UserCustomResultSet resultSet = rTreeIndexTableDao
-							.query(envelope);
-					results = new FeatureIndexRTreeResults(rTreeIndexTableDao,
-							resultSet);
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryFeatures(envelope);
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
 					throw new GeoPackageException(
@@ -1025,18 +1016,15 @@ public class FeatureIndexManager {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
-					long count = featureTableIndex.count(boundingBox,
-							projection);
-					CloseableIterator<GeometryIndex> geometryIndices = featureTableIndex
-							.query(boundingBox, projection);
-					results = new FeatureIndexGeoPackageResults(
-							featureTableIndex, count, geometryIndices);
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeatures(boundingBox, projection);
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
 					break;
 				case RTREE:
-					UserCustomResultSet resultSet = rTreeIndexTableDao
-							.query(boundingBox, projection);
-					results = new FeatureIndexRTreeResults(rTreeIndexTableDao,
-							resultSet);
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryFeatures(boundingBox, projection);
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
 					throw new GeoPackageException(

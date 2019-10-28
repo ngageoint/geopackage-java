@@ -97,7 +97,7 @@ public class FeatureIndexFeatureResults implements FeatureIndexResults {
 					 */
 					@Override
 					public Long next() {
-						return resultSet.getRow().getId();
+						return resultSet.getId();
 					}
 
 				};

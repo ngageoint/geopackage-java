@@ -22,8 +22,8 @@ import mil.nga.geopackage.db.ResultUtils;
  * @author osbornb
  */
 public abstract class UserResultSet<TColumn extends UserColumn, TTable extends UserTable<TColumn>, TRow extends UserRow<TColumn, TTable>>
-		extends ResultSetResult implements
-		UserCoreResult<TColumn, TTable, TRow> {
+		extends ResultSetResult
+		implements UserCoreResult<TColumn, TTable, TRow> {
 
 	/**
 	 * Table
@@ -63,6 +63,49 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Object getValue(int index) {
+		return getValue(table.getColumn(index));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object getValue(String columnName) {
+		return getValue(table.getColumn(columnName));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getId() {
+		long id = -1;
+
+		TColumn pkColumn = table.getPkColumn();
+		if (pkColumn == null) {
+			throw new GeoPackageException(
+					"No primary key column for table: " + table.getTableName());
+		}
+
+		Object objectValue = getValue(pkColumn);
+		if (objectValue instanceof Number) {
+			id = ((Number) objectValue).longValue();
+		} else {
+			throw new GeoPackageException(
+					"Primary Key value was not a number. Table: "
+							+ table.getTableName() + ", Column Index: "
+							+ pkColumn.getIndex() + ", Column Name: "
+							+ pkColumn.getName() + ", Value: " + objectValue);
+		}
+
+		return id;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public TTable getTable() {
 		return table;
 	}
@@ -95,8 +138,8 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 					if (value == null) {
 						columnType = ResultUtils.FIELD_TYPE_NULL;
 					} else {
-						int metadataColumnType = metaData
-								.getColumnType(resultIndexToResultSetIndex(index));
+						int metadataColumnType = metaData.getColumnType(
+								resultIndexToResultSetIndex(index));
 						columnType = resultSetTypeToSqlLite(metadataColumnType);
 					}
 					columnTypes[index] = columnType;
@@ -112,6 +155,9 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 		return row;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getCount() {
 		return count;

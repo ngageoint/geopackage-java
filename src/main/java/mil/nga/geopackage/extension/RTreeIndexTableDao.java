@@ -210,6 +210,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * Query for all features
 	 * 
 	 * @return feature results
+	 * @since 3.3.1
 	 */
 	public FeatureResultSet queryForAllFeatures() {
 		validateRTree();
@@ -268,6 +269,18 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
+	 * Query for features within the bounding box
+	 * 
+	 * @param boundingBox
+	 *            bounding box
+	 * @return feature results
+	 * @since 3.3.1
+	 */
+	public FeatureResultSet queryFeatures(BoundingBox boundingBox) {
+		return queryFeatures(boundingBox.buildEnvelope());
+	}
+
+	/**
 	 * Query for rows within the bounding box in the provided projection
 	 * 
 	 * @param boundingBox
@@ -281,6 +294,23 @@ public class RTreeIndexTableDao extends UserCustomDao {
 		BoundingBox featureBoundingBox = projectBoundingBox(boundingBox,
 				projection);
 		return query(featureBoundingBox);
+	}
+
+	/**
+	 * Query for features within the bounding box in the provided projection
+	 * 
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @return feature results
+	 * @since 3.3.1
+	 */
+	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
+			Projection projection) {
+		BoundingBox featureBoundingBox = projectBoundingBox(boundingBox,
+				projection);
+		return queryFeatures(featureBoundingBox);
 	}
 
 	/**
@@ -322,6 +352,19 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
+	 * Query for features within the geometry envelope
+	 * 
+	 * @param envelope
+	 *            geometry envelope
+	 * @return feature results
+	 * @since 3.3.1
+	 */
+	public FeatureResultSet queryFeatures(GeometryEnvelope envelope) {
+		return queryFeatures(envelope.getMinX(), envelope.getMinY(),
+				envelope.getMaxX(), envelope.getMaxY());
+	}
+
+	/**
 	 * Count the rows within the geometry envelope
 	 * 
 	 * @param envelope
@@ -352,6 +395,28 @@ public class RTreeIndexTableDao extends UserCustomDao {
 		String where = buildWhere(minX, minY, maxX, maxY);
 		String[] whereArgs = buildWhereArgs(minX, minY, maxX, maxY);
 		return query(where, whereArgs);
+	}
+
+	/**
+	 * Query for features within the bounds
+	 * 
+	 * @param minX
+	 *            min x
+	 * @param minY
+	 *            min y
+	 * @param maxX
+	 *            max x
+	 * @param maxY
+	 *            max y
+	 * @return results
+	 * @since 3.3.1
+	 */
+	public FeatureResultSet queryFeatures(double minX, double minY, double maxX,
+			double maxY) {
+		validateRTree();
+		String where = buildWhere(minX, minY, maxX, maxY);
+		String[] whereArgs = buildWhereArgs(minX, minY, maxX, maxY);
+		return featureDao.queryIn(queryIdsSQL(where), whereArgs);
 	}
 
 	/**

@@ -3,7 +3,6 @@ package mil.nga.geopackage.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.logging.Logger;
 
 import mil.nga.geopackage.GeoPackageException;
 
@@ -15,12 +14,6 @@ import mil.nga.geopackage.GeoPackageException;
  * @since 3.1.0
  */
 public class ResultSetResult implements Result {
-
-	/**
-	 * Logger
-	 */
-	private static final Logger logger = Logger
-			.getLogger(ResultSetResult.class.getName());
 
 	/**
 	 * Result Set
