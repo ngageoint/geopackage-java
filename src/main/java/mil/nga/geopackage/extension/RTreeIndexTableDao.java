@@ -212,7 +212,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @return feature results
 	 * @since 3.3.1
 	 */
-	public FeatureResultSet queryForAllFeatures() {
+	public FeatureResultSet queryFeatures() {
 		validateRTree();
 		return featureDao.queryIn(queryForAllIdsSQL());
 	}

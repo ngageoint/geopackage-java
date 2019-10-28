@@ -725,7 +725,7 @@ public class FeatureIndexManager {
 					break;
 				case RTREE:
 					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
-							.queryForAllFeatures();
+							.queryFeatures();
 					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
