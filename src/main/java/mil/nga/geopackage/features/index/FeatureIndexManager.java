@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -739,7 +740,7 @@ public class FeatureIndexManager {
 			}
 		}
 		if (results == null) {
-			FeatureResultSet featureResultSet = featureDao.queryForAll();
+			FeatureResultSet featureResultSet = manualFeatureQuery.query();
 			results = new FeatureIndexFeatureResults(featureResultSet);
 		}
 		return results;
@@ -773,6 +774,147 @@ public class FeatureIndexManager {
 		}
 		if (count == null) {
 			count = (long) manualFeatureQuery.countWithGeometries();
+		}
+		return count;
+	}
+
+	/**
+	 * Query for feature index results
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(Map<String, Object> fieldValues) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return query(where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index count
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public long count(Map<String, Object> fieldValues) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return count(where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index results
+	 * 
+	 * @param where
+	 *            where clause
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(String where) {
+		return query(where, null);
+	}
+
+	/**
+	 * Query for feature index count
+	 * 
+	 * @param where
+	 *            where clause
+	 *
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(String where) {
+		return count(where, null);
+	}
+
+	/**
+	 * Query for feature index results
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(String where, String[] whereArgs) {
+		FeatureIndexResults results = null;
+		for (FeatureIndexType type : getLocation()) {
+			try {
+				switch (type) {
+				case GEOPACKAGE:
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeatures(where, whereArgs);
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
+					break;
+				case RTREE:
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryFeatures(where, whereArgs);
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
+					break;
+				default:
+					throw new GeoPackageException(
+							"Unsupported feature index type: " + type);
+				}
+				break;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Failed to query from feature index: " + type, e);
+			}
+		}
+		if (results == null) {
+			FeatureResultSet featureResultSet = manualFeatureQuery.query(where,
+					whereArgs);
+			results = new FeatureIndexFeatureResults(featureResultSet);
+		}
+		return results;
+	}
+
+	/**
+	 * Query for feature index count
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 *
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(String where, String[] whereArgs) {
+		Long count = null;
+		for (FeatureIndexType type : getLocation()) {
+			try {
+				switch (type) {
+				case GEOPACKAGE:
+					count = (long) featureTableIndex.countFeatures(where,
+							whereArgs);
+					break;
+				case RTREE:
+					count = (long) rTreeIndexTableDao.countFeatures(where,
+							whereArgs);
+					break;
+				default:
+					throw new GeoPackageException(
+							"Unsupported feature index type: " + type);
+				}
+				break;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Failed to count from feature index: " + type, e);
+			}
+		}
+		if (count == null) {
+			count = (long) manualFeatureQuery.count(where, whereArgs);
 		}
 		return count;
 	}
@@ -908,7 +1050,7 @@ public class FeatureIndexManager {
 					count = featureTableIndex.count(boundingBox);
 					break;
 				case RTREE:
-					count = rTreeIndexTableDao.count(boundingBox);
+					count = (long) rTreeIndexTableDao.count(boundingBox);
 					break;
 				default:
 					throw new GeoPackageException(
@@ -981,7 +1123,7 @@ public class FeatureIndexManager {
 					count = featureTableIndex.count(envelope);
 					break;
 				case RTREE:
-					count = rTreeIndexTableDao.count(envelope);
+					count = (long) rTreeIndexTableDao.count(envelope);
 					break;
 				default:
 					throw new GeoPackageException(
@@ -1061,7 +1203,8 @@ public class FeatureIndexManager {
 					count = featureTableIndex.count(boundingBox, projection);
 					break;
 				case RTREE:
-					count = rTreeIndexTableDao.count(boundingBox, projection);
+					count = (long) rTreeIndexTableDao.count(boundingBox,
+							projection);
 					break;
 				default:
 					throw new GeoPackageException(
