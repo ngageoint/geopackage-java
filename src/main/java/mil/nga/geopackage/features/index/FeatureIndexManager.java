@@ -1002,35 +1002,7 @@ public class FeatureIndexManager {
 	 * @return feature index results, close when done
 	 */
 	public FeatureIndexResults query(BoundingBox boundingBox) {
-		FeatureIndexResults results = null;
-		for (FeatureIndexType type : getLocation()) {
-			try {
-				switch (type) {
-				case GEOPACKAGE:
-					FeatureResultSet geoPackageResultSet = featureTableIndex
-							.queryFeatures(boundingBox);
-					results = new FeatureIndexFeatureResults(
-							geoPackageResultSet);
-					break;
-				case RTREE:
-					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
-							.queryFeatures(boundingBox);
-					results = new FeatureIndexFeatureResults(rTreeResultSet);
-					break;
-				default:
-					throw new GeoPackageException(
-							"Unsupported feature index type: " + type);
-				}
-				break;
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to query from feature index: " + type, e);
-			}
-		}
-		if (results == null) {
-			results = manualFeatureQuery.query(boundingBox);
-		}
-		return results;
+		return query(boundingBox.buildEnvelope());
 	}
 
 	/**
@@ -1042,30 +1014,105 @@ public class FeatureIndexManager {
 	 * @return count
 	 */
 	public long count(BoundingBox boundingBox) {
-		Long count = null;
-		for (FeatureIndexType type : getLocation()) {
-			try {
-				switch (type) {
-				case GEOPACKAGE:
-					count = featureTableIndex.count(boundingBox);
-					break;
-				case RTREE:
-					count = (long) rTreeIndexTableDao.count(boundingBox);
-					break;
-				default:
-					throw new GeoPackageException(
-							"Unsupported feature index type: " + type);
-				}
-				break;
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to count from feature index: " + type, e);
-			}
-		}
-		if (count == null) {
-			count = manualFeatureQuery.count(boundingBox);
-		}
-		return count;
+		return count(boundingBox.buildEnvelope());
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(BoundingBox boundingBox,
+			Map<String, Object> fieldValues) {
+		return query(boundingBox.buildEnvelope(), fieldValues);
+	}
+
+	/**
+	 * Query for feature index count within the bounding box, projected
+	 * correctly
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(BoundingBox boundingBox,
+			Map<String, Object> fieldValues) {
+		return count(boundingBox.buildEnvelope(), fieldValues);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(BoundingBox boundingBox, String where) {
+		return query(boundingBox, where, null);
+	}
+
+	/**
+	 * Query for feature index count within the bounding box, projected
+	 * correctly
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(BoundingBox boundingBox, String where) {
+		return count(boundingBox, where, null);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(BoundingBox boundingBox, String where,
+			String[] whereArgs) {
+		return query(boundingBox.buildEnvelope(), where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index count within the bounding box, projected
+	 * correctly
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(BoundingBox boundingBox, String where,
+			String[] whereArgs) {
+		return count(boundingBox.buildEnvelope(), where, whereArgs);
 	}
 
 	/**
@@ -1076,35 +1123,7 @@ public class FeatureIndexManager {
 	 * @return feature index results, close when done
 	 */
 	public FeatureIndexResults query(GeometryEnvelope envelope) {
-		FeatureIndexResults results = null;
-		for (FeatureIndexType type : getLocation()) {
-			try {
-				switch (type) {
-				case GEOPACKAGE:
-					FeatureResultSet geoPackageResultSet = featureTableIndex
-							.queryFeatures(envelope);
-					results = new FeatureIndexFeatureResults(
-							geoPackageResultSet);
-					break;
-				case RTREE:
-					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
-							.queryFeatures(envelope);
-					results = new FeatureIndexFeatureResults(rTreeResultSet);
-					break;
-				default:
-					throw new GeoPackageException(
-							"Unsupported feature index type: " + type);
-				}
-				break;
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to query from feature index: " + type, e);
-			}
-		}
-		if (results == null) {
-			results = manualFeatureQuery.query(envelope);
-		}
-		return results;
+		return query(envelope, null, null);
 	}
 
 	/**
@@ -1142,30 +1161,94 @@ public class FeatureIndexManager {
 	}
 
 	/**
-	 * Query for feature index results within the bounding box in the provided
-	 * projection
+	 * Query for feature index results within the Geometry Envelope
 	 *
-	 * @param boundingBox
-	 *            bounding box
-	 * @param projection
-	 *            projection
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
 	 * @return feature index results, close when done
+	 * @since 3.3.1
 	 */
-	public FeatureIndexResults query(BoundingBox boundingBox,
-			Projection projection) {
+	public FeatureIndexResults query(GeometryEnvelope envelope,
+			Map<String, Object> fieldValues) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return query(envelope, where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index count within the Geometry Envelope
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(GeometryEnvelope envelope,
+			Map<String, Object> fieldValues) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return count(envelope, where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(GeometryEnvelope envelope, String where) {
+		return query(envelope, where, null);
+	}
+
+	/**
+	 * Query for feature index count within the Geometry Envelope
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(GeometryEnvelope envelope, String where) {
+		return count(envelope, where, null);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(GeometryEnvelope envelope, String where,
+			String[] whereArgs) {
 		FeatureIndexResults results = null;
 		for (FeatureIndexType type : getLocation()) {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
 					FeatureResultSet geoPackageResultSet = featureTableIndex
-							.queryFeatures(boundingBox, projection);
+							.queryFeatures(envelope, where, whereArgs);
 					results = new FeatureIndexFeatureResults(
 							geoPackageResultSet);
 					break;
 				case RTREE:
 					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
-							.queryFeatures(boundingBox, projection);
+							.queryFeatures(envelope, where, whereArgs);
 					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
@@ -1179,9 +1262,68 @@ public class FeatureIndexManager {
 			}
 		}
 		if (results == null) {
-			results = manualFeatureQuery.query(boundingBox, projection);
+			results = manualFeatureQuery.query(envelope, where, whereArgs);
 		}
 		return results;
+	}
+
+	/**
+	 * Query for feature index count within the Geometry Envelope
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(GeometryEnvelope envelope, String where,
+			String[] whereArgs) {
+		Long count = null;
+		for (FeatureIndexType type : getLocation()) {
+			try {
+				switch (type) {
+				case GEOPACKAGE:
+					count = (long) featureTableIndex.countFeatures(envelope,
+							where, whereArgs);
+					break;
+				case RTREE:
+					count = (long) rTreeIndexTableDao.countFeatures(envelope,
+							where, whereArgs);
+					break;
+				default:
+					throw new GeoPackageException(
+							"Unsupported feature index type: " + type);
+				}
+				break;
+			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE,
+						"Failed to count from feature index: " + type, e);
+			}
+		}
+		if (count == null) {
+			count = manualFeatureQuery.count(envelope, where, whereArgs);
+		}
+		return count;
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @return feature index results, close when done
+	 */
+	public FeatureIndexResults query(BoundingBox boundingBox,
+			Projection projection) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return query(featureBoundingBox);
 	}
 
 	/**
@@ -1195,31 +1337,129 @@ public class FeatureIndexManager {
 	 * @return count
 	 */
 	public long count(BoundingBox boundingBox, Projection projection) {
-		Long count = null;
-		for (FeatureIndexType type : getLocation()) {
-			try {
-				switch (type) {
-				case GEOPACKAGE:
-					count = featureTableIndex.count(boundingBox, projection);
-					break;
-				case RTREE:
-					count = (long) rTreeIndexTableDao.count(boundingBox,
-							projection);
-					break;
-				default:
-					throw new GeoPackageException(
-							"Unsupported feature index type: " + type);
-				}
-				break;
-			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to count from feature index: " + type, e);
-			}
-		}
-		if (count == null) {
-			count = manualFeatureQuery.count(boundingBox, projection);
-		}
-		return count;
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return count(featureBoundingBox);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(BoundingBox boundingBox,
+			Projection projection, Map<String, Object> fieldValues) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return query(featureBoundingBox, fieldValues);
+	}
+
+	/**
+	 * Query for feature index count within the bounding box in the provided
+	 * projection
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return count(featureBoundingBox, fieldValues);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(BoundingBox boundingBox,
+			Projection projection, String where) {
+		return query(boundingBox, projection, where, null);
+	}
+
+	/**
+	 * Query for feature index count within the bounding box in the provided
+	 * projection
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(BoundingBox boundingBox, Projection projection,
+			String where) {
+		return count(boundingBox, projection, where, null);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature index results, close when done
+	 * @since 3.3.1
+	 */
+	public FeatureIndexResults query(BoundingBox boundingBox,
+			Projection projection, String where, String[] whereArgs) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return query(featureBoundingBox, where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index count within the bounding box in the provided
+	 * projection
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.3.1
+	 */
+	public long count(BoundingBox boundingBox, Projection projection,
+			String where, String[] whereArgs) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return count(featureBoundingBox, where, whereArgs);
 	}
 
 	/**
