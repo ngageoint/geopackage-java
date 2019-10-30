@@ -5,19 +5,25 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.index.FeatureIndexType;
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.schema.TableColumnKey;
@@ -77,8 +83,8 @@ public class FeatureIndexManagerUtils {
 					// queries later
 					if (testFeatureRow == null) {
 						testFeatureRow = featureRow;
-					} else if (Math.random() < (1.0 / featureResultSet
-							.getCount())) {
+					} else if (Math
+							.random() < (1.0 / featureResultSet.getCount())) {
 						testFeatureRow = featureRow;
 					}
 				} else if (includeEmpty) {
@@ -108,8 +114,8 @@ public class FeatureIndexManagerUtils {
 			TestCase.assertEquals(0, featureIndexManager.index());
 			TestCase.assertEquals(expectedCount,
 					featureIndexManager.index(true));
-			TestCase.assertTrue(featureIndexManager.getLastIndexed().getTime() > lastIndexed
-					.getTime());
+			TestCase.assertTrue(featureIndexManager.getLastIndexed()
+					.getTime() > lastIndexed.getTime());
 
 			// Query for all indexed geometries
 			int resultCount = 0;
@@ -181,8 +187,8 @@ public class FeatureIndexManagerUtils {
 			if (!featureDao.getProjection().equals(
 					ProjectionConstants.AUTHORITY_EPSG,
 					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
-				projection = ProjectionFactory
-						.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+				projection = ProjectionFactory.getProjection(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 			} else {
 				projection = ProjectionFactory
 						.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
@@ -195,10 +201,10 @@ public class FeatureIndexManagerUtils {
 			// Test the query by projected bounding box
 			resultCount = 0;
 			featureFound = false;
-			TestCase.assertTrue(featureIndexManager.count(
-					transformedBoundingBox, projection) >= 1);
-			featureIndexResults = featureIndexManager.query(
-					transformedBoundingBox, projection);
+			TestCase.assertTrue(featureIndexManager
+					.count(transformedBoundingBox, projection) >= 1);
+			featureIndexResults = featureIndexManager
+					.query(transformedBoundingBox, projection);
 			for (FeatureRow featureRow : featureIndexResults) {
 				validateFeatureRow(featureIndexManager, featureRow,
 						boundingBox.buildEnvelope(), includeEmpty);
@@ -210,6 +216,138 @@ public class FeatureIndexManagerUtils {
 			featureIndexResults.close();
 			TestCase.assertTrue(featureFound);
 			TestCase.assertTrue(resultCount >= 1);
+
+			// Test query by criteria
+			FeatureTable table = featureDao.getTable();
+			List<FeatureColumn> columns = table.getColumns();
+
+			Map<String, Number> numbers = new HashMap<>();
+			Map<String, String> strings = new HashMap<>();
+
+			for (FeatureColumn column : columns) {
+				if (column.isPrimaryKey() || column.isGeometry()) {
+					continue;
+				}
+				GeoPackageDataType dataType = column.getDataType();
+				switch (dataType) {
+				case DOUBLE:
+				case FLOAT:
+				case INT:
+				case INTEGER:
+				case TINYINT:
+				case SMALLINT:
+				case MEDIUMINT:
+				case REAL:
+					numbers.put(column.getName(), null);
+					break;
+				case TEXT:
+					strings.put(column.getName(), null);
+					break;
+				default:
+
+				}
+			}
+
+			for (String number : numbers.keySet()) {
+				Object value = testFeatureRow.getValue(number);
+				numbers.put(number, (Number) value);
+			}
+
+			for (String string : strings.keySet()) {
+				String value = testFeatureRow.getValueString(string);
+				strings.put(string, value);
+			}
+
+			for (Entry<String, Number> number : numbers.entrySet()) {
+
+				String column = number.getKey();
+				double value = number.getValue().doubleValue();
+
+				String where = column + " >= ? AND " + column + " <= ?";
+				String[] whereArgs = new String[] {
+						String.valueOf(value - 0.001),
+						String.valueOf(value + 0.001) };
+
+				long count = featureIndexManager.count(where, whereArgs);
+				TestCase.assertTrue(count >= 1);
+				featureIndexResults = featureIndexManager.query(where,
+						whereArgs);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+				}
+				featureIndexResults.close();
+
+				resultCount = 0;
+				featureFound = false;
+
+				count = featureIndexManager.count(transformedBoundingBox,
+						projection, where, whereArgs);
+				TestCase.assertTrue(count >= 1);
+				featureIndexResults = featureIndexManager.query(
+						transformedBoundingBox, projection, where, whereArgs);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
+				}
+				featureIndexResults.close();
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
+
+			}
+
+			for (Entry<String, String> string : strings.entrySet()) {
+
+				String column = string.getKey();
+				String value = string.getValue();
+
+				Map<String, Object> fieldValues = new HashMap<>();
+				fieldValues.put(column, value);
+
+				long count = featureIndexManager.count(fieldValues);
+				TestCase.assertTrue(count >= 1);
+				featureIndexResults = featureIndexManager.query(fieldValues);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+				}
+				featureIndexResults.close();
+
+				resultCount = 0;
+				featureFound = false;
+
+				count = featureIndexManager.count(transformedBoundingBox,
+						projection, fieldValues);
+				TestCase.assertTrue(count >= 1);
+				featureIndexResults = featureIndexManager
+						.query(transformedBoundingBox, projection, fieldValues);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
+				}
+				featureIndexResults.close();
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
+
+			}
 
 			// Update a Geometry and update the index of a single feature row
 			GeoPackageGeometryData geometryData = new GeoPackageGeometryData(
@@ -264,8 +402,8 @@ public class FeatureIndexManagerUtils {
 					FeatureRow featureRow = featureResultSet.getRow();
 					if (featureRow.getGeometryEnvelope() != null) {
 						featureResultSet.close();
-						TestCase.assertTrue(featureIndexManager
-								.deleteIndex(featureRow));
+						TestCase.assertTrue(
+								featureIndexManager.deleteIndex(featureRow));
 						break;
 					}
 				}
@@ -299,28 +437,28 @@ public class FeatureIndexManagerUtils {
 			TestCase.assertNotNull(envelope);
 
 			if (queryEnvelope != null) {
-				TestCase.assertTrue(envelope.getMinX() <= queryEnvelope
-						.getMaxX());
-				TestCase.assertTrue(envelope.getMaxX() >= queryEnvelope
-						.getMinX());
-				TestCase.assertTrue(envelope.getMinY() <= queryEnvelope
-						.getMaxY());
-				TestCase.assertTrue(envelope.getMaxY() >= queryEnvelope
-						.getMinY());
+				TestCase.assertTrue(
+						envelope.getMinX() <= queryEnvelope.getMaxX());
+				TestCase.assertTrue(
+						envelope.getMaxX() >= queryEnvelope.getMinX());
+				TestCase.assertTrue(
+						envelope.getMinY() <= queryEnvelope.getMaxY());
+				TestCase.assertTrue(
+						envelope.getMaxY() >= queryEnvelope.getMinY());
 				if (envelope.isHasZ()) {
 					if (queryEnvelope.hasZ()) {
-						TestCase.assertTrue(envelope.getMinZ() <= queryEnvelope
-								.getMaxZ());
-						TestCase.assertTrue(envelope.getMaxZ() >= queryEnvelope
-								.getMinZ());
+						TestCase.assertTrue(
+								envelope.getMinZ() <= queryEnvelope.getMaxZ());
+						TestCase.assertTrue(
+								envelope.getMaxZ() >= queryEnvelope.getMinZ());
 					}
 				}
 				if (envelope.isHasM()) {
 					if (queryEnvelope.hasM()) {
-						TestCase.assertTrue(envelope.getMinM() <= queryEnvelope
-								.getMaxM());
-						TestCase.assertTrue(envelope.getMaxM() >= queryEnvelope
-								.getMinM());
+						TestCase.assertTrue(
+								envelope.getMinM() <= queryEnvelope.getMaxM());
+						TestCase.assertTrue(
+								envelope.getMaxM() >= queryEnvelope.getMinM());
 					}
 				}
 			}
@@ -451,8 +589,8 @@ public class FeatureIndexManagerUtils {
 			if (rowEnvelope != null) {
 				BoundingBox rowBoundingBox = new BoundingBox(rowEnvelope);
 				for (FeatureIndexTestEnvelope testEnvelope : envelopes) {
-					if (rowBoundingBox.intersects(new BoundingBox(
-							testEnvelope.envelope), true)) {
+					if (rowBoundingBox.intersects(
+							new BoundingBox(testEnvelope.envelope), true)) {
 						testEnvelope.count++;
 					}
 				}
@@ -465,8 +603,8 @@ public class FeatureIndexManagerUtils {
 		testTimedIndex(geoPackage, FeatureIndexType.RTREE, featureDao,
 				envelopes, .0000000001, .0001, compareProjectionCounts, .001,
 				verbose);
-		testTimedIndex(geoPackage, FeatureIndexType.NONE, featureDao,
-				envelopes, .0000000001, compareProjectionCounts, .001, verbose);
+		testTimedIndex(geoPackage, FeatureIndexType.NONE, featureDao, envelopes,
+				.0000000001, compareProjectionCounts, .001, verbose);
 	}
 
 	private static List<FeatureIndexTestEnvelope> createEnvelopes(
@@ -592,12 +730,12 @@ public class FeatureIndexManagerUtils {
 			FeatureIndexTestEnvelope firstEnvelope = envelopes.get(0);
 			BoundingBox firstBounds = new BoundingBox(firstEnvelope.envelope);
 
-			assertRange(firstBounds.getMinLongitude(),
-					bounds.getMinLongitude(), outerPrecision, innerPrecision);
+			assertRange(firstBounds.getMinLongitude(), bounds.getMinLongitude(),
+					outerPrecision, innerPrecision);
 			assertRange(firstBounds.getMinLatitude(), bounds.getMinLatitude(),
 					outerPrecision, innerPrecision);
-			assertRange(firstBounds.getMaxLongitude(),
-					bounds.getMaxLongitude(), innerPrecision, outerPrecision);
+			assertRange(firstBounds.getMaxLongitude(), bounds.getMaxLongitude(),
+					innerPrecision, outerPrecision);
 			assertRange(firstBounds.getMaxLatitude(), bounds.getMaxLatitude(),
 					innerPrecision, outerPrecision);
 
@@ -634,8 +772,8 @@ public class FeatureIndexManagerUtils {
 				int expectedCount = testEnvelope.count;
 
 				if (verbose) {
-					System.out.println(percentage + "% Feature Count: "
-							+ expectedCount);
+					System.out.println(
+							percentage + "% Feature Count: " + expectedCount);
 				}
 
 				timerCount.start();
@@ -671,8 +809,8 @@ public class FeatureIndexManagerUtils {
 				timerCount.start();
 				fullCount = featureIndexManager.count(webMercatorBoundingBox,
 						webMercatorProjection);
-				timerCount.end(percentage
-						+ "% Projected Bounding Box Count Query");
+				timerCount.end(
+						percentage + "% Projected Bounding Box Count Query");
 				if (compareProjectionCounts) {
 					assertCounts(featureIndexManager, testEnvelope, type,
 							outerPrecision, expectedCount, fullCount);
@@ -690,10 +828,10 @@ public class FeatureIndexManagerUtils {
 			}
 
 			System.out.println();
-			System.out.println("Average Count: " + timerCount.averageString()
-					+ " ms");
-			System.out.println("Average Query: " + timerQuery.averageString()
-					+ " ms");
+			System.out.println(
+					"Average Count: " + timerCount.averageString() + " ms");
+			System.out.println(
+					"Average Query: " + timerQuery.averageString() + " ms");
 		} finally {
 			featureIndexManager.close();
 		}
@@ -721,8 +859,8 @@ public class FeatureIndexManagerUtils {
 								envelope.getMinY() - precision,
 								envelope.getMaxX() + precision,
 								envelope.getMaxY() + precision);
-						TestCase.assertTrue(adjustedEnvelope.intersects(
-								testEnvelope.envelope, true));
+						TestCase.assertTrue(adjustedEnvelope
+								.intersects(testEnvelope.envelope, true));
 					}
 				}
 				results.close();
