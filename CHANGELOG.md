@@ -12,6 +12,11 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Database result column value fixes for new sqlite-jdbc version
 * Feature Index Manager catches and logs index type errors, attempts next index type
 * Fixed out of bounds iteration errors on Manual Feature Query Results and Feature Index List Results
+* RTree, Feature Table Index, and Manual Feature Query: feature query and count methods with additional arguments, nested single SQL queries
+* Feature Index Manager, single nested SQL queries for features with additional query argument options
+* Feature Index Results id iteration shortcut to retrieve id without creating full features
+* Additional connection and DAO query and count methods
+* Additional user result get value and id methods
 
 ## [3.3.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.3.0) (07-10-2019)
 
