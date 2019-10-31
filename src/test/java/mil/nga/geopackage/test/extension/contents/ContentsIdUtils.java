@@ -51,13 +51,15 @@ public class ContentsIdUtils {
 		}
 
 		// Create all content ids
+		contentsIdExtension.getOrCreateExtension();
 		TestCase.assertEquals(geoPackage.getTables().size(),
 				contentsIdExtension.createIds());
 		TestCase.assertTrue(contentsIdExtension.has());
 		TestCase.assertNotNull(contentsIdExtension.getExtension());
 		TestCase.assertEquals(0, contentsIdExtension.getMissing().size());
 		List<ContentsId> contentsIds = contentsIdExtension.getIds();
-		TestCase.assertEquals(geoPackage.getTables().size(), contentsIds.size());
+		TestCase.assertEquals(geoPackage.getTables().size(),
+				contentsIds.size());
 
 		Set<Long> uniqueIds = new HashSet<>();
 		for (ContentsId contentsId : contentsIds) {
@@ -66,8 +68,8 @@ public class ContentsIdUtils {
 			uniqueIds.add(contentsId.getId());
 			TestCase.assertNotNull(contentsId.getContents());
 			TestCase.assertNotNull(contentsId.getTableName());
-			TestCase.assertEquals(contentsId.getTableName(), contentsId
-					.getContents().getId());
+			TestCase.assertEquals(contentsId.getTableName(),
+					contentsId.getContents().getId());
 		}
 
 		// Delete all content ids
@@ -82,14 +84,14 @@ public class ContentsIdUtils {
 			int created = contentsIdExtension.createIds(type);
 			currentCount += created;
 			TestCase.assertEquals(geoPackage.getTables(type).size(), created);
-			TestCase.assertEquals(created, contentsIdExtension.getIds(type)
-					.size());
+			TestCase.assertEquals(created,
+					contentsIdExtension.getIds(type).size());
 			TestCase.assertEquals(geoPackage.getTables().size() - currentCount,
 					contentsIdExtension.getMissing().size());
-			TestCase.assertEquals(0, contentsIdExtension.getMissing(type)
-					.size());
-			TestCase.assertEquals(currentCount, contentsIdExtension.getIds()
-					.size());
+			TestCase.assertEquals(0,
+					contentsIdExtension.getMissing(type).size());
+			TestCase.assertEquals(currentCount,
+					contentsIdExtension.getIds().size());
 		}
 
 		// Delete contents ids for each contents data type
@@ -102,8 +104,8 @@ public class ContentsIdUtils {
 					contentsIdExtension.getMissing().size());
 			TestCase.assertEquals(geoPackage.getTables(type).size(),
 					contentsIdExtension.getMissing(type).size());
-			TestCase.assertEquals(currentCount, contentsIdExtension.getIds()
-					.size());
+			TestCase.assertEquals(currentCount,
+					contentsIdExtension.getIds().size());
 		}
 
 		TestCase.assertEquals(0, contentsIdExtension.getIds().size());
@@ -116,6 +118,7 @@ public class ContentsIdUtils {
 
 		// Create contents id's for each table one by one
 		uniqueIds.clear();
+		contentsIdExtension.getOrCreateExtension();
 		for (String tableName : geoPackage.getTables()) {
 
 			Contents contents = geoPackage.getTableContents(tableName);
@@ -125,12 +128,13 @@ public class ContentsIdUtils {
 			TestCase.assertNull(contentsIdExtension.getId(tableName));
 			TestCase.assertNull(contentsIdExtension.getId(contents));
 
-			TestCase.assertTrue(contentsIdExtension.getMissing().contains(
-					tableName));
+			TestCase.assertTrue(
+					contentsIdExtension.getMissing().contains(tableName));
 			TestCase.assertFalse(containsTable(contentsIdExtension.getIds(),
 					tableName, contentsIdExtension));
-			TestCase.assertTrue(contentsIdExtension.getMissing(
-					contents.getDataTypeString()).contains(tableName));
+			TestCase.assertTrue(
+					contentsIdExtension.getMissing(contents.getDataTypeString())
+							.contains(tableName));
 			TestCase.assertFalse(containsTable(
 					contentsIdExtension.getIds(contents.getDataTypeString()),
 					tableName, contentsIdExtension));
@@ -171,8 +175,8 @@ public class ContentsIdUtils {
 				contentsIdNumber = contentsId.getId();
 				TestCase.assertEquals(tableName, contentsId.getTableName());
 				TestCase.assertNotNull(contentsId.getContents());
-				TestCase.assertEquals(tableName, contentsId.getContents()
-						.getTableName());
+				TestCase.assertEquals(tableName,
+						contentsId.getContents().getTableName());
 			}
 
 			TestCase.assertNotNull(contentsIdNumber);
@@ -180,12 +184,13 @@ public class ContentsIdUtils {
 			TestCase.assertFalse(uniqueIds.contains(contentsIdNumber));
 			uniqueIds.add(contentsIdNumber);
 
-			TestCase.assertFalse(contentsIdExtension.getMissing().contains(
-					tableName));
+			TestCase.assertFalse(
+					contentsIdExtension.getMissing().contains(tableName));
 			TestCase.assertTrue(containsTable(contentsIdExtension.getIds(),
 					tableName, contentsIdExtension));
-			TestCase.assertFalse(contentsIdExtension.getMissing(
-					contents.getDataTypeString()).contains(tableName));
+			TestCase.assertFalse(
+					contentsIdExtension.getMissing(contents.getDataTypeString())
+							.contains(tableName));
 			TestCase.assertTrue(containsTable(
 					contentsIdExtension.getIds(contents.getDataTypeString()),
 					tableName, contentsIdExtension));
@@ -194,10 +199,10 @@ public class ContentsIdUtils {
 					contentsIdExtension.getId(tableName));
 			TestCase.assertEquals(contentsIdNumber,
 					contentsIdExtension.getId(contents));
-			TestCase.assertEquals((long) contentsIdNumber, contentsIdExtension
-					.get(tableName).getId());
-			TestCase.assertEquals((long) contentsIdNumber, contentsIdExtension
-					.get(contents).getId());
+			TestCase.assertEquals((long) contentsIdNumber,
+					contentsIdExtension.get(tableName).getId());
+			TestCase.assertEquals((long) contentsIdNumber,
+					contentsIdExtension.get(contents).getId());
 		}
 
 		// Delete contents id's one by one
@@ -213,12 +218,13 @@ public class ContentsIdUtils {
 			TestCase.assertNull(contentsIdExtension.getId(tableName));
 			TestCase.assertNull(contentsIdExtension.getId(contents));
 
-			TestCase.assertTrue(contentsIdExtension.getMissing().contains(
-					tableName));
+			TestCase.assertTrue(
+					contentsIdExtension.getMissing().contains(tableName));
 			TestCase.assertFalse(containsTable(contentsIdExtension.getIds(),
 					tableName, contentsIdExtension));
-			TestCase.assertTrue(contentsIdExtension.getMissing(
-					contents.getDataTypeString()).contains(tableName));
+			TestCase.assertTrue(
+					contentsIdExtension.getMissing(contents.getDataTypeString())
+							.contains(tableName));
 			TestCase.assertFalse(containsTable(
 					contentsIdExtension.getIds(contents.getDataTypeString()),
 					tableName, contentsIdExtension));
