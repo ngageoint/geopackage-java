@@ -12,6 +12,8 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -106,6 +108,7 @@ import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.user.ContentValues;
@@ -127,8 +130,6 @@ import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 import mil.nga.sf.wkb.GeometryCodes;
-
-import org.junit.Test;
 
 /**
  * Creates an example GeoPackage file
@@ -152,6 +153,7 @@ public class GeoPackageExample {
 	private static final boolean RELATED_TABLES_MEDIA = true;
 	private static final boolean RELATED_TABLES_FEATURES = true;
 	private static final boolean RELATED_TABLES_SIMPLE_ATTRIBUTES = true;
+	private static final boolean RELATED_TABLES_TILES = true;
 	private static final boolean GEOMETRY_INDEX = true;
 	private static final boolean FEATURE_TILE_LINK = true;
 	private static final boolean TILE_SCALING = true;
@@ -275,28 +277,24 @@ public class GeoPackageExample {
 		TestCase.assertEquals(has && RTREE_SPATIAL_INDEX,
 				new RTreeIndexExtension(geoPackage).has());
 		TestCase.assertEquals(
-				has
-						&& (RELATED_TABLES_FEATURES || RELATED_TABLES_MEDIA || RELATED_TABLES_SIMPLE_ATTRIBUTES),
+				has && (RELATED_TABLES_FEATURES || RELATED_TABLES_MEDIA
+						|| RELATED_TABLES_SIMPLE_ATTRIBUTES),
 				new RelatedTablesExtension(geoPackage).has());
-		TestCase.assertEquals(
-				has && COVERAGE_DATA,
-				extensionsDao.isTableExists()
-						&& !extensionsDao.queryByExtension(
-								CoverageData.EXTENSION_NAME).isEmpty());
+		TestCase.assertEquals(has && COVERAGE_DATA,
+				extensionsDao.isTableExists() && !extensionsDao
+						.queryByExtension(CoverageData.EXTENSION_NAME)
+						.isEmpty());
 		TestCase.assertEquals(has && SCHEMA,
 				new SchemaExtension(geoPackage).has());
 		TestCase.assertEquals(has && METADATA,
 				new MetadataExtension(geoPackage).has());
-		TestCase.assertEquals(
-				has && NON_LINEAR_GEOMETRY_TYPES,
-				extensionsDao.isTableExists()
-						&& !extensionsDao
-								.queryByExtension(
-										GeometryExtensions
-												.getExtensionName(GeometryType.CIRCULARSTRING))
-								.isEmpty());
-		TestCase.assertEquals(has && WEBP, extensionsDao.isTableExists()
-				&& !extensionsDao
+		TestCase.assertEquals(has && NON_LINEAR_GEOMETRY_TYPES,
+				extensionsDao.isTableExists() && !extensionsDao
+						.queryByExtension(GeometryExtensions
+								.getExtensionName(GeometryType.CIRCULARSTRING))
+						.isEmpty());
+		TestCase.assertEquals(has && WEBP,
+				extensionsDao.isTableExists() && !extensionsDao
 						.queryByExtension(WebPExtension.EXTENSION_NAME)
 						.isEmpty());
 		TestCase.assertEquals(has && CRS_WKT,
@@ -309,24 +307,22 @@ public class GeoPackageExample {
 
 		ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
 
-		TestCase.assertEquals(
-				has && GEOMETRY_INDEX,
-				extensionsDao.isTableExists()
-						&& !extensionsDao.queryByExtension(
-								FeatureTableIndex.EXTENSION_NAME).isEmpty());
+		TestCase.assertEquals(has && GEOMETRY_INDEX,
+				extensionsDao.isTableExists() && !extensionsDao
+						.queryByExtension(FeatureTableIndex.EXTENSION_NAME)
+						.isEmpty());
 		TestCase.assertEquals(has && FEATURE_TILE_LINK,
 				new FeatureTileTableLinker(geoPackage).has());
-		TestCase.assertEquals(
-				has && TILE_SCALING,
-				extensionsDao.isTableExists()
-						&& !extensionsDao.queryByExtension(
-								TileTableScaling.EXTENSION_NAME).isEmpty());
-		TestCase.assertEquals(has && PROPERTIES, new PropertiesExtension(
-				geoPackage).has());
-		TestCase.assertEquals(has && CONTENTS_ID, new ContentsIdExtension(
-				geoPackage).has());
-		TestCase.assertEquals(has && FEATURE_STYLE, new FeatureStyleExtension(
-				geoPackage).has());
+		TestCase.assertEquals(has && TILE_SCALING,
+				extensionsDao.isTableExists() && !extensionsDao
+						.queryByExtension(TileTableScaling.EXTENSION_NAME)
+						.isEmpty());
+		TestCase.assertEquals(has && PROPERTIES,
+				new PropertiesExtension(geoPackage).has());
+		TestCase.assertEquals(has && CONTENTS_ID,
+				new ContentsIdExtension(geoPackage).has());
+		TestCase.assertEquals(has && FEATURE_STYLE,
+				new FeatureStyleExtension(geoPackage).has());
 
 	}
 
@@ -368,8 +364,8 @@ public class GeoPackageExample {
 				createFeatureStyleExtension(geoPackage);
 			}
 
-			System.out.println("Feature Tile Link Extension: "
-					+ FEATURE_TILE_LINK);
+			System.out.println(
+					"Feature Tile Link Extension: " + FEATURE_TILE_LINK);
 			if (FEATURE_TILE_LINK) {
 				createFeatureTileLinkExtension(geoPackage);
 			}
@@ -380,14 +376,14 @@ public class GeoPackageExample {
 				createNonLinearGeometryTypesExtension(geoPackage);
 			}
 
-			System.out.println("RTree Spatial Index Extension: "
-					+ RTREE_SPATIAL_INDEX);
+			System.out.println(
+					"RTree Spatial Index Extension: " + RTREE_SPATIAL_INDEX);
 			if (RTREE_SPATIAL_INDEX) {
 				createRTreeSpatialIndexExtension(geoPackage);
 			}
 
-			System.out.println("Related Tables Media Extension: "
-					+ RELATED_TABLES_MEDIA);
+			System.out.println(
+					"Related Tables Media Extension: " + RELATED_TABLES_MEDIA);
 			if (RELATED_TABLES_MEDIA) {
 				createRelatedTablesMediaExtension(geoPackage);
 			}
@@ -403,8 +399,8 @@ public class GeoPackageExample {
 			System.out.println("Geometry Index Extension: " + FEATURES);
 			System.out.println("Feature Style Extension: " + FEATURES);
 			System.out.println("Feature Tile Link Extension: " + FEATURES);
-			System.out.println("Non-Linear Geometry Types Extension: "
-					+ FEATURES);
+			System.out.println(
+					"Non-Linear Geometry Types Extension: " + FEATURES);
 			System.out.println("RTree Spatial Index Extension: " + FEATURES);
 			System.out.println("Related Tables Media Extension: " + FEATURES);
 			System.out
@@ -426,9 +422,16 @@ public class GeoPackageExample {
 				createTileScalingExtension(geoPackage);
 			}
 
+			System.out.println(
+					"Related Tables Tiles Extension: " + RELATED_TABLES_TILES);
+			if (RELATED_TABLES_TILES) {
+				createRelatedTablesTilesExtension(geoPackage);
+			}
+
 		} else {
 			System.out.println("WebP Extension: " + TILES);
 			System.out.println("Tile Scaling Extension: " + TILES);
+			System.out.println("Related Tables Tiles Extension: " + TILES);
 		}
 
 		System.out.println("Attributes: " + ATTRIBUTES);
@@ -557,8 +560,8 @@ public class GeoPackageExample {
 		lines.add(line3);
 		lineNames.add("E Centretech Cir");
 
-		createFeatures(geoPackage, srs, "line1", GeometryType.LINESTRING,
-				lines, lineNames);
+		createFeatures(geoPackage, srs, "line1", GeometryType.LINESTRING, lines,
+				lineNames);
 
 		List<Geometry> polygons = new ArrayList<>();
 		List<String> polygonNames = new ArrayList<>();
@@ -692,8 +695,8 @@ public class GeoPackageExample {
 		lines.add(line1);
 		lineNames.add("NGA");
 
-		createFeatures(geoPackage, srs, "line2", GeometryType.LINESTRING,
-				lines, lineNames);
+		createFeatures(geoPackage, srs, "line2", GeometryType.LINESTRING, lines,
+				lineNames);
 
 		List<Geometry> polygons = new ArrayList<>();
 		List<String> polygonNames = new ArrayList<>();
@@ -794,11 +797,11 @@ public class GeoPackageExample {
 		columns.add(FeatureColumn.createColumn(INTEGER_COLUMN,
 				GeoPackageDataType.INTEGER));
 		columns.add(FeatureColumn.createColumn(TEXT_LIMITED_COLUMN,
-				GeoPackageDataType.TEXT, (long) UUID.randomUUID().toString()
-						.length()));
+				GeoPackageDataType.TEXT,
+				(long) UUID.randomUUID().toString().length()));
 		columns.add(FeatureColumn.createColumn(BLOB_LIMITED_COLUMN,
-				GeoPackageDataType.BLOB, (long) UUID.randomUUID().toString()
-						.getBytes().length));
+				GeoPackageDataType.BLOB,
+				(long) UUID.randomUUID().toString().getBytes().length));
 		columns.add(FeatureColumn.createColumn(DATE_COLUMN,
 				GeoPackageDataType.DATE));
 		columns.add(FeatureColumn.createColumn(DATETIME_COLUMN,
@@ -843,12 +846,12 @@ public class GeoPackageExample {
 			newRow.setValue(TEXT_COLUMN, name);
 			newRow.setValue(REAL_COLUMN, Math.random() * 5000.0);
 			newRow.setValue(BOOLEAN_COLUMN, Math.random() < .5 ? false : true);
-			newRow.setValue(BLOB_COLUMN, UUID.randomUUID().toString()
-					.getBytes());
+			newRow.setValue(BLOB_COLUMN,
+					UUID.randomUUID().toString().getBytes());
 			newRow.setValue(INTEGER_COLUMN, (int) (Math.random() * 500));
 			newRow.setValue(TEXT_LIMITED_COLUMN, UUID.randomUUID().toString());
-			newRow.setValue(BLOB_LIMITED_COLUMN, UUID.randomUUID().toString()
-					.getBytes());
+			newRow.setValue(BLOB_LIMITED_COLUMN,
+					UUID.randomUUID().toString().getBytes());
 			newRow.setValue(DATE_COLUMN, new Date());
 			newRow.setValue(DATETIME_COLUMN, new Date());
 
@@ -858,8 +861,8 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createTiles(GeoPackage geoPackage) throws IOException,
-			SQLException {
+	private static void createTiles(GeoPackage geoPackage)
+			throws IOException, SQLException {
 
 		geoPackage.createTileMatrixSetTable();
 		geoPackage.createTileMatrixTable();
@@ -937,7 +940,8 @@ public class GeoPackageExample {
 
 				final String xPath = zoomPath + x + "/";
 
-				for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
+				for (long y = tileGrid.getMinY(); y <= tileGrid
+						.getMaxY(); y++) {
 
 					final String yPath = xPath + y + "." + extension;
 
@@ -978,10 +982,10 @@ public class GeoPackageExample {
 
 			long matrixWidth = tileGrid.getMaxX() - tileGrid.getMinX() + 1;
 			long matrixHeight = tileGrid.getMaxY() - tileGrid.getMinY() + 1;
-			double pixelXSize = (tileMatrixSet.getMaxX() - tileMatrixSet
-					.getMinX()) / (matrixWidth * tileWidth);
-			double pixelYSize = (tileMatrixSet.getMaxY() - tileMatrixSet
-					.getMinY()) / (matrixHeight * tileHeight);
+			double pixelXSize = (tileMatrixSet.getMaxX()
+					- tileMatrixSet.getMinX()) / (matrixWidth * tileWidth);
+			double pixelYSize = (tileMatrixSet.getMaxY()
+					- tileMatrixSet.getMinY()) / (matrixHeight * tileHeight);
 
 			TileMatrix tileMatrix = new TileMatrix();
 			tileMatrix.setContents(contents);
@@ -1014,11 +1018,11 @@ public class GeoPackageExample {
 		columns.add(AttributesColumn.createColumn(INTEGER_COLUMN,
 				GeoPackageDataType.INTEGER));
 		columns.add(AttributesColumn.createColumn(TEXT_LIMITED_COLUMN,
-				GeoPackageDataType.TEXT, (long) UUID.randomUUID().toString()
-						.length()));
+				GeoPackageDataType.TEXT,
+				(long) UUID.randomUUID().toString().length()));
 		columns.add(AttributesColumn.createColumn(BLOB_LIMITED_COLUMN,
-				GeoPackageDataType.BLOB, (long) UUID.randomUUID().toString()
-						.getBytes().length));
+				GeoPackageDataType.BLOB,
+				(long) UUID.randomUUID().toString().getBytes().length));
 		columns.add(AttributesColumn.createColumn(DATE_COLUMN,
 				GeoPackageDataType.DATE));
 		columns.add(AttributesColumn.createColumn(DATETIME_COLUMN,
@@ -1037,12 +1041,12 @@ public class GeoPackageExample {
 			newRow.setValue(TEXT_COLUMN, UUID.randomUUID().toString());
 			newRow.setValue(REAL_COLUMN, Math.random() * 5000.0);
 			newRow.setValue(BOOLEAN_COLUMN, Math.random() < .5 ? false : true);
-			newRow.setValue(BLOB_COLUMN, UUID.randomUUID().toString()
-					.getBytes());
+			newRow.setValue(BLOB_COLUMN,
+					UUID.randomUUID().toString().getBytes());
 			newRow.setValue(INTEGER_COLUMN, (int) (Math.random() * 500));
 			newRow.setValue(TEXT_LIMITED_COLUMN, UUID.randomUUID().toString());
-			newRow.setValue(BLOB_LIMITED_COLUMN, UUID.randomUUID().toString()
-					.getBytes());
+			newRow.setValue(BLOB_LIMITED_COLUMN,
+					UUID.randomUUID().toString().getBytes());
 			newRow.setValue(DATE_COLUMN, new Date());
 			newRow.setValue(DATETIME_COLUMN, new Date());
 
@@ -1176,8 +1180,8 @@ public class GeoPackageExample {
 						&& column.getDataType() == GeoPackageDataType.INTEGER) {
 
 					DataColumns dataColumns = new DataColumns();
-					dataColumns.setContents(featureDao.getGeometryColumns()
-							.getContents());
+					dataColumns.setContents(
+							featureDao.getGeometryColumns().getContents());
 					dataColumns.setColumnName(column.getName());
 					dataColumns.setName(featureTable);
 					dataColumns.setTitle("TEST_TITLE");
@@ -1210,7 +1214,8 @@ public class GeoPackageExample {
 						break;
 					default:
 						throw new GeoPackageException(
-								"Unexpected Constraint Type: " + constraintType);
+								"Unexpected Constraint Type: "
+										+ constraintType);
 					}
 					dataColumns.setConstraintName(constraintName);
 
@@ -1250,8 +1255,9 @@ public class GeoPackageExample {
 		circularString.addPoint(new Point(-122.358, 47.658));
 		circularString.addPoint(new Point(-122.358, 47.653));
 
-		for (int i = GeometryCodes.getCode(GeometryType.CIRCULARSTRING); i <= GeometryCodes
-				.getCode(GeometryType.SURFACE); i++) {
+		for (int i = GeometryCodes
+				.getCode(GeometryType.CIRCULARSTRING); i <= GeometryCodes
+						.getCode(GeometryType.SURFACE); i++) {
 
 			GeometryType geometryType = GeometryCodes.getGeometryType(i);
 			extensions.getOrCreate(tableName, GEOMETRY_COLUMN, geometryType);
@@ -1296,8 +1302,8 @@ public class GeoPackageExample {
 				geometry = surface;
 				break;
 			default:
-				throw new GeoPackageException("Unexpected Geometry Type: "
-						+ geometryType);
+				throw new GeoPackageException(
+						"Unexpected Geometry Type: " + geometryType);
 			}
 
 			geometries.add(geometry);
@@ -1442,7 +1448,8 @@ public class GeoPackageExample {
 
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
-		srsDao.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		srsDao.getOrCreateFromEpsg(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
 
 		SpatialReferenceSystem contentsSrs = srsDao
 				.getOrCreateFromEpsg(contentsEpsg);
@@ -1469,8 +1476,8 @@ public class GeoPackageExample {
 		GriddedCoverage griddedCoverage = new GriddedCoverage();
 		griddedCoverage.setTileMatrixSet(tileMatrixSet);
 		griddedCoverage.setDataType(GriddedCoverageDataType.INTEGER);
-		griddedCoverage.setDataNull(new Double(Short.MAX_VALUE
-				- Short.MIN_VALUE));
+		griddedCoverage
+				.setDataNull(new Double(Short.MAX_VALUE - Short.MIN_VALUE));
 		griddedCoverage
 				.setGridCellEncodingType(GriddedCoverageEncodingType.CENTER);
 		griddedCoverageDao.create(griddedCoverage);
@@ -1504,11 +1511,11 @@ public class GeoPackageExample {
 		tileMatrix.setMatrixWidth(width);
 		tileMatrix.setTileHeight(tileHeight);
 		tileMatrix.setTileWidth(tileWidth);
-		tileMatrix.setPixelXSize((bbox.getMaxLongitude() - bbox
-				.getMinLongitude()) / width / tileWidth);
 		tileMatrix
-				.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
-						/ height / tileHeight);
+				.setPixelXSize((bbox.getMaxLongitude() - bbox.getMinLongitude())
+						/ width / tileWidth);
+		tileMatrix.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
+				/ height / tileHeight);
 		tileMatrix.setZoomLevel(15);
 		tileMatrixDao.create(tileMatrix);
 
@@ -1539,7 +1546,8 @@ public class GeoPackageExample {
 
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
-		srsDao.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		srsDao.getOrCreateFromEpsg(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
 
 		SpatialReferenceSystem contentsSrs = srsDao
 				.getOrCreateFromEpsg(contentsEpsg);
@@ -1607,11 +1615,11 @@ public class GeoPackageExample {
 		tileMatrix.setMatrixWidth(width);
 		tileMatrix.setTileHeight(tileHeight);
 		tileMatrix.setTileWidth(tileWidth);
-		tileMatrix.setPixelXSize((bbox.getMaxLongitude() - bbox
-				.getMinLongitude()) / width / tileWidth);
 		tileMatrix
-				.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
-						/ height / tileHeight);
+				.setPixelXSize((bbox.getMaxLongitude() - bbox.getMinLongitude())
+						/ width / tileWidth);
+		tileMatrix.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
+				/ height / tileHeight);
 		tileMatrix.setZoomLevel(15);
 		tileMatrixDao.create(tileMatrix);
 
@@ -1631,7 +1639,8 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createRTreeSpatialIndexExtension(GeoPackage geoPackage) {
+	private static void createRTreeSpatialIndexExtension(
+			GeoPackage geoPackage) {
 
 		RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
 
@@ -1646,7 +1655,8 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createRelatedTablesMediaExtension(GeoPackage geoPackage) {
+	private static void createRelatedTablesMediaExtension(
+			GeoPackage geoPackage) {
 
 		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
 				geoPackage);
@@ -1660,8 +1670,9 @@ public class GeoPackageExample {
 				.createAdditionalUserColumns();
 
 		String tableName1 = "geometry1";
-		UserMappingTable userMappingTable1 = UserMappingTable.create(tableName1
-				+ "_" + mediaTable.getTableName(), additionalMappingColumns);
+		UserMappingTable userMappingTable1 = UserMappingTable.create(
+				tableName1 + "_" + mediaTable.getTableName(),
+				additionalMappingColumns);
 		ExtendedRelation relation1 = relatedTables.addMediaRelationship(
 				tableName1, mediaTable, userMappingTable1);
 
@@ -1670,8 +1681,9 @@ public class GeoPackageExample {
 				"image/png", "BIT Systems Logo", "http://www.bit-sys.com");
 
 		String tableName2 = "geometry2";
-		UserMappingTable userMappingTable2 = UserMappingTable.create(tableName2
-				+ "_" + mediaTable.getTableName(), additionalMappingColumns);
+		UserMappingTable userMappingTable2 = UserMappingTable.create(
+				tableName2 + "_" + mediaTable.getTableName(),
+				additionalMappingColumns);
 		ExtendedRelation relation2 = relatedTables.addMediaRelationship(
 				tableName2, mediaTable, userMappingTable2);
 
@@ -1692,8 +1704,8 @@ public class GeoPackageExample {
 		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
 				geoPackage);
 
-		FeatureDao featureDao = geoPackage.getFeatureDao(relation
-				.getBaseTableName());
+		FeatureDao featureDao = geoPackage
+				.getFeatureDao(relation.getBaseTableName());
 		MediaDao mediaDao = relatedTables.getMediaDao(relation);
 		UserMappingDao userMappingDao = relatedTables.getMappingDao(relation);
 
@@ -1708,8 +1720,8 @@ public class GeoPackageExample {
 		DublinCoreMetadata.setValue(mediaRow, DublinCoreType.SOURCE, source);
 		long mediaRowId = mediaDao.create(mediaRow);
 
-		FeatureResultSet featureResultSet = featureDao.queryForLike(
-				TEXT_COLUMN, query);
+		FeatureResultSet featureResultSet = featureDao.queryForLike(TEXT_COLUMN,
+				query);
 		while (featureResultSet.moveToNext()) {
 			FeatureRow featureRow = featureResultSet.getRow();
 			UserMappingRow userMappingRow = userMappingDao.newRow();
@@ -1721,8 +1733,8 @@ public class GeoPackageExample {
 			DublinCoreMetadata.setValue(userMappingRow, DublinCoreType.TITLE,
 					featureName + " - " + name);
 			DublinCoreMetadata.setValue(userMappingRow,
-					DublinCoreType.DESCRIPTION, featureName + " - "
-							+ description);
+					DublinCoreType.DESCRIPTION,
+					featureName + " - " + description);
 			DublinCoreMetadata.setValue(userMappingRow, DublinCoreType.SOURCE,
 					source);
 			userMappingDao.create(userMappingRow);
@@ -1748,8 +1760,8 @@ public class GeoPackageExample {
 		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
 
-		UserMappingTable userMappingTable = UserMappingTable.create(tableName1
-				+ "_" + tableName2, additionalMappingColumns);
+		UserMappingTable userMappingTable = UserMappingTable.create(
+				tableName1 + "_" + tableName2, additionalMappingColumns);
 		ExtendedRelation relation = relatedTables.addFeaturesRelationship(
 				tableName1, tableName2, userMappingTable);
 
@@ -1763,10 +1775,10 @@ public class GeoPackageExample {
 				geoPackage);
 		UserMappingDao userMappingDao = relatedTables.getMappingDao(relation);
 
-		FeatureDao featureDao1 = geoPackage.getFeatureDao(relation
-				.getBaseTableName());
-		FeatureDao featureDao2 = geoPackage.getFeatureDao(relation
-				.getRelatedTableName());
+		FeatureDao featureDao1 = geoPackage
+				.getFeatureDao(relation.getBaseTableName());
+		FeatureDao featureDao2 = geoPackage
+				.getFeatureDao(relation.getRelatedTableName());
 
 		FeatureResultSet featureResultSet1 = featureDao1.queryForAll();
 		while (featureResultSet1.moveToNext()) {
@@ -1774,8 +1786,8 @@ public class GeoPackageExample {
 			FeatureRow featureRow1 = featureResultSet1.getRow();
 			String featureName = featureRow1.getValue(TEXT_COLUMN).toString();
 
-			FeatureResultSet featureResultSet2 = featureDao2.queryForEq(
-					TEXT_COLUMN, featureName);
+			FeatureResultSet featureResultSet2 = featureDao2
+					.queryForEq(TEXT_COLUMN, featureName);
 			while (featureResultSet2.moveToNext()) {
 
 				FeatureRow featureRow2 = featureResultSet2.getRow();
@@ -1808,15 +1820,16 @@ public class GeoPackageExample {
 
 		List<UserCustomColumn> simpleUserColumns = RelatedTablesUtils
 				.createSimpleUserColumns();
-		SimpleAttributesTable simpleTable = SimpleAttributesTable.create(
-				"simple_attributes", simpleUserColumns);
+		SimpleAttributesTable simpleTable = SimpleAttributesTable
+				.create("simple_attributes", simpleUserColumns);
 
 		String tableName = "attributes";
 
 		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
-		UserMappingTable userMappingTable = UserMappingTable.create(tableName
-				+ "_" + simpleTable.getTableName(), additionalMappingColumns);
+		UserMappingTable userMappingTable = UserMappingTable.create(
+				tableName + "_" + simpleTable.getTableName(),
+				additionalMappingColumns);
 		ExtendedRelation relation = relatedTables
 				.addSimpleAttributesRelationship(tableName, simpleTable,
 						userMappingTable);
@@ -1838,8 +1851,8 @@ public class GeoPackageExample {
 					DublinCoreType.DESCRIPTION.getName() + i);
 			DublinCoreMetadata.setValue(simpleAttributesRow,
 					DublinCoreType.SOURCE, DublinCoreType.SOURCE.getName() + i);
-			simpleAttributesIds.add(simpleAttributesDao
-					.create(simpleAttributesRow));
+			simpleAttributesIds
+					.add(simpleAttributesDao.create(simpleAttributesRow));
 
 		}
 
@@ -1849,8 +1862,8 @@ public class GeoPackageExample {
 		AttributesResultSet attributesResultSet = attributesDao.queryForAll();
 		while (attributesResultSet.moveToNext()) {
 			AttributesRow attributesRow = attributesResultSet.getRow();
-			long randomSimpleRowId = simpleAttributesIds.get((int) (Math
-					.random() * simpleAttributesIds.size()));
+			long randomSimpleRowId = simpleAttributesIds
+					.get((int) (Math.random() * simpleAttributesIds.size()));
 			SimpleAttributesRow simpleAttributesRow = simpleAttributesDao
 					.getRow(simpleAttributesDao
 							.queryForIdRow(randomSimpleRowId));
@@ -1862,30 +1875,76 @@ public class GeoPackageExample {
 					userMappingRow, UserMappingTable.requiredColumns());
 			String attributesName = attributesRow.getValue(TEXT_COLUMN)
 					.toString();
-			DublinCoreMetadata.setValue(
-					userMappingRow,
-					DublinCoreType.TITLE,
-					attributesName
-							+ " - "
-							+ DublinCoreMetadata.getValue(simpleAttributesRow,
-									DublinCoreType.TITLE));
-			DublinCoreMetadata.setValue(
-					userMappingRow,
-					DublinCoreType.DESCRIPTION,
-					attributesName
-							+ " - "
-							+ DublinCoreMetadata.getValue(simpleAttributesRow,
-									DublinCoreType.DESCRIPTION));
-			DublinCoreMetadata.setValue(
-					userMappingRow,
-					DublinCoreType.SOURCE,
-					attributesName
-							+ " - "
-							+ DublinCoreMetadata.getValue(simpleAttributesRow,
-									DublinCoreType.SOURCE));
+			DublinCoreMetadata.setValue(userMappingRow, DublinCoreType.TITLE,
+					attributesName + " - " + DublinCoreMetadata.getValue(
+							simpleAttributesRow, DublinCoreType.TITLE));
+			DublinCoreMetadata
+					.setValue(userMappingRow, DublinCoreType.DESCRIPTION,
+							attributesName + " - "
+									+ DublinCoreMetadata.getValue(
+											simpleAttributesRow,
+											DublinCoreType.DESCRIPTION));
+			DublinCoreMetadata.setValue(userMappingRow, DublinCoreType.SOURCE,
+					attributesName + " - " + DublinCoreMetadata.getValue(
+							simpleAttributesRow, DublinCoreType.SOURCE));
 			userMappingDao.create(userMappingRow);
 		}
 		attributesResultSet.close();
+
+	}
+
+	private static void createRelatedTablesTilesExtension(
+			GeoPackage geoPackage) {
+
+		String featureTable = "point2";
+		String tileTable = "nga";
+
+		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
+				geoPackage);
+
+		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
+				.createAdditionalUserColumns();
+
+		UserMappingTable userMappingTable = UserMappingTable.create(
+				featureTable + "_" + tileTable, additionalMappingColumns);
+		ExtendedRelation relation = relatedTables.addTilesRelationship(
+				featureTable, tileTable, userMappingTable);
+
+		UserMappingDao userMappingDao = relatedTables.getMappingDao(relation);
+
+		FeatureDao featureDao = geoPackage
+				.getFeatureDao(relation.getBaseTableName());
+		TileDao tileDao = geoPackage.getTileDao(relation.getRelatedTableName());
+
+		FeatureResultSet featureResultSet = featureDao.queryForAll();
+		while (featureResultSet.moveToNext()) {
+
+			FeatureRow featureRow = featureResultSet.getRow();
+			String featureName = featureRow.getValue(TEXT_COLUMN).toString();
+
+			TileResultSet tileResultSet = tileDao
+					.queryForTile(tileDao.getMinZoom());
+			while (tileResultSet.moveToNext()) {
+
+				TileRow tileRow = tileResultSet.getRow();
+
+				UserMappingRow userMappingRow = userMappingDao.newRow();
+				userMappingRow.setBaseId(featureRow.getId());
+				userMappingRow.setRelatedId(tileRow.getId());
+				RelatedTablesUtils.populateUserRow(userMappingDao.getTable(),
+						userMappingRow, UserMappingTable.requiredColumns());
+				DublinCoreMetadata.setValue(userMappingRow,
+						DublinCoreType.TITLE, featureName);
+				DublinCoreMetadata.setValue(userMappingRow,
+						DublinCoreType.DESCRIPTION, featureName);
+				DublinCoreMetadata.setValue(userMappingRow,
+						DublinCoreType.SOURCE, featureName);
+				userMappingDao.create(userMappingRow);
+			}
+			tileResultSet.close();
+
+		}
+		featureResultSet.close();
 
 	}
 
@@ -1893,15 +1952,14 @@ public class GeoPackageExample {
 
 		for (String tileTable : geoPackage.getTileTables()) {
 
-			TileTableScaling tileTableScaling = new TileTableScaling(
-					geoPackage, tileTable);
+			TileTableScaling tileTableScaling = new TileTableScaling(geoPackage,
+					tileTable);
 			TileScaling tileScaling = new TileScaling();
 			tileScaling.setZoomIn(2l);
 			FeatureTileTableLinker linker = new FeatureTileTableLinker(
 					geoPackage);
-			if (linker.has()
-					&& !linker.getFeatureTablesForTileTable(tileTable)
-							.isEmpty()) {
+			if (linker.has() && !linker.getFeatureTablesForTileTable(tileTable)
+					.isEmpty()) {
 				tileScaling.setScalingType(TileScalingType.IN);
 			} else {
 				tileScaling.setScalingType(TileScalingType.IN_OUT);
@@ -1917,8 +1975,8 @@ public class GeoPackageExample {
 
 		PropertiesExtension properties = new PropertiesExtension(geoPackage);
 
-		String dateTime = DateConverter.dateTimeConverter().stringValue(
-				new Date());
+		String dateTime = DateConverter.dateTimeConverter()
+				.stringValue(new Date());
 
 		properties.addValue(PropertyNames.TITLE, "GeoPackage Java Example");
 		properties.addValue(PropertyNames.VERSION, "3.2.0");
@@ -1929,16 +1987,12 @@ public class GeoPackageExample {
 		properties.addValue(PropertyNames.CREATED, dateTime);
 		properties.addValue(PropertyNames.DATE, dateTime);
 		properties.addValue(PropertyNames.MODIFIED, dateTime);
-		properties
-				.addValue(
-						PropertyNames.DESCRIPTION,
-						"GeoPackage example created by http://github.com/ngageoint/geopackage-java/blob/master/src/test/java/mil/nga/geopackage/test/GeoPackageExample.java");
+		properties.addValue(PropertyNames.DESCRIPTION,
+				"GeoPackage example created by http://github.com/ngageoint/geopackage-java/blob/master/src/test/java/mil/nga/geopackage/test/GeoPackageExample.java");
 		properties.addValue(PropertyNames.IDENTIFIER, "geopackage-java");
 		properties.addValue(PropertyNames.LICENSE, "MIT");
-		properties
-				.addValue(
-						PropertyNames.SOURCE,
-						"http://github.com/ngageoint/GeoPackage/blob/master/docs/examples/java/example.gpkg");
+		properties.addValue(PropertyNames.SOURCE,
+				"http://github.com/ngageoint/GeoPackage/blob/master/docs/examples/java/example.gpkg");
 		properties.addValue(PropertyNames.SUBJECT, "Examples");
 		properties.addValue(PropertyNames.TYPE, "Examples");
 		properties.addValue(PropertyNames.URI,
@@ -1995,8 +2049,8 @@ public class GeoPackageExample {
 		IconRow icon1 = new IconRow();
 		icon1.setName("Building");
 		icon1.setDescription("Building Icon");
-		icon1.setData(GeoPackageIOUtils.fileBytes(TestUtils
-				.getTestFile("building.png")));
+		icon1.setData(GeoPackageIOUtils
+				.fileBytes(TestUtils.getTestFile("building.png")));
 		icon1.setContentType("image/png");
 		icon1.setWidth(32.0);
 		icon1.setAnchorU(0.5);
@@ -2006,8 +2060,8 @@ public class GeoPackageExample {
 		IconRow icon2 = new IconRow();
 		icon2.setName("College");
 		icon2.setDescription("College Icon");
-		icon2.setData(GeoPackageIOUtils.fileBytes(TestUtils
-				.getTestFile("college.png")));
+		icon2.setData(GeoPackageIOUtils
+				.fileBytes(TestUtils.getTestFile("college.png")));
 		icon2.setContentType("image/png");
 		icon2.setWidth(32.0);
 		icon2.setHeight(44.0);
@@ -2016,8 +2070,8 @@ public class GeoPackageExample {
 		IconRow icon3 = new IconRow();
 		icon3.setName("Tractor");
 		icon3.setDescription("Tractor Icon");
-		icon3.setData(GeoPackageIOUtils.fileBytes(TestUtils
-				.getTestFile("tractor.png")));
+		icon3.setData(GeoPackageIOUtils
+				.fileBytes(TestUtils.getTestFile("tractor.png")));
 		icon3.setContentType("image/png");
 		icon3.setAnchorV(1.0);
 		icons.add(icon3);
