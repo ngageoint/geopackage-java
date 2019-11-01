@@ -211,9 +211,18 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int count() {
+	public UserCustomResultSet query(String where, String[] whereArgs) {
 		validateRTree();
-		return super.count();
+		return super.query(where, whereArgs);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int count(String where, String[] args) {
+		validateRTree();
+		return super.count(where, args);
 	}
 
 	/**
