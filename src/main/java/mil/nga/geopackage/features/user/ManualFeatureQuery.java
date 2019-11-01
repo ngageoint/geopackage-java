@@ -573,6 +573,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
+	 * @since 3.3.1
 	 */
 	public ManualFeatureQueryResults query(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -588,6 +589,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
+	 * @since 3.3.1
 	 */
 	public long count(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -603,6 +605,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
+	 * @since 3.3.1
 	 */
 	public ManualFeatureQueryResults query(GeometryEnvelope envelope,
 			String where) {
@@ -617,6 +620,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return count
+	 * @since 3.3.1
 	 */
 	public long count(GeometryEnvelope envelope, String where) {
 		return count(envelope, where, null);
@@ -632,6 +636,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
+	 * @since 3.3.1
 	 */
 	public ManualFeatureQueryResults query(GeometryEnvelope envelope,
 			String where, String[] whereArgs) {
@@ -649,6 +654,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
+	 * @since 3.3.1
 	 */
 	public long count(GeometryEnvelope envelope, String where,
 			String[] whereArgs) {
