@@ -92,6 +92,7 @@ public class AlterTableUtils {
 
 				FeatureIndexManager indexManager = new FeatureIndexManager(
 						geoPackage, dao);
+				indexManager.setContinueOnError(false);
 				int indexGeoPackageCount;
 				if (indexManager.isIndexed(FeatureIndexType.GEOPACKAGE)) {
 					indexManager.prioritizeQueryLocation(
@@ -492,6 +493,7 @@ public class AlterTableUtils {
 
 				FeatureIndexManager indexManager = new FeatureIndexManager(
 						geoPackage, dao);
+				indexManager.setContinueOnError(false);
 
 				int indexGeoPackageCount = 0;
 				if (indexManager.isIndexed(FeatureIndexType.GEOPACKAGE)) {
@@ -606,6 +608,7 @@ public class AlterTableUtils {
 
 				FeatureIndexManager copyIndexManager = new FeatureIndexManager(
 						geoPackage, copyDao);
+				copyIndexManager.setContinueOnError(false);
 
 				if (indexManager.isIndexed(FeatureIndexType.GEOPACKAGE)) {
 					indexManager.prioritizeQueryLocation(

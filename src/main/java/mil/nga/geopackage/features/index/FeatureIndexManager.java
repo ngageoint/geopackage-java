@@ -75,6 +75,12 @@ public class FeatureIndexManager {
 	private FeatureIndexType indexLocation;
 
 	/**
+	 * When an exception occurs on a certain index, continue to other index
+	 * types to attempt to retrieve the value
+	 */
+	private boolean continueOnError = true;
+
+	/**
 	 * Constructor
 	 *
 	 * @param geoPackage
@@ -159,6 +165,27 @@ public class FeatureIndexManager {
 	 */
 	public FeatureIndexType getIndexLocation() {
 		return indexLocation;
+	}
+
+	/**
+	 * Is the continue on error flag enabled
+	 * 
+	 * @return continue on error
+	 * @since 3.3.1
+	 */
+	public boolean isContinueOnError() {
+		return continueOnError;
+	}
+
+	/**
+	 * Set the continue on error flag
+	 * 
+	 * @param continueOnError
+	 *            continue on error
+	 * @since 3.3.1
+	 */
+	public void setContinueOnError(boolean continueOnError) {
+		this.continueOnError = continueOnError;
 	}
 
 	/**
@@ -735,8 +762,12 @@ public class FeatureIndexManager {
 				}
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to query from feature index: " + type, e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to query from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (results == null) {
@@ -768,8 +799,12 @@ public class FeatureIndexManager {
 				}
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to count from feature index: " + type, e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to count from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (count == null) {
@@ -867,8 +902,12 @@ public class FeatureIndexManager {
 				}
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to query from feature index: " + type, e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to query from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (results == null) {
@@ -909,8 +948,12 @@ public class FeatureIndexManager {
 				}
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to count from feature index: " + type, e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to count from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (count == null) {
@@ -943,10 +986,14 @@ public class FeatureIndexManager {
 				success = true;
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to get bounding box from feature index: "
-								+ type,
-						e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to get bounding box from feature index: "
+									+ type,
+							e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (!success) {
@@ -981,10 +1028,14 @@ public class FeatureIndexManager {
 				success = true;
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to get bounding box from feature index: "
-								+ type,
-						e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to get bounding box from feature index: "
+									+ type,
+							e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (!success) {
@@ -1150,8 +1201,12 @@ public class FeatureIndexManager {
 				}
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to count from feature index: " + type, e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to count from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (count == null) {
@@ -1257,8 +1312,12 @@ public class FeatureIndexManager {
 				}
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to query from feature index: " + type, e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to query from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (results == null) {
@@ -1299,8 +1358,12 @@ public class FeatureIndexManager {
 				}
 				break;
 			} catch (Exception e) {
-				LOGGER.log(Level.SEVERE,
-						"Failed to count from feature index: " + type, e);
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to count from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (count == null) {
