@@ -46,6 +46,7 @@ public class FeatureCacheUtils {
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureIndexManager featureIndexManager = new FeatureIndexManager(
 					geoPackage, featureDao);
+			featureIndexManager.setContinueOnError(false);
 			featureIndexManager.prioritizeQueryLocation(type);
 
 			FeatureIndexResults featureIndexResults = featureIndexManager
@@ -75,6 +76,7 @@ public class FeatureCacheUtils {
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureIndexManager featureIndexManager = new FeatureIndexManager(
 					geoPackage, featureDao);
+			featureIndexManager.setContinueOnError(false);
 			featureIndexManager.prioritizeQueryLocation(type);
 
 			FeatureIndexResults featureIndexResults = featureIndexManager
@@ -108,6 +110,7 @@ public class FeatureCacheUtils {
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureIndexManager featureIndexManager = new FeatureIndexManager(
 					geoPackage, featureDao);
+			featureIndexManager.setContinueOnError(false);
 			featureIndexManager.prioritizeQueryLocation(type);
 
 			FeatureIndexResults featureIndexResults = featureIndexManager
@@ -126,10 +129,10 @@ public class FeatureCacheUtils {
 
 		}
 
-		TestCase.assertEquals(featureTables.size(), featureCache.getTables()
-				.size());
-		TestCase.assertEquals(featureTables.size(), featureCache2.getTables()
-				.size());
+		TestCase.assertEquals(featureTables.size(),
+				featureCache.getTables().size());
+		TestCase.assertEquals(featureTables.size(),
+				featureCache2.getTables().size());
 		for (String featureTable : featureTables) {
 
 			TestCase.assertEquals(featureCache.getSize(featureTable),
@@ -138,6 +141,7 @@ public class FeatureCacheUtils {
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureIndexManager featureIndexManager = new FeatureIndexManager(
 					geoPackage, featureDao);
+			featureIndexManager.setContinueOnError(false);
 			featureIndexManager.prioritizeQueryLocation(type);
 
 			FeatureIndexResults featureIndexResults = featureIndexManager
@@ -148,10 +152,10 @@ public class FeatureCacheUtils {
 			TestCase.assertEquals(resultsCount,
 					featureCache2.getSize(featureTable));
 			for (long featureRowId : featureIndexResults.ids()) {
-				TestCase.assertNotNull(featureCache.get(featureTable,
-						featureRowId));
-				TestCase.assertNotNull(featureCache2.get(featureTable,
-						featureRowId));
+				TestCase.assertNotNull(
+						featureCache.get(featureTable, featureRowId));
+				TestCase.assertNotNull(
+						featureCache2.get(featureTable, featureRowId));
 			}
 			featureIndexResults.close();
 			featureIndexManager.close();
