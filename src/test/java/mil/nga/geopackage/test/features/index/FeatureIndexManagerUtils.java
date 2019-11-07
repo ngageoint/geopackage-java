@@ -683,6 +683,7 @@ public class FeatureIndexManagerUtils {
 
 		FeatureIndexManager featureIndexManager = new FeatureIndexManager(
 				geoPackage, featureDao);
+		featureIndexManager.setContinueOnError(false);
 		try {
 
 			featureIndexManager.setIndexLocation(type);
