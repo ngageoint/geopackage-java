@@ -163,9 +163,13 @@ To run against the jar:
 
     java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen [-f compress_format] [-q compress_quality] [-g] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-uepsg url_epsg] [-tms] geopackage_file tile_table url min_zoom max_zoom
 
-Example:
+Examples:
+
+Note: URLs may need to be encoded
 
     java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen -bbox -105.0,39.0,-104.0,40.0 -uepsg 3857 /path/geopackage.gpkg mytiletable http://url/{z}/{x}/{y} 2 18
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen -epsg 3857 -bbox -9136400.0,2790700.0,-9068470.0,2844260.0 /path/geopackage.gpkg mytiletable https://url?service=WMS&request=GetMap&layers=layer&styles=&format=image/png&transparent=true&version=1.3.0&width=256&height=256&crs=EPSG:3857&bbox={minLon},{minLat},{maxLon},{maxLat} 2 18
 
 #### Feature Tile Generator ####
 
