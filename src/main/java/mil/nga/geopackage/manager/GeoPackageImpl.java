@@ -355,8 +355,15 @@ class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	public UserCustomDao getUserCustomDao(String tableName) {
 		UserCustomTable table = UserCustomTableReader.readTable(database,
 				tableName);
-		UserCustomDao dao = new UserCustomDao(getName(), database, table);
-		return dao;
+		return getUserCustomDao(table);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserCustomDao getUserCustomDao(UserCustomTable table) {
+		return new UserCustomDao(getName(), database, table);
 	}
 
 	/**
