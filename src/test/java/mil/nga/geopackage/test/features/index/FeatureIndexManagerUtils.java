@@ -764,6 +764,8 @@ public class FeatureIndexManagerUtils {
 
 			timerQuery.reset();
 			timerCount.reset();
+			TestTimer timerIteration = new FeatureIndexManagerUtils().new TestTimer();
+			timerIteration.print = timerCount.print;
 
 			timerQuery.print = timerCount.print;
 
@@ -788,6 +790,8 @@ public class FeatureIndexManagerUtils {
 				FeatureIndexResults results = featureIndexManager
 						.query(envelope);
 				timerQuery.end(percentage + "% Envelope Query");
+				iterateResults(timerIteration, percentage + "% Envelope Query",
+						results);
 				assertCounts(featureIndexManager, testEnvelope, type,
 						outerPrecision, expectedCount, results.count());
 				results.close();
@@ -802,6 +806,8 @@ public class FeatureIndexManagerUtils {
 				timerQuery.start();
 				results = featureIndexManager.query(boundingBox);
 				timerQuery.end(percentage + "% Bounding Box Query");
+				iterateResults(timerIteration,
+						percentage + "% Bounding Box Query", results);
 				assertCounts(featureIndexManager, testEnvelope, type,
 						outerPrecision, expectedCount, results.count());
 				results.close();
@@ -822,6 +828,8 @@ public class FeatureIndexManagerUtils {
 				results = featureIndexManager.query(webMercatorBoundingBox,
 						webMercatorProjection);
 				timerQuery.end(percentage + "% Projected Bounding Box Query");
+				iterateResults(timerIteration,
+						percentage + "% Projected Bounding Box Query", results);
 				if (compareProjectionCounts) {
 					assertCounts(featureIndexManager, testEnvelope, type,
 							outerPrecision, expectedCount, results.count());
@@ -834,9 +842,20 @@ public class FeatureIndexManagerUtils {
 					"Average Count: " + timerCount.averageString() + " ms");
 			System.out.println(
 					"Average Query: " + timerQuery.averageString() + " ms");
+			System.out.println("Average Iteration: "
+					+ timerIteration.averageString() + " ms");
 		} finally {
 			featureIndexManager.close();
 		}
+	}
+
+	private static void iterateResults(TestTimer timerIteration, String message,
+			FeatureIndexResults results) {
+		timerIteration.start();
+		for (@SuppressWarnings("unused")
+		FeatureRow featureRow : results) {
+		}
+		timerIteration.end(message);
 	}
 
 	private static void assertCounts(FeatureIndexManager featureIndexManager,
