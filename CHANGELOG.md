@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 3.4.0 (TBD)
+## [3.4.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.4.0) (11-14-2019)
 
 * geopackage-core version 3.4.0
 * sqlite-jdbc version 3.28.0
