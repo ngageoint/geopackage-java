@@ -236,7 +236,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * Query for all Features
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures() {
 		return featureDao.queryIn(queryIdsSQL());
@@ -249,7 +249,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            field values
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(Map<String, Object> fieldValues) {
 		return featureDao.queryIn(queryIdsSQL(), fieldValues);
@@ -262,7 +262,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            field values
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(Map<String, Object> fieldValues) {
 		return featureDao.countIn(queryIdsSQL(), fieldValues);
@@ -275,7 +275,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            where clause
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(String where) {
 		return featureDao.queryIn(queryIdsSQL(), where);
@@ -288,7 +288,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            where clause
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(String where) {
 		return featureDao.countIn(queryIdsSQL(), where);
@@ -303,7 +303,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            where arguments
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(String where, String[] whereArgs) {
 		return featureDao.queryIn(queryIdsSQL(), where, whereArgs);
@@ -318,7 +318,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 *            where arguments
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(String where, String[] whereArgs) {
 		return featureDao.countIn(queryIdsSQL(), where, whereArgs);
@@ -330,7 +330,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox) {
 		return queryFeatures(boundingBox.buildEnvelope());
@@ -342,7 +342,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox) {
 		return countFeatures(boundingBox.buildEnvelope());
@@ -356,7 +356,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -371,7 +371,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -386,7 +386,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param where
 	 *            where clause
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			String where) {
@@ -401,7 +401,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, String where) {
 		return countFeatures(boundingBox, where, null);
@@ -417,7 +417,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox, String where,
 			String[] whereArgs) {
@@ -434,7 +434,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, String where,
 			String[] whereArgs) {
@@ -449,7 +449,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param projection
 	 *            projection of the provided bounding box
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection) {
@@ -466,7 +466,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param projection
 	 *            projection of the provided bounding box
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
@@ -484,7 +484,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues) {
@@ -503,7 +503,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			Map<String, Object> fieldValues) {
@@ -522,7 +522,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param where
 	 *            where clause
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, String where) {
@@ -539,7 +539,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			String where) {
@@ -558,7 +558,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs) {
@@ -579,7 +579,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			String where, String[] whereArgs) {
@@ -594,7 +594,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope) {
 		return featureDao.queryIn(queryIdsSQL(envelope));
@@ -606,7 +606,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope) {
 		return featureDao.countIn(queryIdsSQL(envelope));
@@ -620,7 +620,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -635,7 +635,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -650,7 +650,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param where
 	 *            where clause
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			String where) {
@@ -665,7 +665,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope, String where) {
 		return countFeatures(envelope, where, null);
@@ -681,7 +681,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			String where, String[] whereArgs) {
@@ -698,7 +698,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope, String where,
 			String[] whereArgs) {

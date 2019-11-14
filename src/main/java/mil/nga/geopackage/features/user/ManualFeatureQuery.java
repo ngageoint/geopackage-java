@@ -95,7 +95,7 @@ public class ManualFeatureQuery {
 	 * Query for features
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet query() {
 		return featureDao.queryForAll();
@@ -127,7 +127,7 @@ public class ManualFeatureQuery {
 	 *            field values
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet query(Map<String, Object> fieldValues) {
 		String where = featureDao.buildWhere(fieldValues.entrySet());
@@ -142,7 +142,7 @@ public class ManualFeatureQuery {
 	 *            field values
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int count(Map<String, Object> fieldValues) {
 		String where = featureDao.buildWhere(fieldValues.entrySet());
@@ -157,7 +157,7 @@ public class ManualFeatureQuery {
 	 *            where clause
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet query(String where) {
 		return featureDao.query(where);
@@ -170,7 +170,7 @@ public class ManualFeatureQuery {
 	 *            where clause
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int count(String where) {
 		return featureDao.count(where);
@@ -185,7 +185,7 @@ public class ManualFeatureQuery {
 	 *            where arguments
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet query(String where, String[] whereArgs) {
 		return featureDao.query(where, whereArgs);
@@ -200,7 +200,7 @@ public class ManualFeatureQuery {
 	 *            where arguments
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int count(String where, String[] whereArgs) {
 		return featureDao.count(where, whereArgs);
@@ -303,7 +303,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -318,7 +318,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -333,7 +333,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            were clause
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			String where) {
@@ -348,7 +348,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            were clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(BoundingBox boundingBox, String where) {
 		return count(boundingBox, where, null);
@@ -364,7 +364,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			String where, String[] whereArgs) {
@@ -381,7 +381,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(BoundingBox boundingBox, String where,
 			String[] whereArgs) {
@@ -432,7 +432,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues) {
@@ -452,7 +452,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(BoundingBox boundingBox, Projection projection,
 			Map<String, Object> fieldValues) {
@@ -472,7 +472,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            were clause
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			Projection projection, String where) {
@@ -490,7 +490,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            were clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(BoundingBox boundingBox, Projection projection,
 			String where) {
@@ -510,7 +510,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs) {
@@ -532,7 +532,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(BoundingBox boundingBox, Projection projection,
 			String where, String[] whereArgs) {
@@ -573,7 +573,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -589,7 +589,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -605,7 +605,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(GeometryEnvelope envelope,
 			String where) {
@@ -620,7 +620,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(GeometryEnvelope envelope, String where) {
 		return count(envelope, where, null);
@@ -636,7 +636,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(GeometryEnvelope envelope,
 			String where, String[] whereArgs) {
@@ -654,7 +654,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(GeometryEnvelope envelope, String where,
 			String[] whereArgs) {
@@ -711,7 +711,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(double minX, double minY,
 			double maxX, double maxY, Map<String, Object> fieldValues) {
@@ -734,7 +734,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(double minX, double minY, double maxX, double maxY,
 			Map<String, Object> fieldValues) {
@@ -757,7 +757,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(double minX, double minY,
 			double maxX, double maxY, String where) {
@@ -778,7 +778,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(double minX, double minY, double maxX, double maxY,
 			String where) {
@@ -801,7 +801,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where args
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public ManualFeatureQueryResults query(double minX, double minY,
 			double maxX, double maxY, String where, String[] whereArgs) {
@@ -871,7 +871,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where args
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public long count(double minX, double minY, double maxX, double maxY,
 			String where, String[] whereArgs) {

@@ -229,7 +229,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * Query for all features
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures() {
 		validateRTree();
@@ -243,7 +243,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            field values
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(Map<String, Object> fieldValues) {
 		validateRTree();
@@ -257,7 +257,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            field values
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(Map<String, Object> fieldValues) {
 		validateRTree();
@@ -271,7 +271,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            where clause
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(String where) {
 		return queryFeatures(where, null);
@@ -284,7 +284,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            where clause
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(String where) {
 		return countFeatures(where, null);
@@ -299,7 +299,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            where arguments
 	 * 
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(String where, String[] whereArgs) {
 		validateRTree();
@@ -315,7 +315,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            where arguments
 	 * 
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(String where, String[] whereArgs) {
 		validateRTree();
@@ -381,7 +381,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox) {
 		return queryFeatures(boundingBox.buildEnvelope());
@@ -393,7 +393,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox) {
 		return countFeatures(boundingBox.buildEnvelope());
@@ -407,7 +407,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -422,7 +422,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -437,7 +437,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			String where) {
@@ -452,7 +452,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, String where) {
 		return countFeatures(boundingBox, where, null);
@@ -468,7 +468,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox, String where,
 			String[] whereArgs) {
@@ -485,7 +485,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, String where,
 			String[] whereArgs) {
@@ -531,7 +531,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param projection
 	 *            projection
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection) {
@@ -548,7 +548,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param projection
 	 *            projection
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection) {
 		BoundingBox featureBoundingBox = projectBoundingBox(boundingBox,
@@ -566,7 +566,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues) {
@@ -585,7 +585,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			Map<String, Object> fieldValues) {
@@ -604,7 +604,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, String where) {
@@ -621,7 +621,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			String where) {
@@ -640,7 +640,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs) {
@@ -661,7 +661,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			String where, String[] whereArgs) {
@@ -700,7 +700,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope) {
 		return queryFeatures(envelope.getMinX(), envelope.getMinY(),
@@ -713,7 +713,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope) {
 		return countFeatures(envelope.getMinX(), envelope.getMinY(),
@@ -728,7 +728,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -744,7 +744,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -760,7 +760,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			String where) {
@@ -775,7 +775,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope, String where) {
 		return countFeatures(envelope, where, null);
@@ -791,7 +791,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			String where, String[] whereArgs) {
@@ -809,7 +809,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope, String where,
 			String[] whereArgs) {
@@ -870,7 +870,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param maxY
 	 *            max y
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(double minX, double minY, double maxX,
 			double maxY) {
@@ -892,7 +892,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param maxY
 	 *            max y
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX,
 			double maxY) {
@@ -916,7 +916,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(double minX, double minY, double maxX,
 			double maxY, Map<String, Object> fieldValues) {
@@ -940,7 +940,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX, double maxY,
 			Map<String, Object> fieldValues) {
@@ -964,7 +964,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(double minX, double minY, double maxX,
 			double maxY, String where) {
@@ -985,7 +985,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX, double maxY,
 			String where) {
@@ -1008,7 +1008,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(double minX, double minY, double maxX,
 			double maxY, String where, String[] whereArgs) {
@@ -1035,7 +1035,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX, double maxY,
 			String where, String[] whereArgs) {

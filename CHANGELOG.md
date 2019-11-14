@@ -4,9 +4,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 3.3.1 (TBD)
+## 3.4.0 (TBD)
 
-* geopackage-core version 3.3.1
+* geopackage-core version 3.4.0
 * sqlite-jdbc version 3.28.0
 * Tile Reader bug fix causing file system tiles to be skipped
 * Database result column value fixes for new sqlite-jdbc version

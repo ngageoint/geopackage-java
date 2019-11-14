@@ -109,7 +109,7 @@ public interface GeoPackage extends GeoPackageCore {
 	 * @param table
 	 *            table
 	 * @return user custom dao
-	 * @since 3.3.1
+	 * @since 3.4.0
 	 */
 	public UserCustomDao getUserCustomDao(UserCustomTable table);
 
