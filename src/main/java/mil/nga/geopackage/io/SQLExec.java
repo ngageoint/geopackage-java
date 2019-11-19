@@ -954,7 +954,7 @@ public class SQLExec {
 	}
 
 	/**
-	 * Execute the SQL on the GeoPadatabaseckage
+	 * Execute the SQL on the GeoPackage database
 	 * 
 	 * @param database
 	 *            open database
