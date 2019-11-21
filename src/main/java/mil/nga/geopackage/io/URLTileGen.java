@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.locationtech.proj4j.units.Units;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
@@ -16,8 +18,6 @@ import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
-
-import org.locationtech.proj4j.units.Units;
 
 /**
  * URL Tile Generator main method for command line tile generation
@@ -37,8 +37,8 @@ public class URLTileGen {
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(URLTileGen.class
-			.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(URLTileGen.class.getName());
 
 	/**
 	 * Log tile frequency for how often to log tile generation progress
@@ -92,10 +92,15 @@ public class URLTileGen {
 	public static final String ARGUMENT_TMS = "tms";
 
 	/**
+	 * Skip Existing Tiles argument
+	 */
+	public static final String ARGUMENT_SKIP_EXISTING = "skip";
+
+	/**
 	 * Tile progress
 	 */
-	private static ZoomLevelProgress progress = new ZoomLevelProgress("URL Tile Generation",
-			LOG_TILE_FREQUENCY, LOG_TILE_TIME_FREQUENCY);
+	private static ZoomLevelProgress progress = new ZoomLevelProgress(
+			"URL Tile Generation", LOG_TILE_FREQUENCY, LOG_TILE_TIME_FREQUENCY);
 
 	/**
 	 * GeoPackage file
@@ -163,6 +168,11 @@ public class URLTileGen {
 	private static boolean tms = false;
 
 	/**
+	 * Skip Existing tiles flag
+	 */
+	private static boolean skipExisting = false;
+
+	/**
 	 * Main method to generate tiles in a GeoPackage
 	 * 
 	 * @param args
@@ -203,10 +213,9 @@ public class URLTileGen {
 						compressFormat = args[++i];
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Compress Format argument '"
-										+ arg
-										+ "' must be followed by an image format");
+						System.out.println("Error: Compress Format argument '"
+								+ arg
+								+ "' must be followed by an image format");
 					}
 					break;
 
@@ -215,10 +224,9 @@ public class URLTileGen {
 						compressQuality = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Compress Quality argument '"
-										+ arg
-										+ "' must be followed by a value between 0.0 and 1.0");
+						System.out.println("Error: Compress Quality argument '"
+								+ arg
+								+ "' must be followed by a value between 0.0 and 1.0");
 					}
 					break;
 
@@ -232,10 +240,9 @@ public class URLTileGen {
 						String[] bboxParts = bbox.split(",");
 						if (bboxParts.length != 4) {
 							valid = false;
-							System.out
-									.println("Error: Bounding Box argument '"
-											+ arg
-											+ "' value must be in the format: minLon,minLat,maxLon,maxLat");
+							System.out.println("Error: Bounding Box argument '"
+									+ arg
+									+ "' value must be in the format: minLon,minLat,maxLon,maxLat");
 						} else {
 							double minLon = Double.valueOf(bboxParts[0]);
 							double minLat = Double.valueOf(bboxParts[1]);
@@ -246,10 +253,9 @@ public class URLTileGen {
 						}
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Bounding Box argument '"
-										+ arg
-										+ "' must be followed by bbox values: minLon,minLat,maxLon,maxLat");
+						System.out.println("Error: Bounding Box argument '"
+								+ arg
+								+ "' must be followed by bbox values: minLon,minLat,maxLon,maxLat");
 					}
 					break;
 
@@ -277,6 +283,10 @@ public class URLTileGen {
 					tms = true;
 					break;
 
+				case ARGUMENT_SKIP_EXISTING:
+					skipExisting = true;
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -297,15 +307,15 @@ public class URLTileGen {
 					requiredArguments = true;
 				} else {
 					valid = false;
-					System.out.println("Error: Unsupported extra argument: "
-							+ arg);
+					System.out.println(
+							"Error: Unsupported extra argument: " + arg);
 				}
 			}
 		}
 
 		if (compressFormat == null && compressQuality != null) {
-			System.out
-					.println("Error: Compress quality requires a compress format");
+			System.out.println(
+					"Error: Compress quality requires a compress format");
 			valid = false;
 		} else if (boundingBox == null && epsg != null) {
 			System.out.println("Error: EPSG requires a bounding box");
@@ -353,8 +363,8 @@ public class URLTileGen {
 			bboxProjection = ProjectionFactory.getProjection(epsg);
 		} else {
 			boundingBox = new BoundingBox();
-			bboxProjection = ProjectionFactory
-					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+			bboxProjection = ProjectionFactory.getProjection(
+					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}
 
 		// Bound degree tiles to Web Mercator limits
@@ -370,7 +380,8 @@ public class URLTileGen {
 		BoundingBox urlBoundingBox = boundingBox.transform(transform);
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
-				tileTable, url, minZoom, maxZoom, urlBoundingBox, urlProjection);
+				tileTable, url, minZoom, maxZoom, urlBoundingBox,
+				urlProjection);
 
 		if (compressFormat != null) {
 			tileGenerator.setCompressFormat(compressFormat);
@@ -387,33 +398,30 @@ public class URLTileGen {
 			tileGenerator.setTileFormat(TileFormatType.TMS);
 		}
 
+		if (skipExisting) {
+			tileGenerator.setSkipExisting(true);
+		}
+
 		int count = tileGenerator.getTileCount();
 
-		LOGGER.log(
-				Level.INFO,
-				"GeoPackage: "
-						+ geoPackage.getName()
-						+ ", Tile Table: "
-						+ tileTable
-						+ ", URL: "
-						+ url
-						+ ", Min Zoom: "
-						+ minZoom
-						+ ", Max Zoom: "
-						+ maxZoom
-						+ (compressFormat != null ? ", Compress Format: "
-								+ compressFormat : "")
-						+ (compressQuality != null ? ", Compress Quality: "
-								+ compressQuality : "")
-						+ (googleTiles ? ", Google Tiles" : "")
-						+ (boundingBox != null ? ", Min Lon: "
-								+ boundingBox.getMinLongitude() + ", Min Lat: "
-								+ boundingBox.getMinLatitude() + ", Max Lon: "
-								+ boundingBox.getMaxLongitude() + ", Max Lat: "
-								+ boundingBox.getMaxLatitude() : "")
-						+ (epsg != null ? ", EPSG: " + epsg : "")
-						+ ", URL EPSG: " + urlEpsg + ", Expected Tile Count: "
-						+ count);
+		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName()
+				+ ", Tile Table: " + tileTable + ", URL: " + url
+				+ ", Min Zoom: " + minZoom + ", Max Zoom: " + maxZoom
+				+ (compressFormat != null
+						? ", Compress Format: " + compressFormat
+						: "")
+				+ (compressQuality != null
+						? ", Compress Quality: " + compressQuality
+						: "")
+				+ (googleTiles ? ", Google Tiles" : "")
+				+ (boundingBox != null
+						? ", Min Lon: " + boundingBox.getMinLongitude()
+								+ ", Min Lat: " + boundingBox.getMinLatitude()
+								+ ", Max Lon: " + boundingBox.getMaxLongitude()
+								+ ", Max Lat: " + boundingBox.getMaxLatitude()
+						: "")
+				+ (epsg != null ? ", EPSG: " + epsg : "") + ", URL EPSG: "
+				+ urlEpsg + ", Expected Tile Count: " + count);
 
 		tileGenerator.setProgress(progress);
 
@@ -422,7 +430,8 @@ public class URLTileGen {
 		try {
 			tileGenerator.generateTiles();
 		} catch (IOException | SQLException e) {
-			throw new GeoPackageException("Exception while generating tiles", e);
+			throw new GeoPackageException("Exception while generating tiles",
+					e);
 		}
 
 		finish();
@@ -472,59 +481,64 @@ public class URLTileGen {
 				+ " minLon,minLat,maxLon,maxLat] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_URL_EPSG + " url_epsg] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_TMS
+				+ ARGUMENT_TMS + "] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_SKIP_EXISTING
 				+ "] geopackage_file tile_table url min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
-		System.out
-				.println("\tGenerates tiles into a GeoPackage tile table by requesting them from a URL");
+		System.out.println(
+				"\tGenerates tiles into a GeoPackage tile table by requesting them from a URL");
 		System.out.println();
 		System.out.println("ARGUMENTS");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_COMPRESS_FORMAT
 				+ " compress_format");
-		System.out
-				.println("\t\tTile compression image format: png, jpg, jpeg (default is no compression, native format)");
+		System.out.println(
+				"\t\tTile compression image format: png, jpg, jpeg (default is no compression, native format)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_COMPRESS_QUALITY
 				+ " compress_quality");
-		System.out
-				.println("\t\tTile compression image quality between 0.0 and 1.0 (not valid for png, default is 1.0)");
+		System.out.println(
+				"\t\tTile compression image quality between 0.0 and 1.0 (not valid for png, default is 1.0)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_GOOGLE_TILES);
-		System.out
-				.println("\t\tGenerate tiles in Google tile format (default is GeoPackage format with minimum bounds)");
+		System.out.println(
+				"\t\tGenerate tiles in Google tile format (default is GeoPackage format with minimum bounds)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_BOUNDING_BOX
 				+ " minLon,minLat,maxLon,maxLat");
-		System.out
-				.println("\t\tOnly tiles overlapping the bounding box are requested (default is the world)");
+		System.out.println(
+				"\t\tOnly tiles overlapping the bounding box are requested (default is the world)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_EPSG + " epsg");
-		System.out
-				.println("\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
+		System.out.println(
+				"\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_URL_EPSG
-				+ " url_epsg");
-		System.out
-				.println("\t\tEPSG number of the tiles provided by the URL (default is 3857, Web Mercator");
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_URL_EPSG + " url_epsg");
+		System.out.println(
+				"\t\tEPSG number of the tiles provided by the URL (default is 3857, Web Mercator");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TMS);
-		System.out
-				.println("\t\tRequest URL for x,y,z coordinates is in TMS format (default is standard XYZ)");
+		System.out.println(
+				"\t\tRequest URL for x,y,z coordinates is in TMS format (default is standard XYZ)");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_SKIP_EXISTING);
+		System.out.println(
+				"\t\tSkip requesting pre-existing tiles when updating an existing GeoPackage (default is to request and overwrite all tiles)");
 		System.out.println();
 		System.out.println("\tgeopackage_file");
-		System.out
-				.println("\t\tpath to the GeoPackage file to create, or existing file to update");
+		System.out.println(
+				"\t\tpath to the GeoPackage file to create, or existing file to update");
 		System.out.println();
 		System.out.println("\ttile_table");
-		System.out
-				.println("\t\ttile table name within the GeoPackage file to create or update");
+		System.out.println(
+				"\t\ttile table name within the GeoPackage file to create or update");
 		System.out.println();
 		System.out.println("\turl");
-		System.out
-				.println("\t\tURL with substitution variables for requesting tiles");
+		System.out.println(
+				"\t\tURL with substitution variables for requesting tiles");
 		System.out.println();
 		System.out.println("\t\t{z}");
 		System.out.println("\t\t\tz URL substitution variable for zoom level");
