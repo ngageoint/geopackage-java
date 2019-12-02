@@ -102,7 +102,7 @@ Build this repository using Eclipse and/or Maven:
 
     mvn clean install
 
-### Stand Alone Utilities ###
+### Standalone Utilities ###
 
 The jar can be built as standalone (or combined with required dependency jars) to run utilities from the command line.
 
