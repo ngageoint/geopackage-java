@@ -112,18 +112,18 @@ public class UrlTileGeneratorUtils {
 	}
 
 	/**
-	 * Test generating tiles in Google format
+	 * Test generating tiles in XYZ format
 	 * 
 	 * @param geoPackage
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public static void testGenerateTilesGoogle(GeoPackage geoPackage)
+	public static void testGenerateTilesXYZ(GeoPackage geoPackage)
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
 				TABLE_NAME, URL, 1, 3, getBoundingBox(), getProjection());
-		tileGenerator.setGoogleTiles(true);
+		tileGenerator.setXYZTiles(true);
 
 		testGenerateTiles(tileGenerator);
 	}
@@ -146,19 +146,19 @@ public class UrlTileGeneratorUtils {
 	}
 
 	/**
-	 * Test generating tiles in Google format with bounding box
+	 * Test generating tiles in XYZ format with bounding box
 	 * 
 	 * @param geoPackage
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public static void testGenerateTilesGoogleBounded(GeoPackage geoPackage)
+	public static void testGenerateTilesXYZBounded(GeoPackage geoPackage)
 			throws SQLException, IOException {
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
 				TABLE_NAME, URL, 1, 2, new BoundingBox(-10, -10, 10, 10),
 				getProjection());
-		tileGenerator.setGoogleTiles(true);
+		tileGenerator.setXYZTiles(true);
 
 		testGenerateTiles(tileGenerator);
 	}

@@ -7,7 +7,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 3.4.1 (TBD)
 
 * Tile Generator option to skip pre-existing tiles when updating a GeoPackage
-* URL Tile Generator skip existing tiles option (allows continuation from a previous partial run)
+* URL Tile Generator continuation by skipping existing tiles (option to force replace)
 
 ## [3.4.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.4.0) (11-14-2019)
 

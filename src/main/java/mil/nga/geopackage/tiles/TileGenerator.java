@@ -112,11 +112,11 @@ public abstract class TileGenerator {
 	private GeoPackageZoomLevelProgress progress;
 
 	/**
-	 * True when generating tiles in Google tile format, false when generating
-	 * GeoPackage format where rows and columns do not match the Google row &
+	 * True when generating tiles in XYZ tile format, false when generating
+	 * GeoPackage format where rows and columns do not match the XYZ row &
 	 * column coordinates
 	 */
-	private boolean googleTiles = false;
+	private boolean xyzTiles = false;
 
 	/**
 	 * Tile grid bounding box
@@ -295,23 +295,23 @@ public abstract class TileGenerator {
 	}
 
 	/**
-	 * Set the Google Tiles flag to true to generate Google tile format tiles.
-	 * Default is false
+	 * Set the XYZ Tiles flag to true to generate XYZ tile format tiles. Default
+	 * is false
 	 *
-	 * @param googleTiles
-	 *            Google Tiles flag
+	 * @param xyzTiles
+	 *            XYZ Tiles flag
 	 */
-	public void setGoogleTiles(boolean googleTiles) {
-		this.googleTiles = googleTiles;
+	public void setXYZTiles(boolean xyzTiles) {
+		this.xyzTiles = xyzTiles;
 	}
 
 	/**
-	 * Is the Google Tiles flag set to generate Google tile format tiles.
+	 * Is the XYZ Tiles flag set to generate XYZ tile format tiles.
 	 * 
-	 * @return true if Google Tiles format, false if GeoPackage
+	 * @return true if XYZ Tiles format, false if GeoPackage
 	 */
-	public boolean isGoogleTiles() {
-		return googleTiles;
+	public boolean isXYZTiles() {
+		return xyzTiles;
 	}
 
 	/**
@@ -471,8 +471,8 @@ public abstract class TileGenerator {
 
 				TileGrid localTileGrid = null;
 
-				// Determine the matrix width and height for Google format
-				if (googleTiles) {
+				// Determine the matrix width and height for XYZ format
+				if (xyzTiles) {
 					matrixWidth = TileBoundingBoxUtils.tilesPerSide(zoom);
 					matrixHeight = matrixWidth;
 				}
@@ -491,7 +491,7 @@ public abstract class TileGenerator {
 						tileGrid, localTileGrid, matrixWidth, matrixHeight,
 						update);
 
-				if (!googleTiles) {
+				if (!xyzTiles) {
 					// Double the matrix width and height for the next level
 					matrixWidth *= 2;
 					matrixHeight *= 2;
@@ -532,9 +532,9 @@ public abstract class TileGenerator {
 	 *            zoom
 	 */
 	private void adjustBounds(BoundingBox boundingBox, int zoom) {
-		// Google Tile Format
-		if (googleTiles) {
-			adjustGoogleBounds();
+		// XYZ Tile Format
+		if (xyzTiles) {
+			adjustXYZBounds();
 		} else if (projection.isUnit(Units.DEGREES)) {
 			adjustGeoPackageBoundsWGS84(boundingBox, zoom);
 		} else {
@@ -543,9 +543,9 @@ public abstract class TileGenerator {
 	}
 
 	/**
-	 * Adjust the tile matrix set and web mercator bounds for Google tile format
+	 * Adjust the tile matrix set and web mercator bounds for XYZ tile format
 	 */
-	private void adjustGoogleBounds() {
+	private void adjustXYZBounds() {
 		// Set the tile matrix set bounding box to be the world
 		BoundingBox standardWgs84Box = new BoundingBox(
 				-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
@@ -607,18 +607,18 @@ public abstract class TileGenerator {
 
 		TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
 
-		if (tileDao.isGoogleTiles()) {
-			if (!googleTiles) {
-				// If adding GeoPackage tiles to a Google Tile format, add them
-				// as Google tiles
-				googleTiles = true;
-				adjustGoogleBounds();
+		if (tileDao.isXYZTiles()) {
+			if (!xyzTiles) {
+				// If adding GeoPackage tiles to a XYZ Tile format, add them
+				// as XYZ tiles
+				xyzTiles = true;
+				adjustXYZBounds();
 			}
-		} else if (googleTiles) {
-			// Can't add Google formatted tiles to GeoPackage tiles
-			throw new GeoPackageException(
-					"Can not add Google formatted tiles to " + tableName
-							+ " which already contains GeoPackage formatted tiles");
+		} else if (xyzTiles) {
+			// Can't add XYZ formatted tiles to GeoPackage tiles
+			throw new GeoPackageException("Can not add XYZ formatted tiles to "
+					+ tableName
+					+ " which already contains GeoPackage formatted tiles");
 		}
 
 		Projection tileMatrixProjection = tileMatrixSet.getSrs()
@@ -654,7 +654,7 @@ public abstract class TileGenerator {
 
 		// If updating GeoPackage format tiles, all existing metadata and tile
 		// rows needs to be adjusted
-		if (!googleTiles) {
+		if (!xyzTiles) {
 
 			BoundingBox previousTileMatrixSetBoundingBox = tileMatrixSet
 					.getBoundingBox();

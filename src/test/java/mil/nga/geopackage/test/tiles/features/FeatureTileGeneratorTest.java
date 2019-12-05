@@ -150,7 +150,7 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 				"gen_feature_tiles", featureTiles, minZoom, maxZoom,
 				ProjectionFactory
 						.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR));
-		tileGenerator.setGoogleTiles(false);
+		tileGenerator.setXYZTiles(false);
 
 		int tiles = tileGenerator.generateTiles();
 

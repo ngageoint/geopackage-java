@@ -101,7 +101,7 @@ public class UrlTileGenerator extends TileGenerator {
 	/**
 	 * Tile Format when downloading tiles with x, y, and z values
 	 */
-	private TileFormatType tileFormat = TileFormatType.STANDARD;
+	private TileFormatType tileFormat = TileFormatType.XYZ;
 
 	/**
 	 * Download attempts per tile
@@ -137,8 +137,8 @@ public class UrlTileGenerator extends TileGenerator {
 		try {
 			this.tileUrl = URLDecoder.decode(tileUrl, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			throw new GeoPackageException("Failed to decode tile url: "
-					+ tileUrl, e);
+			throw new GeoPackageException(
+					"Failed to decode tile url: " + tileUrl, e);
 		}
 
 		this.urlHasXYZ = hasXYZ(tileUrl);
@@ -168,10 +168,10 @@ public class UrlTileGenerator extends TileGenerator {
 	 */
 	public void setTileFormat(TileFormatType tileFormat) {
 		if (tileFormat == null) {
-			tileFormat = TileFormatType.STANDARD;
+			this.tileFormat = TileFormatType.XYZ;
 		} else {
 			switch (tileFormat) {
-			case STANDARD:
+			case XYZ:
 			case TMS:
 				this.tileFormat = tileFormat;
 				break;
@@ -258,8 +258,8 @@ public class UrlTileGenerator extends TileGenerator {
 	 */
 	private String replaceBoundingBox(String url, int z, long x, long y) {
 
-		BoundingBox boundingBox = TileBoundingBoxUtils.getProjectedBoundingBox(
-				projection, x, y, z);
+		BoundingBox boundingBox = TileBoundingBoxUtils
+				.getProjectedBoundingBox(projection, x, y, z);
 
 		url = replaceBoundingBox(url, boundingBox);
 
@@ -341,14 +341,16 @@ public class UrlTileGenerator extends TileGenerator {
 					LOGGER.log(Level.WARNING,
 							"Failed to download tile after attempt " + attempt
 									+ " of " + downloadAttempts + ". URL: "
-									+ zoomUrl + ", z=" + z + ", x=" + x
-									+ ", y=" + y, e);
+									+ zoomUrl + ", z=" + z + ", x=" + x + ", y="
+									+ y,
+							e);
 					attempt++;
 				} else {
 					throw new GeoPackageException(
 							"Failed to download tile after " + downloadAttempts
 									+ " attempts. URL: " + zoomUrl + ", z=" + z
-									+ ", x=" + x + ", y=" + y, e);
+									+ ", x=" + x + ", y=" + y,
+							e);
 				}
 			}
 		}
@@ -366,7 +368,8 @@ public class UrlTileGenerator extends TileGenerator {
 	 * @param y
 	 * @return tile bytes
 	 */
-	private byte[] downloadTile(String zoomUrl, URL url, int z, long x, long y) {
+	private byte[] downloadTile(String zoomUrl, URL url, int z, long x,
+			long y) {
 
 		byte[] bytes = null;
 

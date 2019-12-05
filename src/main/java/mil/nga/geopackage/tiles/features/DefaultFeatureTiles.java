@@ -13,6 +13,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.j256.ormlite.dao.CloseableIterator;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
@@ -41,8 +43,6 @@ import mil.nga.sf.PolyhedralSurface;
 import mil.nga.sf.TIN;
 import mil.nga.sf.Triangle;
 import mil.nga.sf.proj.ProjectionTransform;
-
-import com.j256.ormlite.dao.CloseableIterator;
 
 /**
  * Default Feature Tiles implementation using Java AWT to draw
@@ -268,7 +268,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		FeatureTileGraphics graphics = new FeatureTileGraphics(tileWidth,
 				tileHeight);
 
-		// WGS84 to web mercator projection and google shape converter
+		// Feature projection to web mercator projection
 		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
 		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 

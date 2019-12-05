@@ -70,7 +70,7 @@ public class TileReader {
 	/**
 	 * Default tile type
 	 */
-	public static final TileFormatType DEFAULT_TILE_TYPE = TileFormatType.STANDARD;
+	public static final TileFormatType DEFAULT_TILE_TYPE = TileFormatType.XYZ;
 
 	/**
 	 * Default image format
@@ -271,7 +271,7 @@ public class TileReader {
 					imageFormat, rawImage, tileDirectory);
 			break;
 
-		case STANDARD:
+		case XYZ:
 		case TMS:
 			totalCount = readFormatTiles(geoPackage, tileTable, imageFormat,
 					tileType, rawImage, tileDirectory);
@@ -975,7 +975,7 @@ public class TileReader {
 				.println("\t\tTile input format specifying z/x/y folder organization: "
 						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
 						+ ", "
-						+ TileFormatType.STANDARD.name().toLowerCase()
+						+ TileFormatType.XYZ.name().toLowerCase()
 						+ ", "
 						+ TileFormatType.TMS.name().toLowerCase());
 		System.out
@@ -984,8 +984,8 @@ public class TileReader {
 						+ " - x and y represent GeoPackage Tile Matrix width and height. Requires a input_directory/"
 						+ TileProperties.GEOPACKAGE_PROPERTIES_FILE + " file");
 		System.out.println("\t\t\t"
-				+ TileFormatType.STANDARD.name().toLowerCase()
-				+ " - x and y origin is top left (Google format)");
+				+ TileFormatType.XYZ.name().toLowerCase()
+				+ " - x and y origin is top left");
 		System.out.println("\t\t\t" + TileFormatType.TMS.name().toLowerCase()
 				+ " - (Tile Map Service) x and y origin is bottom left");
 		System.out.println();

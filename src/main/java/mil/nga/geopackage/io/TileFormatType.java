@@ -15,7 +15,7 @@ public enum TileFormatType {
 	/**
 	 * origin is upper left
 	 */
-	STANDARD,
+	XYZ,
 
 	/**
 	 * Tile Map Service specification, origin is lower left

@@ -51,6 +51,24 @@ public class ZoomLevelProgress extends Progress
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            title
+	 * @param unit
+	 *            unit
+	 * @param countFrequency
+	 *            count frequency
+	 * @param timeFrequency
+	 *            time frequency in seconds
+	 * @since 3.4.1
+	 */
+	public ZoomLevelProgress(String title, String unit, int countFrequency,
+			int timeFrequency) {
+		super(title, unit, countFrequency, timeFrequency);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -65,11 +83,10 @@ public class ZoomLevelProgress extends Progress
 	protected void logProgress() {
 		int zoomCount = getZoomLevelProgress(currentZoom);
 		int zoomTotal = getZoomLevelMax(currentZoom);
-		LOGGER.log(Level.INFO,
-				title + " - " + this.progress + " of " + max + " ("
-						+ getPercentage(this.progress, max) + "), Zoom "
-						+ currentZoom + " - " + zoomCount + " of " + zoomTotal
-						+ " (" + getPercentage(zoomCount, zoomTotal) + ")");
+		LOGGER.log(Level.INFO, title + " - " + this.progress + " of " + max
+				+ unit + " (" + getPercentage(this.progress, max) + "), Zoom "
+				+ currentZoom + " - " + zoomCount + " of " + zoomTotal + unit
+				+ " (" + getPercentage(zoomCount, zoomTotal) + ")");
 	}
 
 	/**

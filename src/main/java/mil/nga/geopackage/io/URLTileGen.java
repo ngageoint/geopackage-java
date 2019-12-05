@@ -67,9 +67,9 @@ public class URLTileGen {
 	public static final String ARGUMENT_COMPRESS_QUALITY = "q";
 
 	/**
-	 * Google Tiles format argument
+	 * XYZ Tiles format argument
 	 */
-	public static final String ARGUMENT_GOOGLE_TILES = "g";
+	public static final String ARGUMENT_XYZ_TILES = "xyz";
 
 	/**
 	 * Bounding box argument
@@ -92,15 +92,26 @@ public class URLTileGen {
 	public static final String ARGUMENT_TMS = "tms";
 
 	/**
-	 * Skip Existing Tiles argument
+	 * Replace Existing Tiles argument
 	 */
-	public static final String ARGUMENT_SKIP_EXISTING = "skip";
+	public static final String ARGUMENT_REPLACE_EXISTING = "replace";
+
+	/**
+	 * Log Frequency Count argument
+	 */
+	public static final String ARGUMENT_LOG_COUNT = "logCount";
+
+	/**
+	 * Log Frequency Time argument
+	 */
+	public static final String ARGUMENT_LOG_TIME = "logTime";
 
 	/**
 	 * Tile progress
 	 */
 	private static ZoomLevelProgress progress = new ZoomLevelProgress(
-			"URL Tile Generation", LOG_TILE_FREQUENCY, LOG_TILE_TIME_FREQUENCY);
+			"URL Tile Generation", "tiles", LOG_TILE_FREQUENCY,
+			LOG_TILE_TIME_FREQUENCY);
 
 	/**
 	 * GeoPackage file
@@ -143,9 +154,9 @@ public class URLTileGen {
 	private static Float compressQuality = null;
 
 	/**
-	 * Google tiles flag
+	 * XYZ tiles flag
 	 */
-	private static boolean googleTiles = false;
+	private static boolean xyzTiles = false;
 
 	/**
 	 * Bounding box
@@ -168,9 +179,9 @@ public class URLTileGen {
 	private static boolean tms = false;
 
 	/**
-	 * Skip Existing tiles flag
+	 * Replace Existing tiles flag
 	 */
-	private static boolean skipExisting = false;
+	private static boolean replaceExisting = false;
 
 	/**
 	 * Main method to generate tiles in a GeoPackage
@@ -230,8 +241,8 @@ public class URLTileGen {
 					}
 					break;
 
-				case ARGUMENT_GOOGLE_TILES:
-					googleTiles = true;
+				case ARGUMENT_XYZ_TILES:
+					xyzTiles = true;
 					break;
 
 				case ARGUMENT_BOUNDING_BOX:
@@ -283,8 +294,28 @@ public class URLTileGen {
 					tms = true;
 					break;
 
-				case ARGUMENT_SKIP_EXISTING:
-					skipExisting = true;
+				case ARGUMENT_REPLACE_EXISTING:
+					replaceExisting = true;
+					break;
+
+				case ARGUMENT_LOG_COUNT:
+					if (i < args.length) {
+						progress.setCountFrequency(Integer.valueOf(args[++i]));
+					} else {
+						valid = false;
+						System.out.println("Error: Log Count argument '" + arg
+								+ "' must be followed by a frequency count value");
+					}
+					break;
+
+				case ARGUMENT_LOG_TIME:
+					if (i < args.length) {
+						progress.setTimeFrequency(Integer.valueOf(args[++i]));
+					} else {
+						valid = false;
+						System.out.println("Error: Log Time argument '" + arg
+								+ "' must be followed by a frequency time value in seconds");
+					}
 					break;
 
 				default:
@@ -390,63 +421,89 @@ public class URLTileGen {
 			}
 		}
 
-		if (googleTiles) {
-			tileGenerator.setGoogleTiles(true);
+		if (xyzTiles) {
+			tileGenerator.setXYZTiles(true);
 		}
 
 		if (tms) {
 			tileGenerator.setTileFormat(TileFormatType.TMS);
 		}
 
-		if (skipExisting) {
-			tileGenerator.setSkipExisting(true);
-		}
+		tileGenerator.setSkipExisting(!replaceExisting);
 
 		int count = tileGenerator.getTileCount();
 
-		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName()
-				+ ", Tile Table: " + tileTable + ", URL: " + url
-				+ ", Min Zoom: " + minZoom + ", Max Zoom: " + maxZoom
-				+ (compressFormat != null
-						? ", Compress Format: " + compressFormat
-						: "")
-				+ (compressQuality != null
-						? ", Compress Quality: " + compressQuality
-						: "")
-				+ (googleTiles ? ", Google Tiles" : "")
-				+ (boundingBox != null
-						? ", Min Lon: " + boundingBox.getMinLongitude()
-								+ ", Min Lat: " + boundingBox.getMinLatitude()
-								+ ", Max Lon: " + boundingBox.getMaxLongitude()
-								+ ", Max Lat: " + boundingBox.getMaxLatitude()
-						: "")
-				+ (epsg != null ? ", EPSG: " + epsg : "") + ", URL EPSG: "
-				+ urlEpsg + ", Expected Tile Count: " + count);
+		System.out.println();
+		System.out.println("GeoPackage: " + geoPackage.getName());
+		System.out.println("Tile Table: " + tileTable);
+		System.out.println("URL: " + url);
+		System.out.println("Min Zoom: " + minZoom);
+		System.out.println("Max Zoom: " + maxZoom);
+		if (compressFormat != null) {
+			System.out.println("Compress Format: " + compressFormat);
+		}
+		if (compressQuality != null) {
+			System.out.println("Compress Quality: " + compressQuality);
+		}
+		if (xyzTiles) {
+			System.out.println("Save as XYZ Tiles: true");
+		}
+		if (boundingBox != null) {
+			System.out.println("Bounding Box:");
+			System.out.println("\tMin Lon: " + boundingBox.getMinLongitude());
+			System.out.println("\tMin Lat: " + boundingBox.getMinLatitude());
+			System.out.println("\tMax Lon: " + boundingBox.getMaxLongitude());
+			System.out.println("\tMax Lat: " + boundingBox.getMaxLatitude());
+		}
+		if (epsg != null) {
+			System.out.println("EPSG: " + epsg);
+		}
+		System.out.println("URL EPSG: " + urlEpsg);
+		if (tms) {
+			System.out.println("URL TMS Tiles: true");
+		}
+		System.out.println(
+				"Existing Tiles: " + (replaceExisting ? "replace" : "skip"));
+		System.out.println("Log Count Frequency: "
+				+ progress.getCountFrequency() + " tiles");
+		System.out.println("Log Time Frequency: " + progress.getTimeFrequency()
+				+ " seconds");
+		System.out.println("Expected Tile Count: " + count);
+		System.out.println();
 
 		tileGenerator.setProgress(progress);
 
 		LOGGER.log(Level.INFO, "Generating Tiles...");
 
+		int generatedCount = 0;
 		try {
-			tileGenerator.generateTiles();
+			generatedCount = tileGenerator.generateTiles();
 		} catch (IOException | SQLException e) {
 			throw new GeoPackageException("Exception while generating tiles",
 					e);
 		}
 
-		finish();
+		finish(generatedCount);
 	}
 
 	/**
 	 * Finish tile generation
+	 * 
+	 * @param count
+	 *            generated count
 	 */
-	private static void finish() {
+	private static void finish(int count) {
 
 		if (progress.getMax() != null) {
 
 			StringBuilder output = new StringBuilder();
-			output.append("\nTile Generation: ").append(progress.getProgress())
-					.append(" of ").append(progress.getMax());
+			int progressCount = progress.getProgress();
+			output.append("\nTile Generation: ").append(progressCount)
+					.append(" of ").append(progress.getMax()).append(" tiles");
+			if (count != progressCount) {
+				output.append(" (").append(count).append(" new, ")
+						.append(progressCount - count).append(" skipped)");
+			}
 
 			if (geoPackage != null) {
 				try {
@@ -461,6 +518,7 @@ public class URLTileGen {
 					geoPackage.close();
 				}
 			}
+			output.append("\n");
 
 			System.out.println(output.toString());
 		}
@@ -476,14 +534,15 @@ public class URLTileGen {
 		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_COMPRESS_FORMAT
 				+ " compress_format] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_COMPRESS_QUALITY + " compress_quality] ["
-				+ ARGUMENT_PREFIX + ARGUMENT_GOOGLE_TILES + "] ["
-				+ ARGUMENT_PREFIX + ARGUMENT_BOUNDING_BOX
-				+ " minLon,minLat,maxLon,maxLat] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_PREFIX + ARGUMENT_XYZ_TILES + "] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_BOUNDING_BOX + " minLon,minLat,maxLon,maxLat] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_URL_EPSG + " url_epsg] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_TMS + "] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_SKIP_EXISTING
-				+ "] geopackage_file tile_table url min_zoom max_zoom");
+				+ ARGUMENT_REPLACE_EXISTING + "] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_LOG_COUNT + " count] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_LOG_TIME
+				+ " time] geopackage_file tile_table url min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -502,9 +561,9 @@ public class URLTileGen {
 		System.out.println(
 				"\t\tTile compression image quality between 0.0 and 1.0 (not valid for png, default is 1.0)");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_GOOGLE_TILES);
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_XYZ_TILES);
 		System.out.println(
-				"\t\tGenerate tiles in Google tile format (default is GeoPackage format with minimum bounds)");
+				"\t\tGenerate tiles in XYZ tile format (default is GeoPackage format with minimum bounds)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_BOUNDING_BOX
 				+ " minLon,minLat,maxLon,maxLat");
@@ -524,9 +583,20 @@ public class URLTileGen {
 		System.out.println(
 				"\t\tRequest URL for x,y,z coordinates is in TMS format (default is standard XYZ)");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_SKIP_EXISTING);
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_REPLACE_EXISTING);
 		System.out.println(
-				"\t\tSkip requesting pre-existing tiles when updating an existing GeoPackage (default is to request and overwrite all tiles)");
+				"\t\tReplace tiles when updating an existing GeoPackage with new requested tiles (default is to skip existing tiles)");
+		System.out.println();
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_LOG_COUNT + " count");
+		System.out.println(
+				"\t\tLog frequency count of generated tiles (default is "
+						+ LOG_TILE_FREQUENCY + ")");
+		System.out.println();
+		System.out
+				.println("\t" + ARGUMENT_PREFIX + ARGUMENT_LOG_TIME + " time");
+		System.out.println("\t\tLog frequency time in seconds (default is "
+				+ LOG_TILE_TIME_FREQUENCY + ")");
 		System.out.println();
 		System.out.println("\tgeopackage_file");
 		System.out.println(

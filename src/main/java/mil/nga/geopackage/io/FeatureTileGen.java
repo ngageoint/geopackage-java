@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import org.locationtech.proj4j.units.Units;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
@@ -27,8 +29,6 @@ import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
-
-import org.locationtech.proj4j.units.Units;
 
 /**
  * Feature Tile Generator main method for command line feature to tile
@@ -49,8 +49,8 @@ public class FeatureTileGen {
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(FeatureTileGen.class
-			.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(FeatureTileGen.class.getName());
 
 	/**
 	 * Log index frequency for how often to log indexed features
@@ -99,9 +99,9 @@ public class FeatureTileGen {
 	public static final String ARGUMENT_COMPRESS_QUALITY = "q";
 
 	/**
-	 * Google Tiles format argument
+	 * XYZ Tiles format argument
 	 */
-	public static final String ARGUMENT_GOOGLE_TILES = "g";
+	public static final String ARGUMENT_XYZ_TILES = "xyz";
 
 	/**
 	 * Bounding box argument
@@ -201,8 +201,9 @@ public class FeatureTileGen {
 	/**
 	 * Tile progress
 	 */
-	private static ZoomLevelProgress progress = new ZoomLevelProgress("Feature Tile Generation",
-			LOG_TILE_FREQUENCY, LOG_TILE_TIME_FREQUENCY);
+	private static ZoomLevelProgress progress = new ZoomLevelProgress(
+			"Feature Tile Generation", "tiles", LOG_TILE_FREQUENCY,
+			LOG_TILE_TIME_FREQUENCY);
 
 	/**
 	 * Feature GeoPackage file
@@ -260,9 +261,9 @@ public class FeatureTileGen {
 	private static Float compressQuality = null;
 
 	/**
-	 * Google tiles flag
+	 * XYZ tiles flag
 	 */
-	private static boolean googleTiles = false;
+	private static boolean xyzTiles = false;
 
 	/**
 	 * Bounding box
@@ -405,9 +406,9 @@ public class FeatureTileGen {
 						}
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Max Features Per Tile argument '"
-										+ arg + "' must be followed by a value");
+						System.out.println(
+								"Error: Max Features Per Tile argument '" + arg
+										+ "' must be followed by a value");
 					}
 					break;
 
@@ -416,10 +417,9 @@ public class FeatureTileGen {
 						compressFormat = args[++i];
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Compress Format argument '"
-										+ arg
-										+ "' must be followed by an image format");
+						System.out.println("Error: Compress Format argument '"
+								+ arg
+								+ "' must be followed by an image format");
 					}
 					break;
 
@@ -428,15 +428,14 @@ public class FeatureTileGen {
 						compressQuality = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Compress Quality argument '"
-										+ arg
-										+ "' must be followed by a value between 0.0 and 1.0");
+						System.out.println("Error: Compress Quality argument '"
+								+ arg
+								+ "' must be followed by a value between 0.0 and 1.0");
 					}
 					break;
 
-				case ARGUMENT_GOOGLE_TILES:
-					googleTiles = true;
+				case ARGUMENT_XYZ_TILES:
+					xyzTiles = true;
 					break;
 
 				case ARGUMENT_BOUNDING_BOX:
@@ -445,10 +444,9 @@ public class FeatureTileGen {
 						String[] bboxParts = bbox.split(",");
 						if (bboxParts.length != 4) {
 							valid = false;
-							System.out
-									.println("Error: Bounding Box argument '"
-											+ arg
-											+ "' value must be in the format: minLon,minLat,maxLon,maxLat");
+							System.out.println("Error: Bounding Box argument '"
+									+ arg
+									+ "' value must be in the format: minLon,minLat,maxLon,maxLat");
 						} else {
 							double minLon = Double.valueOf(bboxParts[0]);
 							double minLat = Double.valueOf(bboxParts[1]);
@@ -459,10 +457,9 @@ public class FeatureTileGen {
 						}
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Bounding Box argument '"
-										+ arg
-										+ "' must be followed by bbox values: minLon,minLat,maxLon,maxLat");
+						System.out.println("Error: Bounding Box argument '"
+								+ arg
+								+ "' must be followed by bbox values: minLon,minLat,maxLon,maxLat");
 					}
 					break;
 
@@ -491,8 +488,8 @@ public class FeatureTileGen {
 						tileHeight = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out.println("Error: Tile Height argument '"
-								+ arg + "' must be followed by a value");
+						System.out.println("Error: Tile Height argument '" + arg
+								+ "' must be followed by a value");
 					}
 					break;
 
@@ -521,8 +518,8 @@ public class FeatureTileGen {
 						pointColor = getColor(args[++i]);
 					} else {
 						valid = false;
-						System.out.println("Error: Point Color argument '"
-								+ arg + "' must be followed by a value");
+						System.out.println("Error: Point Color argument '" + arg
+								+ "' must be followed by a value");
 					}
 					break;
 
@@ -561,8 +558,8 @@ public class FeatureTileGen {
 						iconHeight = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out.println("Error: Icon Height argument '"
-								+ arg + "' must be followed by a value");
+						System.out.println("Error: Icon Height argument '" + arg
+								+ "' must be followed by a value");
 					}
 					break;
 
@@ -575,9 +572,8 @@ public class FeatureTileGen {
 						lineStrokeWidth = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Line Stroke Width argument '"
-										+ arg + "' must be followed by a value");
+						System.out.println("Error: Line Stroke Width argument '"
+								+ arg + "' must be followed by a value");
 					}
 					break;
 
@@ -596,9 +592,9 @@ public class FeatureTileGen {
 						polygonStrokeWidth = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Polygon Stroke Width argument '"
-										+ arg + "' must be followed by a value");
+						System.out.println(
+								"Error: Polygon Stroke Width argument '" + arg
+										+ "' must be followed by a value");
 					}
 					break;
 
@@ -621,9 +617,9 @@ public class FeatureTileGen {
 						polygonFillColor = getColor(args[++i]);
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Polygon Fill Color argument '"
-										+ arg + "' must be followed by a value");
+						System.out.println(
+								"Error: Polygon Fill Color argument '" + arg
+										+ "' must be followed by a value");
 					}
 					break;
 
@@ -632,9 +628,8 @@ public class FeatureTileGen {
 						simplifyGeometries = Boolean.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Simplify Geometries argument '"
-										+ arg
+						System.out.println(
+								"Error: Simplify Geometries argument '" + arg
 										+ "' must be followed by a boolean value");
 					}
 					break;
@@ -644,8 +639,8 @@ public class FeatureTileGen {
 						ignoreGeoPackageStyles = Boolean.valueOf(args[++i]);
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Ignore GeoPackage Styles argument '"
+						System.out.println(
+								"Error: Ignore GeoPackage Styles argument '"
 										+ arg
 										+ "' must be followed by a boolean value");
 					}
@@ -673,15 +668,15 @@ public class FeatureTileGen {
 					requiredArguments = true;
 				} else {
 					valid = false;
-					System.out.println("Error: Unsupported extra argument: "
-							+ arg);
+					System.out.println(
+							"Error: Unsupported extra argument: " + arg);
 				}
 			}
 		}
 
 		if (compressFormat == null && compressQuality != null) {
-			System.out
-					.println("Error: Compress quality requires a compress format");
+			System.out.println(
+					"Error: Compress quality requires a compress format");
 			valid = false;
 		} else if (boundingBox == null && epsg != null) {
 			System.out.println("Error: EPSG requires a bounding box");
@@ -689,15 +684,15 @@ public class FeatureTileGen {
 		}
 
 		if ((pointRadius != null || pointColor != null) && icon != null) {
-			System.out
-					.println("Error: Point radius and/or color can not be specified together with a point icon");
+			System.out.println(
+					"Error: Point radius and/or color can not be specified together with a point icon");
 			valid = false;
 		}
 
 		if (iconWidth != null || iconHeight != null) {
 			if (icon == null) {
-				System.out
-						.println("Error: Point icon file must be specified when attempting to set an icon width or height");
+				System.out.println(
+						"Error: Point icon file must be specified when attempting to set an icon width or height");
 				valid = false;
 			} else {
 
@@ -716,8 +711,8 @@ public class FeatureTileGen {
 
 		if (centerIcon) {
 			if (icon == null) {
-				System.out
-						.println("Error: Point icon file must be specified when attempting to center it");
+				System.out.println(
+						"Error: Point icon file must be specified when attempting to center it");
 				valid = false;
 			} else {
 				icon.centerIcon();
@@ -725,8 +720,8 @@ public class FeatureTileGen {
 		}
 
 		if ((fillPolygon == null || !fillPolygon) && polygonFillColor != null) {
-			System.out
-					.println("Error: Polygon Fill Color can only be specified when Fill Polygon is enabled");
+			System.out.println(
+					"Error: Polygon Fill Color can only be specified when Fill Polygon is enabled");
 			valid = false;
 		}
 
@@ -827,8 +822,9 @@ public class FeatureTileGen {
 					"Indexing GeoPackage '" + featureGeoPackage.getName()
 							+ "' feature table '" + featureTable + "' with "
 							+ numFeatures + " features");
-			ZoomLevelProgress indexProgress = new ZoomLevelProgress("Feature Indexer",
-					LOG_INDEX_FREQUENCY, LOG_INDEX_TIME_FREQUENCY);
+			ZoomLevelProgress indexProgress = new ZoomLevelProgress(
+					"Feature Indexer", "features", LOG_INDEX_FREQUENCY,
+					LOG_INDEX_TIME_FREQUENCY);
 			indexProgress.setMax(numFeatures);
 			featureIndex.setProgress(indexProgress);
 			int indexed = featureIndex.index();
@@ -910,7 +906,8 @@ public class FeatureTileGen {
 			// Bound WGS84 tiles to Web Mercator limits
 			if (projection.isUnit(Units.DEGREES)) {
 				boundingBox = TileBoundingBoxUtils
-						.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
+						.boundDegreesBoundingBoxWithWebMercatorLimits(
+								boundingBox);
 			}
 
 			// Transform to a Web Mercator bounding box
@@ -919,14 +916,15 @@ public class FeatureTileGen {
 			webMercatorBoundingBox = boundingBox.transform(transform);
 
 		} else {
-			projection = ProjectionFactory
-					.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+			projection = ProjectionFactory.getProjection(
+					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}
 
 		// Create the tile generator
 		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(
 				tileGeoPackage, tileTable, featureTiles, featureGeoPackage,
-				minZoom, maxZoom, webMercatorBoundingBox, webMercatorProjection);
+				minZoom, maxZoom, webMercatorBoundingBox,
+				webMercatorProjection);
 
 		if (compressFormat != null) {
 			tileGenerator.setCompressFormat(compressFormat);
@@ -935,41 +933,35 @@ public class FeatureTileGen {
 			}
 		}
 
-		if (googleTiles) {
-			tileGenerator.setGoogleTiles(true);
+		if (xyzTiles) {
+			tileGenerator.setXYZTiles(true);
 		}
 
 		int count = tileGenerator.getTileCount();
 
-		LOGGER.log(
-				Level.INFO,
-				"Feature GeoPackage: "
-						+ featureGeoPackage.getName()
-						+ ", Feature Table: "
-						+ featureTable
-						+ ", Tile GeoPackage: "
-						+ tileGeoPackage.getName()
-						+ ", Tile Table: "
-						+ tileTable
-						+ ", Min Zoom: "
-						+ minZoom
-						+ ", Max Zoom: "
-						+ maxZoom
-						+ (maxFeaturesPerTile != null ? ", Max Features Per Tile: "
-								+ maxFeaturesPerTile
-								: "")
-						+ (compressFormat != null ? ", Compress Format: "
-								+ compressFormat : "")
-						+ (compressQuality != null ? ", Compress Quality: "
-								+ compressQuality : "")
-						+ (googleTiles ? ", Google Tiles" : "")
-						+ (boundingBox != null ? ", Min Lon: "
-								+ boundingBox.getMinLongitude() + ", Min Lat: "
-								+ boundingBox.getMinLatitude() + ", Max Lon: "
-								+ boundingBox.getMaxLongitude() + ", Max Lat: "
-								+ boundingBox.getMaxLatitude() : "")
-						+ (epsg != null ? ", EPSG: " + epsg : "")
-						+ ", Expected Tile Count: " + count);
+		LOGGER.log(Level.INFO, "Feature GeoPackage: "
+				+ featureGeoPackage.getName() + ", Feature Table: "
+				+ featureTable + ", Tile GeoPackage: "
+				+ tileGeoPackage.getName() + ", Tile Table: " + tileTable
+				+ ", Min Zoom: " + minZoom + ", Max Zoom: " + maxZoom
+				+ (maxFeaturesPerTile != null
+						? ", Max Features Per Tile: " + maxFeaturesPerTile
+						: "")
+				+ (compressFormat != null
+						? ", Compress Format: " + compressFormat
+						: "")
+				+ (compressQuality != null
+						? ", Compress Quality: " + compressQuality
+						: "")
+				+ (xyzTiles ? ", XYZ Tiles" : "")
+				+ (boundingBox != null
+						? ", Min Lon: " + boundingBox.getMinLongitude()
+								+ ", Min Lat: " + boundingBox.getMinLatitude()
+								+ ", Max Lon: " + boundingBox.getMaxLongitude()
+								+ ", Max Lat: " + boundingBox.getMaxLatitude()
+						: "")
+				+ (epsg != null ? ", EPSG: " + epsg : "")
+				+ ", Expected Tile Count: " + count);
 
 		StringBuilder tileStyle = new StringBuilder();
 		if (tileWidth != null) {
@@ -997,19 +989,19 @@ public class FeatureTileGen {
 			tileStyle.append(", Line Color: ").append(colorString(lineColor));
 		}
 		if (polygonStrokeWidth != null) {
-			tileStyle.append(", Polygon Stroke Width: ").append(
-					polygonStrokeWidth);
+			tileStyle.append(", Polygon Stroke Width: ")
+					.append(polygonStrokeWidth);
 		}
 		if (polygonColor != null) {
-			tileStyle.append(", Polygon Color: ").append(
-					colorString(polygonColor));
+			tileStyle.append(", Polygon Color: ")
+					.append(colorString(polygonColor));
 		}
 		if (fillPolygon != null && fillPolygon) {
 			tileStyle.append(", Fill Polygon");
 		}
 		if (polygonFillColor != null) {
-			tileStyle.append(", Polygon Fill Color: ").append(
-					colorString(polygonFillColor));
+			tileStyle.append(", Polygon Fill Color: ")
+					.append(colorString(polygonFillColor));
 		}
 		if (simplifyGeometries) {
 			tileStyle.append(", Simplify Geometries");
@@ -1026,7 +1018,8 @@ public class FeatureTileGen {
 		try {
 			tileGenerator.generateTiles();
 		} catch (IOException | SQLException e) {
-			throw new GeoPackageException("Exception while generating tiles", e);
+			throw new GeoPackageException("Exception while generating tiles",
+					e);
 		}
 
 		finish();
@@ -1073,186 +1066,141 @@ public class FeatureTileGen {
 		System.out.println();
 		System.out.println("USAGE");
 		System.out.println();
-		System.out
-				.println("\t["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_MAX_FEATURES_PER_TILE
-						+ " max_features_per_tile] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_COMPRESS_FORMAT
-						+ " compress_format] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_COMPRESS_QUALITY
-						+ " compress_quality] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_GOOGLE_TILES
-						+ "] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_BOUNDING_BOX
-						+ " minLon,minLat,maxLon,maxLat] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_EPSG
-						+ " epsg] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_TILE_WIDTH
-						+ " width] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_TILE_HEIGHT
-						+ " height] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_TILE_SCALE
-						+ " scale] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_POINT_RADIUS
-						+ " radius] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_POINT_COLOR
-						+ " color] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_POINT_ICON
-						+ " image_file] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_ICON_WIDTH
-						+ " width] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_ICON_HEIGHT
-						+ " height] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_POINT_CENTER_ICON
-						+ "] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_LINE_STROKE_WIDTH
-						+ " stroke_width] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_LINE_COLOR
-						+ " color] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_POLYGON_STROKE_WIDTH
-						+ " stroke_width] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_POLYGON_COLOR
-						+ " color] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_FILL_POLYGON
-						+ "] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_POLYGON_FILL_COLOR
-						+ " color] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_SIMPLIFY_GEOMETRIES
-						+ " true|false] ["
-						+ ARGUMENT_PREFIX
-						+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES
-						+ " true|false] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
+		System.out.println("\t[" + ARGUMENT_PREFIX
+				+ ARGUMENT_MAX_FEATURES_PER_TILE + " max_features_per_tile] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_COMPRESS_FORMAT
+				+ " compress_format] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_COMPRESS_QUALITY + " compress_quality] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_XYZ_TILES + "] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_BOUNDING_BOX + " minLon,minLat,maxLon,maxLat] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_EPSG + " epsg] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_TILE_WIDTH + " width] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_TILE_HEIGHT + " height] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_TILE_SCALE + " scale] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_POINT_RADIUS + " radius] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_POINT_COLOR + " color] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_POINT_ICON + " image_file] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_ICON_WIDTH + " width] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_ICON_HEIGHT + " height] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_POINT_CENTER_ICON + "] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_LINE_STROKE_WIDTH + " stroke_width] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_LINE_COLOR + " color] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_POLYGON_STROKE_WIDTH
+				+ " stroke_width] [" + ARGUMENT_PREFIX + ARGUMENT_POLYGON_COLOR
+				+ " color] [" + ARGUMENT_PREFIX + ARGUMENT_FILL_POLYGON + "] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_POLYGON_FILL_COLOR + " color] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_SIMPLIFY_GEOMETRIES
+				+ " true|false] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES
+				+ " true|false] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
-		System.out
-				.println("\tGenerates tiles from a GeoPackage feature table into a tile table");
+		System.out.println(
+				"\tGenerates tiles from a GeoPackage feature table into a tile table");
 		System.out.println();
 		System.out.println("ARGUMENTS");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX
 				+ ARGUMENT_MAX_FEATURES_PER_TILE + " max_features_per_tile");
-		System.out
-				.println("\t\tMax features to generate into a tile before generating a numbered feature count tile (default is "
+		System.out.println(
+				"\t\tMax features to generate into a tile before generating a numbered feature count tile (default is "
 						+ DEFAULT_MAX_FEATURES_PER_TILE
 						+ ", use -1 for no max)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_COMPRESS_FORMAT
 				+ " compress_format");
-		System.out
-				.println("\t\tTile compression image format: png, jpg, jpeg (default is no compression, native format)");
+		System.out.println(
+				"\t\tTile compression image format: png, jpg, jpeg (default is no compression, native format)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_COMPRESS_QUALITY
 				+ " compress_quality");
-		System.out
-				.println("\t\tTile compression image quality between 0.0 and 1.0 (not valid for png, default is 1.0)");
+		System.out.println(
+				"\t\tTile compression image quality between 0.0 and 1.0 (not valid for png, default is 1.0)");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_GOOGLE_TILES);
-		System.out
-				.println("\t\tGenerate tiles in Google tile format (default is GeoPackage format with minimum bounds)");
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_XYZ_TILES);
+		System.out.println(
+				"\t\tGenerate tiles in XYZ tile format (default is GeoPackage format with minimum bounds)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_BOUNDING_BOX
 				+ " minLon,minLat,maxLon,maxLat");
-		System.out
-				.println("\t\tOnly tiles overlapping the bounding box are requested (default is the world)");
+		System.out.println(
+				"\t\tOnly tiles overlapping the bounding box are requested (default is the world)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_EPSG + " epsg");
-		System.out
-				.println("\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
+		System.out.println(
+				"\t\tEPSG number of the provided bounding box (default is 4326, WGS 84)");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_WIDTH
-				+ " width");
-		System.out
-				.println("\t\tWidth used when creating each tile (default is "
-						+ featureTiles.getTileWidth() + ")");
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_WIDTH + " width");
+		System.out.println("\t\tWidth used when creating each tile (default is "
+				+ featureTiles.getTileWidth() + ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_HEIGHT
-				+ " height");
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_HEIGHT + " height");
 		System.out
 				.println("\t\tHeight used when creating each tile (default is "
 						+ featureTiles.getTileHeight() + ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_SCALE
-				+ " scale");
-		System.out
-				.println("\t\tScale factor used when creating each tile (default is "
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_SCALE + " scale");
+		System.out.println(
+				"\t\tScale factor used when creating each tile (default is "
 						+ featureTiles.getScale() + ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_RADIUS
-				+ " radius");
-		System.out
-				.println("\t\tFloating point circle radius used when drawing points (default is "
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_RADIUS + " radius");
+		System.out.println(
+				"\t\tFloating point circle radius used when drawing points (default is "
 						+ featureTiles.getPointRadius() + ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_COLOR
-				+ " color");
-		System.out
-				.println("\t\tColor used when drawing points formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_COLOR + " color");
+		System.out.println(
+				"\t\tColor used when drawing points formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
 						+ colorString(featureTiles.getPointColor()) + ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_ICON
-				+ " image_file");
-		System.out
-				.println("\t\tImage file containing image to use when drawing points in place of a drawn circle");
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_ICON + " image_file");
+		System.out.println(
+				"\t\tImage file containing image to use when drawing points in place of a drawn circle");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_ICON_WIDTH
-				+ " width");
-		System.out
-				.println("\t\tPoint icon display width (default is actual icon width)");
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_ICON_WIDTH + " width");
+		System.out.println(
+				"\t\tPoint icon display width (default is actual icon width)");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_ICON_HEIGHT
-				+ " height");
-		System.out
-				.println("\t\tPoint icon display height (default is actual icon height)");
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_ICON_HEIGHT + " height");
+		System.out.println(
+				"\t\tPoint icon display height (default is actual icon height)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POINT_CENTER_ICON);
-		System.out
-				.println("\t\tDraw point icons by centering the icon image to the location (default is pinning to bottom center)");
+		System.out.println(
+				"\t\tDraw point icons by centering the icon image to the location (default is pinning to bottom center)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_LINE_STROKE_WIDTH
 				+ " stroke_width");
-		System.out
-				.println("\t\tFloating point stroke width when drawing lines (default is "
+		System.out.println(
+				"\t\tFloating point stroke width when drawing lines (default is "
 						+ featureTiles.getLineStrokeWidth() + ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_LINE_COLOR
-				+ " color");
-		System.out
-				.println("\t\tColor used when drawing lines formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_LINE_COLOR + " color");
+		System.out.println(
+				"\t\tColor used when drawing lines formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
 						+ colorString(featureTiles.getLineColor()) + ")");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX
 				+ ARGUMENT_POLYGON_STROKE_WIDTH + " stroke_width");
-		System.out
-				.println("\t\tFloating point stroke width when drawing polygons (default is "
+		System.out.println(
+				"\t\tFloating point stroke width when drawing polygons (default is "
 						+ featureTiles.getPolygonStrokeWidth() + ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POLYGON_COLOR
-				+ " color");
-		System.out
-				.println("\t\tColor used when drawing polygons formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_POLYGON_COLOR + " color");
+		System.out.println(
+				"\t\tColor used when drawing polygons formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
 						+ colorString(featureTiles.getPolygonColor()) + ")");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_FILL_POLYGON);
@@ -1261,35 +1209,36 @@ public class FeatureTileGen {
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_POLYGON_FILL_COLOR
 				+ " color");
-		System.out
-				.println("\t\tColor used when filling polygons formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
-						+ colorString(featureTiles.getPolygonFillColor()) + ")");
+		System.out.println(
+				"\t\tColor used when filling polygons formatted as one of: [ name | r,g,b | r,g,b,a ] (default is "
+						+ colorString(featureTiles.getPolygonFillColor())
+						+ ")");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX
-				+ ARGUMENT_SIMPLIFY_GEOMETRIES + " true|false");
-		System.out
-				.println("\t\tFlag indicating whether geometries should be simplified with a similar curve with fewer points before drawn (default is true)");
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_SIMPLIFY_GEOMETRIES
+				+ " true|false");
+		System.out.println(
+				"\t\tFlag indicating whether geometries should be simplified with a similar curve with fewer points before drawn (default is true)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX
 				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES + " true|false");
-		System.out
-				.println("\t\tFlag indicating whether styles saved within the GeoPackage should be ignored (default is false)");
+		System.out.println(
+				"\t\tFlag indicating whether styles saved within the GeoPackage should be ignored (default is false)");
 		System.out.println();
 		System.out.println("\tfeature_geopackage_file");
-		System.out
-				.println("\t\tpath to the GeoPackage file containing the feature table to generate tiles from");
+		System.out.println(
+				"\t\tpath to the GeoPackage file containing the feature table to generate tiles from");
 		System.out.println();
 		System.out.println("\tfeature_table");
-		System.out
-				.println("\t\tfeature table name within the GeoPackage file to generate tiles from");
+		System.out.println(
+				"\t\tfeature table name within the GeoPackage file to generate tiles from");
 		System.out.println();
 		System.out.println("\ttile_geopackage_file");
-		System.out
-				.println("\t\tpath to the GeoPackage file to create with tiles, or existing file to update");
+		System.out.println(
+				"\t\tpath to the GeoPackage file to create with tiles, or existing file to update");
 		System.out.println();
 		System.out.println("\ttile_table");
-		System.out
-				.println("\t\ttile table name within the GeoPackage file to create or update");
+		System.out.println(
+				"\t\ttile table name within the GeoPackage file to create or update");
 		System.out.println();
 		System.out.println("\tmin_zoom");
 		System.out.println("\t\tMinimum zoom level to request tiles for");

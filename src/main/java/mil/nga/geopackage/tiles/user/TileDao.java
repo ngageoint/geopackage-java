@@ -605,11 +605,12 @@ public class TileDao
 	}
 
 	/**
-	 * Determine if the tiles are in the Google tile coordinate format
+	 * Determine if the tiles are in the XYZ tile coordinate format
 	 * 
-	 * @return true if Google tile format
+	 * @return true if XYZ tile format
+	 * @since 3.4.1
 	 */
-	public boolean isGoogleTiles() {
+	public boolean isXYZTiles() {
 
 		// Convert the bounding box to wgs84
 		BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
@@ -617,7 +618,7 @@ public class TileDao
 				.transform(projection.getTransformation(
 						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
 
-		boolean googleTiles = false;
+		boolean xyzTiles = false;
 
 		// Verify the bounds are the entire world
 		if (wgs84BoundingBox
@@ -629,7 +630,7 @@ public class TileDao
 				&& wgs84BoundingBox
 						.getMaxLongitude() >= ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) {
 
-			googleTiles = true;
+			xyzTiles = true;
 
 			// Verify each tile matrix is the correct width and height
 			for (TileMatrix tileMatrix : tileMatrices) {
@@ -638,13 +639,13 @@ public class TileDao
 						.tilesPerSide((int) zoomLevel);
 				if (tileMatrix.getMatrixWidth() != tilesPerSide
 						|| tileMatrix.getMatrixHeight() != tilesPerSide) {
-					googleTiles = false;
+					xyzTiles = false;
 					break;
 				}
 			}
 		}
 
-		return googleTiles;
+		return xyzTiles;
 	}
 
 }

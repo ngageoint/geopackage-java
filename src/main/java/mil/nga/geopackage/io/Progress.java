@@ -45,14 +45,19 @@ public class Progress implements GeoPackageProgress {
 	protected final String title;
 
 	/**
-	 * Log count frequency
+	 * Log Unit
 	 */
-	protected final int countFrequency;
+	protected final String unit;
 
 	/**
-	 * Log time frequency
+	 * Log count frequency
 	 */
-	protected final int timeFrequency;
+	protected int countFrequency;
+
+	/**
+	 * Log time frequency, stored in milliseconds
+	 */
+	protected int timeFrequency;
 
 	/**
 	 * Local count between logs
@@ -72,12 +77,31 @@ public class Progress implements GeoPackageProgress {
 	 * @param countFrequency
 	 *            count frequency
 	 * @param timeFrequency
-	 *            time frequency
+	 *            time frequency in seconds
 	 */
 	public Progress(String title, int countFrequency, int timeFrequency) {
+		this(title, null, countFrequency, timeFrequency);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            title
+	 * @param unit
+	 *            unit
+	 * @param countFrequency
+	 *            count frequency
+	 * @param timeFrequency
+	 *            time frequency in seconds
+	 * @since 3.4.1
+	 */
+	public Progress(String title, String unit, int countFrequency,
+			int timeFrequency) {
 		this.title = title;
-		this.countFrequency = countFrequency;
-		this.timeFrequency = timeFrequency * 1000;
+		this.unit = unit != null ? " " + unit : "";
+		setCountFrequency(countFrequency);
+		setTimeFrequency(timeFrequency);
 	}
 
 	/**
@@ -110,9 +134,9 @@ public class Progress implements GeoPackageProgress {
 	protected void logProgress() {
 		LOGGER.log(Level.INFO,
 				title + " - " + this.progress
-						+ (max != null ? " of " + max + " ("
+						+ (max != null ? " of " + max + unit + " ("
 								+ getPercentage(this.progress, max) + ")"
-								: ""));
+								: unit));
 	}
 
 	/**
@@ -145,6 +169,44 @@ public class Progress implements GeoPackageProgress {
 	 */
 	public Integer getMax() {
 		return max;
+	}
+
+	/**
+	 * Get the count frequency
+	 * 
+	 * @return count frequency
+	 */
+	public int getCountFrequency() {
+		return countFrequency;
+	}
+
+	/**
+	 * Set the count frequency
+	 * 
+	 * @param countFrequency
+	 *            count frequency
+	 */
+	public void setCountFrequency(int countFrequency) {
+		this.countFrequency = countFrequency;
+	}
+
+	/**
+	 * Get the time frequency in seconds
+	 * 
+	 * @return time frequency in seconds
+	 */
+	public int getTimeFrequency() {
+		return timeFrequency / 1000;
+	}
+
+	/**
+	 * Set the time frequency in seconds
+	 * 
+	 * @param timeFrequency
+	 *            time frequency in seconds
+	 */
+	public void setTimeFrequency(int timeFrequency) {
+		this.timeFrequency = timeFrequency * 1000;
 	}
 
 	/**

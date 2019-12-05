@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import org.locationtech.proj4j.units.Units;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
@@ -28,8 +30,6 @@ import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
-
-import org.locationtech.proj4j.units.Units;
 
 /**
  * Writes the tiles from a GeoPackage tile table to a file system directory
@@ -78,7 +78,7 @@ public class TileWriter {
 	/**
 	 * Default tile type
 	 */
-	public static final TileFormatType DEFAULT_TILE_TYPE = TileFormatType.STANDARD;
+	public static final TileFormatType DEFAULT_TILE_TYPE = TileFormatType.XYZ;
 
 	/**
 	 * Default image format
@@ -340,7 +340,7 @@ public class TileWriter {
 					imageFormat, width, height, rawImage);
 			break;
 
-		case STANDARD:
+		case XYZ:
 		case TMS:
 			totalCount = writeFormatTiles(tileDao, directory, imageFormat,
 					width, height, tileType, rawImage);
@@ -708,7 +708,7 @@ public class TileWriter {
 				.println("\t\tTile output format specifying z/x/y folder organization: "
 						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
 						+ ", "
-						+ TileFormatType.STANDARD.name().toLowerCase()
+						+ TileFormatType.XYZ.name().toLowerCase()
 						+ ", "
 						+ TileFormatType.TMS.name().toLowerCase()
 						+ " (Default is "
@@ -718,8 +718,8 @@ public class TileWriter {
 						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
 						+ " - x and y represent GeoPackage Tile Matrix width and height");
 		System.out.println("\t\t\t"
-				+ TileFormatType.STANDARD.name().toLowerCase()
-				+ " - x and y origin is top left (Google format)");
+				+ TileFormatType.XYZ.name().toLowerCase()
+				+ " - x and y origin is top left");
 		System.out.println("\t\t\t" + TileFormatType.TMS.name().toLowerCase()
 				+ " - (Tile Map Service) x and y origin is bottom left");
 		System.out.println();

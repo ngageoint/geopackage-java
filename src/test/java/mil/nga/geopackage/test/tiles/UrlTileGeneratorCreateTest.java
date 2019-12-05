@@ -51,9 +51,9 @@ public class UrlTileGeneratorCreateTest extends CreateGeoPackageTestCase {
 	}
 
 	@Test
-	public void testGenerateTilesGoogle() throws SQLException, IOException {
+	public void testGenerateTilesXYZ() throws SQLException, IOException {
 
-		UrlTileGeneratorUtils.testGenerateTilesGoogle(geoPackage);
+		UrlTileGeneratorUtils.testGenerateTilesXYZ(geoPackage);
 
 	}
 
@@ -65,10 +65,10 @@ public class UrlTileGeneratorCreateTest extends CreateGeoPackageTestCase {
 	}
 
 	@Test
-	public void testGenerateTilesGoogleBounded() throws SQLException,
+	public void testGenerateTilesXYZBounded() throws SQLException,
 			IOException {
 
-		UrlTileGeneratorUtils.testGenerateTilesGoogleBounded(geoPackage);
+		UrlTileGeneratorUtils.testGenerateTilesXYZBounded(geoPackage);
 
 	}
 

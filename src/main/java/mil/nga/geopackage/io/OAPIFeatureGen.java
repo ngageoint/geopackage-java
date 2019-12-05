@@ -89,7 +89,7 @@ public class OAPIFeatureGen {
 	 * Feature progress
 	 */
 	private static Progress progress = new Progress(
-			"OGC API Feature Generation", LOG_FEATURE_FREQUENCY,
+			"OGC API Feature Generation", "features", LOG_FEATURE_FREQUENCY,
 			LOG_FEATURE_TIME_FREQUENCY);
 
 	/**
