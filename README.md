@@ -140,7 +140,7 @@ To run against the jar:
 
 Example:
 
-    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReader -i png /path/tiles/mytiles standard /path/geopackage.gpkg mytiletable
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReader -i png /path/tiles/mytiles xyz /path/geopackage.gpkg mytiletable
 
 GeoPackage Format tiles.properties:
 
