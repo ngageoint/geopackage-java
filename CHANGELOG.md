@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 3.4.1 (TBD)
+## 3.5.0 (TBD)
 
 * Tile Generator option to skip pre-existing tiles when updating a GeoPackage
 * URL Tile Generator continuation by skipping existing tiles (option to force replace)

@@ -14,6 +14,8 @@ public enum TileFormatType {
 
 	/**
 	 * origin is upper left
+	 * 
+	 * @since 3.5.0
 	 */
 	XYZ,
 

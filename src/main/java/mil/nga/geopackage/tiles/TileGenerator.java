@@ -300,6 +300,7 @@ public abstract class TileGenerator {
 	 *
 	 * @param xyzTiles
 	 *            XYZ Tiles flag
+	 * @since 3.5.0
 	 */
 	public void setXYZTiles(boolean xyzTiles) {
 		this.xyzTiles = xyzTiles;
@@ -309,6 +310,7 @@ public abstract class TileGenerator {
 	 * Is the XYZ Tiles flag set to generate XYZ tile format tiles.
 	 * 
 	 * @return true if XYZ Tiles format, false if GeoPackage
+	 * @since 3.5.0
 	 */
 	public boolean isXYZTiles() {
 		return xyzTiles;
@@ -339,7 +341,7 @@ public abstract class TileGenerator {
 	 * Is skip existing tiles on
 	 * 
 	 * @return true if skipping existing tiles
-	 * @since 3.4.1
+	 * @since 3.5.0
 	 */
 	public boolean isSkipExisting() {
 		return skipExisting;
@@ -350,7 +352,7 @@ public abstract class TileGenerator {
 	 * 
 	 * @param skipExisting
 	 *            true to skip existing tiles
-	 * @since 3.4.1
+	 * @since 3.5.0
 	 */
 	public void setSkipExisting(boolean skipExisting) {
 		this.skipExisting = skipExisting;

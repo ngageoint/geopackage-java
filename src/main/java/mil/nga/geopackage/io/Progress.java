@@ -94,7 +94,7 @@ public class Progress implements GeoPackageProgress {
 	 *            count frequency
 	 * @param timeFrequency
 	 *            time frequency in seconds
-	 * @since 3.4.1
+	 * @since 3.5.0
 	 */
 	public Progress(String title, String unit, int countFrequency,
 			int timeFrequency) {
@@ -175,6 +175,7 @@ public class Progress implements GeoPackageProgress {
 	 * Get the count frequency
 	 * 
 	 * @return count frequency
+	 * @since 3.5.0
 	 */
 	public int getCountFrequency() {
 		return countFrequency;
@@ -185,6 +186,7 @@ public class Progress implements GeoPackageProgress {
 	 * 
 	 * @param countFrequency
 	 *            count frequency
+	 * @since 3.5.0
 	 */
 	public void setCountFrequency(int countFrequency) {
 		this.countFrequency = countFrequency;
@@ -194,6 +196,7 @@ public class Progress implements GeoPackageProgress {
 	 * Get the time frequency in seconds
 	 * 
 	 * @return time frequency in seconds
+	 * @since 3.5.0
 	 */
 	public int getTimeFrequency() {
 		return timeFrequency / 1000;
@@ -204,6 +207,7 @@ public class Progress implements GeoPackageProgress {
 	 * 
 	 * @param timeFrequency
 	 *            time frequency in seconds
+	 * @since 3.5.0
 	 */
 	public void setTimeFrequency(int timeFrequency) {
 		this.timeFrequency = timeFrequency * 1000;

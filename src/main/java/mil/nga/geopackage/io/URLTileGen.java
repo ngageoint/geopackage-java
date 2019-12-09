@@ -68,6 +68,8 @@ public class URLTileGen {
 
 	/**
 	 * XYZ Tiles format argument
+	 * 
+	 * @since 3.5.0
 	 */
 	public static final String ARGUMENT_XYZ_TILES = "xyz";
 
@@ -93,16 +95,22 @@ public class URLTileGen {
 
 	/**
 	 * Replace Existing Tiles argument
+	 * 
+	 * @since 3.5.0
 	 */
 	public static final String ARGUMENT_REPLACE_EXISTING = "replace";
 
 	/**
 	 * Log Frequency Count argument
+	 * 
+	 * @since 3.5.0
 	 */
 	public static final String ARGUMENT_LOG_COUNT = "logCount";
 
 	/**
 	 * Log Frequency Time argument
+	 * 
+	 * @since 3.5.0
 	 */
 	public static final String ARGUMENT_LOG_TIME = "logTime";
 

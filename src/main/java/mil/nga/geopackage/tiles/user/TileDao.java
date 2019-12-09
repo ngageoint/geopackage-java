@@ -608,7 +608,7 @@ public class TileDao
 	 * Determine if the tiles are in the XYZ tile coordinate format
 	 * 
 	 * @return true if XYZ tile format
-	 * @since 3.4.1
+	 * @since 3.5.0
 	 */
 	public boolean isXYZTiles() {
 

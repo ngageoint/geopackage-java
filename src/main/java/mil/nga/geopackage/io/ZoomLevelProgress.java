@@ -61,7 +61,7 @@ public class ZoomLevelProgress extends Progress
 	 *            count frequency
 	 * @param timeFrequency
 	 *            time frequency in seconds
-	 * @since 3.4.1
+	 * @since 3.5.0
 	 */
 	public ZoomLevelProgress(String title, String unit, int countFrequency,
 			int timeFrequency) {
