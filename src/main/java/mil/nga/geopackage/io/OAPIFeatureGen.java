@@ -86,6 +86,20 @@ public class OAPIFeatureGen {
 	public static final String ARGUMENT_TRANSACTION_LIMIT = "transactionLimit";
 
 	/**
+	 * Log Frequency Count argument
+	 * 
+	 * @since 3.5.0
+	 */
+	public static final String ARGUMENT_LOG_COUNT = "logCount";
+
+	/**
+	 * Log Frequency Time argument
+	 * 
+	 * @since 3.5.0
+	 */
+	public static final String ARGUMENT_LOG_TIME = "logTime";
+
+	/**
 	 * Feature progress
 	 */
 	private static Progress progress = new Progress(
@@ -153,7 +167,7 @@ public class OAPIFeatureGen {
 	private static Integer transactionLimit = null;
 
 	/**
-	 * Main method to generate tiles in a GeoPackage
+	 * Main method to generate features in a GeoPackage
 	 * 
 	 * @param args
 	 *            arguments
@@ -296,6 +310,26 @@ public class OAPIFeatureGen {
 					}
 					break;
 
+				case ARGUMENT_LOG_COUNT:
+					if (i < args.length) {
+						progress.setCountFrequency(Integer.valueOf(args[++i]));
+					} else {
+						valid = false;
+						System.out.println("Error: Log Count argument '" + arg
+								+ "' must be followed by a frequency count value");
+					}
+					break;
+
+				case ARGUMENT_LOG_TIME:
+					if (i < args.length) {
+						progress.setTimeFrequency(Integer.valueOf(args[++i]));
+					} else {
+						valid = false;
+						System.out.println("Error: Log Time argument '" + arg
+								+ "' must be followed by a frequency time value in seconds");
+					}
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -323,7 +357,7 @@ public class OAPIFeatureGen {
 		if (!valid || !requiredArguments) {
 			printUsage();
 		} else {
-			// Read the tiles
+			// Read the features
 			try {
 				generate();
 			} catch (Exception e) {
@@ -363,28 +397,45 @@ public class OAPIFeatureGen {
 			featureGenerator.setTransactionLimit(transactionLimit);
 		}
 
-		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName()
-				+ ", Feature Table: " + tableName + ", Server: " + server
-				+ ", Collection Id: " + id
-				+ (limit != null ? ", Limit: " + limit : "")
-				+ (boundingBox != null
-						? ", Min Lon: " + boundingBox.getMinLongitude()
-								+ ", Min Lat: " + boundingBox.getMinLatitude()
-								+ ", Max Lon: " + boundingBox.getMaxLongitude()
-								+ ", Max Lat: " + boundingBox.getMaxLatitude()
-						: "")
-				+ (boundingBoxProjection != null ? ", Bounding Box Projection: "
-						+ boundingBoxProjection.getAuthority() + ","
-						+ boundingBoxProjection.getCode() : "")
-				+ (time != null ? ", Time: " + time : "")
-				+ (projection != null
-						? ", Projection: " + projection.getAuthority() + ","
-								+ projection.getCode()
-						: "")
-				+ (totalLimit != null ? ", Total Limit: " + totalLimit : "")
-				+ (transactionLimit != null
-						? ", Transaction Limit: " + transactionLimit
-						: ""));
+		System.out.println();
+		System.out.println("GeoPackage: " + geoPackage.getName());
+		System.out.println("Feature Table: " + tableName);
+		System.out.println("Server: " + server);
+		System.out.println("Collection Id: " + id);
+		if (limit != null) {
+			System.out.println("Limit: " + limit);
+		}
+		if (boundingBox != null) {
+			System.out.println("Bounding Box:");
+			System.out.println("\tMin Lon: " + boundingBox.getMinLongitude());
+			System.out.println("\tMin Lat: " + boundingBox.getMinLatitude());
+			System.out.println("\tMax Lon: " + boundingBox.getMaxLongitude());
+			System.out.println("\tMax Lat: " + boundingBox.getMaxLatitude());
+		}
+		if (boundingBoxProjection != null) {
+			System.out.println("Bounding Box Projection: "
+					+ boundingBoxProjection.getAuthority() + ","
+					+ boundingBoxProjection.getCode());
+
+		}
+		if (time != null) {
+			System.out.println("Time: " + time);
+		}
+		if (projection != null) {
+			System.out.println("Projection: " + projection.getAuthority() + ","
+					+ projection.getCode());
+		}
+		if (totalLimit != null) {
+			System.out.println("Total Limit: " + totalLimit);
+		}
+		if (transactionLimit != null) {
+			System.out.println("Transaction Limit: " + transactionLimit);
+		}
+		System.out.println("Log Count Frequency: "
+				+ progress.getCountFrequency() + " features");
+		System.out.println("Log Time Frequency: " + progress.getTimeFrequency()
+				+ " seconds");
+		System.out.println();
 
 		featureGenerator.setProgress(progress);
 
@@ -401,7 +452,7 @@ public class OAPIFeatureGen {
 	}
 
 	/**
-	 * Finish tile generation
+	 * Finish feature generation
 	 */
 	private static void finish() {
 
@@ -444,8 +495,10 @@ public class OAPIFeatureGen {
 				+ ARGUMENT_PREFIX + ARGUMENT_TIME + " time] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_PROJECTION + " authority,code] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_TOTAL_LIMIT + " total_limit] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_TRANSACTION_LIMIT
-				+ " transaction_limit] geopackage_file table_name server_url collection_id");
+				+ ARGUMENT_TRANSACTION_LIMIT + " transaction_limit] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_LOG_COUNT + " count] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_LOG_TIME
+				+ " time] geopackage_file table_name server_url collection_id");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -484,6 +537,17 @@ public class OAPIFeatureGen {
 				+ " transaction_limit");
 		System.out.println(
 				"\t\tLimit on number of features to insert into the GeoPackage in a single transaction");
+		System.out.println();
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_LOG_COUNT + " count");
+		System.out.println(
+				"\t\tLog frequency count of generated features (default is "
+						+ LOG_FEATURE_FREQUENCY + ")");
+		System.out.println();
+		System.out
+				.println("\t" + ARGUMENT_PREFIX + ARGUMENT_LOG_TIME + " time");
+		System.out.println("\t\tLog frequency time in seconds (default is "
+				+ LOG_FEATURE_TIME_FREQUENCY + ")");
 		System.out.println();
 		System.out.println("\tgeopackage_file");
 		System.out.println(
