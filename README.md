@@ -161,7 +161,7 @@ The URL tile generator creates a set of tiles within a GeoPackage by downloading
 
 To run against the jar:
 
-    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen [-f compress_format] [-q compress_quality] [-g] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-uepsg url_epsg] [-tms] geopackage_file tile_table url min_zoom max_zoom
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen [-f compress_format] [-q compress_quality] [-xyz] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-uepsg url_epsg] [-tms] [-replace] [-logCount count] [-logTime time] geopackage_file tile_table url min_zoom max_zoom
 
 Examples:
 
@@ -177,7 +177,7 @@ The Feature tile generator creates a set of tiles within a GeoPackage by drawing
 
 To run against the jar:
 
-    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen [-m max_features_per_tile] [-f compress_format] [-q compress_quality] [-g] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-tileWidth width] [-tileHeight height] [-pointRadius radius] [-pointColor color] [-pointIcon image_file] [-centerIcon] [-lineStrokeWidth stroke_width] [-lineColor color] [-polygonStrokeWidth stroke_width] [-polygonColor color] [-fillPolygon] [-polygonFillColor color] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen [-m max_features_per_tile] [-f compress_format] [-q compress_quality] [-xyz] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-tileWidth width] [-tileHeight height] [-tileScale scale] [-pointRadius radius] [-pointColor color] [-pointIcon image_file] [-iconWidth width] [-iconHeight height] [-centerIcon] [-lineStrokeWidth stroke_width] [-lineColor color] [-polygonStrokeWidth stroke_width] [-polygonColor color] [-fillPolygon] [-polygonFillColor color] [-simplifyGeometries true|false] [-ignoreGeoPackageStyles true|false] [-logCount count] [-logTime time] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom
 
 Example:
 
@@ -189,7 +189,7 @@ The OGC API feature generator creates features within a GeoPackage by requesting
 
 To run against the jar:
 
-    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.OAPIFeatureGen [-limit limit] [-bbox minLon,minLat,maxLon,maxLat] [-bbox-proj authority,code] [-time time] [-proj authority,code] [-totalLimit total_limit] [-transactionLimit transaction_limit] geopackage_file table_name server_url collection_id
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.OAPIFeatureGen [-limit limit] [-bbox minLon,minLat,maxLon,maxLat] [-bbox-proj authority,code] [-time time] [-proj authority,code] [-totalLimit total_limit] [-transactionLimit transaction_limit] [-logCount count] [-logTime time] geopackage_file table_name server_url collection_id
 
 Example:
 

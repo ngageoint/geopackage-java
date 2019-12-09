@@ -8,6 +8,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * Tile Generator option to skip pre-existing tiles when updating a GeoPackage
 * URL Tile Generator continuation by skipping existing tiles (option to force replace)
+* XYZ tile rebranding, previously referred to as standard and/or Google
 
 ## [3.4.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.4.0) (11-14-2019)
 
