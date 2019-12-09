@@ -199,6 +199,20 @@ public class FeatureTileGen {
 	public static final String ARGUMENT_IGNORE_GEOPACKAGE_STYLES = "ignoreGeoPackageStyles";
 
 	/**
+	 * Log Frequency Count argument
+	 * 
+	 * @since 3.5.0
+	 */
+	public static final String ARGUMENT_LOG_COUNT = "logCount";
+
+	/**
+	 * Log Frequency Time argument
+	 * 
+	 * @since 3.5.0
+	 */
+	public static final String ARGUMENT_LOG_TIME = "logTime";
+
+	/**
 	 * Tile progress
 	 */
 	private static ZoomLevelProgress progress = new ZoomLevelProgress(
@@ -646,6 +660,26 @@ public class FeatureTileGen {
 					}
 					break;
 
+				case ARGUMENT_LOG_COUNT:
+					if (i < args.length) {
+						progress.setCountFrequency(Integer.valueOf(args[++i]));
+					} else {
+						valid = false;
+						System.out.println("Error: Log Count argument '" + arg
+								+ "' must be followed by a frequency count value");
+					}
+					break;
+
+				case ARGUMENT_LOG_TIME:
+					if (i < args.length) {
+						progress.setTimeFrequency(Integer.valueOf(args[++i]));
+					} else {
+						valid = false;
+						System.out.println("Error: Log Time argument '" + arg
+								+ "' must be followed by a frequency time value in seconds");
+					}
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -939,29 +973,42 @@ public class FeatureTileGen {
 
 		int count = tileGenerator.getTileCount();
 
-		LOGGER.log(Level.INFO, "Feature GeoPackage: "
-				+ featureGeoPackage.getName() + ", Feature Table: "
-				+ featureTable + ", Tile GeoPackage: "
-				+ tileGeoPackage.getName() + ", Tile Table: " + tileTable
-				+ ", Min Zoom: " + minZoom + ", Max Zoom: " + maxZoom
-				+ (maxFeaturesPerTile != null
-						? ", Max Features Per Tile: " + maxFeaturesPerTile
-						: "")
-				+ (compressFormat != null
-						? ", Compress Format: " + compressFormat
-						: "")
-				+ (compressQuality != null
-						? ", Compress Quality: " + compressQuality
-						: "")
-				+ (xyzTiles ? ", XYZ Tiles" : "")
-				+ (boundingBox != null
-						? ", Min Lon: " + boundingBox.getMinLongitude()
-								+ ", Min Lat: " + boundingBox.getMinLatitude()
-								+ ", Max Lon: " + boundingBox.getMaxLongitude()
-								+ ", Max Lat: " + boundingBox.getMaxLatitude()
-						: "")
-				+ (epsg != null ? ", EPSG: " + epsg : "")
-				+ ", Expected Tile Count: " + count);
+		System.out.println();
+		System.out
+				.println("Feature GeoPackage: " + featureGeoPackage.getName());
+		System.out.println("Feature Table: " + featureTable);
+		System.out.println("Tile GeoPackage: " + tileGeoPackage.getName());
+		System.out.println("Tile Table: " + tileTable);
+		System.out.println("Min Zoom: " + minZoom);
+		System.out.println("Max Zoom: " + maxZoom);
+		if (maxFeaturesPerTile != null) {
+			System.out.println("Max Features Per Tile: " + maxFeaturesPerTile);
+		}
+		if (compressFormat != null) {
+			System.out.println("Compress Format: " + compressFormat);
+		}
+		if (compressQuality != null) {
+			System.out.println("Compress Quality: " + compressQuality);
+		}
+		if (xyzTiles) {
+			System.out.println("Save as XYZ Tiles: true");
+		}
+		if (boundingBox != null) {
+			System.out.println("Bounding Box:");
+			System.out.println("\tMin Lon: " + boundingBox.getMinLongitude());
+			System.out.println("\tMin Lat: " + boundingBox.getMinLatitude());
+			System.out.println("\tMax Lon: " + boundingBox.getMaxLongitude());
+			System.out.println("\tMax Lat: " + boundingBox.getMaxLatitude());
+		}
+		if (epsg != null) {
+			System.out.println("EPSG: " + epsg);
+		}
+		System.out.println("Log Count Frequency: "
+				+ progress.getCountFrequency() + " tiles");
+		System.out.println("Log Time Frequency: " + progress.getTimeFrequency()
+				+ " seconds");
+		System.out.println("Expected Tile Count: " + count);
+		System.out.println();
 
 		StringBuilder tileStyle = new StringBuilder();
 		if (tileWidth != null) {
@@ -1091,8 +1138,10 @@ public class FeatureTileGen {
 				+ ARGUMENT_PREFIX + ARGUMENT_POLYGON_FILL_COLOR + " color] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_SIMPLIFY_GEOMETRIES
 				+ " true|false] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES
-				+ " true|false] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
+				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES + " true|false] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_LOG_COUNT + " count] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_LOG_TIME
+				+ " time] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -1223,6 +1272,17 @@ public class FeatureTileGen {
 				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES + " true|false");
 		System.out.println(
 				"\t\tFlag indicating whether styles saved within the GeoPackage should be ignored (default is false)");
+		System.out.println();
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_LOG_COUNT + " count");
+		System.out.println(
+				"\t\tLog frequency count of generated tiles (default is "
+						+ LOG_TILE_FREQUENCY + ")");
+		System.out.println();
+		System.out
+				.println("\t" + ARGUMENT_PREFIX + ARGUMENT_LOG_TIME + " time");
+		System.out.println("\t\tLog frequency time in seconds (default is "
+				+ LOG_TILE_TIME_FREQUENCY + ")");
 		System.out.println();
 		System.out.println("\tfeature_geopackage_file");
 		System.out.println(
