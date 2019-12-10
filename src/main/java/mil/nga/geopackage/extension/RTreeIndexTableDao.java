@@ -202,9 +202,9 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UserCustomResultSet queryForAll() {
+	public UserCustomResultSet query() {
 		validateRTree();
-		return super.queryForAll();
+		return super.query();
 	}
 
 	/**
