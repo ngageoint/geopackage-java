@@ -818,7 +818,8 @@ public class ManualFeatureQuery {
 		minY -= tolerance;
 		maxY += tolerance;
 
-		String[] columns = new String[] { featureDao.getGeometryColumnName() };
+		String[] columns = new String[] { featureDao.getIdColumnName(),
+				featureDao.getGeometryColumnName() };
 
 		while (hasResults) {
 
