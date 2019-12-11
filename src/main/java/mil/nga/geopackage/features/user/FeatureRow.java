@@ -6,6 +6,7 @@ import java.util.Arrays;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.user.ContentValues;
+import mil.nga.geopackage.user.UserColumns;
 import mil.nga.geopackage.user.UserRow;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
@@ -22,11 +23,32 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 * Constructor
 	 * 
 	 * @param table
+	 *            feature table
 	 * @param columnTypes
+	 *            column types
 	 * @param values
+	 *            values
 	 */
 	FeatureRow(FeatureTable table, int[] columnTypes, Object[] values) {
 		super(table, columnTypes, values);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            feature table
+	 * @param columns
+	 *            columns
+	 * @param columnTypes
+	 *            column types
+	 * @param values
+	 *            values
+	 * @since 3.5.0
+	 */
+	FeatureRow(FeatureTable table, UserColumns<FeatureColumn> columns,
+			int[] columnTypes, Object[] values) {
+		super(table, columns, columnTypes, values);
 	}
 
 	/**
@@ -55,7 +77,8 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 * @return geometry column index
 	 */
 	public int getGeometryColumnIndex() {
-		return getTable().getGeometryColumnIndex();
+		return getColumnIndex(getGeometryColumn().getName()); // TODO feature
+																// columns?
 	}
 
 	/**
@@ -64,7 +87,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	 * @return geometry feature column
 	 */
 	public FeatureColumn getGeometryColumn() {
-		return getTable().getGeometryColumn();
+		return getTable().getGeometryColumn(); // TODO feature columns?
 	}
 
 	/**
@@ -180,7 +203,8 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 			} catch (IOException e) {
 				throw new GeoPackageException(
 						"Failed to copy Geometry Data bytes. column: "
-								+ column.getName(), e);
+								+ column.getName(),
+						e);
 			}
 
 		} else {
@@ -210,7 +234,8 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 				} catch (IOException e) {
 					throw new GeoPackageException(
 							"Failed to write Geometry Data bytes. column: "
-									+ columnName, e);
+									+ columnName,
+							e);
 				}
 			} else if (value instanceof byte[]) {
 				contentValues.put(columnName, (byte[]) value);

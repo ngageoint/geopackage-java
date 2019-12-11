@@ -25,7 +25,25 @@ public class FeatureResultSet
 	 */
 	public FeatureResultSet(FeatureTable table, ResultSet resultSet,
 			int count) {
-		super(table, resultSet, count);
+		this(table, null, resultSet, count);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            feature table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param count
+	 *            count
+	 * @since 3.5.0
+	 */
+	public FeatureResultSet(FeatureTable table, String[] columns,
+			ResultSet resultSet, int count) {
+		super(table, columns, resultSet, count);
 	}
 
 	/**
@@ -33,7 +51,7 @@ public class FeatureResultSet
 	 */
 	@Override
 	public FeatureRow getRow(int[] columnTypes, Object[] values) {
-		return new FeatureRow(getTable(), columnTypes, values);
+		return new FeatureRow(getTable(), getColumns(), columnTypes, values);
 	}
 
 	/**
@@ -61,7 +79,10 @@ public class FeatureResultSet
 
 		GeoPackageGeometryData geometry = null;
 
-		int columnIndex = getTable().getGeometryColumnIndex();
+		int columnIndex = getColumns()
+				.getColumnIndex(getTable().getGeometryColumn().getName()); // TODO
+																			// feature
+																			// columns?
 		byte[] geometryBytes = getBlob(columnIndex);
 		if (geometryBytes != null) {
 			geometry = new GeoPackageGeometryData(geometryBytes);

@@ -11,8 +11,7 @@ import mil.nga.geopackage.user.UserConnection;
  * @author osbornb
  * @since 3.0.1
  */
-public class UserCustomConnection
-		extends
+public class UserCustomConnection extends
 		UserConnection<UserCustomColumn, UserCustomTable, UserCustomRow, UserCustomResultSet> {
 
 	/**
@@ -29,8 +28,9 @@ public class UserCustomConnection
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected UserCustomResultSet createResult(ResultSet resultSet, int count) {
-		return new UserCustomResultSet(table, resultSet, count);
+	protected UserCustomResultSet createResult(String[] columns,
+			ResultSet resultSet, int count) {
+		return new UserCustomResultSet(table, columns, resultSet, count);
 	}
 
 }

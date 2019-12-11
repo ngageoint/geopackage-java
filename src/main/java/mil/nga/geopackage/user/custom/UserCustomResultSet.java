@@ -25,7 +25,25 @@ public class UserCustomResultSet extends
 	 */
 	public UserCustomResultSet(UserCustomTable table, ResultSet resultSet,
 			int count) {
-		super(table, resultSet, count);
+		this(table, null, resultSet, count);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            user custom table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param count
+	 *            result count
+	 * @since 3.5.0
+	 */
+	public UserCustomResultSet(UserCustomTable table, String[] columns,
+			ResultSet resultSet, int count) {
+		super(table, columns, resultSet, count);
 	}
 
 	/**

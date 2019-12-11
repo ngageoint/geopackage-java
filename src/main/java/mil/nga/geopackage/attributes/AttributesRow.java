@@ -24,6 +24,8 @@ public class AttributesRow extends UserRow<AttributesColumn, AttributesTable> {
 		super(table, columnTypes, values);
 	}
 
+	// TODO columns constructor
+	
 	/**
 	 * Constructor to create an empty row
 	 * 

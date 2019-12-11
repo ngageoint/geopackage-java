@@ -3,6 +3,8 @@ package mil.nga.geopackage.user;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.ResultSetResult;
@@ -31,6 +33,11 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	private final TTable table;
 
 	/**
+	 * Columns
+	 */
+	private final UserColumns<TColumn> columns;
+
+	/**
 	 * Result count
 	 */
 	private int count;
@@ -40,14 +47,26 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * 
 	 * @param table
 	 *            table
+	 * @param columns
+	 *            columns
 	 * @param resultSet
 	 *            result set
 	 * @param count
 	 *            count
 	 */
-	protected UserResultSet(TTable table, ResultSet resultSet, int count) {
+	protected UserResultSet(TTable table, String[] columns, ResultSet resultSet,
+			int count) {
 		super(resultSet);
 		this.table = table;
+		if (columns != null) {
+			List<TColumn> columnsList = new ArrayList<>();
+			for (String column : columns) {
+				columnsList.add(table.getColumn(column));
+			}
+			this.columns = new UserColumns<TColumn>(columnsList);
+		} else {
+			this.columns = table.getUserColumns();
+		}
 		this.count = count;
 	}
 
@@ -56,7 +75,8 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 */
 	@Override
 	public Object getValue(TColumn column) {
-		return getValue(column.getIndex(), column.getDataType());
+		return getValue(columns.getColumnIndex(column.getName()),
+				column.getDataType());
 	}
 
 	/**
@@ -64,7 +84,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 */
 	@Override
 	public Object getValue(int index) {
-		return getValue(table.getColumn(index));
+		return getValue(index, columns.getColumn(index).getDataType());
 	}
 
 	/**
@@ -72,7 +92,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 */
 	@Override
 	public Object getValue(String columnName) {
-		return getValue(table.getColumn(columnName));
+		return getValue(columns.getColumnIndex(columnName));
 	}
 
 	/**
@@ -82,21 +102,28 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	public long getId() {
 		long id = -1;
 
-		TColumn pkColumn = table.getPkColumn();
+		TColumn pkColumn = columns.getPkColumn();
 		if (pkColumn == null) {
-			throw new GeoPackageException(
-					"No primary key column for table: " + table.getTableName());
+			StringBuilder error = new StringBuilder("No primary key column");
+			if (columns.getTableName() != null) {
+				error.append(" for table: " + columns.getTableName());
+			}
+			throw new GeoPackageException(error.toString());
 		}
 
 		Object objectValue = getValue(pkColumn);
 		if (objectValue instanceof Number) {
 			id = ((Number) objectValue).longValue();
 		} else {
-			throw new GeoPackageException(
-					"Primary Key value was not a number. Table: "
-							+ table.getTableName() + ", Column Index: "
-							+ pkColumn.getIndex() + ", Column Name: "
+			StringBuilder error = new StringBuilder(
+					"Primary Key value was not a number. ");
+			if (columns.getTableName() != null) {
+				error.append("Table: " + columns.getTableName() + ", ");
+			}
+			error.append(
+					"Column Index: " + pkColumn.getIndex() + ", Column Name: "
 							+ pkColumn.getName() + ", Value: " + objectValue);
+			throw new GeoPackageException(error.toString());
 		}
 
 		return id;
@@ -114,43 +141,44 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * {@inheritDoc}
 	 */
 	@Override
+	public UserColumns<TColumn> getColumns() {
+		return columns;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public TRow getRow() {
 
-		TRow row = null;
+		int[] columnTypes = new int[columns.columnCount()];
+		Object[] values = new Object[columns.columnCount()];
 
-		if (table != null) {
+		try {
 
-			int[] columnTypes = new int[table.columnCount()];
-			Object[] values = new Object[table.columnCount()];
+			ResultSetMetaData metaData = resultSet.getMetaData();
 
-			try {
+			for (int index = 0; index < columns.columnCount(); index++) {
+				TColumn column = columns.getColumn(index);
 
-				ResultSetMetaData metaData = resultSet.getMetaData();
+				Object value = getValue(column);
+				values[index] = value;
 
-				for (TColumn column : table.getColumns()) {
-
-					int index = column.getIndex();
-
-					Object value = getValue(column);
-					values[index] = value;
-
-					int columnType;
-					if (value == null) {
-						columnType = ResultUtils.FIELD_TYPE_NULL;
-					} else {
-						int metadataColumnType = metaData.getColumnType(
-								resultIndexToResultSetIndex(index));
-						columnType = resultSetTypeToSqlLite(metadataColumnType);
-					}
-					columnTypes[index] = columnType;
+				int columnType;
+				if (value == null) {
+					columnType = ResultUtils.FIELD_TYPE_NULL;
+				} else {
+					int metadataColumnType = metaData
+							.getColumnType(resultIndexToResultSetIndex(index));
+					columnType = resultSetTypeToSqlLite(metadataColumnType);
 				}
-			} catch (SQLException e) {
-				throw new GeoPackageException("Failed to retrieve the row", e);
+				columnTypes[index] = columnType;
 			}
-
-			row = getRow(columnTypes, values);
-
+		} catch (SQLException e) {
+			throw new GeoPackageException("Failed to retrieve the row", e);
 		}
+
+		TRow row = getRow(columnTypes, values);
 
 		return row;
 	}

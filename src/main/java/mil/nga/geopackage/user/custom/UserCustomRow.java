@@ -25,6 +25,8 @@ public class UserCustomRow extends UserRow<UserCustomColumn, UserCustomTable> {
 		super(table, columnTypes, values);
 	}
 
+	// TODO columns constructor, including children
+	
 	/**
 	 * Constructor to create an empty row
 	 * 

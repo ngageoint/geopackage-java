@@ -24,6 +24,8 @@ public class TileRow extends UserRow<TileColumn, TileTable> {
 		super(table, columnTypes, values);
 	}
 
+	// TODO columns constructor
+	
 	/**
 	 * Constructor to create an empty row
 	 * 

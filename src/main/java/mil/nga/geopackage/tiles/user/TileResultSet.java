@@ -9,8 +9,8 @@ import mil.nga.geopackage.user.UserResultSet;
  * 
  * @author osbornb
  */
-public class TileResultSet extends
-		UserResultSet<TileColumn, TileTable, TileRow> {
+public class TileResultSet
+		extends UserResultSet<TileColumn, TileTable, TileRow> {
 
 	/**
 	 * Constructor
@@ -23,7 +23,25 @@ public class TileResultSet extends
 	 *            count
 	 */
 	public TileResultSet(TileTable table, ResultSet resultSet, int count) {
-		super(table, resultSet, count);
+		this(table, null, resultSet, count);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            tile table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param count
+	 *            count
+	 * @since 3.5.0
+	 */
+	public TileResultSet(TileTable table, String[] columns, ResultSet resultSet,
+			int count) {
+		super(table, columns, resultSet, count);
 	}
 
 	/**

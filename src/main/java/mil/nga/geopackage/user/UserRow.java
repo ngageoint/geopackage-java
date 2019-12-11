@@ -33,6 +33,24 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            table
+	 * @param columns
+	 *            columns
+	 * @param columnTypes
+	 *            column types
+	 * @param values
+	 *            values
+	 * @since 3.5.0
+	 */
+	protected UserRow(TTable table, UserColumns<TColumn> columns,
+			int[] columnTypes, Object[] values) {
+		super(table, columns, columnTypes, values);
+	}
+
+	/**
 	 * Constructor to create an empty row
 	 * 
 	 * @param table
@@ -137,8 +155,8 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 			if (column.getMax() != null && byteValue.length > column.getMax()) {
 				throw new GeoPackageException(
 						"Byte array is larger than the column max. Size: "
-								+ byteValue.length + ", Max: "
-								+ column.getMax() + ", Column: " + columnName);
+								+ byteValue.length + ", Max: " + column.getMax()
+								+ ", Column: " + columnName);
 			}
 			contentValues.put(columnName, byteValue);
 		} else if (value instanceof Boolean) {
@@ -149,8 +167,8 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 		} else if (value instanceof Date) {
 			validateValue(column, value, Date.class, String.class);
 			Date dateValue = (Date) value;
-			DateConverter converter = DateConverter.converter(column
-					.getDataType());
+			DateConverter converter = DateConverter
+					.converter(column.getDataType());
 			String dateString = converter.stringValue(dateValue);
 			contentValues.put(columnName, dateString);
 		} else {

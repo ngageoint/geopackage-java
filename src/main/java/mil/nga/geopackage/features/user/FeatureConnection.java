@@ -10,8 +10,7 @@ import mil.nga.geopackage.user.UserConnection;
  * 
  * @author osbornb
  */
-public class FeatureConnection
-		extends
+public class FeatureConnection extends
 		UserConnection<FeatureColumn, FeatureTable, FeatureRow, FeatureResultSet> {
 
 	/**
@@ -28,8 +27,9 @@ public class FeatureConnection
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected FeatureResultSet createResult(ResultSet resultSet, int count) {
-		return new FeatureResultSet(table, resultSet, count);
+	protected FeatureResultSet createResult(String[] columns,
+			ResultSet resultSet, int count) {
+		return new FeatureResultSet(table, columns, resultSet, count);
 	}
 
 }

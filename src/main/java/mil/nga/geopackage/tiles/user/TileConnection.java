@@ -10,8 +10,8 @@ import mil.nga.geopackage.user.UserConnection;
  * 
  * @author osbornb
  */
-public class TileConnection extends
-		UserConnection<TileColumn, TileTable, TileRow, TileResultSet> {
+public class TileConnection
+		extends UserConnection<TileColumn, TileTable, TileRow, TileResultSet> {
 
 	/**
 	 * Constructor
@@ -27,8 +27,9 @@ public class TileConnection extends
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected TileResultSet createResult(ResultSet resultSet, int count) {
-		return new TileResultSet(table, resultSet, count);
+	protected TileResultSet createResult(String[] columns, ResultSet resultSet,
+			int count) {
+		return new TileResultSet(table, columns, resultSet, count);
 	}
 
 }

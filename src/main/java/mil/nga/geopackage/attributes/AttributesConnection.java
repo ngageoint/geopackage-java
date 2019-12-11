@@ -11,8 +11,7 @@ import mil.nga.geopackage.user.UserConnection;
  * @author osbornb
  * @since 1.2.1
  */
-public class AttributesConnection
-		extends
+public class AttributesConnection extends
 		UserConnection<AttributesColumn, AttributesTable, AttributesRow, AttributesResultSet> {
 
 	/**
@@ -29,8 +28,9 @@ public class AttributesConnection
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected AttributesResultSet createResult(ResultSet resultSet, int count) {
-		return new AttributesResultSet(table, resultSet, count);
+	protected AttributesResultSet createResult(String[] columns,
+			ResultSet resultSet, int count) {
+		return new AttributesResultSet(table, columns, resultSet, count);
 	}
 
 }

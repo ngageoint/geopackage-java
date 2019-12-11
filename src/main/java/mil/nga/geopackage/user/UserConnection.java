@@ -73,7 +73,24 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 *            count
 	 * @return result
 	 */
-	protected abstract TResult createResult(ResultSet resultSet, int count);
+	protected TResult createResult(ResultSet resultSet, int count) {
+		return createResult(null, resultSet, count);
+	}
+
+	/**
+	 * Create a result by wrapping the ResultSet
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param count
+	 *            count
+	 * @return result
+	 * @since 3.5.0
+	 */
+	protected abstract TResult createResult(String[] columns,
+			ResultSet resultSet, int count);
 
 	/**
 	 * {@inheritDoc}
@@ -134,7 +151,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
 		int count = SQLUtils.count(connection, sql, selectionArgs);
 
-		return createResult(resultSet, count);
+		return createResult(columns, resultSet, count);
 	}
 
 	/**

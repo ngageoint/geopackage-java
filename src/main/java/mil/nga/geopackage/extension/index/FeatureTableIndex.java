@@ -111,6 +111,9 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 		long offset = 0;
 		int chunkCount = 0;
 
+		String[] columns = new String[] { featureDao.getIdColumnName(),
+				featureDao.getGeometryColumnName() };
+
 		while (chunkCount >= 0) {
 
 			final long chunkOffset = offset;
@@ -124,7 +127,8 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 							public Integer call() throws Exception {
 
 								FeatureResultSet resultSet = featureDao
-										.queryForChunk(chunkLimit, chunkOffset);
+										.queryForChunk(columns, chunkLimit,
+												chunkOffset);
 								int count = indexRows(tableIndex, resultSet);
 
 								return count;

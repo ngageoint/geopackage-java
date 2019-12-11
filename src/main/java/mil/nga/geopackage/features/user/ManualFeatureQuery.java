@@ -218,12 +218,14 @@ public class ManualFeatureQuery {
 		long offset = 0;
 		boolean hasResults = true;
 
+		String[] columns = new String[] { featureDao.getGeometryColumnName() };
+
 		while (hasResults) {
 
 			hasResults = false;
 
-			FeatureResultSet resultSet = featureDao.queryForChunk(chunkLimit,
-					offset);
+			FeatureResultSet resultSet = featureDao.queryForChunk(columns,
+					chunkLimit, offset);
 			try {
 				while (resultSet.moveToNext()) {
 					hasResults = true;
@@ -816,12 +818,14 @@ public class ManualFeatureQuery {
 		minY -= tolerance;
 		maxY += tolerance;
 
+		String[] columns = new String[] { featureDao.getGeometryColumnName() };
+
 		while (hasResults) {
 
 			hasResults = false;
 
-			FeatureResultSet resultSet = featureDao.queryForChunk(where,
-					whereArgs, chunkLimit, offset);
+			FeatureResultSet resultSet = featureDao.queryForChunk(columns,
+					where, whereArgs, chunkLimit, offset);
 			try {
 				while (resultSet.moveToNext()) {
 					hasResults = true;

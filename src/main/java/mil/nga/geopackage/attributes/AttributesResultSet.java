@@ -25,7 +25,25 @@ public class AttributesResultSet extends
 	 */
 	public AttributesResultSet(AttributesTable table, ResultSet resultSet,
 			int count) {
-		super(table, resultSet, count);
+		this(table, null, resultSet, count);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            attributes table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param count
+	 *            result count
+	 * @since 3.5.0
+	 */
+	public AttributesResultSet(AttributesTable table, String[] columns,
+			ResultSet resultSet, int count) {
+		super(table, columns, resultSet, count);
 	}
 
 	/**
