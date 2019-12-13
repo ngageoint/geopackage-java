@@ -71,7 +71,7 @@ public class StyleRow extends AttributesRow {
 	 * @return name column index
 	 */
 	public int getNameColumnIndex() {
-		return getTable().getNameColumnIndex();
+		return getColumns().getColumnIndex(StyleTable.COLUMN_NAME);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class StyleRow extends AttributesRow {
 	 * @return name column
 	 */
 	public AttributesColumn getNameColumn() {
-		return getTable().getNameColumn();
+		return getColumns().getColumn(StyleTable.COLUMN_NAME);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class StyleRow extends AttributesRow {
 	 * @return description column index
 	 */
 	public int getDescriptionColumnIndex() {
-		return getTable().getDescriptionColumnIndex();
+		return getColumns().getColumnIndex(StyleTable.COLUMN_DESCRIPTION);
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class StyleRow extends AttributesRow {
 	 * @return description column
 	 */
 	public AttributesColumn getDescriptionColumn() {
-		return getTable().getDescriptionColumn();
+		return getColumns().getColumn(StyleTable.COLUMN_DESCRIPTION);
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class StyleRow extends AttributesRow {
 	 * @return color column index
 	 */
 	public int getColorColumnIndex() {
-		return getTable().getColorColumnIndex();
+		return getColumns().getColumnIndex(StyleTable.COLUMN_COLOR);
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class StyleRow extends AttributesRow {
 	 * @return color column
 	 */
 	public AttributesColumn getColorColumn() {
-		return getTable().getColorColumn();
+		return getColumns().getColumn(StyleTable.COLUMN_COLOR);
 	}
 
 	/**
@@ -244,7 +244,7 @@ public class StyleRow extends AttributesRow {
 	 * @return opacity column index
 	 */
 	public int getOpacityColumnIndex() {
-		return getTable().getOpacityColumnIndex();
+		return getColumns().getColumnIndex(StyleTable.COLUMN_OPACITY);
 	}
 
 	/**
@@ -253,7 +253,7 @@ public class StyleRow extends AttributesRow {
 	 * @return opacity column
 	 */
 	public AttributesColumn getOpacityColumn() {
-		return getTable().getOpacityColumn();
+		return getColumns().getColumn(StyleTable.COLUMN_OPACITY);
 	}
 
 	/**
@@ -295,7 +295,7 @@ public class StyleRow extends AttributesRow {
 	 * @return width column index
 	 */
 	public int getWidthColumnIndex() {
-		return getTable().getWidthColumnIndex();
+		return getColumns().getColumnIndex(StyleTable.COLUMN_WIDTH);
 	}
 
 	/**
@@ -304,7 +304,7 @@ public class StyleRow extends AttributesRow {
 	 * @return width column
 	 */
 	public AttributesColumn getWidthColumn() {
-		return getTable().getWidthColumn();
+		return getColumns().getColumn(StyleTable.COLUMN_WIDTH);
 	}
 
 	/**
@@ -351,7 +351,7 @@ public class StyleRow extends AttributesRow {
 	 * @return fill color column index
 	 */
 	public int getFillColorColumnIndex() {
-		return getTable().getFillColorColumnIndex();
+		return getColumns().getColumnIndex(StyleTable.COLUMN_FILL_COLOR);
 	}
 
 	/**
@@ -360,7 +360,7 @@ public class StyleRow extends AttributesRow {
 	 * @return fill color column
 	 */
 	public AttributesColumn getFillColorColumn() {
-		return getTable().getFillColorColumn();
+		return getColumns().getColumn(StyleTable.COLUMN_FILL_COLOR);
 	}
 
 	/**
@@ -424,7 +424,7 @@ public class StyleRow extends AttributesRow {
 	 * @return fill opacity column index
 	 */
 	public int getFillOpacityColumnIndex() {
-		return getTable().getFillOpacityColumnIndex();
+		return getColumns().getColumnIndex(StyleTable.COLUMN_FILL_OPACITY);
 	}
 
 	/**
@@ -433,7 +433,7 @@ public class StyleRow extends AttributesRow {
 	 * @return fill opacity column
 	 */
 	public AttributesColumn getFillOpacityColumn() {
-		return getTable().getFillOpacityColumn();
+		return getColumns().getColumn(StyleTable.COLUMN_FILL_OPACITY);
 	}
 
 	/**

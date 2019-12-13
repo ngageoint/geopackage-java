@@ -57,7 +57,8 @@ public class StyleMappingRow extends UserMappingRow {
 	 * @return geometry type name column index
 	 */
 	public int getGeometryTypeNameColumnIndex() {
-		return getTable().getGeometryTypeNameColumnIndex();
+		return getColumns()
+				.getColumnIndex(StyleMappingTable.COLUMN_GEOMETRY_TYPE_NAME);
 	}
 
 	/**
@@ -66,7 +67,8 @@ public class StyleMappingRow extends UserMappingRow {
 	 * @return geometry type name column
 	 */
 	public UserCustomColumn getGeometryTypeNameColumn() {
-		return getTable().getGeometryTypeNameColumn();
+		return getColumns()
+				.getColumn(StyleMappingTable.COLUMN_GEOMETRY_TYPE_NAME);
 	}
 
 	/**
