@@ -51,7 +51,15 @@ public class UserCustomResultSet extends
 	 */
 	@Override
 	public UserCustomRow getRow(int[] columnTypes, Object[] values) {
-		return new UserCustomRow(getTable(), columnTypes, values);
+		return new UserCustomRow(getTable(), getColumns(), columnTypes, values);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserCustomColumns getColumns() {
+		return (UserCustomColumns) super.getColumns();
 	}
 
 }

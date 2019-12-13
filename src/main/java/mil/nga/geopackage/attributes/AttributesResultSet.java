@@ -51,7 +51,15 @@ public class AttributesResultSet extends
 	 */
 	@Override
 	public AttributesRow getRow(int[] columnTypes, Object[] values) {
-		return new AttributesRow(getTable(), columnTypes, values);
+		return new AttributesRow(getTable(), getColumns(), columnTypes, values);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AttributesColumns getColumns() {
+		return (AttributesColumns) super.getColumns();
 	}
 
 }

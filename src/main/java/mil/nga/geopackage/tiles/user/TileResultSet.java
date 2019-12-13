@@ -49,7 +49,15 @@ public class TileResultSet
 	 */
 	@Override
 	public TileRow getRow(int[] columnTypes, Object[] values) {
-		return new TileRow(getTable(), columnTypes, values);
+		return new TileRow(getTable(), getColumns(), columnTypes, values);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TileColumns getColumns() {
+		return (TileColumns) super.getColumns();
 	}
 
 }

@@ -3,8 +3,6 @@ package mil.nga.geopackage.user;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.ResultSetResult;
@@ -54,19 +52,55 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * @param count
 	 *            count
 	 */
+	protected UserResultSet(TTable table, ResultSet resultSet, int count) {
+		this(table, table.getUserColumns(), resultSet, count);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param count
+	 *            count
+	 * @since 3.5.0
+	 */
 	protected UserResultSet(TTable table, String[] columns, ResultSet resultSet,
 			int count) {
 		super(resultSet);
-		this.table = table;
+		UserColumns<TColumn> userColumns = null;
 		if (columns != null) {
-			List<TColumn> columnsList = new ArrayList<>();
-			for (String column : columns) {
-				columnsList.add(table.getColumn(column));
-			}
-			this.columns = new UserColumns<TColumn>(columnsList);
+			userColumns = table.createUserColumns(columns);
 		} else {
-			this.columns = table.getUserColumns();
+			userColumns = table.getUserColumns();
 		}
+		this.table = table;
+		this.columns = userColumns;
+		this.count = count;
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param count
+	 *            count
+	 * @since 3.5.0
+	 */
+	protected UserResultSet(TTable table, UserColumns<TColumn> columns,
+			ResultSet resultSet, int count) {
+		super(resultSet);
+		this.table = table;
+		this.columns = columns;
 		this.count = count;
 	}
 
@@ -104,9 +138,14 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 
 		TColumn pkColumn = columns.getPkColumn();
 		if (pkColumn == null) {
-			StringBuilder error = new StringBuilder("No primary key column");
-			if (columns.getTableName() != null) {
-				error.append(" for table: " + columns.getTableName());
+			StringBuilder error = new StringBuilder(
+					"No primary key column in ");
+			if (columns.isCustom()) {
+				error.append("custom specified table columns. ");
+			}
+			error.append("table: " + columns.getTableName());
+			if (columns.isCustom()) {
+				error.append(", columns: " + columns.getColumnNames());
 			}
 			throw new GeoPackageException(error.toString());
 		}
@@ -115,15 +154,11 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 		if (objectValue instanceof Number) {
 			id = ((Number) objectValue).longValue();
 		} else {
-			StringBuilder error = new StringBuilder(
-					"Primary Key value was not a number. ");
-			if (columns.getTableName() != null) {
-				error.append("Table: " + columns.getTableName() + ", ");
-			}
-			error.append(
-					"Column Index: " + pkColumn.getIndex() + ", Column Name: "
-							+ pkColumn.getName() + ", Value: " + objectValue);
-			throw new GeoPackageException(error.toString());
+			throw new GeoPackageException(
+					"Primary Key value was not a number. table: "
+							+ columns.getTableName() + ", index: "
+							+ pkColumn.getIndex() + ", name: "
+							+ pkColumn.getName() + ", value: " + objectValue);
 		}
 
 		return id;

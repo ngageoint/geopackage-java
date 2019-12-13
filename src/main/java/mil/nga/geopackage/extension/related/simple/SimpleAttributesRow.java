@@ -28,8 +28,8 @@ public class SimpleAttributesRow extends UserCustomRow {
 	 *            user custom row
 	 */
 	public SimpleAttributesRow(UserCustomRow userCustomRow) {
-		super(userCustomRow.getTable(), userCustomRow.getRowColumnTypes(),
-				userCustomRow.getValues());
+		super(userCustomRow.getTable(), userCustomRow.getColumns(),
+				userCustomRow.getRowColumnTypes(), userCustomRow.getValues());
 	}
 
 	/**

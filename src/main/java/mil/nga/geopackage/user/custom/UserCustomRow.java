@@ -15,18 +15,19 @@ public class UserCustomRow extends UserRow<UserCustomColumn, UserCustomTable> {
 	 * 
 	 * @param table
 	 *            user custom table
+	 * @param columns
+	 *            columns
 	 * @param columnTypes
 	 *            column types
 	 * @param values
 	 *            values
+	 * @since 3.5.0
 	 */
-	public UserCustomRow(UserCustomTable table, int[] columnTypes,
-			Object[] values) {
-		super(table, columnTypes, values);
+	public UserCustomRow(UserCustomTable table, UserCustomColumns columns,
+			int[] columnTypes, Object[] values) {
+		super(table, columns, columnTypes, values);
 	}
 
-	// TODO columns constructor, including children
-	
 	/**
 	 * Constructor to create an empty row
 	 * 
@@ -45,6 +46,14 @@ public class UserCustomRow extends UserRow<UserCustomColumn, UserCustomTable> {
 	 */
 	public UserCustomRow(UserCustomRow userCustomRow) {
 		super(userCustomRow);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserCustomColumns getColumns() {
+		return (UserCustomColumns) super.getColumns();
 	}
 
 	/**

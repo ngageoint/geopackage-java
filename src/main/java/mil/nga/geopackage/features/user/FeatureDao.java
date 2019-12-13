@@ -123,13 +123,23 @@ public class FeatureDao extends
 	}
 
 	/**
+	 * Get the Id Column
+	 * 
+	 * @return id column
+	 * @since 3.5.0
+	 */
+	public FeatureColumn getIdColumn() {
+		return getTable().getPkColumn();
+	}
+
+	/**
 	 * Get the Id Column name
 	 * 
 	 * @return id column name
 	 * @since 3.5.0
 	 */
 	public String getIdColumnName() {
-		return getTable().getPkColumn().getName();
+		return getTable().getPkColumnName();
 	}
 
 }

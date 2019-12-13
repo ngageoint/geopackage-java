@@ -25,7 +25,7 @@ public class FeatureResultSet
 	 */
 	public FeatureResultSet(FeatureTable table, ResultSet resultSet,
 			int count) {
-		this(table, null, resultSet, count);
+		super(table, resultSet, count);
 	}
 
 	/**
@@ -71,6 +71,14 @@ public class FeatureResultSet
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FeatureColumns getColumns() {
+		return (FeatureColumns) super.getColumns();
+	}
+
+	/**
 	 * Get the geometry
 	 * 
 	 * @return geometry data
@@ -79,10 +87,7 @@ public class FeatureResultSet
 
 		GeoPackageGeometryData geometry = null;
 
-		int columnIndex = getColumns()
-				.getColumnIndex(getTable().getGeometryColumn().getName()); // TODO
-																			// feature
-																			// columns?
+		int columnIndex = getColumns().getGeometryIndex();
 		byte[] geometryBytes = getBlob(columnIndex);
 		if (geometryBytes != null) {
 			geometry = new GeoPackageGeometryData(geometryBytes);

@@ -17,8 +17,8 @@ public class RTreeIndexTableRow extends UserCustomRow {
 	 *            user custom row
 	 */
 	RTreeIndexTableRow(UserCustomRow userCustomRow) {
-		super(userCustomRow.getTable(), userCustomRow.getRowColumnTypes(),
-				userCustomRow.getValues());
+		super(userCustomRow.getTable(), userCustomRow.getColumns(),
+				userCustomRow.getRowColumnTypes(), userCustomRow.getValues());
 	}
 
 	/**
@@ -27,8 +27,8 @@ public class RTreeIndexTableRow extends UserCustomRow {
 	 * @return ID
 	 */
 	public long getId() {
-		return ((Number) getValue(getColumnIndex(RTreeIndexExtension.COLUMN_ID)))
-				.longValue();
+		return ((Number) getValue(
+				getColumnIndex(RTreeIndexExtension.COLUMN_ID))).longValue();
 	}
 
 	/**
@@ -37,8 +37,9 @@ public class RTreeIndexTableRow extends UserCustomRow {
 	 * @return min x
 	 */
 	public double getMinX() {
-		return ((Number) getValue(getColumnIndex(RTreeIndexExtension.COLUMN_MIN_X)))
-				.doubleValue();
+		return ((Number) getValue(
+				getColumnIndex(RTreeIndexExtension.COLUMN_MIN_X)))
+						.doubleValue();
 	}
 
 	/**
@@ -47,8 +48,9 @@ public class RTreeIndexTableRow extends UserCustomRow {
 	 * @return max x
 	 */
 	public double getMaxX() {
-		return ((Number) getValue(getColumnIndex(RTreeIndexExtension.COLUMN_MAX_X)))
-				.doubleValue();
+		return ((Number) getValue(
+				getColumnIndex(RTreeIndexExtension.COLUMN_MAX_X)))
+						.doubleValue();
 	}
 
 	/**
@@ -57,8 +59,9 @@ public class RTreeIndexTableRow extends UserCustomRow {
 	 * @return min y
 	 */
 	public double getMinY() {
-		return ((Number) getValue(getColumnIndex(RTreeIndexExtension.COLUMN_MIN_Y)))
-				.doubleValue();
+		return ((Number) getValue(
+				getColumnIndex(RTreeIndexExtension.COLUMN_MIN_Y)))
+						.doubleValue();
 	}
 
 	/**
@@ -67,8 +70,9 @@ public class RTreeIndexTableRow extends UserCustomRow {
 	 * @return max y
 	 */
 	public double getMaxY() {
-		return ((Number) getValue(getColumnIndex(RTreeIndexExtension.COLUMN_MAX_Y)))
-				.doubleValue();
+		return ((Number) getValue(
+				getColumnIndex(RTreeIndexExtension.COLUMN_MAX_Y)))
+						.doubleValue();
 	}
 
 }
