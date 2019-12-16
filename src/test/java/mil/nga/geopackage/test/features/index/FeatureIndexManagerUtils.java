@@ -75,7 +75,7 @@ public class FeatureIndexManagerUtils {
 			// Determine how many features have geometry envelopes or geometries
 			int expectedCount = 0;
 			FeatureRow testFeatureRow = null;
-			FeatureResultSet featureResultSet = featureDao.queryForAll();
+			FeatureResultSet featureResultSet = featureDao.query();
 			while (featureResultSet.moveToNext()) {
 				FeatureRow featureRow = featureResultSet.getRow();
 				if (featureRow.getGeometryEnvelope() != null) {
@@ -130,6 +130,18 @@ public class FeatureIndexManagerUtils {
 			featureIndexResults.close();
 			TestCase.assertEquals(expectedCount, resultCount);
 
+			// Query for all indexed geometries with columns
+			resultCount = 0;
+			featureIndexResults = featureIndexManager
+					.query(featureDao.getIdAndGeometryColumnNames());
+			for (FeatureRow featureRow : featureIndexResults) {
+				validateFeatureRow(featureIndexManager, featureRow, null,
+						includeEmpty);
+				resultCount++;
+			}
+			featureIndexResults.close();
+			TestCase.assertEquals(expectedCount, resultCount);
+
 			// Test the query by envelope
 			GeometryEnvelope envelope = testFeatureRow.getGeometryEnvelope();
 			final double difference = .000001;
@@ -149,6 +161,21 @@ public class FeatureIndexManagerUtils {
 			boolean featureFound = false;
 			TestCase.assertTrue(featureIndexManager.count(envelope) >= 1);
 			featureIndexResults = featureIndexManager.query(envelope);
+			for (FeatureRow featureRow : featureIndexResults) {
+				validateFeatureRow(featureIndexManager, featureRow, envelope,
+						includeEmpty);
+				if (featureRow.getId() == testFeatureRow.getId()) {
+					featureFound = true;
+				}
+				resultCount++;
+			}
+			featureIndexResults.close();
+			TestCase.assertTrue(featureFound);
+			TestCase.assertTrue(resultCount >= 1);
+			resultCount = 0;
+			featureFound = false;
+			featureIndexResults = featureIndexManager
+					.query(featureDao.getIdAndGeometryColumnNames(), envelope);
 			for (FeatureRow featureRow : featureIndexResults) {
 				validateFeatureRow(featureIndexManager, featureRow, envelope,
 						includeEmpty);
@@ -206,6 +233,22 @@ public class FeatureIndexManagerUtils {
 					.count(transformedBoundingBox, projection) >= 1);
 			featureIndexResults = featureIndexManager
 					.query(transformedBoundingBox, projection);
+			for (FeatureRow featureRow : featureIndexResults) {
+				validateFeatureRow(featureIndexManager, featureRow,
+						boundingBox.buildEnvelope(), includeEmpty);
+				if (featureRow.getId() == testFeatureRow.getId()) {
+					featureFound = true;
+				}
+				resultCount++;
+			}
+			featureIndexResults.close();
+			TestCase.assertTrue(featureFound);
+			TestCase.assertTrue(resultCount >= 1);
+			resultCount = 0;
+			featureFound = false;
+			featureIndexResults = featureIndexManager.query(
+					featureDao.getIdAndGeometryColumnNames(),
+					transformedBoundingBox, projection);
 			for (FeatureRow featureRow : featureIndexResults) {
 				validateFeatureRow(featureIndexManager, featureRow,
 						boundingBox.buildEnvelope(), includeEmpty);
@@ -280,6 +323,15 @@ public class FeatureIndexManagerUtils {
 									.doubleValue());
 				}
 				featureIndexResults.close();
+				featureIndexResults = featureIndexManager
+						.query(new String[] { column }, where, whereArgs);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+				}
+				featureIndexResults.close();
 
 				resultCount = 0;
 				featureFound = false;
@@ -305,6 +357,28 @@ public class FeatureIndexManagerUtils {
 				TestCase.assertTrue(featureFound);
 				TestCase.assertTrue(resultCount >= 1);
 
+				resultCount = 0;
+				featureFound = false;
+
+				featureIndexResults = featureIndexManager.query(
+						new String[] { featureDao.getGeometryColumnName(),
+								column, featureDao.getIdColumnName() },
+						transformedBoundingBox, projection, where, whereArgs);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
+				}
+				featureIndexResults.close();
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
 			}
 
 			for (Entry<String, String> string : strings.entrySet()) {
@@ -324,6 +398,14 @@ public class FeatureIndexManagerUtils {
 							featureRow.getValueString(column));
 				}
 				featureIndexResults.close();
+				featureIndexResults = featureIndexManager
+						.query(new String[] { column }, fieldValues);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+				}
+				featureIndexResults.close();
 
 				resultCount = 0;
 				featureFound = false;
@@ -333,6 +415,28 @@ public class FeatureIndexManagerUtils {
 				TestCase.assertTrue(count >= 1);
 				featureIndexResults = featureIndexManager
 						.query(transformedBoundingBox, projection, fieldValues);
+				TestCase.assertEquals(count, featureIndexResults.count());
+				for (FeatureRow featureRow : featureIndexResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
+				}
+				featureIndexResults.close();
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
+
+				resultCount = 0;
+				featureFound = false;
+
+				featureIndexResults = featureIndexManager.query(
+						new String[] { column, featureDao.getIdColumnName(),
+								featureDao.getGeometryColumnName() },
+						transformedBoundingBox, projection, fieldValues);
 				TestCase.assertEquals(count, featureIndexResults.count());
 				for (FeatureRow featureRow : featureIndexResults) {
 					TestCase.assertEquals(value,
@@ -398,7 +502,7 @@ public class FeatureIndexManagerUtils {
 
 			// Test deleting a single geometry index
 			if (everyOther) {
-				FeatureResultSet featureResultSet = featureDao.queryForAll();
+				FeatureResultSet featureResultSet = featureDao.query();
 				while (featureResultSet.moveToNext()) {
 					FeatureRow featureRow = featureResultSet.getRow();
 					if (featureRow.getGeometryEnvelope() != null) {
@@ -569,7 +673,7 @@ public class FeatureIndexManagerUtils {
 		System.out.println("+++++++++++++++++++++++++++++++++++++");
 
 		GeometryEnvelope envelope = null;
-		FeatureResultSet resultSet = featureDao.queryForAll();
+		FeatureResultSet resultSet = featureDao.query();
 		while (resultSet.moveToNext()) {
 			FeatureRow featureRow = resultSet.getRow();
 			GeometryEnvelope rowEnvelope = featureRow.getGeometryEnvelope();
@@ -583,7 +687,7 @@ public class FeatureIndexManagerUtils {
 
 		List<FeatureIndexTestEnvelope> envelopes = createEnvelopes(envelope);
 
-		resultSet = featureDao.queryForAll();
+		resultSet = featureDao.query();
 		while (resultSet.moveToNext()) {
 			FeatureRow featureRow = resultSet.getRow();
 			GeometryEnvelope rowEnvelope = featureRow.getGeometryEnvelope();
@@ -867,8 +971,10 @@ public class FeatureIndexManagerUtils {
 
 			if (expectedCount != fullCount) {
 				int count = 0;
-				FeatureIndexResults results = featureIndexManager
-						.query(testEnvelope.envelope);
+				FeatureIndexResults results = featureIndexManager.query(
+						new String[] { featureIndexManager.getFeatureDao()
+								.getGeometryColumnName() },
+						testEnvelope.envelope);
 				for (FeatureRow featureRow : results) {
 					GeometryEnvelope envelope = featureRow
 							.getGeometryEnvelope();

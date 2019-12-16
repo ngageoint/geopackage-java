@@ -19,6 +19,11 @@ public class ManualFeatureQueryResults implements FeatureIndexResults {
 	private final FeatureDao featureDao;
 
 	/**
+	 * Feature columns
+	 */
+	private final String[] columns;
+
+	/**
 	 * Feature ids
 	 */
 	private final List<Long> featureIds;
@@ -33,7 +38,24 @@ public class ManualFeatureQueryResults implements FeatureIndexResults {
 	 */
 	public ManualFeatureQueryResults(FeatureDao featureDao,
 			List<Long> featureIds) {
+		this(featureDao, featureDao.getColumnNames(), featureIds);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param featureDao
+	 *            feature DAO
+	 * @param columns
+	 *            columns
+	 * @param featureIds
+	 *            feature ids
+	 * @since 3.5.0
+	 */
+	public ManualFeatureQueryResults(FeatureDao featureDao, String[] columns,
+			List<Long> featureIds) {
 		this.featureDao = featureDao;
+		this.columns = columns;
 		this.featureIds = featureIds;
 	}
 
@@ -44,6 +66,16 @@ public class ManualFeatureQueryResults implements FeatureIndexResults {
 	 */
 	public FeatureDao getFeatureDao() {
 		return featureDao;
+	}
+
+	/**
+	 * Get the feature columns
+	 * 
+	 * @return columns
+	 * @since 3.5.0
+	 */
+	public String[] getColumns() {
+		return columns;
 	}
 
 	/**
@@ -77,7 +109,8 @@ public class ManualFeatureQueryResults implements FeatureIndexResults {
 			 */
 			@Override
 			public FeatureRow next() {
-				return featureDao.queryForIdRow(featureIds.get(index++));
+				return featureDao.queryForIdRow(columns,
+						featureIds.get(index++));
 			}
 		};
 	}

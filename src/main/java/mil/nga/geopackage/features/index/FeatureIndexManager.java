@@ -741,19 +741,32 @@ public class FeatureIndexManager {
 	 * @return feature index results, close when done
 	 */
 	public FeatureIndexResults query() {
+		return query(featureDao.getColumnNames());
+	}
+
+	/**
+	 * Query for all feature index results
+	 *
+	 * @param columns
+	 *            columns
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns) {
 		FeatureIndexResults results = null;
 		for (FeatureIndexType type : getLocation()) {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
 					FeatureResultSet geoPackageResultSet = featureTableIndex
-							.queryFeatures();
+							.queryFeatures(columns);
 					results = new FeatureIndexFeatureResults(
 							geoPackageResultSet);
 					break;
 				case RTREE:
 					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
-							.queryFeatures();
+							.queryFeatures(columns);
 					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
@@ -771,7 +784,8 @@ public class FeatureIndexManager {
 			}
 		}
 		if (results == null) {
-			FeatureResultSet featureResultSet = manualFeatureQuery.query();
+			FeatureResultSet featureResultSet = manualFeatureQuery
+					.query(columns);
 			results = new FeatureIndexFeatureResults(featureResultSet);
 		}
 		return results;
@@ -829,6 +843,24 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns,
+			Map<String, Object> fieldValues) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return query(columns, where, whereArgs);
+	}
+
+	/**
 	 * Query for feature index count
 	 * 
 	 * @param fieldValues
@@ -857,6 +889,21 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, String where) {
+		return query(columns, where, null);
+	}
+
+	/**
 	 * Query for feature index count
 	 * 
 	 * @param where
@@ -881,19 +928,37 @@ public class FeatureIndexManager {
 	 * @since 3.4.0
 	 */
 	public FeatureIndexResults query(String where, String[] whereArgs) {
+		return query(featureDao.getColumnNames(), where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index results
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 *
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, String where,
+			String[] whereArgs) {
 		FeatureIndexResults results = null;
 		for (FeatureIndexType type : getLocation()) {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
 					FeatureResultSet geoPackageResultSet = featureTableIndex
-							.queryFeatures(where, whereArgs);
+							.queryFeatures(columns, where, whereArgs);
 					results = new FeatureIndexFeatureResults(
 							geoPackageResultSet);
 					break;
 				case RTREE:
 					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
-							.queryFeatures(where, whereArgs);
+							.queryFeatures(columns, where, whereArgs);
 					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
@@ -911,8 +976,8 @@ public class FeatureIndexManager {
 			}
 		}
 		if (results == null) {
-			FeatureResultSet featureResultSet = manualFeatureQuery.query(where,
-					whereArgs);
+			FeatureResultSet featureResultSet = manualFeatureQuery
+					.query(columns, where, whereArgs);
 			results = new FeatureIndexFeatureResults(featureResultSet);
 		}
 		return results;
@@ -1057,6 +1122,22 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns,
+			BoundingBox boundingBox) {
+		return query(columns, boundingBox.buildEnvelope());
+	}
+
+	/**
 	 * Query for feature index count within the bounding box, projected
 	 * correctly
 	 *
@@ -1082,6 +1163,24 @@ public class FeatureIndexManager {
 	public FeatureIndexResults query(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
 		return query(boundingBox.buildEnvelope(), fieldValues);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, BoundingBox boundingBox,
+			Map<String, Object> fieldValues) {
+		return query(columns, boundingBox.buildEnvelope(), fieldValues);
 	}
 
 	/**
@@ -1113,6 +1212,24 @@ public class FeatureIndexManager {
 	 */
 	public FeatureIndexResults query(BoundingBox boundingBox, String where) {
 		return query(boundingBox, where, null);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, BoundingBox boundingBox,
+			String where) {
+		return query(columns, boundingBox, where, null);
 	}
 
 	/**
@@ -1149,6 +1266,26 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, BoundingBox boundingBox,
+			String where, String[] whereArgs) {
+		return query(columns, boundingBox.buildEnvelope(), where, whereArgs);
+	}
+
+	/**
 	 * Query for feature index count within the bounding box, projected
 	 * correctly
 	 *
@@ -1175,6 +1312,21 @@ public class FeatureIndexManager {
 	 */
 	public FeatureIndexResults query(GeometryEnvelope envelope) {
 		return query(envelope, null, null);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns,
+			GeometryEnvelope envelope) {
+		return query(columns, envelope, null, null);
 	}
 
 	/**
@@ -1233,6 +1385,25 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results within the Geometry Envelope
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return query(columns, envelope, where, whereArgs);
+	}
+
+	/**
 	 * Query for feature index count within the Geometry Envelope
 	 *
 	 * @param envelope
@@ -1264,6 +1435,23 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results within the Geometry Envelope
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns,
+			GeometryEnvelope envelope, String where) {
+		return query(columns, envelope, where, null);
+	}
+
+	/**
 	 * Query for feature index count within the Geometry Envelope
 	 *
 	 * @param envelope
@@ -1291,19 +1479,38 @@ public class FeatureIndexManager {
 	 */
 	public FeatureIndexResults query(GeometryEnvelope envelope, String where,
 			String[] whereArgs) {
+		return query(featureDao.getColumnNames(), envelope, where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns,
+			GeometryEnvelope envelope, String where, String[] whereArgs) {
 		FeatureIndexResults results = null;
 		for (FeatureIndexType type : getLocation()) {
 			try {
 				switch (type) {
 				case GEOPACKAGE:
 					FeatureResultSet geoPackageResultSet = featureTableIndex
-							.queryFeatures(envelope, where, whereArgs);
+							.queryFeatures(columns, envelope, where, whereArgs);
 					results = new FeatureIndexFeatureResults(
 							geoPackageResultSet);
 					break;
 				case RTREE:
 					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
-							.queryFeatures(envelope, where, whereArgs);
+							.queryFeatures(columns, envelope, where, whereArgs);
 					results = new FeatureIndexFeatureResults(rTreeResultSet);
 					break;
 				default:
@@ -1321,7 +1528,8 @@ public class FeatureIndexManager {
 			}
 		}
 		if (results == null) {
-			results = manualFeatureQuery.query(envelope, where, whereArgs);
+			results = manualFeatureQuery.query(columns, envelope, where,
+					whereArgs);
 		}
 		return results;
 	}
@@ -1390,6 +1598,26 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, BoundingBox boundingBox,
+			Projection projection) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return query(columns, featureBoundingBox);
+	}
+
+	/**
 	 * Query for feature index count within the bounding box in the provided
 	 * projection
 	 *
@@ -1423,6 +1651,28 @@ public class FeatureIndexManager {
 		BoundingBox featureBoundingBox = featureDao
 				.projectBoundingBox(boundingBox, projection);
 		return query(featureBoundingBox, fieldValues);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, BoundingBox boundingBox,
+			Projection projection, Map<String, Object> fieldValues) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return query(columns, featureBoundingBox, fieldValues);
 	}
 
 	/**
@@ -1464,6 +1714,26 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, BoundingBox boundingBox,
+			Projection projection, String where) {
+		return query(columns, boundingBox, projection, where, null);
+	}
+
+	/**
 	 * Query for feature index count within the bounding box in the provided
 	 * projection
 	 *
@@ -1501,6 +1771,30 @@ public class FeatureIndexManager {
 		BoundingBox featureBoundingBox = featureDao
 				.projectBoundingBox(boundingBox, projection);
 		return query(featureBoundingBox, where, whereArgs);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature index results, close when done
+	 * @since 3.5.0
+	 */
+	public FeatureIndexResults query(String[] columns, BoundingBox boundingBox,
+			Projection projection, String where, String[] whereArgs) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return query(columns, featureBoundingBox, where, whereArgs);
 	}
 
 	/**

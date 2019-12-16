@@ -142,4 +142,14 @@ public class FeatureDao extends
 		return getTable().getPkColumnName();
 	}
 
+	/**
+	 * Get the Id and Geometry Column names
+	 * 
+	 * @return column names
+	 * @since 3.5.0
+	 */
+	public String[] getIdAndGeometryColumnNames() {
+		return getTable().getIdAndGeometryColumnNames();
+	}
+
 }
