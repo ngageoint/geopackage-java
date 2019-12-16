@@ -45,8 +45,6 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * 
 	 * @param table
 	 *            table
-	 * @param columns
-	 *            columns
 	 * @param resultSet
 	 *            result set
 	 * @param count
