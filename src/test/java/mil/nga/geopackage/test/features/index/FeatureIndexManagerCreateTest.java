@@ -2,9 +2,9 @@ package mil.nga.geopackage.test.features.index;
 
 import java.sql.SQLException;
 
-import mil.nga.geopackage.test.CreateGeoPackageTestCase;
-
 import org.junit.Test;
+
+import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 
 /**
  * Test Feature Index Manager from a created database
@@ -27,7 +27,7 @@ public class FeatureIndexManagerCreateTest extends CreateGeoPackageTestCase {
 	public boolean allowEmptyFeatures() {
 		return false;
 	}
-	
+
 	/**
 	 * Test index
 	 *
@@ -50,20 +50,21 @@ public class FeatureIndexManagerCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testLargeIndex() throws SQLException {
 
-		FeatureIndexManagerUtils.testLargeIndex(geoPackage, 30000);
+		FeatureIndexManagerUtils.testLargeIndex(geoPackage, 30000, false);
 
 	}
 
-    /**
-     * Test timed index
-     *
-     * @throws SQLException upon error
-     */
-    @Test
-    public void testTimedIndex() throws SQLException {
+	/**
+	 * Test timed index
+	 *
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testTimedIndex() throws SQLException {
 
-        FeatureIndexManagerUtils.testTimedIndex(geoPackage, false, false);
+		FeatureIndexManagerUtils.testTimedIndex(geoPackage, false, false);
 
-    }
-	
+	}
+
 }

@@ -27,6 +27,7 @@ import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.schema.TableColumnKey;
+import mil.nga.geopackage.test.GeoPackageTestUtils;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.test.io.TestGeoPackageProgress;
 import mil.nga.sf.GeometryEnvelope;
@@ -577,11 +578,13 @@ public class FeatureIndexManagerUtils {
 	 *            GeoPackage
 	 * @param numFeatures
 	 *            num features
+	 * @param verbose
+	 *            verbose printing
 	 * @throws SQLException
 	 *             upon error
 	 */
-	public static void testLargeIndex(GeoPackage geoPackage, int numFeatures)
-			throws SQLException {
+	public static void testLargeIndex(GeoPackage geoPackage, int numFeatures,
+			boolean verbose) throws SQLException {
 
 		String featureTable = "large_index";
 
@@ -596,8 +599,10 @@ public class FeatureIndexManagerUtils {
 		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
 				.getOrCreateCode(ProjectionConstants.AUTHORITY_EPSG,
 						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		List<FeatureColumn> additionalColumns = GeoPackageTestUtils
+				.getFeatureColumns();
 		geometryColumns = geoPackage.createFeatureTableWithMetadata(
-				geometryColumns, boundingBox, srs.getId());
+				geometryColumns, additionalColumns, boundingBox, srs.getId());
 
 		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
 
@@ -606,7 +611,7 @@ public class FeatureIndexManagerUtils {
 		TestUtils.addRowsToFeatureTable(geoPackage, geometryColumns,
 				featureDao.getTable(), numFeatures, false, false, false);
 
-		testTimedIndex(geoPackage, featureTable, true, false);
+		testTimedIndex(geoPackage, featureTable, true, verbose);
 	}
 
 	/**
@@ -669,7 +674,9 @@ public class FeatureIndexManagerUtils {
 		System.out.println();
 		System.out.println("+++++++++++++++++++++++++++++++++++++");
 		System.out.println("Timed Index Test");
-		System.out.println(featureTable + ", Features: " + featureDao.count());
+		System.out.println(featureTable);
+		System.out.println("Features: " + featureDao.count() + ", Columns: "
+				+ featureDao.columnCount());
 		System.out.println("+++++++++++++++++++++++++++++++++++++");
 
 		GeometryEnvelope envelope = null;
@@ -869,9 +876,13 @@ public class FeatureIndexManagerUtils {
 			timerQuery.reset();
 			timerCount.reset();
 			TestTimer timerIteration = new FeatureIndexManagerUtils().new TestTimer();
-			timerIteration.print = timerCount.print;
+			TestTimer timerColumnsIteration = new FeatureIndexManagerUtils().new TestTimer();
 
+			timerIteration.print = timerCount.print;
+			timerColumnsIteration.print = timerCount.print;
 			timerQuery.print = timerCount.print;
+
+			String[] columns = featureDao.getIdAndGeometryColumnNames();
 
 			for (FeatureIndexTestEnvelope testEnvelope : envelopes) {
 
@@ -894,7 +905,17 @@ public class FeatureIndexManagerUtils {
 				FeatureIndexResults results = featureIndexManager
 						.query(envelope);
 				timerQuery.end(percentage + "% Envelope Query");
-				iterateResults(timerIteration, percentage + "% Envelope Query",
+				iterateResults(timerIteration,
+						percentage + "% Envelope Query Iteration", results);
+				assertCounts(featureIndexManager, testEnvelope, type,
+						outerPrecision, expectedCount, results.count());
+				results.close();
+
+				timerQuery.start();
+				results = featureIndexManager.query(columns, envelope);
+				timerQuery.end(percentage + "% Envelope Columns Query");
+				iterateResults(timerColumnsIteration,
+						percentage + "% Envelope Columns Query Iteration",
 						results);
 				assertCounts(featureIndexManager, testEnvelope, type,
 						outerPrecision, expectedCount, results.count());
@@ -911,7 +932,17 @@ public class FeatureIndexManagerUtils {
 				results = featureIndexManager.query(boundingBox);
 				timerQuery.end(percentage + "% Bounding Box Query");
 				iterateResults(timerIteration,
-						percentage + "% Bounding Box Query", results);
+						percentage + "% Bounding Box Query Iteration", results);
+				assertCounts(featureIndexManager, testEnvelope, type,
+						outerPrecision, expectedCount, results.count());
+				results.close();
+
+				timerQuery.start();
+				results = featureIndexManager.query(columns, boundingBox);
+				timerQuery.end(percentage + "% Bounding Box Columns Query");
+				iterateResults(timerColumnsIteration,
+						percentage + "% Bounding Box Columns Query Iteration",
+						results);
 				assertCounts(featureIndexManager, testEnvelope, type,
 						outerPrecision, expectedCount, results.count());
 				results.close();
@@ -933,7 +964,22 @@ public class FeatureIndexManagerUtils {
 						webMercatorProjection);
 				timerQuery.end(percentage + "% Projected Bounding Box Query");
 				iterateResults(timerIteration,
-						percentage + "% Projected Bounding Box Query", results);
+						percentage + "% Projected Bounding Box Query Iteration",
+						results);
+				if (compareProjectionCounts) {
+					assertCounts(featureIndexManager, testEnvelope, type,
+							outerPrecision, expectedCount, results.count());
+				}
+				results.close();
+
+				timerQuery.start();
+				results = featureIndexManager.query(columns,
+						webMercatorBoundingBox, webMercatorProjection);
+				timerQuery.end(
+						percentage + "% Projected Bounding Box Columns Query");
+				iterateResults(timerColumnsIteration, percentage
+						+ "% Projected Bounding Box Columns Query Iteration",
+						results);
 				if (compareProjectionCounts) {
 					assertCounts(featureIndexManager, testEnvelope, type,
 							outerPrecision, expectedCount, results.count());
@@ -948,6 +994,9 @@ public class FeatureIndexManagerUtils {
 					"Average Query: " + timerQuery.averageString() + " ms");
 			System.out.println("Average Iteration: "
 					+ timerIteration.averageString() + " ms");
+			System.out
+					.println("Average " + columns.length + " Column Iteration: "
+							+ timerColumnsIteration.averageString() + " ms");
 		} finally {
 			featureIndexManager.close();
 		}
