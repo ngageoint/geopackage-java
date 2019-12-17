@@ -14,7 +14,7 @@ public class AttributesRow extends UserRow<AttributesColumn, AttributesTable> {
 	 * Constructor
 	 * 
 	 * @param table
-	 *            feature table
+	 *            attributes table
 	 * @param columns
 	 *            columns
 	 * @param columnTypes
