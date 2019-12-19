@@ -987,7 +987,7 @@ public class ManualFeatureQuery {
 	 * @param maxY
 	 *            max y
 	 * @return results
-	 * @sincd 3.5.0
+	 * @since 3.5.0
 	 */
 	public ManualFeatureQueryResults query(String[] columns, double minX,
 			double minY, double maxX, double maxY) {
