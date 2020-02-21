@@ -1,5 +1,9 @@
 package mil.nga.geopackage.test.extension.style;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +19,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.contents.ContentsId;
 import mil.nga.geopackage.extension.contents.ContentsIdExtension;
+import mil.nga.geopackage.extension.style.FeatureStyle;
 import mil.nga.geopackage.extension.style.FeatureStyleExtension;
 import mil.nga.geopackage.extension.style.FeatureStyles;
 import mil.nga.geopackage.extension.style.FeatureTableStyles;
@@ -37,14 +42,22 @@ import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.util.GeometryUtils;
 
+/**
+ * Test Feature Styles Utils
+ * 
+ * @author osbornb
+ */
 public class FeatureStylesUtils {
 
 	/**
 	 * Test Feature Styles extension
 	 * 
 	 * @param geoPackage
+	 *            GeoPackage
 	 * @throws SQLException
+	 *             upon error
 	 * @throws IOException
+	 *             upon erro
 	 */
 	public static void testFeatureStyles(GeoPackage geoPackage)
 			throws SQLException, IOException {
@@ -78,18 +91,18 @@ public class FeatureStylesUtils {
 				Map<GeometryType, Map<GeometryType, ?>> childGeometryTypes = GeometryUtils
 						.childHierarchy(geometryType);
 
-				TestCase.assertFalse(featureTableStyles
-						.hasTableStyleRelationship());
+				TestCase.assertFalse(
+						featureTableStyles.hasTableStyleRelationship());
 				TestCase.assertFalse(featureTableStyles.hasStyleRelationship());
-				TestCase.assertFalse(featureTableStyles
-						.hasTableIconRelationship());
+				TestCase.assertFalse(
+						featureTableStyles.hasTableIconRelationship());
 				TestCase.assertFalse(featureTableStyles.hasIconRelationship());
 
 				TestCase.assertNotNull(featureTableStyles.getTableName());
 				TestCase.assertEquals(tableName,
 						featureTableStyles.getTableName());
-				TestCase.assertNotNull(featureTableStyles
-						.getFeatureStyleExtension());
+				TestCase.assertNotNull(
+						featureTableStyles.getFeatureStyleExtension());
 
 				TestCase.assertNull(featureTableStyles.getTableFeatureStyles());
 				TestCase.assertNull(featureTableStyles.getTableStyles());
@@ -100,20 +113,20 @@ public class FeatureStylesUtils {
 				TestCase.assertNull(featureTableStyles.getTableIcons());
 				TestCase.assertNull(featureTableStyles.getCachedTableIcons());
 				TestCase.assertNull(featureTableStyles.getTableIconDefault());
-				TestCase.assertNull(featureTableStyles
-						.getTableIcon(GeometryType.GEOMETRY));
+				TestCase.assertNull(
+						featureTableStyles.getTableIcon(GeometryType.GEOMETRY));
 
 				FeatureResultSet featureResultSet = featureDao.queryForAll();
 				while (featureResultSet.moveToNext()) {
 					FeatureRow featureRow = featureResultSet.getRow();
 
-					TestCase.assertNull(featureTableStyles
-							.getFeatureStyles(featureRow));
+					TestCase.assertNull(
+							featureTableStyles.getFeatureStyles(featureRow));
 					TestCase.assertNull(featureTableStyles
 							.getFeatureStyles(featureRow.getId()));
 
-					TestCase.assertNull(featureTableStyles
-							.getFeatureStyle(featureRow));
+					TestCase.assertNull(
+							featureTableStyles.getFeatureStyle(featureRow));
 					TestCase.assertNull(featureTableStyles
 							.getFeatureStyleDefault(featureRow));
 					TestCase.assertNull(featureTableStyles.getFeatureStyle(
@@ -121,26 +134,28 @@ public class FeatureStylesUtils {
 					TestCase.assertNull(featureTableStyles
 							.getFeatureStyleDefault(featureRow.getId()));
 
-					TestCase.assertNull(featureTableStyles
-							.getStyles(featureRow));
-					TestCase.assertNull(featureTableStyles.getStyles(featureRow
-							.getId()));
+					TestCase.assertNull(
+							featureTableStyles.getStyles(featureRow));
+					TestCase.assertNull(
+							featureTableStyles.getStyles(featureRow.getId()));
 
-					TestCase.assertNull(featureTableStyles.getStyle(featureRow));
-					TestCase.assertNull(featureTableStyles
-							.getStyleDefault(featureRow));
+					TestCase.assertNull(
+							featureTableStyles.getStyle(featureRow));
+					TestCase.assertNull(
+							featureTableStyles.getStyleDefault(featureRow));
 					TestCase.assertNull(featureTableStyles.getStyle(
 							featureRow.getId(), featureRow.getGeometryType()));
 					TestCase.assertNull(featureTableStyles
 							.getStyleDefault(featureRow.getId()));
 
-					TestCase.assertNull(featureTableStyles.getIcons(featureRow));
-					TestCase.assertNull(featureTableStyles.getIcons(featureRow
-							.getId()));
+					TestCase.assertNull(
+							featureTableStyles.getIcons(featureRow));
+					TestCase.assertNull(
+							featureTableStyles.getIcons(featureRow.getId()));
 
 					TestCase.assertNull(featureTableStyles.getIcon(featureRow));
-					TestCase.assertNull(featureTableStyles
-							.getIconDefault(featureRow));
+					TestCase.assertNull(
+							featureTableStyles.getIconDefault(featureRow));
 					TestCase.assertNull(featureTableStyles.getIcon(
 							featureRow.getId(), featureRow.getGeometryType()));
 					TestCase.assertNull(featureTableStyles
@@ -149,14 +164,12 @@ public class FeatureStylesUtils {
 				featureResultSet.close();
 
 				// Table Styles
-				TestCase.assertFalse(featureTableStyles
-						.hasTableStyleRelationship());
-				TestCase.assertFalse(geoPackage
-						.isTable(featureTableStyles
-								.getFeatureStyleExtension()
-								.getMappingTableName(
-										FeatureStyleExtension.TABLE_MAPPING_TABLE_STYLE,
-										tableName)));
+				TestCase.assertFalse(
+						featureTableStyles.hasTableStyleRelationship());
+				TestCase.assertFalse(geoPackage.isTable(featureTableStyles
+						.getFeatureStyleExtension().getMappingTableName(
+								FeatureStyleExtension.TABLE_MAPPING_TABLE_STYLE,
+								tableName)));
 
 				// Add a default table style
 				StyleRow tableStyleDefault = randomStyle();
@@ -165,23 +178,21 @@ public class FeatureStylesUtils {
 				TestCase.assertTrue(featureStyleExtension.has());
 				TestCase.assertTrue(featureStyleExtension.has(tableName));
 				TestCase.assertTrue(featureTableStyles.has());
-				TestCase.assertTrue(featureTableStyles
-						.hasTableStyleRelationship());
+				TestCase.assertTrue(
+						featureTableStyles.hasTableStyleRelationship());
 				TestCase.assertTrue(geoPackage.isTable(StyleTable.TABLE_NAME));
 				TestCase.assertTrue(geoPackage.isTable(ContentsId.TABLE_NAME));
-				TestCase.assertTrue(geoPackage
-						.isTable(featureTableStyles
-								.getFeatureStyleExtension()
-								.getMappingTableName(
-										FeatureStyleExtension.TABLE_MAPPING_TABLE_STYLE,
-										tableName)));
+				TestCase.assertTrue(geoPackage.isTable(featureTableStyles
+						.getFeatureStyleExtension().getMappingTableName(
+								FeatureStyleExtension.TABLE_MAPPING_TABLE_STYLE,
+								tableName)));
 
 				// Add geometry type table styles
-				Map<GeometryType, StyleRow> geometryTypeTableStyles = randomStyles(childGeometryTypes);
+				Map<GeometryType, StyleRow> geometryTypeTableStyles = randomStyles(
+						childGeometryTypes);
 				for (Entry<GeometryType, StyleRow> geometryTypeStyle : geometryTypeTableStyles
 						.entrySet()) {
-					featureTableStyles.setTableStyle(
-							geometryTypeStyle.getKey(),
+					featureTableStyles.setTableStyle(geometryTypeStyle.getKey(),
 							geometryTypeStyle.getValue());
 				}
 
@@ -194,8 +205,8 @@ public class FeatureStylesUtils {
 				Styles tableStyles = featureTableStyles.getTableStyles();
 				TestCase.assertNotNull(tableStyles);
 				TestCase.assertNotNull(tableStyles.getDefault());
-				TestCase.assertEquals(tableStyleDefault.getId(), tableStyles
-						.getDefault().getId());
+				TestCase.assertEquals(tableStyleDefault.getId(),
+						tableStyles.getDefault().getId());
 				TestCase.assertEquals(tableStyleDefault.getId(),
 						featureTableStyles.getTableStyle(null).getId());
 				TestCase.assertEquals(tableStyleDefault.getId(),
@@ -204,24 +215,25 @@ public class FeatureStylesUtils {
 						geometryTypeTableStyles, childGeometryTypes);
 
 				// Table Icons
-				TestCase.assertFalse(featureTableStyles
-						.hasTableIconRelationship());
+				TestCase.assertFalse(
+						featureTableStyles.hasTableIconRelationship());
 				TestCase.assertFalse(geoPackage.isTable(featureTableStyles
 						.getFeatureStyleExtension().getMappingTableName(
 								FeatureStyleExtension.TABLE_MAPPING_TABLE_ICON,
 								tableName)));
 
 				// Create table icon relationship
-				TestCase.assertFalse(featureTableStyles
-						.hasTableIconRelationship());
+				TestCase.assertFalse(
+						featureTableStyles.hasTableIconRelationship());
 				featureTableStyles.createTableIconRelationship();
-				TestCase.assertTrue(featureTableStyles
-						.hasTableIconRelationship());
+				TestCase.assertTrue(
+						featureTableStyles.hasTableIconRelationship());
 
 				Icons createTableIcons = new Icons();
 				IconRow tableIconDefault = randomIcon();
 				createTableIcons.setDefault(tableIconDefault);
-				Map<GeometryType, IconRow> geometryTypeTableIcons = randomIcons(childGeometryTypes);
+				Map<GeometryType, IconRow> geometryTypeTableIcons = randomIcons(
+						childGeometryTypes);
 				IconRow baseGeometryTypeIcon = randomIcon();
 				geometryTypeTableIcons.put(geometryType, baseGeometryTypeIcon);
 				for (Entry<GeometryType, IconRow> geometryTypeIcon : geometryTypeTableIcons
@@ -233,8 +245,8 @@ public class FeatureStylesUtils {
 				// Set the table icons
 				featureTableStyles.setTableIcons(createTableIcons);
 
-				TestCase.assertTrue(featureTableStyles
-						.hasTableIconRelationship());
+				TestCase.assertTrue(
+						featureTableStyles.hasTableIconRelationship());
 				TestCase.assertTrue(geoPackage.isTable(IconTable.TABLE_NAME));
 				TestCase.assertTrue(geoPackage.isTable(featureTableStyles
 						.getFeatureStyleExtension().getMappingTableName(
@@ -248,8 +260,8 @@ public class FeatureStylesUtils {
 				TestCase.assertNotNull(tableIcons);
 
 				TestCase.assertNotNull(tableIcons.getDefault());
-				TestCase.assertEquals(tableIconDefault.getId(), tableIcons
-						.getDefault().getId());
+				TestCase.assertEquals(tableIconDefault.getId(),
+						tableIcons.getDefault().getId());
 				TestCase.assertEquals(tableIconDefault.getId(),
 						featureTableStyles.getTableIcon(null).getId());
 				TestCase.assertEquals(baseGeometryTypeIcon.getId(),
@@ -377,6 +389,48 @@ public class FeatureStylesUtils {
 
 					FeatureRow featureRow = featureResultSet.getRow();
 
+					long featureRowId = featureRow.getId();
+					Map<GeometryType, StyleRow> featureRowStyles = featureResultsStyles
+							.get(featureRowId);
+					boolean hasFeatureRowStyles = featureRowStyles != null;
+					Map<GeometryType, IconRow> featureRowIcons = featureResultsIcons
+							.get(featureRowId);
+					boolean hasFeatureRowIcons = featureRowIcons != null;
+					FeatureStyle featureStyle = featureTableStyles
+							.getFeatureStyle(featureRow);
+					assertNotNull(featureStyle);
+					assertTrue(featureStyle.hasStyle());
+					assertNotNull(featureStyle.getStyle());
+					assertEquals(!hasFeatureRowStyles,
+							featureStyle.getStyle().isTableStyle());
+					if (hasFeatureRowStyles) {
+						assertEquals(featureRowStyles.get(null).getId(),
+								featureStyle.getStyle().getId());
+					} else {
+						assertEquals(tableStyleDefault.getId(),
+								featureStyle.getStyle().getId());
+					}
+					assertTrue(featureStyle.hasIcon());
+					assertNotNull(featureStyle.getIcon());
+					assertEquals(!hasFeatureRowIcons,
+							featureStyle.getIcon().isTableIcon());
+					if (hasFeatureRowIcons) {
+						assertEquals(featureRowIcons.get(null).getId(),
+								featureStyle.getIcon().getId());
+					} else {
+						IconRow expectedIconRow = null;
+						if (featureRow.getGeometryType() == null) {
+							expectedIconRow = tableIconDefault;
+						} else {
+							expectedIconRow = geometryTypeTableIcons
+									.get(featureRow.getGeometryType());
+						}
+						assertEquals(expectedIconRow.getId(),
+								featureStyle.getIcon().getId());
+					}
+					assertEquals(hasFeatureRowIcons || !hasFeatureRowStyles,
+							featureStyle.useIcon());
+
 					validateRowStyles(featureTableStyles, featureRow,
 							tableStyleDefault, geometryTypeTableStyles,
 							featureResultsStyles);
@@ -397,17 +451,17 @@ public class FeatureStylesUtils {
 
 				TestCase.assertTrue(tables.contains(tableName));
 
-				TestCase.assertNotNull(featureStyleExtension
-						.getTableStyles(tableName));
-				TestCase.assertNotNull(featureStyleExtension
-						.getTableIcons(tableName));
+				TestCase.assertNotNull(
+						featureStyleExtension.getTableStyles(tableName));
+				TestCase.assertNotNull(
+						featureStyleExtension.getTableIcons(tableName));
 
 				featureStyleExtension.deleteAllFeatureStyles(tableName);
 
-				TestCase.assertNull(featureStyleExtension
-						.getTableStyles(tableName));
-				TestCase.assertNull(featureStyleExtension
-						.getTableIcons(tableName));
+				TestCase.assertNull(
+						featureStyleExtension.getTableStyles(tableName));
+				TestCase.assertNull(
+						featureStyleExtension.getTableIcons(tableName));
 
 				FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
 				FeatureResultSet featureResultSet = featureDao.queryForAll();
@@ -415,10 +469,10 @@ public class FeatureStylesUtils {
 
 					FeatureRow featureRow = featureResultSet.getRow();
 
-					TestCase.assertNull(featureStyleExtension
-							.getStyles(featureRow));
-					TestCase.assertNull(featureStyleExtension
-							.getIcons(featureRow));
+					TestCase.assertNull(
+							featureStyleExtension.getStyles(featureRow));
+					TestCase.assertNull(
+							featureStyleExtension.getIcons(featureRow));
 
 				}
 				featureResultSet.close();
@@ -490,16 +544,16 @@ public class FeatureStylesUtils {
 					typeIconRow = geometryTypeIcons.get(type.getKey());
 					TestCase.assertTrue(typeIconRow.getId() >= 0);
 					TestCase.assertNotNull(typeIconRow.getData());
-					TestCase.assertEquals("image/"
-							+ TestConstants.ICON_POINT_IMAGE_EXTENSION,
+					TestCase.assertEquals(
+							"image/" + TestConstants.ICON_POINT_IMAGE_EXTENSION,
 							typeIconRow.getContentType());
 					BufferedImage iconImage = typeIconRow.getDataImage();
 					TestCase.assertNotNull(iconImage);
 					TestCase.assertTrue(iconImage.getWidth() > 0);
 					TestCase.assertTrue(iconImage.getHeight() > 0);
 				}
-				TestCase.assertEquals(typeIconRow.getId(), featureTableStyles
-						.getTableIcon(type.getKey()).getId());
+				TestCase.assertEquals(typeIconRow.getId(),
+						featureTableStyles.getTableIcon(type.getKey()).getId());
 				@SuppressWarnings("unchecked")
 				Map<GeometryType, Map<GeometryType, ?>> childGeometryTypes = (Map<GeometryType, Map<GeometryType, ?>>) type
 						.getValue();
@@ -509,9 +563,8 @@ public class FeatureStylesUtils {
 		}
 	}
 
-	private static void validateRowStyles(
-			FeatureTableStyles featureTableStyles, FeatureRow featureRow,
-			StyleRow tableStyleDefault,
+	private static void validateRowStyles(FeatureTableStyles featureTableStyles,
+			FeatureRow featureRow, StyleRow tableStyleDefault,
 			Map<GeometryType, StyleRow> geometryTypeTableStyles,
 			Map<Long, Map<GeometryType, StyleRow>> featureResultsStyles) {
 
@@ -541,9 +594,9 @@ public class FeatureStylesUtils {
 
 	}
 
-	private static void validateRowStyles(
-			FeatureTableStyles featureTableStyles, FeatureRow featureRow,
-			GeometryType geometryType, StyleRow tableStyleDefault,
+	private static void validateRowStyles(FeatureTableStyles featureTableStyles,
+			FeatureRow featureRow, GeometryType geometryType,
+			StyleRow tableStyleDefault,
 			Map<GeometryType, StyleRow> geometryTypeTableStyles,
 			Map<Long, Map<GeometryType, StyleRow>> featureResultsStyles) {
 
@@ -615,8 +668,8 @@ public class FeatureStylesUtils {
 
 		GeometryType geometryType = featureRow.getGeometryType();
 
-		validateRowIcons(featureTableStyles, featureRow, null,
-				tableIconDefault, geometryTypeTableIcons, featureResultsIcons);
+		validateRowIcons(featureTableStyles, featureRow, null, tableIconDefault,
+				geometryTypeTableIcons, featureResultsIcons);
 
 		if (geometryType != null) {
 
@@ -744,8 +797,8 @@ public class FeatureStylesUtils {
 		BufferedImage iconImage = ImageUtils.getImage(iconBytes);
 
 		iconRow.setData(iconBytes);
-		iconRow.setContentType("image/"
-				+ TestConstants.ICON_POINT_IMAGE_EXTENSION);
+		iconRow.setContentType(
+				"image/" + TestConstants.ICON_POINT_IMAGE_EXTENSION);
 		if (Math.random() < .5) {
 			iconRow.setName("Icon Name");
 		}
@@ -824,8 +877,8 @@ public class FeatureStylesUtils {
 	private static StyleRow randomStyle(List<StyleRow> randomStyles) {
 		StyleRow randomStyle = null;
 		if (randomStyles != null) {
-			randomStyle = randomStyles.get((int) (Math.random() * randomStyles
-					.size()));
+			randomStyle = randomStyles
+					.get((int) (Math.random() * randomStyles.size()));
 		} else {
 			randomStyle = randomStyle();
 		}
@@ -837,8 +890,8 @@ public class FeatureStylesUtils {
 			throws IOException {
 		IconRow randomIcon = null;
 		if (randomIcons != null) {
-			randomIcon = randomIcons.get((int) (Math.random() * randomIcons
-					.size()));
+			randomIcon = randomIcons
+					.get((int) (Math.random() * randomIcons.size()));
 		} else {
 			randomIcon = randomIcon();
 		}
@@ -846,7 +899,8 @@ public class FeatureStylesUtils {
 		return randomIcon;
 	}
 
-	private static List<GeometryType> getAllChildTypes(GeometryType geometryType) {
+	private static List<GeometryType> getAllChildTypes(
+			GeometryType geometryType) {
 
 		List<GeometryType> allChildTypes = new ArrayList<>();
 

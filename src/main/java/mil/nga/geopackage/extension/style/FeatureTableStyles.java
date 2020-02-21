@@ -41,7 +41,8 @@ public class FeatureTableStyles {
 	 * @param featureTable
 	 *            feature table
 	 */
-	public FeatureTableStyles(GeoPackage geoPackage, FeatureTable featureTable) {
+	public FeatureTableStyles(GeoPackage geoPackage,
+			FeatureTable featureTable) {
 		this(geoPackage, featureTable.getTableName());
 	}
 
@@ -321,7 +322,7 @@ public class FeatureTableStyles {
 				if (styles == null) {
 					styles = getTableStyles();
 					if (styles == null) {
-						styles = new Styles();
+						styles = new Styles(true);
 					}
 					cachedTableFeatureStyles.setStyles(styles);
 				}
@@ -379,7 +380,7 @@ public class FeatureTableStyles {
 				if (icons == null) {
 					icons = getTableIcons();
 					if (icons == null) {
-						icons = new Icons();
+						icons = new Icons(true);
 					}
 					cachedTableFeatureStyles.setIcons(icons);
 				}
@@ -592,8 +593,8 @@ public class FeatureTableStyles {
 	 */
 	public StyleRow getStyle(long featureId, GeometryType geometryType) {
 
-		StyleRow styleRow = featureStyleExtension.getStyle(tableName,
-				featureId, geometryType, false);
+		StyleRow styleRow = featureStyleExtension.getStyle(tableName, featureId,
+				geometryType, false);
 
 		if (styleRow == null) {
 
@@ -837,7 +838,8 @@ public class FeatureTableStyles {
 	 * @param featureStyle
 	 *            feature style
 	 */
-	public void setFeatureStyle(FeatureRow featureRow, FeatureStyle featureStyle) {
+	public void setFeatureStyle(FeatureRow featureRow,
+			FeatureStyle featureStyle) {
 		featureStyleExtension.setFeatureStyle(featureRow, featureStyle);
 	}
 
@@ -895,7 +897,8 @@ public class FeatureTableStyles {
 	 * @param featureStyle
 	 *            feature style
 	 */
-	public void setFeatureStyleDefault(long featureId, FeatureStyle featureStyle) {
+	public void setFeatureStyleDefault(long featureId,
+			FeatureStyle featureStyle) {
 		featureStyleExtension.setFeatureStyleDefault(tableName, featureId,
 				featureStyle);
 	}
@@ -1065,7 +1068,8 @@ public class FeatureTableStyles {
 	 * @param icon
 	 *            icon row
 	 */
-	public void setIcon(long featureId, GeometryType geometryType, IconRow icon) {
+	public void setIcon(long featureId, GeometryType geometryType,
+			IconRow icon) {
 		featureStyleExtension.setIcon(tableName, featureId, geometryType, icon);
 	}
 

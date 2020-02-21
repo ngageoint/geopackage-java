@@ -27,6 +27,29 @@ public class Styles {
 	private Map<GeometryType, StyleRow> styles = new HashMap<>();
 
 	/**
+	 * Table styles flag
+	 */
+	private boolean tableStyles;
+
+	/**
+	 * Constructor
+	 */
+	public Styles() {
+		this(false);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param tableStyles
+	 *            table styles
+	 * @since 3.5.0
+	 */
+	public Styles(boolean tableStyles) {
+		this.tableStyles = tableStyles;
+	}
+
+	/**
 	 * Set the default style icon
 	 * 
 	 * @param styleRow
@@ -45,6 +68,9 @@ public class Styles {
 	 *            geometry type
 	 */
 	public void setStyle(StyleRow styleRow, GeometryType geometryType) {
+		if (styleRow != null) {
+			styleRow.setTableStyle(tableStyles);
+		}
 		if (geometryType != null) {
 			if (styleRow != null) {
 				styles.put(geometryType, styleRow);
@@ -133,6 +159,27 @@ public class Styles {
 	 */
 	public boolean hasDefault() {
 		return defaultStyle != null;
+	}
+
+	/**
+	 * Is table styles
+	 * 
+	 * @return table styles flag
+	 * @since 3.5.0
+	 */
+	public boolean isTableStyles() {
+		return tableStyles;
+	}
+
+	/**
+	 * Set table styles flag
+	 * 
+	 * @param tableStyles
+	 *            table styles flag
+	 * @since 3.5.0
+	 */
+	public void setTableStyles(boolean tableStyles) {
+		this.tableStyles = tableStyles;
 	}
 
 }

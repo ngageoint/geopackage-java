@@ -275,8 +275,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		boolean drawn = false;
 		while (results.hasNext()) {
 			GeometryIndex geometryIndex = results.next();
-			FeatureRow featureRow = getFeatureIndex().getFeatureRow(
-					geometryIndex);
+			FeatureRow featureRow = getFeatureIndex()
+					.getFeatureRow(geometryIndex);
 			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
 					webMercatorTransform, graphics, featureRow)) {
 				drawn = true;
@@ -424,8 +424,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 						if (cacheGeometries) {
 							// Set the geometry envelope to the transformed
 							// bounding box
-							geomData.setEnvelope(transformedBoundingBox
-									.buildEnvelope());
+							geomData.setEnvelope(
+									transformedBoundingBox.buildEnvelope());
 						}
 					}
 
@@ -676,8 +676,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		lineGraphics.setColor(paint.getColor());
 		lineGraphics.setStroke(paint.getStroke());
 
-		boolean drawn = lineGraphics.hit(new java.awt.Rectangle(tileWidth,
-				tileHeight), line, true);
+		boolean drawn = lineGraphics
+				.hit(new java.awt.Rectangle(tileWidth, tileHeight), line, true);
 		if (drawn) {
 			lineGraphics.draw(line);
 		}
@@ -744,8 +744,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		polygonGraphics.setColor(paint.getColor());
 		polygonGraphics.setStroke(paint.getStroke());
 
-		boolean drawn = polygonGraphics.hit(new java.awt.Rectangle(tileWidth,
-				tileHeight), polygon, true);
+		boolean drawn = polygonGraphics.hit(
+				new java.awt.Rectangle(tileWidth, tileHeight), polygon, true);
 		if (drawn) {
 			polygonGraphics.draw(polygon);
 		}
@@ -781,7 +781,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		float y = TileBoundingBoxUtils.getYPixel(tileHeight, boundingBox,
 				projectedPoint.getY());
 
-		if (featureStyle != null && featureStyle.hasIcon()) {
+		if (featureStyle != null && featureStyle.useIcon()) {
 
 			IconRow iconRow = featureStyle.getIcon();
 			BufferedImage icon = getIcon(iconRow);
@@ -812,8 +812,8 @@ public class DefaultFeatureTiles extends FeatureTiles {
 				int iconX = Math.round(x - this.scale * pointIcon.getXOffset());
 				int iconY = Math.round(y - this.scale * pointIcon.getYOffset());
 				Graphics2D iconGraphics = graphics.getIconGraphics();
-				iconGraphics.drawImage(pointIcon.getIcon(), iconX, iconY,
-						width, height, null);
+				iconGraphics.drawImage(pointIcon.getIcon(), iconX, iconY, width,
+						height, null);
 				drawn = true;
 			}
 
