@@ -403,31 +403,20 @@ public class FeatureStylesUtils {
 					assertNotNull(featureStyle.getStyle());
 					assertEquals(!hasFeatureRowStyles,
 							featureStyle.getStyle().isTableStyle());
-					if (hasFeatureRowStyles) {
-						assertEquals(featureRowStyles.get(null).getId(),
-								featureStyle.getStyle().getId());
-					} else {
-						assertEquals(tableStyleDefault.getId(),
-								featureStyle.getStyle().getId());
-					}
+					StyleRow expectedStyleRow = getExpectedRowStyle(featureRow,
+							featureRow.getGeometryType(), tableStyleDefault,
+							geometryTypeTableStyles, featureResultsStyles);
+					assertEquals(expectedStyleRow.getId(),
+							featureStyle.getStyle().getId());
 					assertTrue(featureStyle.hasIcon());
 					assertNotNull(featureStyle.getIcon());
 					assertEquals(!hasFeatureRowIcons,
 							featureStyle.getIcon().isTableIcon());
-					if (hasFeatureRowIcons) {
-						assertEquals(featureRowIcons.get(null).getId(),
-								featureStyle.getIcon().getId());
-					} else {
-						IconRow expectedIconRow = null;
-						if (featureRow.getGeometryType() == null) {
-							expectedIconRow = tableIconDefault;
-						} else {
-							expectedIconRow = geometryTypeTableIcons
-									.get(featureRow.getGeometryType());
-						}
-						assertEquals(expectedIconRow.getId(),
-								featureStyle.getIcon().getId());
-					}
+					IconRow expectedIconRow = getExpectedRowIcon(featureRow,
+							featureRow.getGeometryType(), tableIconDefault,
+							geometryTypeTableIcons, featureResultsIcons);
+					assertEquals(expectedIconRow.getId(),
+							featureStyle.getIcon().getId());
 					assertEquals(hasFeatureRowIcons || !hasFeatureRowStyles,
 							featureStyle.useIcon());
 
@@ -608,6 +597,34 @@ public class FeatureStylesUtils {
 			styleRow = featureTableStyles.getStyle(featureRow, geometryType);
 		}
 
+		StyleRow expectedStyleRow = getExpectedRowStyle(featureRow,
+				geometryType, tableStyleDefault, geometryTypeTableStyles,
+				featureResultsStyles);
+
+		if (expectedStyleRow != null) {
+			TestCase.assertEquals(expectedStyleRow.getId(), styleRow.getId());
+			TestCase.assertNotNull(styleRow.getTable());
+			TestCase.assertTrue(styleRow.getId() >= 0);
+			styleRow.getName();
+			styleRow.getDescription();
+			styleRow.getColor();
+			styleRow.getHexColor();
+			styleRow.getOpacity();
+			styleRow.getWidth();
+			styleRow.getFillColor();
+			styleRow.getFillHexColor();
+			styleRow.getFillOpacity();
+		} else {
+			TestCase.assertNull(styleRow);
+		}
+
+	}
+
+	private static StyleRow getExpectedRowStyle(FeatureRow featureRow,
+			GeometryType geometryType, StyleRow tableStyleDefault,
+			Map<GeometryType, StyleRow> geometryTypeTableStyles,
+			Map<Long, Map<GeometryType, StyleRow>> featureResultsStyles) {
+
 		List<GeometryType> geometryTypes = null;
 		if (geometryType != null) {
 			geometryTypes = GeometryUtils.parentHierarchy(geometryType);
@@ -642,23 +659,7 @@ public class FeatureStylesUtils {
 			}
 		}
 
-		if (expectedStyleRow != null) {
-			TestCase.assertEquals(expectedStyleRow.getId(), styleRow.getId());
-			TestCase.assertNotNull(styleRow.getTable());
-			TestCase.assertTrue(styleRow.getId() >= 0);
-			styleRow.getName();
-			styleRow.getDescription();
-			styleRow.getColor();
-			styleRow.getHexColor();
-			styleRow.getOpacity();
-			styleRow.getWidth();
-			styleRow.getFillColor();
-			styleRow.getFillHexColor();
-			styleRow.getFillOpacity();
-		} else {
-			TestCase.assertNull(styleRow);
-		}
-
+		return expectedStyleRow;
 	}
 
 	private static void validateRowIcons(FeatureTableStyles featureTableStyles,
@@ -705,6 +706,30 @@ public class FeatureStylesUtils {
 			iconRow = featureTableStyles.getIcon(featureRow, geometryType);
 		}
 
+		IconRow expectedIconRow = getExpectedRowIcon(featureRow, geometryType,
+				tableIconDefault, geometryTypeTableIcons, featureResultsIcons);
+
+		if (expectedIconRow != null) {
+			TestCase.assertEquals(expectedIconRow.getId(), iconRow.getId());
+			TestCase.assertNotNull(iconRow.getTable());
+			TestCase.assertTrue(iconRow.getId() >= 0);
+			iconRow.getName();
+			iconRow.getDescription();
+			iconRow.getWidth();
+			iconRow.getHeight();
+			iconRow.getAnchorU();
+			iconRow.getAnchorV();
+		} else {
+			TestCase.assertNull(iconRow);
+		}
+
+	}
+
+	private static IconRow getExpectedRowIcon(FeatureRow featureRow,
+			GeometryType geometryType, IconRow tableIconDefault,
+			Map<GeometryType, IconRow> geometryTypeTableIcons,
+			Map<Long, Map<GeometryType, IconRow>> featureResultsIcons) {
+
 		List<GeometryType> geometryTypes = null;
 		if (geometryType != null) {
 			geometryTypes = GeometryUtils.parentHierarchy(geometryType);
@@ -739,20 +764,7 @@ public class FeatureStylesUtils {
 			}
 		}
 
-		if (expectedIconRow != null) {
-			TestCase.assertEquals(expectedIconRow.getId(), iconRow.getId());
-			TestCase.assertNotNull(iconRow.getTable());
-			TestCase.assertTrue(iconRow.getId() >= 0);
-			iconRow.getName();
-			iconRow.getDescription();
-			iconRow.getWidth();
-			iconRow.getHeight();
-			iconRow.getAnchorU();
-			iconRow.getAnchorV();
-		} else {
-			TestCase.assertNull(iconRow);
-		}
-
+		return expectedIconRow;
 	}
 
 	private static StyleRow randomStyle() {
