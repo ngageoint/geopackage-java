@@ -46,7 +46,7 @@ import mil.nga.sf.proj.Projection;
  * 
  * @author osbornb
  */
-class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
+public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 
 	/**
 	 * Database connection

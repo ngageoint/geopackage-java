@@ -2,11 +2,11 @@ package mil.nga.geopackage.features.index;
 
 import java.util.Iterator;
 
+import com.j256.ormlite.dao.CloseableIterator;
+
 import mil.nga.geopackage.extension.index.FeatureTableIndex;
 import mil.nga.geopackage.extension.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureRow;
-
-import com.j256.ormlite.dao.CloseableIterator;
 
 /**
  * Iterable Feature Index Results to iterate on feature rows retrieved from
@@ -15,7 +15,7 @@ import com.j256.ormlite.dao.CloseableIterator;
  * @author osbornb
  * @since 3.1.0
  */
-class FeatureIndexGeoPackageResults implements FeatureIndexResults {
+public class FeatureIndexGeoPackageResults implements FeatureIndexResults {
 
 	/**
 	 * Feature Table Index, for indexing within a GeoPackage extension
