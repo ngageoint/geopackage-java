@@ -1,7 +1,6 @@
 package mil.nga.geopackage.manager;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -20,7 +19,7 @@ import mil.nga.geopackage.validate.GeoPackageValidate;
 
 /**
  * GeoPackage Manager used to create and open GeoPackages
- *
+ * 
  * @author osbornb
  */
 public class GeoPackageManager {
@@ -32,10 +31,10 @@ public class GeoPackageManager {
 
 	/**
 	 * Create a GeoPackage
-	 *
+	 * 
 	 * @param file
 	 *            file
-	 * @return true if created
+	 * @return true when created
 	 * @throws GeoPackageException if the GeoPackage already exists
 	 */
 	public static boolean create(File file) {
@@ -72,7 +71,7 @@ public class GeoPackageManager {
 
 	/**
 	 * Open a GeoPackage
-	 *
+	 * 
 	 * @param file
 	 *            file
 	 * @return GeoPackage
@@ -83,7 +82,7 @@ public class GeoPackageManager {
 
 	/**
 	 * Open a GeoPackage
-	 *
+	 * 
 	 * @param file
 	 *            file
 	 * @param validate
@@ -97,7 +96,7 @@ public class GeoPackageManager {
 
 	/**
 	 * Open a GeoPackage
-	 *
+	 * 
 	 * @param name
 	 *            GeoPackage name
 	 * @param file
@@ -111,7 +110,7 @@ public class GeoPackageManager {
 
 	/**
 	 * Open a GeoPackage
-	 *
+	 * 
 	 * @param name
 	 *            GeoPackage name
 	 * @param file
@@ -139,26 +138,8 @@ public class GeoPackageManager {
 				connection);
 
 		// Create a GeoPackage
-		GeoPackage geoPackage;
-		final String geoPackageClass = System.getenv("GeoPackageClass");
-		if (geoPackageClass == null) {
-			geoPackage = new GeoPackageImpl(name, file, connection,
-					tableCreator);
-		} else {
-			try {
-				Constructor<?> con = Class.forName(geoPackageClass).
-						getConstructor(String.class,
-								File.class,
-								GeoPackageConnection.class,
-								GeoPackageTableCreator.class);
-				con.setAccessible(true);
-				geoPackage = (GeoPackage)con.newInstance(name, file, connection, tableCreator);
-			} catch (Exception e) {
-				throw new RuntimeException(
-						String.format("Failed to instantiate GeoPackage object of class %s.",
-								geoPackageClass), e);
-			}
-		}
+		GeoPackage geoPackage = new GeoPackageImpl(name, file, connection,
+				tableCreator);
 
 		// Validate the GeoPackage has the minimum required tables
 		if (validate) {
@@ -175,10 +156,9 @@ public class GeoPackageManager {
 
 	/**
 	 * Connect to a GeoPackage file
-	 *
-	 * @param file
-	 *            GeoPackage file
-	 * @return GeoPackage
+	 * 
+	 * @param file GeoPackage file
+	 * @return GeoPackageConnection
 	 */
 	private static GeoPackageConnection connect(File file) {
 
