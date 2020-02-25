@@ -12,6 +12,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * XYZ tile rebranding, previously referred to as standard and/or Google
 * Separation of columns from user tables
 * Queries by specified columns
+* Feature Preview for drawing a single preview tile of features
 * Feature Style Extension fix to use an individual feature style over a default table icon
 * GeoPackageImpl and FeatureIndexGeoPackageResults classes changed to be public
 

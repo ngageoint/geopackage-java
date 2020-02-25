@@ -109,14 +109,4 @@ public class GeoPackageCreateTest extends CreateGeoPackageTestCase {
 
 	}
 
-	/**
-	 * Test draw feature preview
-	 */
-	@Test
-	public void testDrawFeaturePreview() {
-
-		GeoPackageTestUtils.testDrawFeaturePreview(geoPackage);
-
-	}
-	
 }
