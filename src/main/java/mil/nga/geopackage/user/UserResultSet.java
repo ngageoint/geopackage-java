@@ -174,6 +174,14 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * {@inheritDoc}
 	 */
 	@Override
+	public String getTableName() {
+		return table.getTableName();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public UserColumns<TColumn> getColumns() {
 		return columns;
 	}

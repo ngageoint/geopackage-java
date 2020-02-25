@@ -12,6 +12,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.locationtech.proj4j.units.Units;
+
+import com.j256.ormlite.dao.CloseableIterator;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
@@ -40,10 +44,6 @@ import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryUtils;
 
-import org.locationtech.proj4j.units.Units;
-
-import com.j256.ormlite.dao.CloseableIterator;
-
 /**
  * Tiles generated from features
  *
@@ -55,8 +55,8 @@ public abstract class FeatureTiles {
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(FeatureTiles.class
-			.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(FeatureTiles.class.getName());
 
 	/**
 	 * WGS84 Projection
@@ -282,8 +282,8 @@ public abstract class FeatureTiles {
 	 *            drawn tile height
 	 * @since 3.2.0
 	 */
-	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
-			int width, int height) {
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao, int width,
+			int height) {
 		this(geoPackage, featureDao, TileUtils.tileScale(width, height), width,
 				height);
 	}
@@ -344,8 +344,8 @@ public abstract class FeatureTiles {
 				JavaPropertyConstants.FEATURE_TILES_POLYGON,
 				JavaPropertyConstants.FEATURE_TILES_COLOR));
 
-		fillPolygon = GeoPackageJavaProperties
-				.getBooleanProperty(JavaPropertyConstants.FEATURE_TILES_POLYGON_FILL);
+		fillPolygon = GeoPackageJavaProperties.getBooleanProperty(
+				JavaPropertyConstants.FEATURE_TILES_POLYGON_FILL);
 		polygonFillPaint.setColor(GeoPackageJavaProperties.getColorProperty(
 				JavaPropertyConstants.FEATURE_TILES_POLYGON_FILL,
 				JavaPropertyConstants.FEATURE_TILES_COLOR));
@@ -406,8 +406,8 @@ public abstract class FeatureTiles {
 
 			StyleDao styleDao = featureTableStyles.getStyleDao();
 			for (long styleRowId : styleRowIds) {
-				StyleRow styleRow = styleDao.getRow(styleDao
-						.queryForIdRow(styleRowId));
+				StyleRow styleRow = styleDao
+						.getRow(styleDao.queryForIdRow(styleRowId));
 				float styleHalfWidth = this.scale
 						* (float) (styleRow.getWidthOrDefault() / 2.0f);
 				widthOverlap = Math.max(widthOverlap, styleHalfWidth);
@@ -427,8 +427,8 @@ public abstract class FeatureTiles {
 
 			IconDao iconDao = featureTableStyles.getIconDao();
 			for (long iconRowId : iconRowIds) {
-				IconRow iconRow = iconDao.getRow(iconDao
-						.queryForIdRow(iconRowId));
+				IconRow iconRow = iconDao
+						.getRow(iconDao.queryForIdRow(iconRowId));
 				double[] iconDimensions = iconRow.getDerivedDimensions();
 				float iconWidth = this.scale
 						* (float) Math.ceil(iconDimensions[0]);
@@ -1009,7 +1009,8 @@ public abstract class FeatureTiles {
 		if (tileCount > 0) {
 
 			// Query for geometries matching the bounds in the index
-			CloseableIterator<GeometryIndex> results = queryIndexedFeatures(webMercatorBoundingBox);
+			CloseableIterator<GeometryIndex> results = queryIndexedFeatures(
+					webMercatorBoundingBox);
 
 			try {
 
@@ -1031,7 +1032,8 @@ public abstract class FeatureTiles {
 				} catch (IOException e) {
 					LOGGER.log(Level.WARNING,
 							"Failed to close result set for query on x: " + x
-									+ ", y: " + y + ", zoom: " + zoom, e);
+									+ ", y: " + y + ", zoom: " + zoom,
+							e);
 				}
 			}
 		}
@@ -1073,7 +1075,8 @@ public abstract class FeatureTiles {
 
 		// Create an expanded bounding box to handle features outside the tile
 		// that overlap
-		BoundingBox expandedQueryBoundingBox = expandBoundingBox(webMercatorBoundingBox);
+		BoundingBox expandedQueryBoundingBox = expandBoundingBox(
+				webMercatorBoundingBox);
 
 		// Query for the count of geometries matching the bounds in the index
 		long count = featureIndex.count(expandedQueryBoundingBox,
@@ -1117,11 +1120,12 @@ public abstract class FeatureTiles {
 
 		// Create an expanded bounding box to handle features outside the tile
 		// that overlap
-		BoundingBox expandedQueryBoundingBox = expandBoundingBox(webMercatorBoundingBox);
+		BoundingBox expandedQueryBoundingBox = expandBoundingBox(
+				webMercatorBoundingBox);
 
 		// Query for geometries matching the bounds in the index
-		CloseableIterator<GeometryIndex> results = featureIndex.query(
-				expandedQueryBoundingBox, WEB_MERCATOR_PROJECTION);
+		CloseableIterator<GeometryIndex> results = featureIndex
+				.query(expandedQueryBoundingBox, WEB_MERCATOR_PROJECTION);
 
 		return results;
 	}
@@ -1170,7 +1174,8 @@ public abstract class FeatureTiles {
 	 * @since 3.2.0
 	 */
 	public BoundingBox expandBoundingBox(BoundingBox webMercatorBoundingBox) {
-		return expandBoundingBox(webMercatorBoundingBox, webMercatorBoundingBox);
+		return expandBoundingBox(webMercatorBoundingBox,
+				webMercatorBoundingBox);
 	}
 
 	/**
@@ -1212,18 +1217,12 @@ public abstract class FeatureTiles {
 		maxLatitude = Math.max(maxLatitude,
 				webMercatorBoundingBox.getMaxLatitude());
 
-		// Bound with the web mercator limits
-		minLongitude = Math.max(minLongitude, -1
-				* ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
-		maxLongitude = Math.min(maxLongitude,
-				ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
-		minLatitude = Math.max(minLatitude, -1
-				* ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
-		maxLatitude = Math.min(maxLatitude,
-				ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH);
-
 		BoundingBox expandedBoundingBox = new BoundingBox(minLongitude,
 				minLatitude, maxLongitude, maxLatitude);
+
+		// Bound with the web mercator limits
+		expandedBoundingBox = TileBoundingBoxUtils
+				.boundWebMercatorBoundingBox(expandedBoundingBox);
 
 		return expandedBoundingBox;
 	}
@@ -1309,8 +1308,8 @@ public abstract class FeatureTiles {
 	 * @return transform
 	 */
 	protected ProjectionTransform getWebMercatorTransform() {
-		return this.featureDao.getProjection().getTransformation(
-				ProjectionConstants.EPSG_WEB_MERCATOR);
+		return this.featureDao.getProjection()
+				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
 	}
 
 	/**
@@ -1408,7 +1407,8 @@ public abstract class FeatureTiles {
 	 */
 	protected Paint getPointPaint(FeatureStyle featureStyle) {
 
-		Paint paint = getFeatureStylePaint(featureStyle, FeatureDrawType.CIRCLE);
+		Paint paint = getFeatureStylePaint(featureStyle,
+				FeatureDrawType.CIRCLE);
 
 		if (paint == null) {
 			paint = pointPaint;
@@ -1426,7 +1426,8 @@ public abstract class FeatureTiles {
 	 */
 	protected Paint getLinePaint(FeatureStyle featureStyle) {
 
-		Paint paint = getFeatureStylePaint(featureStyle, FeatureDrawType.STROKE);
+		Paint paint = getFeatureStylePaint(featureStyle,
+				FeatureDrawType.STROKE);
 
 		if (paint == null) {
 			paint = linePaint;
@@ -1444,7 +1445,8 @@ public abstract class FeatureTiles {
 	 */
 	protected Paint getPolygonPaint(FeatureStyle featureStyle) {
 
-		Paint paint = getFeatureStylePaint(featureStyle, FeatureDrawType.STROKE);
+		Paint paint = getFeatureStylePaint(featureStyle,
+				FeatureDrawType.STROKE);
 
 		if (paint == null) {
 			paint = polygonPaint;
@@ -1549,8 +1551,8 @@ public abstract class FeatureTiles {
 				strokeWidth = this.scale * (float) style.getWidthOrDefault();
 				break;
 			default:
-				throw new GeoPackageException("Unsupported Draw Type: "
-						+ drawType);
+				throw new GeoPackageException(
+						"Unsupported Draw Type: " + drawType);
 			}
 
 			Paint stylePaint = new Paint();

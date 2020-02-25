@@ -1,5 +1,9 @@
 package mil.nga.geopackage.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,6 +16,7 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -567,6 +572,58 @@ public class GeoPackageTestUtils {
 			long newSize = file.length();
 			TestCase.assertTrue(size > newSize);
 			size = newSize;
+
+		}
+
+	}
+
+	/**
+	 * Test the GeoPackage draw feature preview
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 */
+	public static void testDrawFeaturePreview(GeoPackage geoPackage) {
+
+		for (String featureTable : geoPackage.getFeatureTables()) {
+
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+			int count = featureDao.count(
+					CoreSQLUtils.quoteWrap(featureDao.getGeometryColumnName())
+							+ " IS NOT NULL");
+
+			BoundingBox contentsBoundingBox = geoPackage
+					.getContentsBoundingBox(featureTable);
+			BoundingBox indexedBoundingBox = geoPackage
+					.getBoundingBox(featureTable);
+			boolean expectImage = (contentsBoundingBox != null
+					|| indexedBoundingBox != null) && count > 0;
+			boolean epsg = featureDao.getProjection().getAuthority()
+					.equalsIgnoreCase(ProjectionConstants.AUTHORITY_EPSG);
+
+			BufferedImage image = geoPackage.drawFeaturePreview(featureTable,
+					false, 0.1);
+			if (epsg) {
+				assertEquals(expectImage, image != null);
+			}
+
+			BufferedImage imageLimit = geoPackage.drawFeaturePreview(
+					featureTable, false, 0.0, (int) Math.ceil(count / 2.0));
+			if (epsg) {
+				assertEquals(expectImage, imageLimit != null);
+			}
+
+			BufferedImage imageManual = geoPackage
+					.drawFeaturePreview(featureTable, true, 0.15);
+			if (epsg) {
+				assertNotNull(imageManual);
+			}
+
+			BufferedImage imageManualLimit = geoPackage.drawFeaturePreview(
+					featureTable, true, 0.05, Math.max(count - 1, 1));
+			if (epsg) {
+				assertNotNull(imageManualLimit);
+			}
 
 		}
 

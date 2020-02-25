@@ -1,5 +1,6 @@
 package mil.nga.geopackage;
 
+import java.awt.image.BufferedImage;
 import java.sql.ResultSet;
 
 import mil.nga.geopackage.attributes.AttributesDao;
@@ -166,5 +167,44 @@ public interface GeoPackage extends GeoPackageCore {
 	 * @since 1.1.2
 	 */
 	public ResultSet quickCheck();
+
+	/**
+	 * Draw a feature preview image from all features in a feature table
+	 * 
+	 * @param table
+	 *            feature table name
+	 * @param manual
+	 *            manually query for a bounding box if not indexed and no
+	 *            contents bounds, false to instead return no image
+	 * @param bufferPercentage
+	 *            image empty edge buffer percentage (>= 0.0 && < 0.5), 0.0 for
+	 *            no buffer, 0.1 for 10% edge buffer
+	 * @return preview image or null
+	 * @since 3.5.0
+	 */
+	public BufferedImage drawFeaturePreview(String table, boolean manual,
+			double bufferPercentage);
+
+	// TODO Tile sizes
+	
+	/**
+	 * Draw a feature preview image from all features up to the limit in a
+	 * feature table
+	 * 
+	 * @param table
+	 *            feature table name
+	 * @param manual
+	 *            manually query for a bounding box if not indexed and no
+	 *            contents bounds, false to instead return no image
+	 * @param bufferPercentage
+	 *            image empty edge buffer percentage (>= 0.0 && < 0.5), 0.0 for
+	 *            no buffer, 0.1 for 10% edge buffer
+	 * @param limit
+	 *            query result limit
+	 * @return preview image or null
+	 * @since 3.5.0
+	 */
+	public BufferedImage drawFeaturePreview(String table, boolean manual,
+			double bufferPercentage, Integer limit);
 
 }

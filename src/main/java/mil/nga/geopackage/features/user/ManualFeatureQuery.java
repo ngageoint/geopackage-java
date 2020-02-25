@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.proj.Projection;
@@ -130,7 +131,9 @@ public class ManualFeatureQuery {
 	 */
 	public int countWithGeometries() {
 		return featureDao.count(
-				featureDao.getGeometryColumnName() + " IS NOT NULL", null);
+				CoreSQLUtils.quoteWrap(featureDao.getGeometryColumnName())
+						+ " IS NOT NULL",
+				null);
 	}
 
 	/**

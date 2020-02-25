@@ -1,5 +1,6 @@
 package mil.nga.geopackage.manager;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,8 +27,12 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.features.user.FeatureTableReader;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrix.TileMatrixKey;
@@ -40,6 +45,8 @@ import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomTable;
 import mil.nga.geopackage.user.custom.UserCustomTableReader;
 import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 /**
  * GeoPackage implementation
@@ -486,6 +493,64 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 					"Integrity check failed on database: " + getName(), e);
 		}
 		return resultSet;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BufferedImage drawFeaturePreview(String table, boolean manual,
+			double bufferPercentage) {
+		return drawFeaturePreview(table, manual, bufferPercentage, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public BufferedImage drawFeaturePreview(String table, boolean manual,
+			double bufferPercentage, Integer limit) {
+
+		BufferedImage image = null;
+
+		Projection webMercator = ProjectionFactory
+				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+
+		BoundingBox boundingBox = getFeatureBoundingBox(webMercator, table,
+				false);
+		if (boundingBox == null) {
+			boundingBox = getContentsBoundingBox(webMercator, table);
+		}
+		if (boundingBox == null && manual) {
+			boundingBox = getFeatureBoundingBox(webMercator, table, manual);
+		}
+		if (boundingBox != null) {
+			if (bufferPercentage < 0.0 || bufferPercentage >= 0.5) {
+				throw new GeoPackageException(
+						"Buffer percentage must be in the range: 0.0 <= bufferPercentage < 0.5. invalid value: "
+								+ bufferPercentage);
+			}
+			boundingBox = TileBoundingBoxUtils
+					.boundWebMercatorBoundingBox(boundingBox);
+			BoundingBox expandedBoundingBox = boundingBox
+					.squareExpand(bufferPercentage);
+			expandedBoundingBox = TileBoundingBoxUtils
+					.boundWebMercatorBoundingBox(expandedBoundingBox);
+			int zoom = TileBoundingBoxUtils.getZoomLevel(expandedBoundingBox);
+
+			FeatureDao featureDao = getFeatureDao(table);
+			FeatureTiles featureTiles = new DefaultFeatureTiles(this,
+					featureDao);
+			FeatureResultSet results = featureDao.query(
+					featureDao.getIdAndGeometryColumnNames(),
+					CoreSQLUtils.quoteWrap(featureDao.getGeometryColumnName())
+							+ " IS NOT NULL",
+					null, null, null, null,
+					limit != null ? limit.toString() : null);
+			image = featureTiles.drawTile(zoom, expandedBoundingBox, results);
+		}
+
+		return image;
 	}
 
 }
