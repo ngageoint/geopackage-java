@@ -10,12 +10,8 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 
-import static org.junit.Assert.fail;
-
 public class VectorTilesWriteTest extends LoadGeoPackageTestCase {
 
-    private final String TABLE_NAME_1 = "myvt1";
-    private final String TABLE_NAME_2 = "myvt2";
     /**
      * Constructor
      */
@@ -24,8 +20,10 @@ public class VectorTilesWriteTest extends LoadGeoPackageTestCase {
     }
 
     @Test
-    public void testWriteVectorTiles() {
+    public void testWriteVectorTiles() throws SQLException {
         VectorTilesExtension vte = new VectorTilesExtension(geoPackage);
+        VectorTilesMapboxExtension vtme = new VectorTilesMapboxExtension(geoPackage);
+        VectorTilesGeoJSONExtension vtge = new VectorTilesGeoJSONExtension(geoPackage);
 
         if (vte.has()) {
             vte.removeExtension();
@@ -36,19 +34,16 @@ public class VectorTilesWriteTest extends LoadGeoPackageTestCase {
 
         // 2. Add extension
         vte.getOrCreate();
-        vte.createUserVectorTilesTable(TABLE_NAME_1, new VectorTilesMapboxExtension());
-        vte.createUserVectorTilesTable(TABLE_NAME_2, new VectorTilesGeoJSONExtension());
+        vte.createUserVectorTilesTable("myvt1", vtme);
+        vte.createUserVectorTilesTable("myvt2", vtge);
         TestCase.assertTrue(vte.has());
-        try {
-            TestCase.assertEquals(2, geoPackage.getExtensionsDao().
-                    queryByExtension(VectorTilesExtension.EXTENSION_NAME).size());
-            TestCase.assertEquals(1, geoPackage.getExtensionsDao().
-                    queryByExtension(VectorTilesMapboxExtension.EXTENSION_NAME).size());
-            TestCase.assertEquals(1, geoPackage.getExtensionsDao().
-                    queryByExtension(VectorTilesGeoJSONExtension.EXTENSION_NAME).size());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail();
-        }
+        TestCase.assertTrue(vtme.has());
+        TestCase.assertTrue(vtge.has());
+        TestCase.assertEquals(2, geoPackage.getExtensionsDao().
+                queryByExtension(VectorTilesExtension.getName()).size());
+        TestCase.assertEquals(1, geoPackage.getExtensionsDao().
+                queryByExtension(vtme.getName()).size());
+        TestCase.assertEquals(1, geoPackage.getExtensionsDao().
+                queryByExtension(vtme.getName()).size());
     }
 }
