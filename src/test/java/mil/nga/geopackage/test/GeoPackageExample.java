@@ -39,6 +39,7 @@ import mil.nga.geopackage.extension.NGAExtensions;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.extension.SchemaExtension;
 import mil.nga.geopackage.extension.WebPExtension;
+import mil.nga.geopackage.extension.contents.ContentsId;
 import mil.nga.geopackage.extension.contents.ContentsIdExtension;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.coverage.CoverageDataPng;
@@ -97,10 +98,12 @@ import mil.nga.geopackage.schema.constraints.DataColumnConstraintsDao;
 import mil.nga.geopackage.style.Color;
 import mil.nga.geopackage.style.ColorConstants;
 import mil.nga.geopackage.test.extension.related.RelatedTablesUtils;
+import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
+import mil.nga.geopackage.tiles.features.FeaturePreview;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
@@ -344,6 +347,11 @@ public class GeoPackageExample {
 			createCrsWktExtension(geoPackage);
 		}
 
+		System.out.println("Contents Id: " + CONTENTS_ID);
+		if (CONTENTS_ID) {
+			createContentsIdExtension(geoPackage);
+		}
+
 		System.out.println("Features: " + FEATURES);
 		if (FEATURES) {
 
@@ -461,11 +469,6 @@ public class GeoPackageExample {
 		System.out.println("Properties: " + PROPERTIES);
 		if (PROPERTIES) {
 			createPropertiesExtension(geoPackage);
-		}
-
-		System.out.println("Contents Id: " + CONTENTS_ID);
-		if (CONTENTS_ID) {
-			createContentsIdExtension(geoPackage);
 		}
 
 		geoPackage.close();
@@ -1655,8 +1658,8 @@ public class GeoPackageExample {
 
 	}
 
-	private static void createRelatedTablesMediaExtension(
-			GeoPackage geoPackage) {
+	private static void createRelatedTablesMediaExtension(GeoPackage geoPackage)
+			throws IOException {
 
 		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
 				geoPackage);
@@ -1693,6 +1696,11 @@ public class GeoPackageExample {
 		insertRelatedTablesMediaExtensionRows(geoPackage, relation2, "NGA",
 				"NGA", "NGA.jpg", "image/jpeg", "Aerial View of NGA East",
 				"http://www.nga.mil");
+
+		if (CONTENTS_ID) {
+			insertRelatedTablesMediaPreviewExtensionRows(geoPackage,
+					relatedTables);
+		}
 
 	}
 
@@ -1740,6 +1748,47 @@ public class GeoPackageExample {
 			userMappingDao.create(userMappingRow);
 		}
 		featureResultSet.close();
+	}
+
+	private static void insertRelatedTablesMediaPreviewExtensionRows(
+			GeoPackage geoPackage, RelatedTablesExtension relatedTables)
+			throws IOException {
+
+		ContentsIdExtension contentsId = new ContentsIdExtension(geoPackage);
+
+		MediaTable mediaTable = MediaTable.create("preview");
+		UserMappingTable userMappingTable = UserMappingTable
+				.create("features_" + mediaTable.getTableName());
+
+		ExtendedRelation relation = relatedTables.addMediaRelationship(
+				ContentsId.TABLE_NAME, mediaTable, userMappingTable);
+
+		MediaDao mediaDao = relatedTables.getMediaDao(relation);
+		UserMappingDao userMappingDao = relatedTables.getMappingDao(relation);
+
+		for (String featureTable : geoPackage.getFeatureTables()) {
+
+			long featureContentsId = contentsId.getOrCreateId(featureTable);
+
+			FeaturePreview preview = new FeaturePreview(geoPackage,
+					featureTable);
+			preview.setManual(true);
+			preview.setBufferPercentage(0.1);
+			BufferedImage previewImage = preview.draw();
+			byte[] previewBytes = ImageUtils.writeImageToBytes(previewImage,
+					ImageUtils.IMAGE_FORMAT_PNG);
+
+			MediaRow mediaRow = mediaDao.newRow();
+			mediaRow.setData(previewBytes);
+			mediaRow.setContentType("image/png");
+			long mediaRowId = mediaDao.create(mediaRow);
+
+			UserMappingRow userMappingRow = userMappingDao.newRow();
+			userMappingRow.setBaseId(featureContentsId);
+			userMappingRow.setRelatedId(mediaRowId);
+			userMappingDao.create(userMappingRow);
+		}
+
 	}
 
 	private static void createRelatedTablesFeaturesExtension(
