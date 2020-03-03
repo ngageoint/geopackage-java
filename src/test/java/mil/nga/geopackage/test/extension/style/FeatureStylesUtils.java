@@ -57,7 +57,7 @@ public class FeatureStylesUtils {
 	 * @throws SQLException
 	 *             upon error
 	 * @throws IOException
-	 *             upon erro
+	 *             upon error
 	 */
 	public static void testFeatureStyles(GeoPackage geoPackage)
 			throws SQLException, IOException {
