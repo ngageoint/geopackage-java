@@ -45,7 +45,7 @@ public class GeoPackageManager {
 			GeoPackageValidate.validateGeoPackageExtension(file);
 		} else {
 			file = GeoPackageIOUtils.addFileExtension(file,
-					GeoPackageConstants.GEOPACKAGE_EXTENSION);
+					GeoPackageConstants.EXTENSION);
 		}
 
 		if (file.exists()) {
@@ -130,7 +130,7 @@ public class GeoPackageManager {
 				GeoPackageValidate.validateGeoPackageExtension(file);
 			} else {
 				file = GeoPackageIOUtils.addFileExtension(file,
-						GeoPackageConstants.GEOPACKAGE_EXTENSION);
+						GeoPackageConstants.EXTENSION);
 			}
 		}
 

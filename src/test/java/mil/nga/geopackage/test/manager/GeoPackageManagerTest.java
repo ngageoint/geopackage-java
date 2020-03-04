@@ -115,7 +115,7 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		assertTrue(
 				"Database does not exist",
 				GeoPackageIOUtils.addFileExtension(dbFile,
-						GeoPackageConstants.GEOPACKAGE_EXTENSION).exists());
+						GeoPackageConstants.EXTENSION).exists());
 
 		// Open
 		GeoPackage geoPackage = GeoPackageManager.open(dbFile);
