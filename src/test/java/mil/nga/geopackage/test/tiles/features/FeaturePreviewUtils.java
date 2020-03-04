@@ -1,4 +1,4 @@
-package mil.nga.geopackage.test.features;
+package mil.nga.geopackage.test.tiles.features;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
