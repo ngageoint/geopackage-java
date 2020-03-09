@@ -85,6 +85,7 @@ public class FeaturePreviewUtils {
 			featureTiles.setTileHeight(TileUtils.TILE_PIXELS_DEFAULT);
 			featureTiles.setScale(
 					TileUtils.tileScale(TileUtils.TILE_PIXELS_DEFAULT));
+			featureTiles.clearIconCache();
 			BufferedImage imageManual = preview.draw();
 			if (epsg) {
 				assertNotNull(imageManual);
