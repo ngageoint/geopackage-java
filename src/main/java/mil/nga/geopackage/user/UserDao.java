@@ -159,7 +159,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 		long id = SQLUtils.insertOrThrow(connection, getTableName(),
 				row.toContentValues());
 		if (row.hasIdColumn()) {
-			row.setId(id);
+			row.setId(id, true);
 		}
 		return id;
 	}

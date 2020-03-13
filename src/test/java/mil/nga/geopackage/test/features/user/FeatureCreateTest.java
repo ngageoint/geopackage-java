@@ -2,9 +2,9 @@ package mil.nga.geopackage.test.features.user;
 
 import java.sql.SQLException;
 
-import mil.nga.geopackage.test.CreateGeoPackageTestCase;
-
 import org.junit.Test;
+
+import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 
 /**
  * Test Features from a created database
@@ -82,6 +82,19 @@ public class FeatureCreateTest extends CreateGeoPackageTestCase {
 	public void testDelete() throws SQLException {
 
 		FeatureUtils.testDelete(geoPackage);
+
+	}
+
+	/**
+	 * Test Feature DAO primary key modifications and disabling value validation
+	 * 
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testPkModifiableAndValueValidation() throws SQLException {
+
+		FeatureUtils.testPkModifiableAndValueValidation(geoPackage);
 
 	}
 
