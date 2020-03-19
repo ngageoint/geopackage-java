@@ -202,37 +202,38 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UserCustomResultSet query() {
+	public UserCustomResultSet query(boolean distinct) {
 		validateRTree();
-		return super.query();
+		return super.query(distinct);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UserCustomResultSet query(String[] columns) {
+	public UserCustomResultSet query(boolean distinct, String[] columns) {
 		validateRTree();
-		return super.query(columns);
+		return super.query(distinct, columns);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public UserCustomResultSet query(String where, String[] whereArgs) {
-		validateRTree();
-		return super.query(where, whereArgs);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public UserCustomResultSet query(String[] columns, String where,
+	public UserCustomResultSet query(boolean distinct, String where,
 			String[] whereArgs) {
 		validateRTree();
-		return super.query(columns, where, whereArgs);
+		return super.query(distinct, where, whereArgs);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserCustomResultSet query(boolean distinct, String[] columns,
+			String where, String[] whereArgs) {
+		validateRTree();
+		return super.query(distinct, columns, where, whereArgs);
 	}
 
 	/**
