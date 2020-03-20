@@ -39,8 +39,8 @@ public class SQLUtils {
 			statement = connection.createStatement();
 			statement.execute(sql);
 		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to execute SQL statement: "
-					+ sql, e);
+			throw new GeoPackageException(
+					"Failed to execute SQL statement: " + sql, e);
 		} finally {
 			closeStatement(statement, sql);
 		}
@@ -69,8 +69,8 @@ public class SQLUtils {
 			setArguments(statement, selectionArgs);
 			resultSet = statement.executeQuery();
 		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to execute SQL statement: "
-					+ sql, e);
+			throw new GeoPackageException(
+					"Failed to execute SQL statement: " + sql, e);
 		} finally {
 			if (resultSet == null) {
 				closeStatement(statement, sql);
@@ -94,147 +94,26 @@ public class SQLUtils {
 	public static int count(Connection connection, String sql,
 			String[] selectionArgs) {
 
+		int count = 0;
+
 		if (!sql.toLowerCase().contains(" count(*) ")) {
 			int index = sql.toLowerCase().indexOf(" from ");
 			if (index == -1) {
-				return -1;
+				count = -1;
+			} else {
+				sql = "select count(*)" + sql.substring(index);
 			}
-			sql = "select count(*)" + sql.substring(index);
 		}
 
-		int count = querySingleInteger(connection, sql, selectionArgs, true);
+		if (count >= 0) {
+			Object value = querySingleResult(connection, sql, selectionArgs, 0,
+					GeoPackageDataType.MEDIUMINT);
+			if (value != null) {
+				count = ((Number) value).intValue();
+			}
+		}
 
 		return count;
-	}
-
-	/**
-	 * Get the query count
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param table
-	 *            table name
-	 * @param where
-	 *            where clause
-	 * @param args
-	 *            where arguments
-	 * @return count
-	 */
-	public static int count(Connection connection, String table, String where,
-			String[] args) {
-		StringBuilder countQuery = new StringBuilder();
-		countQuery.append("select count(*) from ").append(
-				CoreSQLUtils.quoteWrap(table));
-		if (where != null) {
-			countQuery.append(" where ").append(where);
-		}
-		String sql = countQuery.toString();
-
-		int count = querySingleInteger(connection, sql, args, true);
-
-		return count;
-	}
-
-	/**
-	 * Get the min query result
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param table
-	 *            table name
-	 * @param column
-	 *            column name
-	 * @param where
-	 *            where clause
-	 * @param args
-	 *            where arguments
-	 * @return min or null
-	 * @since 1.1.1
-	 */
-	public static Integer min(Connection connection, String table,
-			String column, String where, String[] args) {
-
-		Integer min = null;
-		if (count(connection, table, where, args) > 0) {
-			StringBuilder minQuery = new StringBuilder();
-			minQuery.append("select min(")
-					.append(CoreSQLUtils.quoteWrap(column)).append(") from ")
-					.append(CoreSQLUtils.quoteWrap(table));
-			if (where != null) {
-				minQuery.append(" where ").append(where);
-			}
-			String sql = minQuery.toString();
-
-			min = querySingleInteger(connection, sql, args, false);
-		}
-
-		return min;
-	}
-
-	/**
-	 * Get the max query result
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param table
-	 *            table name
-	 * @param column
-	 *            column name
-	 * @param where
-	 *            where clause
-	 * @param args
-	 *            where arguments
-	 * @return max or null
-	 * @since 1.1.1
-	 */
-	public static Integer max(Connection connection, String table,
-			String column, String where, String[] args) {
-
-		Integer max = null;
-		if (count(connection, table, where, args) > 0) {
-			StringBuilder maxQuery = new StringBuilder();
-			maxQuery.append("select max(")
-					.append(CoreSQLUtils.quoteWrap(column)).append(") from ")
-					.append(CoreSQLUtils.quoteWrap(table));
-			if (where != null) {
-				maxQuery.append(" where ").append(where);
-			}
-			String sql = maxQuery.toString();
-
-			max = querySingleInteger(connection, sql, args, false);
-		}
-
-		return max;
-	}
-
-	/**
-	 * Query the SQL for a single integer result
-	 * 
-	 * @param connection
-	 *            connection
-	 * @param sql
-	 *            sql
-	 * @param args
-	 *            query arguments
-	 * @param allowEmptyResults
-	 *            true to accept empty results as a 0 return
-	 * @return Integer result, null if no result
-	 */
-	private static int querySingleInteger(Connection connection, String sql,
-			String[] args, boolean allowEmptyResults) {
-
-		int result = 0;
-
-		Object value = querySingleResult(connection, sql, args, 0,
-				GeoPackageDataType.MEDIUMINT);
-		if (value != null) {
-			result = ((Number) value).intValue();
-		} else if (!allowEmptyResults) {
-			throw new GeoPackageException(
-					"Failed to query for single result. SQL: " + sql);
-		}
-
-		return result;
 	}
 
 	/**
@@ -307,8 +186,8 @@ public class SQLUtils {
 			String sql, String[] args, GeoPackageDataType[] dataTypes,
 			Integer limit) {
 		ResultSetResult result = wrapQuery(connection, sql, args);
-		List<List<Object>> results = ResultUtils.buildResults(result,
-				dataTypes, limit);
+		List<List<Object>> results = ResultUtils.buildResults(result, dataTypes,
+				limit);
 		return results;
 	}
 
@@ -570,7 +449,8 @@ public class SQLUtils {
 	 * @param sql
 	 *            sql statement
 	 */
-	public static void closeResultSetStatement(ResultSet resultSet, String sql) {
+	public static void closeResultSetStatement(ResultSet resultSet,
+			String sql) {
 		if (resultSet != null) {
 			try {
 				resultSet.getStatement().close();
@@ -628,7 +508,8 @@ public class SQLUtils {
 	 *            true to commit, false to rollback
 	 * @since 3.3.0
 	 */
-	public static void endTransaction(Connection connection, boolean successful) {
+	public static void endTransaction(Connection connection,
+			boolean successful) {
 		endTransaction(connection, successful, null);
 	}
 
@@ -643,8 +524,8 @@ public class SQLUtils {
 	 *            pre-transaction auto commit value
 	 * @since 3.3.0
 	 */
-	public static void endTransaction(Connection connection,
-			boolean successful, Boolean autoCommit) {
+	public static void endTransaction(Connection connection, boolean successful,
+			Boolean autoCommit) {
 		try {
 			if (successful) {
 				connection.commit();

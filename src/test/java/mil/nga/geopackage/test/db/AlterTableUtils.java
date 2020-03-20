@@ -17,7 +17,6 @@ import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageCoreConnection;
 import mil.nga.geopackage.db.GeoPackageDataType;
-import mil.nga.geopackage.db.SQLUtils;
 import mil.nga.geopackage.db.master.SQLiteMaster;
 import mil.nga.geopackage.db.master.SQLiteMasterColumn;
 import mil.nga.geopackage.db.master.SQLiteMasterQuery;
@@ -731,12 +730,10 @@ public class AlterTableUtils {
 								geoPackage.isTable(mappingTableName));
 						TestCase.assertTrue(
 								geoPackage.isTable(copyMappingTableName));
-						int mappingTableCount = SQLUtils.count(
-								geoPackage.getConnection().getConnection(),
-								mappingTableName, null, null);
-						int copyMappingTableCount = SQLUtils.count(
-								geoPackage.getConnection().getConnection(),
-								copyMappingTableName, null, null);
+						int mappingTableCount = geoPackage.getConnection()
+								.count(mappingTableName);
+						int copyMappingTableCount = geoPackage.getConnection()
+								.count(copyMappingTableName);
 						TestCase.assertEquals(mappingTableCount,
 								copyMappingTableCount);
 					}
@@ -1022,12 +1019,10 @@ public class AlterTableUtils {
 								geoPackage.isTable(mappingTableName));
 						TestCase.assertTrue(
 								geoPackage.isTable(copyMappingTableName));
-						int mappingTableCount = SQLUtils.count(
-								geoPackage.getConnection().getConnection(),
-								mappingTableName, null, null);
-						int copyMappingTableCount = SQLUtils.count(
-								geoPackage.getConnection().getConnection(),
-								copyMappingTableName, null, null);
+						int mappingTableCount = geoPackage.getConnection()
+								.count(mappingTableName);
+						int copyMappingTableCount = geoPackage.getConnection()
+								.count(copyMappingTableName);
 						TestCase.assertEquals(mappingTableCount,
 								copyMappingTableCount);
 					}
@@ -1237,12 +1232,10 @@ public class AlterTableUtils {
 					TestCase.assertTrue(geoPackage.isTable(mappingTableName));
 					TestCase.assertTrue(
 							geoPackage.isTable(copyMappingTableName));
-					int mappingTableCount = SQLUtils.count(
-							geoPackage.getConnection().getConnection(),
-							mappingTableName, null, null);
-					int copyMappingTableCount = SQLUtils.count(
-							geoPackage.getConnection().getConnection(),
-							copyMappingTableName, null, null);
+					int mappingTableCount = geoPackage.getConnection()
+							.count(mappingTableName);
+					int copyMappingTableCount = geoPackage.getConnection()
+							.count(copyMappingTableName);
 					TestCase.assertEquals(mappingTableCount,
 							copyMappingTableCount);
 				}
