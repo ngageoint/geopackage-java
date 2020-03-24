@@ -789,7 +789,7 @@ public class FeatureIndexManagerUtils {
 		System.out.println();
 
 		int geometryFeatureCount = featureDao.count(
-				featureDao.getGeometryColumnName() + " IS NOT NULL", null);
+				featureDao.getGeometryColumnName() + " IS NOT NULL");
 		int totalFeatureCount = featureDao.count();
 
 		FeatureIndexManager featureIndexManager = new FeatureIndexManager(

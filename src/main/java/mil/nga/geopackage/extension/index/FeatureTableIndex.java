@@ -248,6 +248,18 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	/**
 	 * Query for all Features
 	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct) {
+		return featureDao.queryIn(distinct, queryIdsSQL());
+	}
+
+	/**
+	 * Query for all Features
+	 * 
 	 * @param columns
 	 *            columns
 	 * 
@@ -256,6 +268,21 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns) {
 		return featureDao.queryIn(columns, queryIdsSQL());
+	}
+
+	/**
+	 * Query for all Features
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * 
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns) {
+		return featureDao.queryIn(distinct, columns, queryIdsSQL());
 	}
 
 	/**
@@ -269,6 +296,22 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(Map<String, Object> fieldValues) {
 		return featureDao.queryIn(queryIdsSQL(), fieldValues);
+	}
+
+	/**
+	 * Query for features
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param fieldValues
+	 *            field values
+	 * 
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			Map<String, Object> fieldValues) {
+		return featureDao.queryIn(distinct, queryIdsSQL(), fieldValues);
 	}
 
 	/**
@@ -288,6 +331,25 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Query for features
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * 
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			Map<String, Object> fieldValues) {
+		return featureDao.queryIn(distinct, columns, queryIdsSQL(),
+				fieldValues);
+	}
+
+	/**
 	 * Count features
 	 * 
 	 * @param fieldValues
@@ -298,6 +360,39 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public int countFeatures(Map<String, Object> fieldValues) {
 		return featureDao.countIn(queryIdsSQL(), fieldValues);
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param fieldValues
+	 *            field values
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, Map<String, Object> fieldValues) {
+		return featureDao.countIn(column, queryIdsSQL(), fieldValues);
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param fieldValues
+	 *            field values
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			Map<String, Object> fieldValues) {
+		return featureDao.countIn(distinct, column, queryIdsSQL(), fieldValues);
 	}
 
 	/**
@@ -316,6 +411,21 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	/**
 	 * Query for features
 	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * 
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String where) {
+		return featureDao.queryIn(distinct, queryIdsSQL(), where);
+	}
+
+	/**
+	 * Query for features
+	 * 
 	 * @param columns
 	 *            columns
 	 * @param where
@@ -326,6 +436,24 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns, String where) {
 		return featureDao.queryIn(columns, queryIdsSQL(), where);
+	}
+
+	/**
+	 * Query for features
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * 
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			String where) {
+		return featureDao.queryIn(distinct, columns, queryIdsSQL(), where);
 	}
 
 	/**
@@ -342,6 +470,38 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Count features
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param where
+	 *            where clause
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, String where) {
+		return featureDao.countIn(column, queryIdsSQL(), where);
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param distinct
+	 *            distinct column values
+	 * @param where
+	 *            where clause
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column, String where) {
+		return featureDao.countIn(distinct, column, queryIdsSQL(), where);
+	}
+
+	/**
 	 * Query for features
 	 * 
 	 * @param where
@@ -354,6 +514,24 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String where, String[] whereArgs) {
 		return featureDao.queryIn(queryIdsSQL(), where, whereArgs);
+	}
+
+	/**
+	 * Query for features
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * 
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String where,
+			String[] whereArgs) {
+		return featureDao.queryIn(distinct, queryIdsSQL(), where, whereArgs);
 	}
 
 	/**
@@ -375,6 +553,27 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Query for features
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * 
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			String where, String[] whereArgs) {
+		return featureDao.queryIn(distinct, columns, queryIdsSQL(), where,
+				whereArgs);
+	}
+
+	/**
 	 * Count features
 	 * 
 	 * @param where
@@ -390,6 +589,44 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Count features
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, String where, String[] whereArgs) {
+		return featureDao.countIn(column, queryIdsSQL(), where, whereArgs);
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column, String where,
+			String[] whereArgs) {
+		return featureDao.countIn(distinct, column, queryIdsSQL(), where,
+				whereArgs);
+	}
+
+	/**
 	 * Query for Features within the bounding box, projected correctly
 	 * 
 	 * @param boundingBox
@@ -398,7 +635,22 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @since 3.4.0
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox) {
-		return queryFeatures(boundingBox.buildEnvelope());
+		return queryFeatures(false, boundingBox);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox) {
+		return queryFeatures(distinct, boundingBox.buildEnvelope());
 	}
 
 	/**
@@ -413,7 +665,24 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox) {
-		return queryFeatures(columns, boundingBox.buildEnvelope());
+		return queryFeatures(false, columns, boundingBox);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox) {
+		return queryFeatures(distinct, columns, boundingBox.buildEnvelope());
 	}
 
 	/**
@@ -425,7 +694,38 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox) {
-		return countFeatures(boundingBox.buildEnvelope());
+		return countFeatures(false, null, boundingBox);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox) {
+		return countFeatures(false, column, boundingBox);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox) {
+		return countFeatures(distinct, column, boundingBox.buildEnvelope());
 	}
 
 	/**
@@ -440,7 +740,25 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
-		return queryFeatures(boundingBox.buildEnvelope(), fieldValues);
+		return queryFeatures(false, boundingBox, fieldValues);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox, Map<String, Object> fieldValues) {
+		return queryFeatures(distinct, boundingBox.buildEnvelope(),
+				fieldValues);
 	}
 
 	/**
@@ -457,7 +775,27 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues) {
-		return queryFeatures(columns, boundingBox.buildEnvelope(), fieldValues);
+		return queryFeatures(false, columns, boundingBox, fieldValues);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Map<String, Object> fieldValues) {
+		return queryFeatures(distinct, columns, boundingBox.buildEnvelope(),
+				fieldValues);
 	}
 
 	/**
@@ -472,7 +810,44 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public int countFeatures(BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
-		return countFeatures(boundingBox.buildEnvelope(), fieldValues);
+		return countFeatures(false, null, boundingBox, fieldValues);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param column
+	 *            count column
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox,
+			Map<String, Object> fieldValues) {
+		return countFeatures(false, column, boundingBox, fieldValues);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox, Map<String, Object> fieldValues) {
+		return countFeatures(distinct, column, boundingBox.buildEnvelope(),
+				fieldValues);
 	}
 
 	/**
@@ -487,7 +862,24 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			String where) {
-		return queryFeatures(boundingBox, where, null);
+		return queryFeatures(false, boundingBox, where);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox, String where) {
+		return queryFeatures(distinct, boundingBox, where, null);
 	}
 
 	/**
@@ -504,7 +896,26 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox, String where) {
-		return queryFeatures(columns, boundingBox, where, null);
+		return queryFeatures(false, columns, boundingBox, where);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox, String where) {
+		return queryFeatures(distinct, columns, boundingBox, where, null);
 	}
 
 	/**
@@ -518,7 +929,43 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, String where) {
-		return countFeatures(boundingBox, where, null);
+		return countFeatures(false, null, boundingBox, where);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox,
+			String where) {
+		return countFeatures(false, column, boundingBox, where);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox, String where) {
+		return countFeatures(distinct, column, boundingBox, where, null);
 	}
 
 	/**
@@ -535,7 +982,27 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox, String where,
 			String[] whereArgs) {
-		return queryFeatures(boundingBox.buildEnvelope(), where, whereArgs);
+		return queryFeatures(false, boundingBox, where, whereArgs);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox, String where, String[] whereArgs) {
+		return queryFeatures(distinct, boundingBox.buildEnvelope(), where,
+				whereArgs);
 	}
 
 	/**
@@ -554,8 +1021,29 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs) {
-		return queryFeatures(columns, boundingBox.buildEnvelope(), where,
-				whereArgs);
+		return queryFeatures(false, columns, boundingBox, where, whereArgs);
+	}
+
+	/**
+	 * Query for Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox, String where, String[] whereArgs) {
+		return queryFeatures(distinct, columns, boundingBox.buildEnvelope(),
+				where, whereArgs);
 	}
 
 	/**
@@ -572,7 +1060,48 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public int countFeatures(BoundingBox boundingBox, String where,
 			String[] whereArgs) {
-		return countFeatures(boundingBox.buildEnvelope(), where, whereArgs);
+		return countFeatures(false, null, boundingBox, where, whereArgs);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox,
+			String where, String[] whereArgs) {
+		return countFeatures(false, column, boundingBox, where, whereArgs);
+	}
+
+	/**
+	 * Count the Features within the bounding box, projected correctly
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox, String where, String[] whereArgs) {
+		return countFeatures(distinct, column, boundingBox.buildEnvelope(),
+				where, whereArgs);
 	}
 
 	/**
@@ -587,9 +1116,26 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection) {
+		return queryFeatures(false, boundingBox, projection);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox, Projection projection) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return queryFeatures(featureBoundingBox);
+		return queryFeatures(distinct, featureBoundingBox);
 	}
 
 	/**
@@ -606,9 +1152,28 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox, Projection projection) {
+		return queryFeatures(false, columns, boundingBox, projection);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return queryFeatures(columns, featureBoundingBox);
+		return queryFeatures(distinct, columns, featureBoundingBox);
 	}
 
 	/**
@@ -622,9 +1187,45 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @since 3.4.0
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection) {
+		return countFeatures(false, null, boundingBox, projection);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox,
+			Projection projection) {
+		return countFeatures(false, column, boundingBox, projection);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox, Projection projection) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return countFeatures(featureBoundingBox);
+		return countFeatures(distinct, column, featureBoundingBox);
 	}
 
 	/**
@@ -641,9 +1242,29 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues) {
+		return queryFeatures(false, boundingBox, projection, fieldValues);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return queryFeatures(featureBoundingBox, fieldValues);
+		return queryFeatures(distinct, featureBoundingBox, fieldValues);
 	}
 
 	/**
@@ -663,9 +1284,33 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox, Projection projection,
 			Map<String, Object> fieldValues) {
+		return queryFeatures(false, columns, boundingBox, projection,
+				fieldValues);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return queryFeatures(columns, featureBoundingBox, fieldValues);
+		return queryFeatures(distinct, columns, featureBoundingBox,
+				fieldValues);
 	}
 
 	/**
@@ -682,9 +1327,51 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			Map<String, Object> fieldValues) {
+		return countFeatures(false, null, boundingBox, projection, fieldValues);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox,
+			Projection projection, Map<String, Object> fieldValues) {
+		return countFeatures(false, column, boundingBox, projection,
+				fieldValues);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return countFeatures(featureBoundingBox, fieldValues);
+		return countFeatures(distinct, column, featureBoundingBox, fieldValues);
 	}
 
 	/**
@@ -701,7 +1388,26 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, String where) {
-		return queryFeatures(boundingBox, projection, where, null);
+		return queryFeatures(false, boundingBox, projection, where);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct row
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox, Projection projection, String where) {
+		return queryFeatures(distinct, boundingBox, projection, where, null);
 	}
 
 	/**
@@ -720,7 +1426,29 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where) {
-		return queryFeatures(columns, boundingBox, projection, where, null);
+		return queryFeatures(false, columns, boundingBox, projection, where);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection, String where) {
+		return queryFeatures(distinct, columns, boundingBox, projection, where,
+				null);
 	}
 
 	/**
@@ -737,7 +1465,48 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			String where) {
-		return countFeatures(boundingBox, projection, where, null);
+		return countFeatures(false, null, boundingBox, projection, where);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox,
+			Projection projection, String where) {
+		return countFeatures(false, column, boundingBox, projection, where);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox, Projection projection, String where) {
+		return countFeatures(distinct, column, boundingBox, projection, where,
+				null);
 	}
 
 	/**
@@ -756,9 +1525,31 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs) {
+		return queryFeatures(false, boundingBox, projection, where, whereArgs);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return queryFeatures(featureBoundingBox, where, whereArgs);
+		return queryFeatures(distinct, featureBoundingBox, where, whereArgs);
 	}
 
 	/**
@@ -780,9 +1571,35 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	public FeatureResultSet queryFeatures(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
 			String[] whereArgs) {
+		return queryFeatures(false, columns, boundingBox, projection, where,
+				whereArgs);
+	}
+
+	/**
+	 * Query for Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return queryFeatures(columns, featureBoundingBox, where, whereArgs);
+		return queryFeatures(distinct, columns, featureBoundingBox, where,
+				whereArgs);
 	}
 
 	/**
@@ -801,9 +1618,57 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public int countFeatures(BoundingBox boundingBox, Projection projection,
 			String where, String[] whereArgs) {
+		return countFeatures(false, null, boundingBox, projection, where,
+				whereArgs);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, BoundingBox boundingBox,
+			Projection projection, String where, String[] whereArgs) {
+		return countFeatures(false, column, boundingBox, projection, where,
+				whereArgs);
+	}
+
+	/**
+	 * Count the Features within the bounding box in the provided projection
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection of the provided bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs) {
 		BoundingBox featureBoundingBox = getFeatureBoundingBox(boundingBox,
 				projection);
-		return countFeatures(featureBoundingBox, where, whereArgs);
+		return countFeatures(distinct, column, featureBoundingBox, where,
+				whereArgs);
 	}
 
 	/**
@@ -816,6 +1681,21 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope) {
 		return featureDao.queryIn(queryIdsSQL(envelope));
+	}
+
+	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			GeometryEnvelope envelope) {
+		return featureDao.queryIn(distinct, queryIdsSQL(envelope));
 	}
 
 	/**
@@ -834,6 +1714,23 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			GeometryEnvelope envelope) {
+		return featureDao.queryIn(distinct, columns, queryIdsSQL(envelope));
+	}
+
+	/**
 	 * Count the Features within the Geometry Envelope
 	 * 
 	 * @param envelope
@@ -843,6 +1740,37 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public int countFeatures(GeometryEnvelope envelope) {
 		return featureDao.countIn(queryIdsSQL(envelope));
+	}
+
+	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param envelope
+	 *            geometry envelope
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, GeometryEnvelope envelope) {
+		return featureDao.countIn(column, queryIdsSQL(envelope));
+	}
+
+	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param envelope
+	 *            geometry envelope
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			GeometryEnvelope envelope) {
+		return featureDao.countIn(distinct, column, queryIdsSQL(envelope));
 	}
 
 	/**
@@ -863,6 +1791,23 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	/**
 	 * Query for Features within the Geometry Envelope
 	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
+		return featureDao.queryIn(distinct, queryIdsSQL(envelope), fieldValues);
+	}
+
+	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
 	 * @param columns
 	 *            columns
 	 * @param envelope
@@ -875,6 +1820,26 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	public FeatureResultSet queryFeatures(String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
 		return featureDao.queryIn(columns, queryIdsSQL(envelope), fieldValues);
+	}
+
+	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
+		return featureDao.queryIn(distinct, columns, queryIdsSQL(envelope),
+				fieldValues);
 	}
 
 	/**
@@ -893,6 +1858,43 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param column
+	 *            count column names
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, GeometryEnvelope envelope,
+			Map<String, Object> fieldValues) {
+		return featureDao.countIn(column, queryIdsSQL(envelope), fieldValues);
+	}
+
+	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column names
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
+		return featureDao.countIn(distinct, column, queryIdsSQL(envelope),
+				fieldValues);
+	}
+
+	/**
 	 * Query for Features within the Geometry Envelope
 	 * 
 	 * @param envelope
@@ -904,7 +1906,24 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			String where) {
-		return queryFeatures(envelope, where, null);
+		return queryFeatures(false, envelope, where);
+	}
+
+	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			GeometryEnvelope envelope, String where) {
+		return queryFeatures(distinct, envelope, where, null);
 	}
 
 	/**
@@ -925,6 +1944,25 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, String where) {
+		return queryFeatures(distinct, columns, envelope, where, null);
+	}
+
+	/**
 	 * Count the Features within the Geometry Envelope
 	 * 
 	 * @param envelope
@@ -935,7 +1973,43 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 * @since 3.4.0
 	 */
 	public int countFeatures(GeometryEnvelope envelope, String where) {
-		return countFeatures(envelope, where, null);
+		return countFeatures(false, null, envelope, where);
+	}
+
+	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, GeometryEnvelope envelope,
+			String where) {
+		return countFeatures(false, column, envelope, where);
+	}
+
+	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			GeometryEnvelope envelope, String where) {
+		return countFeatures(distinct, column, envelope, where, null);
 	}
 
 	/**
@@ -953,6 +2027,26 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	public FeatureResultSet queryFeatures(GeometryEnvelope envelope,
 			String where, String[] whereArgs) {
 		return featureDao.queryIn(queryIdsSQL(envelope), where, whereArgs);
+	}
+
+	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct,
+			GeometryEnvelope envelope, String where, String[] whereArgs) {
+		return featureDao.queryIn(distinct, queryIdsSQL(envelope), where,
+				whereArgs);
 	}
 
 	/**
@@ -976,6 +2070,28 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Query for Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return feature results
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet queryFeatures(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, String where, String[] whereArgs) {
+		return featureDao.queryIn(distinct, columns, queryIdsSQL(envelope),
+				where, whereArgs);
+	}
+
+	/**
 	 * Count the Features within the Geometry Envelope
 	 * 
 	 * @param envelope
@@ -990,6 +2106,48 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	public int countFeatures(GeometryEnvelope envelope, String where,
 			String[] whereArgs) {
 		return featureDao.countIn(queryIdsSQL(envelope), where, whereArgs);
+	}
+
+	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param column
+	 *            count column name
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(String column, GeometryEnvelope envelope,
+			String where, String[] whereArgs) {
+		return featureDao.countIn(column, queryIdsSQL(envelope), where,
+				whereArgs);
+	}
+
+	/**
+	 * Count the Features within the Geometry Envelope
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column,
+			GeometryEnvelope envelope, String where, String[] whereArgs) {
+		return featureDao.countIn(distinct, column, queryIdsSQL(envelope),
+				where, whereArgs);
 	}
 
 }
