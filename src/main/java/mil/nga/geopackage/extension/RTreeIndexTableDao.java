@@ -315,6 +315,47 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
+	 * Count features
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures() {
+		validateRTree();
+		return featureDao.countIn(queryIdsSQL());
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param column
+	 *            count column name
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countColumnFeatures(String column) {
+		validateRTree();
+		return featureDao.countIn(column, queryIdsSQL());
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column) {
+		validateRTree();
+		return featureDao.countIn(distinct, column, queryIdsSQL());
+	}
+
+	/**
 	 * Query for features
 	 * 
 	 * @param fieldValues

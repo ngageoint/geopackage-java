@@ -286,6 +286,44 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Count features
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures() {
+		return featureDao.countIn(queryIdsSQL());
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param column
+	 *            count column name
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countColumnFeatures(String column) {
+		return featureDao.countIn(column, queryIdsSQL());
+	}
+
+	/**
+	 * Count features
+	 * 
+	 * @param distinct
+	 *            distinct column values
+	 * @param column
+	 *            count column name
+	 * 
+	 * @return count
+	 * @since 3.5.1
+	 */
+	public int countFeatures(boolean distinct, String column) {
+		return featureDao.countIn(distinct, column, queryIdsSQL());
+	}
+
+	/**
 	 * Query for features
 	 * 
 	 * @param fieldValues
