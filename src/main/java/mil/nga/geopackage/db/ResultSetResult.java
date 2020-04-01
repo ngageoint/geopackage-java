@@ -71,12 +71,14 @@ public class ResultSetResult implements Result {
 	 */
 	@Override
 	public boolean moveToNext() {
+		boolean next = false;
 		try {
-			return resultSet.next();
+			next = resultSet.next();
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to move ResultSet cursor to next", e);
 		}
+		return next;
 	}
 
 	/**
@@ -84,9 +86,21 @@ public class ResultSetResult implements Result {
 	 */
 	@Override
 	public boolean moveToFirst() {
-		// For SQLite forward only, best we can do is assume the result set
-		// is at the beginning
-		return true;
+		int position = getPosition();
+		boolean first = position == 1;
+		if (!first) {
+			if (position > 1) {
+				try {
+					// Throws an error for TYPE_FORWARD_ONLY
+					resultSet.beforeFirst();
+				} catch (SQLException e) {
+					throw new GeoPackageException(
+							"Failed to move ResultSet cursor to first", e);
+				}
+			}
+			first = moveToNext();
+		}
+		return first;
 	}
 
 	/**
@@ -106,19 +120,30 @@ public class ResultSetResult implements Result {
 	 */
 	@Override
 	public boolean moveToPosition(int position) {
+
+		boolean moved = false;
+
 		try {
-			// For SQLite forward only, best we can do is assume the result set
-			// is at the beginning
-			for (int i = 0; i < position; i++) {
-				if (!resultSet.next()) {
-					return false;
+			if (resultSet.getType() != ResultSet.TYPE_FORWARD_ONLY
+					|| resultSet.getRow() > position) {
+				// Throws an error for TYPE_FORWARD_ONLY
+				moved = resultSet.absolute(position);
+			} else {
+				moved = true;
+				while (resultSet.getRow() < position) {
+					if (!resultSet.next()) {
+						moved = false;
+						break;
+					}
 				}
 			}
 		} catch (SQLException e) {
 			throw new GeoPackageException(
-					"Failed to move ResultSet cursor to first", e);
+					"Failed to move ResultSet cursor to position " + position,
+					e);
 		}
-		return true;
+
+		return moved;
 	}
 
 	/**
