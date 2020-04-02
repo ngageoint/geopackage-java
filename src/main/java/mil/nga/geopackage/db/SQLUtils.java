@@ -96,12 +96,30 @@ public class SQLUtils {
 
 		int count = 0;
 
-		if (!sql.toLowerCase().contains(" count(*) ")) {
-			int index = sql.toLowerCase().indexOf(" from ");
-			if (index == -1) {
-				count = -1;
+		String upperCaseSQL = sql.toUpperCase();
+		int afterSelectIndex = upperCaseSQL.indexOf("SELECT")
+				+ "SELECT".length();
+		String upperCaseAfterSelect = upperCaseSQL.substring(afterSelectIndex)
+				.trim();
+
+		if (!upperCaseAfterSelect.startsWith("COUNT")) {
+			int fromIndex = upperCaseSQL.indexOf("FROM");
+			if (upperCaseAfterSelect.startsWith("DISTINCT")) {
+				int commaIndex = upperCaseSQL.indexOf(",");
+				if (commaIndex < 0 || commaIndex >= fromIndex) {
+					sql = "SELECT COUNT("
+							+ sql.substring(afterSelectIndex, fromIndex) + ") "
+							+ sql.substring(fromIndex);
+				} else {
+					// Requires a manual count
+					count = -1;
+				}
 			} else {
-				sql = "select count(*)" + sql.substring(index);
+				if (fromIndex == -1) {
+					count = -1;
+				} else {
+					sql = "SELECT COUNT(*) " + sql.substring(fromIndex);
+				}
 			}
 		}
 

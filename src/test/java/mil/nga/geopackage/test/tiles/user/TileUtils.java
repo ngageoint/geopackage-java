@@ -6,12 +6,17 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
@@ -39,9 +44,6 @@ import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.user.ColumnValue;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
-
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
 
 /**
  * Tiles Utility test methods
@@ -76,8 +78,8 @@ public class TileUtils {
 				TestCase.assertNotNull(dao);
 
 				TestCase.assertNotNull(dao.getDb());
-				TestCase.assertEquals(tileMatrixSet.getId(), dao
-						.getTileMatrixSet().getId());
+				TestCase.assertEquals(tileMatrixSet.getId(),
+						dao.getTileMatrixSet().getId());
 				TestCase.assertEquals(tileMatrixSet.getTableName(),
 						dao.getTableName());
 				TestCase.assertFalse(dao.getTileMatrices().isEmpty());
@@ -85,8 +87,8 @@ public class TileUtils {
 				TileTable tileTable = dao.getTable();
 				String[] columns = tileTable.getColumnNames();
 				int zoomLevelIndex = tileTable.getZoomLevelColumnIndex();
-				TestCase.assertTrue(zoomLevelIndex >= 0
-						&& zoomLevelIndex < columns.length);
+				TestCase.assertTrue(
+						zoomLevelIndex >= 0 && zoomLevelIndex < columns.length);
 				TestCase.assertEquals(TileTable.COLUMN_ZOOM_LEVEL,
 						columns[zoomLevelIndex]);
 				int tileColumnIndex = tileTable.getTileColumnColumnIndex();
@@ -95,13 +97,13 @@ public class TileUtils {
 				TestCase.assertEquals(TileTable.COLUMN_TILE_COLUMN,
 						columns[tileColumnIndex]);
 				int tileRowIndex = tileTable.getTileRowColumnIndex();
-				TestCase.assertTrue(tileRowIndex >= 0
-						&& tileRowIndex < columns.length);
+				TestCase.assertTrue(
+						tileRowIndex >= 0 && tileRowIndex < columns.length);
 				TestCase.assertEquals(TileTable.COLUMN_TILE_ROW,
 						columns[tileRowIndex]);
 				int tileDataIndex = tileTable.getTileDataColumnIndex();
-				TestCase.assertTrue(tileDataIndex >= 0
-						&& tileDataIndex < columns.length);
+				TestCase.assertTrue(
+						tileDataIndex >= 0 && tileDataIndex < columns.length);
 				TestCase.assertEquals(TileTable.COLUMN_TILE_DATA,
 						columns[tileDataIndex]);
 
@@ -126,7 +128,8 @@ public class TileUtils {
 						null);
 				ResultSet resultSet = SQLUtils.query(connection, sql, null);
 				int resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new TileResultSet(tileTable, resultSet, resultSetCount);
+				cursor = new TileResultSet(tileTable, resultSet,
+						resultSetCount);
 				count = cursor.getCount();
 				manualCount = 0;
 				while (cursor.moveToNext()) {
@@ -140,7 +143,8 @@ public class TileUtils {
 
 				resultSet = SQLUtils.query(connection, sql, null);
 				resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new TileResultSet(tileTable, resultSet, resultSetCount);
+				cursor = new TileResultSet(tileTable, resultSet,
+						resultSetCount);
 
 				// Choose random tile
 				int random = (int) (Math.random() * count);
@@ -183,8 +187,8 @@ public class TileUtils {
 					} else {
 						column1TileValue = new ColumnValue(column1Value);
 					}
-					cursor = dao
-							.queryForEq(column1.getName(), column1TileValue);
+					cursor = dao.queryForEq(column1.getName(),
+							column1TileValue);
 					TestCase.assertTrue(cursor.getCount() > 0);
 					boolean found = false;
 					while (cursor.moveToNext()) {
@@ -235,6 +239,80 @@ public class TileUtils {
 					TestCase.assertTrue(found);
 					cursor.close();
 				}
+
+				String previousColumn = null;
+				for (String column : columns) {
+
+					int distinctCount = dao.count(true, column);
+					cursor = dao.query(true, new String[] { column });
+					TestCase.assertEquals(1, cursor.getColumnCount());
+					TestCase.assertEquals(distinctCount, cursor.getCount());
+					cursor.close();
+					cursor = dao.query(new String[] { column });
+					TestCase.assertEquals(1, cursor.getColumnCount());
+					TestCase.assertEquals(count, cursor.getCount());
+					Set<Object> distinctValues = new HashSet<>();
+					while (cursor.moveToNext()) {
+						Object value = cursor.getValue(column);
+						if (value != null) {
+							distinctValues.add(value);
+						}
+					}
+					cursor.close();
+					if (!column
+							.equals(tileTable.getTileDataColumn().getName())) {
+						TestCase.assertEquals(distinctCount,
+								distinctValues.size());
+					}
+
+					if (previousColumn != null) {
+
+						cursor = dao.query(true,
+								new String[] { previousColumn, column });
+						TestCase.assertEquals(2, cursor.getColumnCount());
+						distinctCount = cursor.getCount();
+						if (distinctCount < 0) {
+							distinctCount = 0;
+							while (cursor.moveToNext()) {
+								distinctCount++;
+							}
+						}
+						cursor.close();
+						cursor = dao
+								.query(new String[] { previousColumn, column });
+						TestCase.assertEquals(2, cursor.getColumnCount());
+						TestCase.assertEquals(count, cursor.getCount());
+						Map<Object, Set<Object>> distinctPairs = new HashMap<>();
+						while (cursor.moveToNext()) {
+							Object previousValue = cursor
+									.getValue(previousColumn);
+							Object value = cursor.getValue(column);
+							distinctValues = distinctPairs.get(previousValue);
+							if (distinctValues == null) {
+								distinctValues = new HashSet<>();
+								distinctPairs.put(previousValue,
+										distinctValues);
+							}
+							distinctValues.add(value);
+						}
+						cursor.close();
+						int distinctPairsCount = 0;
+						for (Set<Object> values : distinctPairs.values()) {
+							distinctPairsCount += values.size();
+						}
+						if (!previousColumn
+								.equals(tileTable.getTileDataColumn().getName())
+								&& !column.equals(tileTable.getTileDataColumn()
+										.getName())) {
+							TestCase.assertEquals(distinctCount,
+									distinctPairsCount);
+						}
+
+					}
+
+					previousColumn = column;
+				}
+
 			}
 		}
 
@@ -307,8 +385,8 @@ public class TileUtils {
 	 * @throws IOException
 	 *             upon error
 	 */
-	public static void testUpdate(GeoPackage geoPackage) throws SQLException,
-			IOException {
+	public static void testUpdate(GeoPackage geoPackage)
+			throws SQLException, IOException {
 
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
 
@@ -368,8 +446,8 @@ public class TileUtils {
 			for (TileColumn tileColumn : dao.getTable().getColumns()) {
 				if (!tileColumn.isPrimaryKey()) {
 
-					int rowColumnType = tileRow.getRowColumnType(tileColumn
-							.getIndex());
+					int rowColumnType = tileRow
+							.getRowColumnType(tileColumn.getIndex());
 
 					switch (tileColumn.getDataType()) {
 					case TEXT:
@@ -414,8 +492,9 @@ public class TileUtils {
 						validateRowColumnType(rowColumnType,
 								ResultUtils.FIELD_TYPE_INTEGER);
 						if (updatedByte == null) {
-							updatedByte = (byte) (((int) (Math.random() * (Byte.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedByte = (byte) (((int) (Math.random()
+									* (Byte.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						tileRow.setValue(tileColumn.getIndex(), updatedByte);
 						break;
@@ -423,8 +502,9 @@ public class TileUtils {
 						validateRowColumnType(rowColumnType,
 								ResultUtils.FIELD_TYPE_INTEGER);
 						if (updatedShort == null) {
-							updatedShort = (short) (((int) (Math.random() * (Short.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedShort = (short) (((int) (Math.random()
+									* (Short.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						tileRow.setValue(tileColumn.getIndex(), updatedShort);
 						break;
@@ -432,8 +512,9 @@ public class TileUtils {
 						validateRowColumnType(rowColumnType,
 								ResultUtils.FIELD_TYPE_INTEGER);
 						if (updatedInteger == null) {
-							updatedInteger = (int) (((int) (Math.random() * (Integer.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedInteger = (int) (((int) (Math.random()
+									* (Integer.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						tileRow.setValue(tileColumn.getIndex(), updatedInteger);
 						break;
@@ -442,8 +523,9 @@ public class TileUtils {
 						validateRowColumnType(rowColumnType,
 								ResultUtils.FIELD_TYPE_INTEGER);
 						if (updatedLong == null) {
-							updatedLong = (long) (((int) (Math.random() * (Long.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedLong = (long) (((int) (Math.random()
+									* (Long.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						tileRow.setValue(tileColumn.getIndex(), updatedLong);
 						break;
@@ -476,8 +558,10 @@ public class TileUtils {
 								if (updatedBytes.length > tileColumn.getMax()) {
 									updatedLimitedBytes = new byte[tileColumn
 											.getMax().intValue()];
-									ByteBuffer.wrap(updatedBytes, 0,
-											tileColumn.getMax().intValue())
+									ByteBuffer
+											.wrap(updatedBytes, 0,
+													tileColumn.getMax()
+															.intValue())
 											.get(updatedLimitedBytes);
 								} else {
 									updatedLimitedBytes = updatedBytes;
@@ -511,35 +595,35 @@ public class TileUtils {
 					switch (readRow.getRowColumnType(readColumnName)) {
 					case ResultUtils.FIELD_TYPE_STRING:
 						if (readTileColumn.getMax() != null) {
-							TestCase.assertEquals(updatedLimitedString,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedLimitedString, readRow
+									.getValue(readTileColumn.getIndex()));
 						} else {
-							TestCase.assertEquals(updatedString,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedString, readRow
+									.getValue(readTileColumn.getIndex()));
 						}
 						break;
 					case ResultUtils.FIELD_TYPE_INTEGER:
 						switch (readTileColumn.getDataType()) {
 						case BOOLEAN:
-							TestCase.assertEquals(updatedBoolean,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedBoolean, readRow
+									.getValue(readTileColumn.getIndex()));
 							break;
 						case TINYINT:
-							TestCase.assertEquals(updatedByte,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedByte, readRow
+									.getValue(readTileColumn.getIndex()));
 							break;
 						case SMALLINT:
-							TestCase.assertEquals(updatedShort,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedShort, readRow
+									.getValue(readTileColumn.getIndex()));
 							break;
 						case MEDIUMINT:
-							TestCase.assertEquals(updatedInteger,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedInteger, readRow
+									.getValue(readTileColumn.getIndex()));
 							break;
 						case INT:
 						case INTEGER:
-							TestCase.assertEquals(updatedLong,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedLong, readRow
+									.getValue(readTileColumn.getIndex()));
 							break;
 						default:
 							TestCase.fail("Unexpected integer type: "
@@ -549,13 +633,13 @@ public class TileUtils {
 					case ResultUtils.FIELD_TYPE_FLOAT:
 						switch (readTileColumn.getDataType()) {
 						case FLOAT:
-							TestCase.assertEquals(updatedFloat,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedFloat, readRow
+									.getValue(readTileColumn.getIndex()));
 							break;
 						case DOUBLE:
 						case REAL:
-							TestCase.assertEquals(updatedDouble,
-									readRow.getValue(readTileColumn.getIndex()));
+							TestCase.assertEquals(updatedDouble, readRow
+									.getValue(readTileColumn.getIndex()));
 							break;
 						default:
 							TestCase.fail("Unexpected integer type: "
@@ -566,13 +650,13 @@ public class TileUtils {
 						if (readTileColumn.getMax() != null) {
 							GeoPackageGeometryDataUtils.compareByteArrays(
 									updatedLimitedBytes,
-									(byte[]) readRow.getValue(readTileColumn
-											.getIndex()));
+									(byte[]) readRow.getValue(
+											readTileColumn.getIndex()));
 						} else {
 							byte[] readBytes = (byte[]) readRow
 									.getValue(readTileColumn.getIndex());
-							GeoPackageGeometryDataUtils.compareByteArrays(
-									updatedBytes, readBytes);
+							GeoPackageGeometryDataUtils
+									.compareByteArrays(updatedBytes, readBytes);
 						}
 						break;
 					default:
@@ -597,8 +681,9 @@ public class TileUtils {
 	private static void validateRowColumnType(int rowColumnType,
 			int expectedColumnType) {
 		if (rowColumnType == ResultUtils.FIELD_TYPE_NULL) {
-			TestCase.fail("Tile columns should all non nullable. Expected Column Type: "
-					+ expectedColumnType);
+			TestCase.fail(
+					"Tile columns should all non nullable. Expected Column Type: "
+							+ expectedColumnType);
 		} else {
 			TestCase.assertEquals(expectedColumnType, rowColumnType);
 		}
@@ -699,8 +784,8 @@ public class TileUtils {
 							byte[] tileData1 = queryTileRow2.getTileData();
 							byte[] tileData2 = copyRow.getTileData();
 							TestCase.assertNotSame(tileData1, tileData2);
-							GeoPackageGeometryDataUtils.compareByteArrays(
-									tileData1, tileData2);
+							GeoPackageGeometryDataUtils
+									.compareByteArrays(tileData1, tileData2);
 						} else {
 							TestCase.assertEquals(
 									queryTileRow2.getValue(column.getName()),
@@ -734,8 +819,8 @@ public class TileUtils {
 								.getTileDataColumnIndex()) {
 							byte[] tileData1 = queryTileRow2.getTileData();
 							byte[] tileData2 = queryTileRow3.getTileData();
-							GeoPackageGeometryDataUtils.compareByteArrays(
-									tileData1, tileData2);
+							GeoPackageGeometryDataUtils
+									.compareByteArrays(tileData1, tileData2);
 						} else {
 							TestCase.assertEquals(
 									queryTileRow2.getValue(column.getName()),
@@ -886,17 +971,14 @@ public class TileUtils {
 					BoundingBox setProjectionBoundingBox = tileMatrixSet
 							.getBoundingBox();
 					BoundingBox setWebMercatorBoundingBox = setProjectionBoundingBox
-							.transform(tileMatrixSet
-									.getSrs()
-									.getProjection()
+							.transform(tileMatrixSet.getSrs().getProjection()
 									.getTransformation(
 											ProjectionConstants.EPSG_WEB_MERCATOR));
 					BoundingBox boundingBox = new BoundingBox(-180.0, -90.0,
 							180.0, 90.0);
 					BoundingBox webMercatorBoundingBox = boundingBox
-							.transform(ProjectionFactory
-									.getProjection(
-											ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+							.transform(ProjectionFactory.getProjection(
+									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
 									.getTransformation(
 											ProjectionConstants.EPSG_WEB_MERCATOR));
 
@@ -925,9 +1007,8 @@ public class TileUtils {
 					boundingBox = new BoundingBox(minLon, minLat, maxLon,
 							maxLat);
 					webMercatorBoundingBox = boundingBox
-							.transform(ProjectionFactory
-									.getProjection(
-											ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+							.transform(ProjectionFactory.getProjection(
+									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
 									.getTransformation(
 											ProjectionConstants.EPSG_WEB_MERCATOR));
 					tileGrid = TileBoundingBoxUtils.getTileGrid(
@@ -940,8 +1021,9 @@ public class TileUtils {
 
 					if (tileGrid != null) {
 						int count = 0;
-						for (long column = tileGrid.getMinX(); column <= tileGrid
-								.getMaxX(); column++) {
+						for (long column = tileGrid
+								.getMinX(); column <= tileGrid
+										.getMaxX(); column++) {
 							for (long row = tileGrid.getMinY(); row <= tileGrid
 									.getMaxY(); row++) {
 								TileRow tileRow = dao.queryForTile(column, row,
@@ -1017,14 +1099,18 @@ public class TileUtils {
 					if (totalTileGrid.equals(tileGrid)) {
 						TestCase.assertEquals(totalBoundingBox, boundingBox);
 					} else {
-						TestCase.assertTrue(totalBoundingBox.getMinLongitude() <= boundingBox
-								.getMinLongitude());
-						TestCase.assertTrue(totalBoundingBox.getMaxLongitude() >= boundingBox
-								.getMaxLongitude());
-						TestCase.assertTrue(totalBoundingBox.getMinLatitude() <= boundingBox
-								.getMinLatitude());
-						TestCase.assertTrue(totalBoundingBox.getMaxLatitude() >= boundingBox
-								.getMaxLatitude());
+						TestCase.assertTrue(totalBoundingBox
+								.getMinLongitude() <= boundingBox
+										.getMinLongitude());
+						TestCase.assertTrue(totalBoundingBox
+								.getMaxLongitude() >= boundingBox
+										.getMaxLongitude());
+						TestCase.assertTrue(
+								totalBoundingBox.getMinLatitude() <= boundingBox
+										.getMinLatitude());
+						TestCase.assertTrue(
+								totalBoundingBox.getMaxLatitude() >= boundingBox
+										.getMaxLatitude());
 					}
 
 					boolean minYDeleted = false;
@@ -1046,12 +1132,11 @@ public class TileUtils {
 								minYDeleted = true;
 							}
 							deleted += expectedDelete;
-							expectedDelete = dao
-									.queryForTile(column,
-											tileMatrix.getMatrixHeight() - 1,
-											zoomLevel) != null ? 1 : 0;
-							TestCase.assertEquals(expectedDelete, dao
-									.deleteTile(column,
+							expectedDelete = dao.queryForTile(column,
+									tileMatrix.getMatrixHeight() - 1,
+									zoomLevel) != null ? 1 : 0;
+							TestCase.assertEquals(expectedDelete,
+									dao.deleteTile(column,
 											tileMatrix.getMatrixHeight() - 1,
 											zoomLevel));
 							if (expectedDelete > 0) {
@@ -1060,7 +1145,8 @@ public class TileUtils {
 							deleted += expectedDelete;
 						}
 
-						for (int row = 1; row < tileMatrix.getMatrixHeight() - 1; row++) {
+						for (int row = 1; row < tileMatrix.getMatrixHeight()
+								- 1; row++) {
 							int expectedDelete = dao.queryForTile(0, row,
 									zoomLevel) != null ? 1 : 0;
 							TestCase.assertEquals(expectedDelete,
@@ -1072,8 +1158,8 @@ public class TileUtils {
 							expectedDelete = dao.queryForTile(
 									tileMatrix.getMatrixWidth() - 1, row,
 									zoomLevel) != null ? 1 : 0;
-							TestCase.assertEquals(expectedDelete, dao
-									.deleteTile(
+							TestCase.assertEquals(expectedDelete,
+									dao.deleteTile(
 											tileMatrix.getMatrixWidth() - 1,
 											row, zoomLevel));
 							if (expectedDelete > 0) {
@@ -1094,9 +1180,8 @@ public class TileUtils {
 					BoundingBox updatedBoundingBox = dao
 							.getBoundingBox(zoomLevel);
 
-					if (updatedCount == 0
-							|| (tileMatrix.getMatrixHeight() <= 2 && tileMatrix
-									.getMatrixWidth() <= 2)) {
+					if (updatedCount == 0 || (tileMatrix.getMatrixHeight() <= 2
+							&& tileMatrix.getMatrixWidth() <= 2)) {
 						TestCase.assertNull(updatedTileGrid);
 						TestCase.assertNull(updatedBoundingBox);
 					} else {
@@ -1105,14 +1190,14 @@ public class TileUtils {
 
 						if (minXDeleted || minYDeleted || maxXDeleted
 								|| maxYDeleted) {
-							TestCase.assertTrue(updatedTileGrid.getMinX() >= tileGrid
-									.getMinX());
-							TestCase.assertTrue(updatedTileGrid.getMinY() >= tileGrid
-									.getMinY());
-							TestCase.assertTrue(updatedTileGrid.getMaxX() <= tileGrid
-									.getMaxX());
-							TestCase.assertTrue(updatedTileGrid.getMaxY() <= tileGrid
-									.getMaxY());
+							TestCase.assertTrue(updatedTileGrid
+									.getMinX() >= tileGrid.getMinX());
+							TestCase.assertTrue(updatedTileGrid
+									.getMinY() >= tileGrid.getMinY());
+							TestCase.assertTrue(updatedTileGrid
+									.getMaxX() <= tileGrid.getMaxX());
+							TestCase.assertTrue(updatedTileGrid
+									.getMaxY() <= tileGrid.getMaxY());
 						} else {
 							TestCase.assertEquals(tileGrid.getMinX(),
 									updatedTileGrid.getMinX());

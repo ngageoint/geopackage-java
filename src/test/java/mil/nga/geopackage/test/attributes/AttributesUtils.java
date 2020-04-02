@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.TestCase;
@@ -130,8 +132,8 @@ public class AttributesUtils {
 				AttributesColumn column2 = null;
 				for (AttributesColumn column : attributesRow.getTable()
 						.getColumns()) {
-					if (!column.isPrimaryKey()
-							&& column.getDataType() != GeoPackageDataType.BLOB) {
+					if (!column.isPrimaryKey() && column
+							.getDataType() != GeoPackageDataType.BLOB) {
 						if (column1 == null) {
 							column1 = column;
 						} else {
@@ -144,8 +146,8 @@ public class AttributesUtils {
 				// Query for equal
 				if (column1 != null) {
 
-					Object column1Value = attributesRow.getValue(column1
-							.getName());
+					Object column1Value = attributesRow
+							.getValue(column1.getName());
 					Class<?> column1ClassType = column1.getDataType()
 							.getClassType();
 					boolean column1Decimal = column1ClassType == Double.class
@@ -155,9 +157,9 @@ public class AttributesUtils {
 						column1AttributesValue = new ColumnValue(column1Value,
 								.000001);
 					} else if (column1Value instanceof Date) {
-						column1AttributesValue = new ColumnValue(DateConverter
-								.converter(column1.getDataType()).stringValue(
-										(Date) column1Value));
+						column1AttributesValue = new ColumnValue(
+								DateConverter.converter(column1.getDataType())
+										.stringValue((Date) column1Value));
 					} else {
 						column1AttributesValue = new ColumnValue(column1Value);
 					}
@@ -194,9 +196,9 @@ public class AttributesUtils {
 									column2Value, .000001);
 						} else if (column2Value instanceof Date) {
 							column2AttributesValue = new ColumnValue(
-									DateConverter.converter(
-											column2.getDataType()).stringValue(
-											(Date) column2Value));
+									DateConverter
+											.converter(column2.getDataType())
+											.stringValue((Date) column2Value));
 						} else {
 							column2AttributesValue = new ColumnValue(
 									column2Value);
@@ -213,8 +215,8 @@ public class AttributesUtils {
 								queryAttributesRow.getValue(column1.getName()));
 						if (column2 != null) {
 							TestCase.assertEquals(column2Value,
-									queryAttributesRow.getValue(column2
-											.getName()));
+									queryAttributesRow
+											.getValue(column2.getName()));
 						}
 						if (!found) {
 							found = attributesRow.getId() == queryAttributesRow
@@ -235,8 +237,10 @@ public class AttributesUtils {
 					TestCase.assertEquals(MetadataScopeType.ATTRIBUTE_TYPE,
 							metadata.getMetadataScope());
 					for (MetadataReference reference : references) {
-						TestCase.assertTrue(reference.getReferenceScope() == ReferenceScopeType.ROW
-								|| reference.getReferenceScope() == ReferenceScopeType.ROW_COL);
+						TestCase.assertTrue(reference
+								.getReferenceScope() == ReferenceScopeType.ROW
+								|| reference
+										.getReferenceScope() == ReferenceScopeType.ROW_COL);
 						Long rowId = reference.getRowIdValue();
 						TestCase.assertNotNull(rowId);
 
@@ -247,6 +251,71 @@ public class AttributesUtils {
 								queryRow.getTable().getTableName());
 					}
 				}
+
+				String previousColumn = null;
+				for (String column : columns) {
+
+					int distinctCount = dao.count(true, column);
+					cursor = dao.query(true, new String[] { column });
+					TestCase.assertEquals(1, cursor.getColumnCount());
+					TestCase.assertEquals(distinctCount, cursor.getCount());
+					cursor.close();
+					cursor = dao.query(new String[] { column });
+					TestCase.assertEquals(1, cursor.getColumnCount());
+					TestCase.assertEquals(count, cursor.getCount());
+					Set<Object> distinctValues = new HashSet<>();
+					while (cursor.moveToNext()) {
+						Object value = cursor.getValue(column);
+						if (value != null) {
+							distinctValues.add(value);
+						}
+					}
+					cursor.close();
+					TestCase.assertEquals(distinctCount, distinctValues.size());
+
+					if (previousColumn != null) {
+
+						cursor = dao.query(true,
+								new String[] { previousColumn, column });
+						TestCase.assertEquals(2, cursor.getColumnCount());
+						distinctCount = cursor.getCount();
+						if (distinctCount < 0) {
+							distinctCount = 0;
+							while (cursor.moveToNext()) {
+								distinctCount++;
+							}
+						}
+						cursor.close();
+						cursor = dao
+								.query(new String[] { previousColumn, column });
+						TestCase.assertEquals(2, cursor.getColumnCount());
+						TestCase.assertEquals(count, cursor.getCount());
+						Map<Object, Set<Object>> distinctPairs = new HashMap<>();
+						while (cursor.moveToNext()) {
+							Object previousValue = cursor
+									.getValue(previousColumn);
+							Object value = cursor.getValue(column);
+							distinctValues = distinctPairs.get(previousValue);
+							if (distinctValues == null) {
+								distinctValues = new HashSet<>();
+								distinctPairs.put(previousValue,
+										distinctValues);
+							}
+							distinctValues.add(value);
+						}
+						cursor.close();
+						int distinctPairsCount = 0;
+						for (Set<Object> values : distinctPairs.values()) {
+							distinctPairsCount += values.size();
+						}
+						TestCase.assertEquals(distinctCount,
+								distinctPairsCount);
+
+					}
+
+					previousColumn = column;
+				}
+
 			}
 		}
 
@@ -370,29 +439,33 @@ public class AttributesUtils {
 				int newColumns = 0;
 				String newColumnName = "new_column";
 
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.TEXT, false, ""));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.REAL));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.BOOLEAN));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.BLOB));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.INTEGER));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.TEXT, (long) UUID
-						.randomUUID().toString().length()));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.BLOB, (long) UUID
-						.randomUUID().toString().getBytes().length));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.DATE));
-				dao.addColumn(AttributesColumn.createColumn(newColumnName
-						+ ++newColumns, GeoPackageDataType.DATETIME));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns, GeoPackageDataType.TEXT,
+						false, ""));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns, GeoPackageDataType.REAL));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns,
+						GeoPackageDataType.BOOLEAN));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns, GeoPackageDataType.BLOB));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns,
+						GeoPackageDataType.INTEGER));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns, GeoPackageDataType.TEXT,
+						(long) UUID.randomUUID().toString().length()));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns, GeoPackageDataType.BLOB,
+						(long) UUID.randomUUID().toString().getBytes().length));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns, GeoPackageDataType.DATE));
+				dao.addColumn(AttributesColumn.createColumn(
+						newColumnName + ++newColumns,
+						GeoPackageDataType.DATETIME));
 
-				TestCase.assertEquals(existingColumns + newColumns, table
-						.getColumns().size());
+				TestCase.assertEquals(existingColumns + newColumns,
+						table.getColumns().size());
 				TestCase.assertEquals(rowCount, dao.count());
 
 				for (int index = existingColumns; index < table.getColumns()
@@ -400,16 +473,17 @@ public class AttributesUtils {
 					String name = newColumnName + (index - existingColumns + 1);
 					TestCase.assertEquals(name, table.getColumnName(index));
 					TestCase.assertEquals(index, table.getColumnIndex(name));
-					TestCase.assertEquals(name, table.getColumn(index)
-							.getName());
-					TestCase.assertEquals(index, table.getColumn(index)
-							.getIndex());
+					TestCase.assertEquals(name,
+							table.getColumn(index).getName());
+					TestCase.assertEquals(index,
+							table.getColumn(index).getIndex());
 					TestCase.assertEquals(name, table.getColumnNames()[index]);
-					TestCase.assertEquals(name, table.getColumns().get(index)
-							.getName());
+					TestCase.assertEquals(name,
+							table.getColumns().get(index).getName());
 					try {
 						table.getColumn(index).setIndex(index - 1);
-						TestCase.fail("Changed index on a created table column");
+						TestCase.fail(
+								"Changed index on a created table column");
 					} catch (Exception e) {
 					}
 					table.getColumn(index).setIndex(index);
@@ -422,8 +496,8 @@ public class AttributesUtils {
 
 				String newerColumnName = "newer_column";
 				for (int newColumn = 1; newColumn <= newColumns; newColumn++) {
-					dao.renameColumn(newColumnName + newColumn, newerColumnName
-							+ newColumn);
+					dao.renameColumn(newColumnName + newColumn,
+							newerColumnName + newColumn);
 				}
 				for (int index = existingColumns; index < table.getColumns()
 						.size(); index++) {
@@ -431,17 +505,17 @@ public class AttributesUtils {
 							+ (index - existingColumns + 1);
 					TestCase.assertEquals(name, table.getColumnName(index));
 					TestCase.assertEquals(index, table.getColumnIndex(name));
-					TestCase.assertEquals(name, table.getColumn(index)
-							.getName());
-					TestCase.assertEquals(index, table.getColumn(index)
-							.getIndex());
+					TestCase.assertEquals(name,
+							table.getColumn(index).getName());
+					TestCase.assertEquals(index,
+							table.getColumn(index).getIndex());
 					TestCase.assertEquals(name, table.getColumnNames()[index]);
-					TestCase.assertEquals(name, table.getColumns().get(index)
-							.getName());
+					TestCase.assertEquals(name,
+							table.getColumns().get(index).getName());
 				}
 
-				TestCase.assertEquals(existingColumns + newColumns, table
-						.getColumns().size());
+				TestCase.assertEquals(existingColumns + newColumns,
+						table.getColumns().size());
 				TestCase.assertEquals(rowCount, dao.count());
 				TestCase.assertEquals(tableName, table.getTableName());
 				TestCase.assertEquals(pk, table.getPkColumn());
@@ -452,13 +526,13 @@ public class AttributesUtils {
 					dao.dropColumn(newerColumnName + newColumn);
 				}
 
-				TestCase.assertEquals(existingColumns, table.getColumns()
-						.size());
+				TestCase.assertEquals(existingColumns,
+						table.getColumns().size());
 				TestCase.assertEquals(rowCount, dao.count());
 
 				for (int index = 0; index < existingColumns; index++) {
-					TestCase.assertEquals(index, table.getColumn(index)
-							.getIndex());
+					TestCase.assertEquals(index,
+							table.getColumn(index).getIndex());
 				}
 
 				TestCase.assertEquals(tableName, table.getTableName());
@@ -589,8 +663,9 @@ public class AttributesUtils {
 							break;
 						}
 						if (updatedByte == null) {
-							updatedByte = (byte) (((int) (Math.random() * (Byte.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedByte = (byte) (((int) (Math.random()
+									* (Byte.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						attributesRow.setValue(attributesColumn.getIndex(),
 								updatedByte);
@@ -601,8 +676,9 @@ public class AttributesUtils {
 							break;
 						}
 						if (updatedShort == null) {
-							updatedShort = (short) (((int) (Math.random() * (Short.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedShort = (short) (((int) (Math.random()
+									* (Short.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						attributesRow.setValue(attributesColumn.getIndex(),
 								updatedShort);
@@ -613,8 +689,9 @@ public class AttributesUtils {
 							break;
 						}
 						if (updatedInteger == null) {
-							updatedInteger = (int) (((int) (Math.random() * (Integer.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedInteger = (int) (((int) (Math.random()
+									* (Integer.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						attributesRow.setValue(attributesColumn.getIndex(),
 								updatedInteger);
@@ -626,8 +703,9 @@ public class AttributesUtils {
 							break;
 						}
 						if (updatedLong == null) {
-							updatedLong = (long) (((int) (Math.random() * (Long.MAX_VALUE + 1))) * (Math
-									.random() < .5 ? 1 : -1));
+							updatedLong = (long) (((int) (Math.random()
+									* (Long.MAX_VALUE + 1)))
+									* (Math.random() < .5 ? 1 : -1));
 						}
 						attributesRow.setValue(attributesColumn.getIndex(),
 								updatedLong);
@@ -671,12 +749,11 @@ public class AttributesUtils {
 										.getMax()) {
 									updatedLimitedBytes = new byte[attributesColumn
 											.getMax().intValue()];
-									ByteBuffer.wrap(
-											updatedBytes,
-											0,
-											attributesColumn.getMax()
-													.intValue()).get(
-											updatedLimitedBytes);
+									ByteBuffer
+											.wrap(updatedBytes, 0,
+													attributesColumn.getMax()
+															.intValue())
+											.get(updatedLimitedBytes);
 								} else {
 									updatedLimitedBytes = updatedBytes;
 								}
@@ -727,8 +804,8 @@ public class AttributesUtils {
 							}
 							Date compareDate = updatedDate;
 							if (dataType == GeoPackageDataType.DATE) {
-								compareDate = converter.dateValue(converter
-										.stringValue(compareDate));
+								compareDate = converter.dateValue(
+										converter.stringValue(compareDate));
 							}
 							TestCase.assertEquals(compareDate.getTime(),
 									date.getTime());
@@ -738,8 +815,8 @@ public class AttributesUtils {
 										readRow.getValue(readAttributesColumn
 												.getIndex()));
 							} else {
-								TestCase.assertEquals(updatedString, readRow
-										.getValue(readAttributesColumn
+								TestCase.assertEquals(updatedString,
+										readRow.getValue(readAttributesColumn
 												.getIndex()));
 							}
 						}
@@ -791,14 +868,13 @@ public class AttributesUtils {
 					case ResultUtils.FIELD_TYPE_BLOB:
 						if (readAttributesColumn.getMax() != null) {
 							GeoPackageGeometryDataUtils.compareByteArrays(
-									updatedLimitedBytes, (byte[]) readRow
-											.getValue(readAttributesColumn
-													.getIndex()));
+									updatedLimitedBytes,
+									(byte[]) readRow.getValue(
+											readAttributesColumn.getIndex()));
 						} else {
 							GeoPackageGeometryDataUtils.compareByteArrays(
-									updatedBytes, (byte[]) readRow
-											.getValue(readAttributesColumn
-													.getIndex()));
+									updatedBytes, (byte[]) readRow.getValue(
+											readAttributesColumn.getIndex()));
 						}
 						break;
 					default:
@@ -888,7 +964,8 @@ public class AttributesUtils {
 
 					// Create new row with copied values from another
 					AttributesRow newRow = dao.newRow();
-					for (AttributesColumn column : dao.getTable().getColumns()) {
+					for (AttributesColumn column : dao.getTable()
+							.getColumns()) {
 
 						if (column.isPrimaryKey()) {
 							try {
@@ -917,22 +994,24 @@ public class AttributesUtils {
 
 					// Test copied row
 					AttributesRow copyRow = queryAttributesRow2.copy();
-					for (AttributesColumn column : dao.getTable().getColumns()) {
+					for (AttributesColumn column : dao.getTable()
+							.getColumns()) {
 						if (column.getDataType() == GeoPackageDataType.BLOB) {
 							byte[] blob1 = (byte[]) queryAttributesRow2
 									.getValue(column.getName());
-							byte[] blob2 = (byte[]) copyRow.getValue(column
-									.getName());
+							byte[] blob2 = (byte[]) copyRow
+									.getValue(column.getName());
 							if (blob1 == null) {
 								TestCase.assertNull(blob2);
 							} else {
-								GeoPackageGeometryDataUtils.compareByteArrays(
-										blob1, blob2);
+								GeoPackageGeometryDataUtils
+										.compareByteArrays(blob1, blob2);
 							}
 						} else {
-							TestCase.assertEquals(queryAttributesRow2
-									.getValue(column.getName()), copyRow
-									.getValue(column.getName()));
+							TestCase.assertEquals(
+									queryAttributesRow2
+											.getValue(column.getName()),
+									copyRow.getValue(column.getName()));
 						}
 					}
 
@@ -950,13 +1029,16 @@ public class AttributesUtils {
 					TestCase.assertEquals(count + 3, cursor.getCount());
 					cursor.close();
 
-					for (AttributesColumn column : dao.getTable().getColumns()) {
+					for (AttributesColumn column : dao.getTable()
+							.getColumns()) {
 						if (column.isPrimaryKey()) {
-							TestCase.assertNotSame(queryAttributesRow2
-									.getValue(column.getName()),
-									queryAttributesRow3.getValue(column
-											.getName()));
-						} else if (column.getDataType() == GeoPackageDataType.BLOB) {
+							TestCase.assertNotSame(
+									queryAttributesRow2
+											.getValue(column.getName()),
+									queryAttributesRow3
+											.getValue(column.getName()));
+						} else if (column
+								.getDataType() == GeoPackageDataType.BLOB) {
 							byte[] blob1 = (byte[]) queryAttributesRow2
 									.getValue(column.getName());
 							byte[] blob2 = (byte[]) queryAttributesRow3
@@ -964,14 +1046,15 @@ public class AttributesUtils {
 							if (blob1 == null) {
 								TestCase.assertNull(blob2);
 							} else {
-								GeoPackageGeometryDataUtils.compareByteArrays(
-										blob1, blob2);
+								GeoPackageGeometryDataUtils
+										.compareByteArrays(blob1, blob2);
 							}
 						} else {
-							TestCase.assertEquals(queryAttributesRow2
-									.getValue(column.getName()),
-									queryAttributesRow3.getValue(column
-											.getName()));
+							TestCase.assertEquals(
+									queryAttributesRow2
+											.getValue(column.getName()),
+									queryAttributesRow3
+											.getValue(column.getName()));
 						}
 					}
 				}

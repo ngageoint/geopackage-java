@@ -9,8 +9,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.TestCase;
@@ -284,7 +286,76 @@ public class FeatureUtils {
 					}
 					TestCase.assertTrue(found);
 					cursor.close();
+
 				}
+
+				String previousColumn = null;
+				for (String column : columns) {
+
+					int distinctCount = dao.count(true, column);
+					cursor = dao.query(true, new String[] { column });
+					TestCase.assertEquals(1, cursor.getColumnCount());
+					TestCase.assertEquals(distinctCount, cursor.getCount());
+					cursor.close();
+					cursor = dao.query(new String[] { column });
+					TestCase.assertEquals(1, cursor.getColumnCount());
+					TestCase.assertEquals(count, cursor.getCount());
+					Set<Object> distinctValues = new HashSet<>();
+					while (cursor.moveToNext()) {
+						Object value = cursor.getValue(column);
+						if (value != null) {
+							distinctValues.add(value);
+						}
+					}
+					cursor.close();
+					if (!column.equals(featureTable.getGeometryColumnName())) {
+						TestCase.assertEquals(distinctCount,
+								distinctValues.size());
+					}
+
+					if (previousColumn != null) {
+
+						cursor = dao.query(true,
+								new String[] { previousColumn, column });
+						TestCase.assertEquals(2, cursor.getColumnCount());
+						distinctCount = cursor.getCount();
+						if (distinctCount < 0) {
+							distinctCount = 0;
+							while (cursor.moveToNext()) {
+								distinctCount++;
+							}
+						}
+						cursor.close();
+						cursor = dao
+								.query(new String[] { previousColumn, column });
+						TestCase.assertEquals(2, cursor.getColumnCount());
+						TestCase.assertEquals(count, cursor.getCount());
+						Map<Object, Set<Object>> distinctPairs = new HashMap<>();
+						while (cursor.moveToNext()) {
+							Object previousValue = cursor
+									.getValue(previousColumn);
+							Object value = cursor.getValue(column);
+							distinctValues = distinctPairs.get(previousValue);
+							if (distinctValues == null) {
+								distinctValues = new HashSet<>();
+								distinctPairs.put(previousValue,
+										distinctValues);
+							}
+							distinctValues.add(value);
+						}
+						cursor.close();
+						int distinctPairsCount = 0;
+						for (Set<Object> values : distinctPairs.values()) {
+							distinctPairsCount += values.size();
+						}
+						TestCase.assertEquals(distinctCount,
+								distinctPairsCount);
+
+					}
+
+					previousColumn = column;
+				}
+
 			}
 		}
 
