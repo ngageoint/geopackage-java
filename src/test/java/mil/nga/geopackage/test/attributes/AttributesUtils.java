@@ -255,9 +255,31 @@ public class AttributesUtils {
 				String previousColumn = null;
 				for (String column : columns) {
 
+					int expectedDistinctCount = dao
+							.querySingleTypedResult(
+									"SELECT COUNT(DISTINCT " + column
+											+ ") FROM " + dao.getTableName(),
+									null);
 					int distinctCount = dao.count(true, column);
+					TestCase.assertEquals(expectedDistinctCount, distinctCount);
+					AttributesResultSet expectedResultSet = dao
+							.rawQuery("SELECT DISTINCT " + column + " FROM "
+									+ dao.getTableName(), null);
+					int expectedDistinctResultSetCount = expectedResultSet
+							.getCount();
+					int expectedDistinctManualResultSetCount = 0;
+					while (expectedResultSet.moveToNext()) {
+						if (expectedResultSet.getValue(0) != null) {
+							expectedDistinctManualResultSetCount++;
+						}
+					}
+					expectedResultSet.close();
+					TestCase.assertEquals(expectedDistinctManualResultSetCount,
+							expectedDistinctResultSetCount);
 					cursor = dao.query(true, new String[] { column });
 					TestCase.assertEquals(1, cursor.getColumnCount());
+					TestCase.assertEquals(expectedDistinctResultSetCount,
+							cursor.getCount());
 					TestCase.assertEquals(distinctCount, cursor.getCount());
 					cursor.close();
 					cursor = dao.query(new String[] { column });
