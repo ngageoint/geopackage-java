@@ -8,7 +8,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * geopackage-core version 3.5.1
 * DAO options to enable modifying row ids or disable column value type validation
-* Distinct select statement queries
+* Distinct select statement queries and counts
 
 ## [3.5.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.5.0) (03-10-2020)
 
