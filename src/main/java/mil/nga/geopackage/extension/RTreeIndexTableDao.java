@@ -246,6 +246,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	public UserCustomResultSet query(boolean distinct, String[] columns,
 			String where, String[] whereArgs, String groupBy, String having,
 			String orderBy, String limit) {
+		validateRTree();
 		return super.query(distinct, columns, where, whereArgs, groupBy, having,
 				orderBy, limit);
 	}
@@ -2850,7 +2851,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max x
 	 * @param maxY
 	 *            max y
-	 * @return results
+	 * @return count
 	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX,
@@ -2871,7 +2872,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max x
 	 * @param maxY
 	 *            max y
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(String column, double minX, double minY,
@@ -2894,7 +2895,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max x
 	 * @param maxY
 	 *            max y
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(boolean distinct, String column, double minX,
@@ -3023,7 +3024,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max y
 	 * @param fieldValues
 	 *            field values
-	 * @return results
+	 * @return count
 	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX, double maxY,
@@ -3046,7 +3047,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max y
 	 * @param fieldValues
 	 *            field values
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(String column, double minX, double minY,
@@ -3072,7 +3073,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max y
 	 * @param fieldValues
 	 *            field values
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(boolean distinct, String column, double minX,
@@ -3191,7 +3192,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max y
 	 * @param where
 	 *            where clause
-	 * @return results
+	 * @return count
 	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX, double maxY,
@@ -3214,7 +3215,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max y
 	 * @param where
 	 *            where clause
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(String column, double minX, double minY,
@@ -3239,7 +3240,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            max y
 	 * @param where
 	 *            where clause
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(boolean distinct, String column, double minX,
@@ -3375,7 +3376,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            where clause
 	 * @param whereArgs
 	 *            where arguments
-	 * @return results
+	 * @return count
 	 * @since 3.4.0
 	 */
 	public int countFeatures(double minX, double minY, double maxX, double maxY,
@@ -3401,7 +3402,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            where clause
 	 * @param whereArgs
 	 *            where arguments
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(String column, double minX, double minY,
@@ -3429,7 +3430,7 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	 *            where clause
 	 * @param whereArgs
 	 *            where arguments
-	 * @return results
+	 * @return count
 	 * @since 3.5.1
 	 */
 	public int countFeatures(boolean distinct, String column, double minX,
