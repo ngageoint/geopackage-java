@@ -1978,7 +1978,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	 */
 	public FeatureResultSet queryFeatures(String[] columns,
 			GeometryEnvelope envelope, String where) {
-		return queryFeatures(columns, envelope, where, null);
+		return queryFeatures(false, columns, envelope, where);
 	}
 
 	/**
