@@ -2067,7 +2067,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature index results, close when done
-	 * @since 3.4.0
+	 * @since 3.5.1
 	 */
 	public FeatureIndexResults query(boolean distinct,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
