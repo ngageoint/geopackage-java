@@ -766,7 +766,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			String where) {
-		return query(boundingBox, where, null);
+		return query(false, boundingBox, where);
 	}
 
 	/**
@@ -800,7 +800,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(String[] columns,
 			BoundingBox boundingBox, String where) {
-		return query(columns, boundingBox, where, null);
+		return query(false, columns, boundingBox, where);
 	}
 
 	/**
@@ -1143,7 +1143,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(BoundingBox boundingBox,
 			Projection projection, String where) {
-		return query(boundingBox, projection, where, null);
+		return query(false, boundingBox, projection, where);
 	}
 
 	/**
@@ -1183,7 +1183,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where) {
-		return query(columns, boundingBox, projection, where, null);
+		return query(false, columns, boundingBox, projection, where);
 	}
 
 	/**
@@ -1513,7 +1513,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(GeometryEnvelope envelope,
 			String where) {
-		return query(envelope, where, null);
+		return query(false, envelope, where);
 	}
 
 	/**
@@ -1547,7 +1547,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(String[] columns,
 			GeometryEnvelope envelope, String where) {
-		return query(columns, envelope, where, null);
+		return query(false, columns, envelope, where);
 	}
 
 	/**
@@ -1694,7 +1694,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(double minX, double minY,
 			double maxX, double maxY) {
-		return query(minX, minY, maxX, maxY, null, null);
+		return query(false, minX, minY, maxX, maxY);
 	}
 
 	/**
@@ -1736,7 +1736,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(String[] columns, double minX,
 			double minY, double maxX, double maxY) {
-		return query(columns, minX, minY, maxX, maxY, null, null);
+		return query(false, columns, minX, minY, maxX, maxY);
 	}
 
 	/**
@@ -1920,7 +1920,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(double minX, double minY,
 			double maxX, double maxY, String where) {
-		return query(minX, minY, maxX, maxY, where, null);
+		return query(false, minX, minY, maxX, maxY, where);
 	}
 
 	/**
@@ -1966,7 +1966,7 @@ public class ManualFeatureQuery {
 	 */
 	public ManualFeatureQueryResults query(String[] columns, double minX,
 			double minY, double maxX, double maxY, String where) {
-		return query(columns, minX, minY, maxX, maxY, where, null);
+		return query(false, columns, minX, minY, maxX, maxY, where);
 	}
 
 	/**
