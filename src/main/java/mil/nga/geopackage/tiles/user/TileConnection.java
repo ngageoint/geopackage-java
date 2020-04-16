@@ -28,8 +28,8 @@ public class TileConnection
 	 */
 	@Override
 	protected TileResultSet createResult(String[] columns, ResultSet resultSet,
-			int count) {
-		return new TileResultSet(table, columns, resultSet, count);
+			String sql, String[] selectionArgs) {
+		return new TileResultSet(table, columns, resultSet, sql, selectionArgs);
 	}
 
 }

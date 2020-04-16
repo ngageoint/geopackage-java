@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.ResultSetResult;
 import mil.nga.geopackage.db.ResultUtils;
+import mil.nga.geopackage.db.SQLUtils;
 
 /**
  * Abstract User Result Set. The column index of the GeoPackage core is 0
@@ -38,7 +39,17 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	/**
 	 * Result count
 	 */
-	private int count;
+	private Integer count;
+
+	/**
+	 * Executed SQL command
+	 */
+	private String sql;
+
+	/**
+	 * Selection arguments
+	 */
+	private String[] selectionArgs;
 
 	/**
 	 * Constructor
@@ -100,6 +111,78 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 		this.table = table;
 		this.columns = columns;
 		this.count = count;
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            table
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	protected UserResultSet(TTable table, ResultSet resultSet, String sql,
+			String[] selectionArgs) {
+		this(table, table.getUserColumns(), resultSet, sql, selectionArgs);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	protected UserResultSet(TTable table, String[] columns, ResultSet resultSet,
+			String sql, String[] selectionArgs) {
+		super(resultSet);
+		UserColumns<TColumn> userColumns = null;
+		if (columns != null) {
+			userColumns = table.createUserColumns(columns);
+		} else {
+			userColumns = table.getUserColumns();
+		}
+		this.table = table;
+		this.columns = userColumns;
+		this.sql = sql;
+		this.selectionArgs = selectionArgs;
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	protected UserResultSet(TTable table, UserColumns<TColumn> columns,
+			ResultSet resultSet, String sql, String[] selectionArgs) {
+		super(resultSet);
+		this.table = table;
+		this.columns = columns;
+		this.sql = sql;
+		this.selectionArgs = selectionArgs;
 	}
 
 	/**
@@ -229,7 +312,34 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 */
 	@Override
 	public int getCount() {
+		if (count == null) {
+			if (sql != null) {
+				count = SQLUtils.count(resultSet, sql, selectionArgs);
+			} else {
+				count = -1;
+			}
+		}
 		return count;
+	}
+
+	/**
+	 * Get the SQL statement (if available)
+	 * 
+	 * @return SQL statement
+	 * @since 3.5.1
+	 */
+	public String getSql() {
+		return sql;
+	}
+
+	/**
+	 * Get the SQL selection arguments (if available)
+	 * 
+	 * @return selection arguments
+	 * @since 3.5.1
+	 */
+	public String[] getSelectionArgs() {
+		return selectionArgs;
 	}
 
 }

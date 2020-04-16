@@ -29,8 +29,9 @@ public class AttributesConnection extends
 	 */
 	@Override
 	protected AttributesResultSet createResult(String[] columns,
-			ResultSet resultSet, int count) {
-		return new AttributesResultSet(table, columns, resultSet, count);
+			ResultSet resultSet, String sql, String[] selectionArgs) {
+		return new AttributesResultSet(table, columns, resultSet, sql,
+				selectionArgs);
 	}
 
 }

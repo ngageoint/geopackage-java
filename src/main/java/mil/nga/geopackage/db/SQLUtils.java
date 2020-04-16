@@ -84,10 +84,40 @@ public class SQLUtils {
 	/**
 	 * Attempt to count the results of the query
 	 * 
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @return count if known, -1 if not able to determine
+	 * @since 3.5.1
+	 */
+	public static int count(ResultSet resultSet, String sql,
+			String[] selectionArgs) {
+
+		int count = -1;
+
+		try {
+			count = count(resultSet.getStatement().getConnection(), sql,
+					selectionArgs);
+		} catch (SQLException e) {
+			throw new GeoPackageException(
+					"Failed to count result set query. SQL: " + sql + ", args: "
+							+ selectionArgs,
+					e);
+		}
+
+		return count;
+	}
+
+	/**
+	 * Attempt to count the results of the query
+	 * 
 	 * @param connection
 	 *            connection
 	 * @param sql
-	 *            sql statement
+	 *            SQL statement
 	 * @param selectionArgs
 	 *            selection arguments
 	 * @return count if known, -1 if not able to determine
@@ -151,13 +181,12 @@ public class SQLUtils {
 			}
 		}
 
-		int count;
+		int count = -1;
 		if (sqlCommands.isEmpty()) {
 			// Unable to count
 			log.log(Level.INFO,
 					"Unable to count query without result iteration. SQL: "
-							+ sql);
-			count = -1;
+							+ sql + ", args: " + selectionArgs);
 		} else {
 			count = 0;
 			for (String sqlCommand : sqlCommands) {
@@ -170,7 +199,7 @@ public class SQLUtils {
 				} catch (Exception e) {
 					log.log(Level.WARNING,
 							"Unable to count query without result iteration. SQL: "
-									+ sql,
+									+ sql + ", args: " + selectionArgs,
 							e);
 					count = -1;
 				}

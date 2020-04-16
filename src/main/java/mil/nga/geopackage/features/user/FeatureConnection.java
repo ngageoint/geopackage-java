@@ -28,8 +28,9 @@ public class FeatureConnection extends
 	 */
 	@Override
 	protected FeatureResultSet createResult(String[] columns,
-			ResultSet resultSet, int count) {
-		return new FeatureResultSet(table, columns, resultSet, count);
+			ResultSet resultSet, String sql, String[] selectionArgs) {
+		return new FeatureResultSet(table, columns, resultSet, sql,
+				selectionArgs);
 	}
 
 }

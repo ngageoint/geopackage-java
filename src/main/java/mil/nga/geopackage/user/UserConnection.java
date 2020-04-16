@@ -69,12 +69,16 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * 
 	 * @param resultSet
 	 *            result set
-	 * @param count
-	 *            count
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
 	 * @return result
+	 * @since 3.5.1
 	 */
-	protected TResult createResult(ResultSet resultSet, int count) {
-		return createResult(null, resultSet, count);
+	protected TResult createResult(ResultSet resultSet, String sql,
+			String[] selectionArgs) {
+		return createResult(null, resultSet, sql, selectionArgs);
 	}
 
 	/**
@@ -84,13 +88,15 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 *            columns
 	 * @param resultSet
 	 *            result set
-	 * @param count
-	 *            count
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
 	 * @return result
-	 * @since 3.5.0
+	 * @since 3.5.1
 	 */
 	protected abstract TResult createResult(String[] columns,
-			ResultSet resultSet, int count);
+			ResultSet resultSet, String sql, String[] selectionArgs);
 
 	/**
 	 * {@inheritDoc}
@@ -99,9 +105,8 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	public TResult rawQuery(String sql, String[] selectionArgs) {
 
 		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
-		int count = SQLUtils.count(connection, sql, selectionArgs);
 
-		return createResult(resultSet, count);
+		return createResult(resultSet, sql, selectionArgs);
 	}
 
 	/**
@@ -193,9 +198,8 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 				groupBy, having, orderBy, limit);
 
 		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
-		int count = SQLUtils.count(connection, sql, selectionArgs);
 
-		return createResult(columns, resultSet, count);
+		return createResult(columns, resultSet, sql, selectionArgs);
 	}
 
 	/**

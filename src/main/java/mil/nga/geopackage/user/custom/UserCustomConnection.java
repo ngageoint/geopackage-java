@@ -29,8 +29,9 @@ public class UserCustomConnection extends
 	 */
 	@Override
 	protected UserCustomResultSet createResult(String[] columns,
-			ResultSet resultSet, int count) {
-		return new UserCustomResultSet(table, columns, resultSet, count);
+			ResultSet resultSet, String sql, String[] selectionArgs) {
+		return new UserCustomResultSet(table, columns, resultSet, sql,
+				selectionArgs);
 	}
 
 }

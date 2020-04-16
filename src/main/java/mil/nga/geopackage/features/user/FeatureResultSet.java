@@ -47,6 +47,44 @@ public class FeatureResultSet
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            feature table
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet(FeatureTable table, ResultSet resultSet, String sql,
+			String[] selectionArgs) {
+		super(table, resultSet, sql, selectionArgs);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            feature table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public FeatureResultSet(FeatureTable table, String[] columns,
+			ResultSet resultSet, String sql, String[] selectionArgs) {
+		super(table, columns, resultSet, sql, selectionArgs);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

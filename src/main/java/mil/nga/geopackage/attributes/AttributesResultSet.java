@@ -47,6 +47,44 @@ public class AttributesResultSet extends
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            attributes table
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public AttributesResultSet(AttributesTable table, ResultSet resultSet,
+			String sql, String[] selectionArgs) {
+		this(table, null, resultSet, sql, selectionArgs);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            attributes table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public AttributesResultSet(AttributesTable table, String[] columns,
+			ResultSet resultSet, String sql, String[] selectionArgs) {
+		super(table, columns, resultSet, sql, selectionArgs);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

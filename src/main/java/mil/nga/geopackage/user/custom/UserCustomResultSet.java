@@ -47,6 +47,44 @@ public class UserCustomResultSet extends
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            user custom table
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public UserCustomResultSet(UserCustomTable table, ResultSet resultSet,
+			String sql, String[] selectionArgs) {
+		this(table, null, resultSet, sql, selectionArgs);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            user custom table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public UserCustomResultSet(UserCustomTable table, String[] columns,
+			ResultSet resultSet, String sql, String[] selectionArgs) {
+		super(table, columns, resultSet, sql, selectionArgs);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

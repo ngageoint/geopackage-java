@@ -45,6 +45,44 @@ public class TileResultSet
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            tile table
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public TileResultSet(TileTable table, ResultSet resultSet, String sql,
+			String[] selectionArgs) {
+		this(table, null, resultSet, sql, selectionArgs);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param table
+	 *            tile table
+	 * @param columns
+	 *            columns
+	 * @param resultSet
+	 *            result set
+	 * @param sql
+	 *            SQL statement
+	 * @param selectionArgs
+	 *            selection arguments
+	 * @since 3.5.1
+	 */
+	public TileResultSet(TileTable table, String[] columns, ResultSet resultSet,
+			String sql, String[] selectionArgs) {
+		super(table, columns, resultSet, sql, selectionArgs);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
