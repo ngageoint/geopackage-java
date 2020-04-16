@@ -299,6 +299,9 @@ public class FeatureUtils {
 									null);
 					int distinctCount = dao.count(true, column);
 					TestCase.assertEquals(expectedDistinctCount, distinctCount);
+					if (dao.count(column + " IS NULL") > 0) {
+						distinctCount++;
+					}
 					FeatureResultSet expectedResultSet = dao
 							.rawQuery("SELECT DISTINCT " + column + " FROM "
 									+ dao.getTableName(), null);
@@ -306,9 +309,7 @@ public class FeatureUtils {
 							.getCount();
 					int expectedDistinctManualResultSetCount = 0;
 					while (expectedResultSet.moveToNext()) {
-						if (expectedResultSet.getValue(0) != null) {
-							expectedDistinctManualResultSetCount++;
-						}
+						expectedDistinctManualResultSetCount++;
 					}
 					expectedResultSet.close();
 					TestCase.assertEquals(expectedDistinctManualResultSetCount,
@@ -325,9 +326,7 @@ public class FeatureUtils {
 					Set<Object> distinctValues = new HashSet<>();
 					while (cursor.moveToNext()) {
 						Object value = cursor.getValue(column);
-						if (value != null) {
-							distinctValues.add(value);
-						}
+						distinctValues.add(value);
 					}
 					cursor.close();
 					if (!column.equals(featureTable.getGeometryColumnName())) {

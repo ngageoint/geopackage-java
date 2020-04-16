@@ -250,6 +250,9 @@ public class TileUtils {
 									null);
 					int distinctCount = dao.count(true, column);
 					TestCase.assertEquals(expectedDistinctCount, distinctCount);
+					if (dao.count(column + " IS NULL") > 0) {
+						distinctCount++;
+					}
 					TileResultSet expectedResultSet = dao
 							.rawQuery("SELECT DISTINCT " + column + " FROM "
 									+ dao.getTableName(), null);
@@ -257,9 +260,7 @@ public class TileUtils {
 							.getCount();
 					int expectedDistinctManualResultSetCount = 0;
 					while (expectedResultSet.moveToNext()) {
-						if (expectedResultSet.getValue(0) != null) {
-							expectedDistinctManualResultSetCount++;
-						}
+						expectedDistinctManualResultSetCount++;
 					}
 					expectedResultSet.close();
 					TestCase.assertEquals(expectedDistinctManualResultSetCount,
@@ -276,9 +277,7 @@ public class TileUtils {
 					Set<Object> distinctValues = new HashSet<>();
 					while (cursor.moveToNext()) {
 						Object value = cursor.getValue(column);
-						if (value != null) {
-							distinctValues.add(value);
-						}
+						distinctValues.add(value);
 					}
 					cursor.close();
 					if (!column

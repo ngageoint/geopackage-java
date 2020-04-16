@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -94,7 +95,7 @@ public class SQLUtils {
 	public static int count(Connection connection, String sql,
 			String[] selectionArgs) {
 
-		int count = 0;
+		List<String> sqlCommands = new ArrayList<>();
 
 		String upperCaseSQL = sql.toUpperCase();
 		int afterSelectIndex = upperCaseSQL.indexOf("SELECT")
@@ -102,32 +103,77 @@ public class SQLUtils {
 		String upperCaseAfterSelect = upperCaseSQL.substring(afterSelectIndex)
 				.trim();
 
-		if (!upperCaseAfterSelect.startsWith("COUNT")) {
+		if (upperCaseAfterSelect.startsWith("COUNT")) {
+			sqlCommands.add(sql);
+		} else {
+
 			int fromIndex = upperCaseSQL.indexOf("FROM");
 			if (upperCaseAfterSelect.startsWith("DISTINCT")) {
+
 				int commaIndex = upperCaseSQL.indexOf(",");
 				if (commaIndex < 0 || commaIndex >= fromIndex) {
-					sql = "SELECT COUNT("
+
+					sqlCommands.add("SELECT COUNT("
 							+ sql.substring(afterSelectIndex, fromIndex) + ") "
-							+ sql.substring(fromIndex);
-				} else {
-					// Requires a manual count
-					count = -1;
+							+ sql.substring(fromIndex));
+
+					StringBuilder isNull = new StringBuilder(
+							"SELECT COUNT(*) > 0 ");
+					String columnIsNull = sql
+							.substring(upperCaseSQL.indexOf("DISTINCT")
+									+ "DISTINCT".length(), fromIndex)
+							+ "IS NULL";
+					int whereIndex = upperCaseSQL.indexOf("WHERE");
+					int endIndex = sql.indexOf(";");
+					if (endIndex < 0) {
+						endIndex = sql.length();
+					}
+					if (whereIndex >= 0) {
+						isNull.append(sql.substring(fromIndex,
+								whereIndex + "WHERE".length()));
+						isNull.append(columnIsNull);
+						isNull.append(" AND ( ");
+						isNull.append(sql.substring(
+								whereIndex + "WHERE".length(), endIndex));
+						isNull.append(" )");
+					} else {
+						isNull.append(sql.substring(fromIndex, endIndex));
+						isNull.append(" WHERE");
+						isNull.append(columnIsNull);
+					}
+
+					sqlCommands.add(isNull.toString());
+
 				}
-			} else {
-				if (fromIndex == -1) {
-					count = -1;
-				} else {
-					sql = "SELECT COUNT(*) " + sql.substring(fromIndex);
-				}
+
+			} else if (fromIndex != -1) {
+				sqlCommands.add("SELECT COUNT(*) " + sql.substring(fromIndex));
 			}
 		}
 
-		if (count >= 0) {
-			Object value = querySingleResult(connection, sql, selectionArgs, 0,
-					GeoPackageDataType.MEDIUMINT);
-			if (value != null) {
-				count = ((Number) value).intValue();
+		int count;
+		if (sqlCommands.isEmpty()) {
+			// Unable to count
+			log.log(Level.INFO,
+					"Unable to count query without result iteration. SQL: "
+							+ sql);
+			count = -1;
+		} else {
+			count = 0;
+			for (String sqlCommand : sqlCommands) {
+				try {
+					Object value = querySingleResult(connection, sqlCommand,
+							selectionArgs, 0, GeoPackageDataType.MEDIUMINT);
+					if (value != null) {
+						count += ((Number) value).intValue();
+					}
+				} catch (Exception e) {
+					log.log(Level.WARNING,
+							"Unable to count query without result iteration. SQL: "
+									+ sql,
+							e);
+					count = -1;
+				}
 			}
 		}
 
