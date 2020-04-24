@@ -34,11 +34,10 @@ public class GeoPackageManager {
 	 * 
 	 * @param file
 	 *            file
-	 * @return true if created
+	 * @return true when created
+	 * @throws GeoPackageException if the GeoPackage already exists
 	 */
 	public static boolean create(File file) {
-
-		boolean created = false;
 
 		// Validate or add the file extension
 		if (GeoPackageIOUtils.hasFileExtension(file)) {
@@ -65,10 +64,9 @@ public class GeoPackageManager {
 			tableCreator.createRequired();
 
 			connection.close();
-			created = true;
 		}
 
-		return created;
+		return true;
 	}
 
 	/**
@@ -159,8 +157,8 @@ public class GeoPackageManager {
 	/**
 	 * Connect to a GeoPackage file
 	 * 
-	 * @param file
-	 * @return
+	 * @param file GeoPackage file
+	 * @return GeoPackageConnection
 	 */
 	private static GeoPackageConnection connect(File file) {
 
