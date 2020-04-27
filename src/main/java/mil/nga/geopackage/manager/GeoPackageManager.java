@@ -35,8 +35,6 @@ public class GeoPackageManager {
 	 * @param file
 	 *            file
 	 * @return true if created
-	 * @throws GeoPackageException
-	 *             if the GeoPackage already exists
 	 */
 	public static boolean create(File file) {
 
