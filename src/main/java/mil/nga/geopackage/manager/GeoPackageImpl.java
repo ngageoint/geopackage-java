@@ -19,7 +19,6 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
-import mil.nga.geopackage.db.GeoPackageTableCreator;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.factory.GeoPackageCoreImpl;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -62,12 +61,9 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	 *            GeoPackage file
 	 * @param database
 	 *            connection
-	 * @param tableCreator
-	 *            table creator
 	 */
-	GeoPackageImpl(String name, File file, GeoPackageConnection database,
-			GeoPackageTableCreator tableCreator) {
-		super(name, file.getAbsolutePath(), database, tableCreator, true);
+	GeoPackageImpl(String name, File file, GeoPackageConnection database) {
+		super(name, file.getAbsolutePath(), database, true);
 		this.database = database;
 	}
 

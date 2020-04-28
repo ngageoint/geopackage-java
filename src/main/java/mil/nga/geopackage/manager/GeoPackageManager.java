@@ -136,12 +136,9 @@ public class GeoPackageManager {
 
 		// Create the GeoPackage Connection and table creator
 		GeoPackageConnection connection = connect(file);
-		GeoPackageTableCreator tableCreator = new GeoPackageTableCreator(
-				connection);
 
 		// Create a GeoPackage
-		GeoPackage geoPackage = new GeoPackageImpl(name, file, connection,
-				tableCreator);
+		GeoPackage geoPackage = new GeoPackageImpl(name, file, connection);
 
 		// Validate the GeoPackage has the minimum required tables
 		if (validate) {
