@@ -303,7 +303,7 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 					+ Contents.class.getSimpleName() + " is required to create "
 					+ AttributesDao.class.getSimpleName());
 		}
-		if (contents.getDataType() != ContentsDataType.ATTRIBUTES) {
+		if (!contents.isAttributesTypeOrUnknown()) {
 			throw new GeoPackageException(Contents.class.getSimpleName()
 					+ " is required to be of type "
 					+ ContentsDataType.ATTRIBUTES + ". Actual: "
