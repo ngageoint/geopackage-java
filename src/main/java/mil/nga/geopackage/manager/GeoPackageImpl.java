@@ -307,7 +307,7 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 			throw new GeoPackageException(Contents.class.getSimpleName()
 					+ " is required to be of type "
 					+ ContentsDataType.ATTRIBUTES + ". Actual: "
-					+ contents.getDataTypeString());
+					+ contents.getDataTypeName());
 		}
 
 		// Read the existing table and create the dao

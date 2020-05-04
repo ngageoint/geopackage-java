@@ -143,7 +143,7 @@ public class GeoPackageTextOutput {
 		output.append("\t" + Contents.COLUMN_TABLE_NAME + ": "
 				+ contents.getTableName());
 		output.append("\n\t" + Contents.COLUMN_DATA_TYPE + ": "
-				+ contents.getDataTypeString());
+				+ contents.getDataTypeName());
 		output.append("\n\t" + Contents.COLUMN_IDENTIFIER + ": "
 				+ contents.getIdentifier());
 		output.append("\n\t" + Contents.COLUMN_DESCRIPTION + ": "

@@ -12,7 +12,6 @@ import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesTable;
-import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageCoreConnection;
@@ -884,7 +883,7 @@ public class AlterTableUtils {
 
 				GriddedCoverage griddedCoverage = null;
 				List<GriddedTile> griddedTiles = null;
-				if (geoPackage.isTableType(ContentsDataType.GRIDDED_COVERAGE,
+				if (geoPackage.isTableType(CoverageData.GRIDDED_COVERAGE,
 						tableName)) {
 					CoverageData<?> coverageData = CoverageData
 							.getCoverageData(geoPackage, dao);

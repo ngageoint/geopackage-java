@@ -29,6 +29,7 @@ import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.db.table.TableColumn;
 import mil.nga.geopackage.db.table.TableInfo;
 import mil.nga.geopackage.extension.RTreeIndexExtension;
+import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 
@@ -504,6 +505,25 @@ public class SQLExec {
 													+ "';",
 											COMMAND_ALL_ROWS, history, false);
 
+									String tableType = database
+											.getTableType(tableName);
+									if (tableType != null) {
+										switch (tableType) {
+										case CoverageData.GRIDDED_COVERAGE:
+											executeSQL(database, sqlBuilder,
+													"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
+															+ tableName + "';",
+													COMMAND_ALL_ROWS, history,
+													false);
+											executeSQL(database, sqlBuilder,
+													"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
+															+ tableName + "';",
+													COMMAND_ALL_ROWS, history,
+													false);
+											break;
+										}
+									}
+
 									ContentsDataType dataType = database
 											.getTableDataType(tableName);
 									if (dataType != null) {
@@ -518,17 +538,6 @@ public class SQLExec {
 													COMMAND_ALL_ROWS, history,
 													false);
 											break;
-										case GRIDDED_COVERAGE:
-											executeSQL(database, sqlBuilder,
-													"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
-															+ tableName + "';",
-													COMMAND_ALL_ROWS, history,
-													false);
-											executeSQL(database, sqlBuilder,
-													"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
-															+ tableName + "';",
-													COMMAND_ALL_ROWS, history,
-													false);
 										case TILES:
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"

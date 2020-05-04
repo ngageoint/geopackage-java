@@ -13,6 +13,7 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
@@ -290,7 +291,7 @@ public class GeoPackageTestUtils {
 
 			TestCase.assertEquals(geoPackage.getTables(ContentsDataType.TILES)
 					.size()
-					+ geoPackage.getTables(ContentsDataType.GRIDDED_COVERAGE)
+					+ geoPackage.getTables(CoverageData.GRIDDED_COVERAGE)
 							.size(),
 					tileMatrixSetDao.countOf());
 			for (String tileTable : geoPackage.getTileTables()) {
@@ -301,7 +302,7 @@ public class GeoPackageTestUtils {
 				TestCase.assertNull(contentsDao.queryForId(tileTable));
 			}
 			TestCase.assertEquals(geoPackage
-					.getTables(ContentsDataType.GRIDDED_COVERAGE).size(),
+					.getTables(CoverageData.GRIDDED_COVERAGE).size(),
 					tileMatrixSetDao.countOf());
 
 			geoPackage.dropTable(TileMatrix.TABLE_NAME);
@@ -504,7 +505,6 @@ public class GeoPackageTestUtils {
 
 					break;
 				case TILES:
-				case GRIDDED_COVERAGE:
 					TileDao tileDao = geoPackage
 							.getTileDao(contents.getTableName());
 					BoundingBox tileBoundingBox = tileDao

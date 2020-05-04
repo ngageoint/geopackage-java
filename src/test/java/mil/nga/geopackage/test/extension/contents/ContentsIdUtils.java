@@ -133,10 +133,10 @@ public class ContentsIdUtils {
 			TestCase.assertFalse(containsTable(contentsIdExtension.getIds(),
 					tableName, contentsIdExtension));
 			TestCase.assertTrue(
-					contentsIdExtension.getMissing(contents.getDataTypeString())
+					contentsIdExtension.getMissing(contents.getDataTypeName())
 							.contains(tableName));
 			TestCase.assertFalse(containsTable(
-					contentsIdExtension.getIds(contents.getDataTypeString()),
+					contentsIdExtension.getIds(contents.getDataTypeName()),
 					tableName, contentsIdExtension));
 
 			ContentsId contentsId = null;
@@ -189,10 +189,10 @@ public class ContentsIdUtils {
 			TestCase.assertTrue(containsTable(contentsIdExtension.getIds(),
 					tableName, contentsIdExtension));
 			TestCase.assertFalse(
-					contentsIdExtension.getMissing(contents.getDataTypeString())
+					contentsIdExtension.getMissing(contents.getDataTypeName())
 							.contains(tableName));
 			TestCase.assertTrue(containsTable(
-					contentsIdExtension.getIds(contents.getDataTypeString()),
+					contentsIdExtension.getIds(contents.getDataTypeName()),
 					tableName, contentsIdExtension));
 
 			TestCase.assertEquals(contentsIdNumber,
@@ -223,10 +223,10 @@ public class ContentsIdUtils {
 			TestCase.assertFalse(containsTable(contentsIdExtension.getIds(),
 					tableName, contentsIdExtension));
 			TestCase.assertTrue(
-					contentsIdExtension.getMissing(contents.getDataTypeString())
+					contentsIdExtension.getMissing(contents.getDataTypeName())
 							.contains(tableName));
 			TestCase.assertFalse(containsTable(
-					contentsIdExtension.getIds(contents.getDataTypeString()),
+					contentsIdExtension.getIds(contents.getDataTypeName()),
 					tableName, contentsIdExtension));
 
 		}

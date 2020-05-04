@@ -99,10 +99,8 @@ public class CoverageDataTiffTestUtils {
 			TestCase.assertNotNull(contents);
 			TestCase.assertEquals(tileMatrixSet.getTableName(),
 					contents.getTableName());
-			TestCase.assertEquals(ContentsDataType.GRIDDED_COVERAGE,
-					contents.getDataType());
-			TestCase.assertEquals(ContentsDataType.GRIDDED_COVERAGE.getName(),
-					contents.getDataTypeString());
+			TestCase.assertEquals(CoverageData.GRIDDED_COVERAGE,
+					contents.getDataTypeName());
 			TestCase.assertNotNull(contents.getLastChange());
 
 			// Test the contents SRS
