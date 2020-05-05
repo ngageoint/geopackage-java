@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import com.j256.ormlite.dao.CloseableIterator;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -30,8 +32,6 @@ import mil.nga.sf.proj.ProjectionFactory;
 import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
-import com.j256.ormlite.dao.CloseableIterator;
-
 public class FeatureTableIndexUtils {
 
 	/**
@@ -40,8 +40,8 @@ public class FeatureTableIndexUtils {
 	 * @param geoPackage
 	 * @throws SQLException
 	 */
-	public static void testIndex(GeoPackage geoPackage) throws SQLException,
-			IOException {
+	public static void testIndex(GeoPackage geoPackage)
+			throws SQLException, IOException {
 
 		// Test indexing each feature table
 		List<String> featureTables = geoPackage.getFeatureTables();
@@ -63,8 +63,8 @@ public class FeatureTableIndexUtils {
 					// queries later
 					if (testFeatureRow == null) {
 						testFeatureRow = featureRow;
-					} else if (Math.random() < (1.0 / featureResultSet
-							.getCount())) {
+					} else if (Math
+							.random() < (1.0 / featureResultSet.getCount())) {
 						testFeatureRow = featureRow;
 					}
 				}
@@ -99,8 +99,8 @@ public class FeatureTableIndexUtils {
 			// Test re-indexing, both ignored and forced
 			TestCase.assertEquals(0, featureTableIndex.index());
 			TestCase.assertEquals(expectedCount, featureTableIndex.index(true));
-			TestCase.assertTrue(featureTableIndex.getLastIndexed().getTime() > lastIndexed
-					.getTime());
+			TestCase.assertTrue(featureTableIndex.getLastIndexed()
+					.getTime() > lastIndexed.getTime());
 
 			// Query for all indexed geometries
 			int resultCount = 0;
@@ -153,8 +153,8 @@ public class FeatureTableIndexUtils {
 			if (!featureDao.getProjection().equals(
 					ProjectionConstants.AUTHORITY_EPSG,
 					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
-				projection = ProjectionFactory
-						.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+				projection = ProjectionFactory.getProjection(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 			} else {
 				projection = ProjectionFactory
 						.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
@@ -169,8 +169,8 @@ public class FeatureTableIndexUtils {
 			featureFound = false;
 			TestCase.assertTrue(featureTableIndex.count(transformedBoundingBox,
 					projection) >= 1);
-			featureTableResults = featureTableIndex.query(
-					transformedBoundingBox, projection);
+			featureTableResults = featureTableIndex
+					.query(transformedBoundingBox, projection);
 			while (featureTableResults.hasNext()) {
 				GeometryIndex geometryIndex = featureTableResults.next();
 				validateGeometryIndex(featureTableIndex, geometryIndex);
@@ -215,16 +215,18 @@ public class FeatureTableIndexUtils {
 		}
 
 		ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
-		GeometryIndexDao geometryIndexDao = geoPackage.getGeometryIndexDao();
-		TableIndexDao tableIndexDao = geoPackage.getTableIndexDao();
+		GeometryIndexDao geometryIndexDao = FeatureTableIndex
+				.getGeometryIndexDao(geoPackage);
+		TableIndexDao tableIndexDao = FeatureTableIndex
+				.getTableIndexDao(geoPackage);
 
 		// Delete the extensions for the first half of the feature tables
 		boolean everyOther = false;
 		for (String featureTable : featureTables.subList(0,
 				(int) Math.ceil(featureTables.size() * .5))) {
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
-			int geometryCount = geometryIndexDao
-					.queryForTableName(featureTable).size();
+			int geometryCount = geometryIndexDao.queryForTableName(featureTable)
+					.size();
 			TestCase.assertTrue(geometryCount > 0);
 			TestCase.assertNotNull(tableIndexDao.queryForId(featureTable));
 			Extensions extensions = extensionsDao.queryByExtension(
@@ -257,8 +259,8 @@ public class FeatureTableIndexUtils {
 					GeoPackageGeometryData geometryData = featureRow
 							.getGeometry();
 					if (geometryData != null
-							&& (geometryData.getEnvelope() != null || geometryData
-									.getGeometry() != null)) {
+							&& (geometryData.getEnvelope() != null
+									|| geometryData.getGeometry() != null)) {
 						featureResultSet.close();
 						TestCase.assertEquals(1,
 								featureTableIndex.deleteIndex(featureRow));
@@ -270,8 +272,8 @@ public class FeatureTableIndexUtils {
 				featureResultSet.close();
 			}
 
-			GeoPackageExtensions
-					.deleteTableExtensions(geoPackage, featureTable);
+			GeoPackageExtensions.deleteTableExtensions(geoPackage,
+					featureTable);
 
 			TestCase.assertFalse(featureTableIndex.isIndexed());
 			TestCase.assertEquals(0,
@@ -286,8 +288,8 @@ public class FeatureTableIndexUtils {
 
 		TestCase.assertTrue(geometryIndexDao.isTableExists());
 		TestCase.assertTrue(tableIndexDao.isTableExists());
-		TestCase.assertTrue(extensionsDao.queryByExtension(
-				FeatureTableIndex.EXTENSION_NAME).size() > 0);
+		TestCase.assertTrue(extensionsDao
+				.queryByExtension(FeatureTableIndex.EXTENSION_NAME).size() > 0);
 
 		// Test deleting all NGA extensions
 		GeoPackageExtensions.deleteExtensions(geoPackage);
@@ -304,7 +306,8 @@ public class FeatureTableIndexUtils {
 	 * @param geoPackage
 	 * @throws SQLException
 	 */
-	public static void testDeleteAll(GeoPackage geoPackage) throws SQLException {
+	public static void testDeleteAll(GeoPackage geoPackage)
+			throws SQLException {
 
 		// Test indexing each feature table
 		List<String> featureTables = geoPackage.getFeatureTables();
@@ -331,13 +334,15 @@ public class FeatureTableIndexUtils {
 		}
 
 		ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
-		GeometryIndexDao geometryIndexDao = geoPackage.getGeometryIndexDao();
-		TableIndexDao tableIndexDao = geoPackage.getTableIndexDao();
+		GeometryIndexDao geometryIndexDao = FeatureTableIndex
+				.getGeometryIndexDao(geoPackage);
+		TableIndexDao tableIndexDao = FeatureTableIndex
+				.getTableIndexDao(geoPackage);
 
 		TestCase.assertTrue(geometryIndexDao.isTableExists());
 		TestCase.assertTrue(tableIndexDao.isTableExists());
-		TestCase.assertTrue(extensionsDao.queryByExtension(
-				FeatureTableIndex.EXTENSION_NAME).size() > 0);
+		TestCase.assertTrue(extensionsDao
+				.queryByExtension(FeatureTableIndex.EXTENSION_NAME).size() > 0);
 
 		TestCase.assertTrue(geometryIndexDao.countOf() > 0);
 		long count = tableIndexDao.countOf();
