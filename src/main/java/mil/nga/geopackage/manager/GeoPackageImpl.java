@@ -19,7 +19,7 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.GeoPackageConnection;
-import mil.nga.geopackage.extension.RTreeIndexExtension;
+import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.factory.GeoPackageCoreImpl;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;

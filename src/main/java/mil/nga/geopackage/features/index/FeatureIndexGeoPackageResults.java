@@ -4,8 +4,8 @@ import java.util.Iterator;
 
 import com.j256.ormlite.dao.CloseableIterator;
 
-import mil.nga.geopackage.extension.index.FeatureTableIndex;
-import mil.nga.geopackage.extension.index.GeometryIndex;
+import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
+import mil.nga.geopackage.extension.nga.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureRow;
 
 /**

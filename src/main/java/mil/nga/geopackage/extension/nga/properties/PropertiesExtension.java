@@ -1,0 +1,46 @@
+package mil.nga.geopackage.extension.nga.properties;
+
+import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.attributes.AttributesDao;
+import mil.nga.geopackage.attributes.AttributesResultSet;
+import mil.nga.geopackage.attributes.AttributesRow;
+import mil.nga.geopackage.extension.nga.properties.PropertiesCoreExtension;
+
+/**
+ * GeoPackage properties extension for defining GeoPackage specific properties,
+ * attributes, and metadata
+ * 
+ * @author osbornb
+ * @since 3.0.2
+ */
+public class PropertiesExtension
+		extends
+		PropertiesCoreExtension<GeoPackage, AttributesRow, AttributesResultSet, AttributesDao> {
+
+	/**
+	 * Constructor
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 */
+	public PropertiesExtension(GeoPackage geoPackage) {
+		super(geoPackage);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected AttributesDao getDao() {
+		return getGeoPackage().getAttributesDao(TABLE_NAME);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected AttributesRow newRow() {
+		return getDao().newRow();
+	}
+
+}

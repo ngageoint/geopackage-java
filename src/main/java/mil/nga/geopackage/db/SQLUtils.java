@@ -91,7 +91,7 @@ public class SQLUtils {
 	 * @param selectionArgs
 	 *            selection arguments
 	 * @return count if known, -1 if not able to determine
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public static int count(ResultSet resultSet, String sql,
 			String[] selectionArgs) {

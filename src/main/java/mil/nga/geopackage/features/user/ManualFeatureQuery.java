@@ -108,7 +108,7 @@ public class ManualFeatureQuery {
 	 * @param distinct
 	 *            distinct rows
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct) {
 		return featureDao.query(distinct);
@@ -136,7 +136,7 @@ public class ManualFeatureQuery {
 	 *            columns
 	 * 
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct, String[] columns) {
 		return featureDao.query(distinct, columns);
@@ -168,7 +168,7 @@ public class ManualFeatureQuery {
 	 * @param column
 	 *            count column name
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int countColumn(String column) {
 		return featureDao.countColumn(column);
@@ -182,7 +182,7 @@ public class ManualFeatureQuery {
 	 * @param column
 	 *            count column name
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int count(boolean distinct, String column) {
 		return featureDao.count(distinct, column);
@@ -210,7 +210,7 @@ public class ManualFeatureQuery {
 	 *            field values
 	 * 
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct,
 			Map<String, Object> fieldValues) {
@@ -246,7 +246,7 @@ public class ManualFeatureQuery {
 	 *            field values
 	 * 
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues) {
@@ -277,7 +277,7 @@ public class ManualFeatureQuery {
 	 *            field values
 	 * 
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int count(String column, Map<String, Object> fieldValues) {
 		return count(false, column, fieldValues);
@@ -294,7 +294,7 @@ public class ManualFeatureQuery {
 	 *            field values
 	 * 
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int count(boolean distinct, String column,
 			Map<String, Object> fieldValues) {
@@ -325,7 +325,7 @@ public class ManualFeatureQuery {
 	 *            where clause
 	 * 
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct, String where) {
 		return featureDao.query(distinct, where);
@@ -357,7 +357,7 @@ public class ManualFeatureQuery {
 	 *            where clause
 	 * 
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct, String[] columns,
 			String where) {
@@ -386,7 +386,7 @@ public class ManualFeatureQuery {
 	 *            where clause
 	 * 
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int count(String column, String where) {
 		return featureDao.count(column, where);
@@ -403,7 +403,7 @@ public class ManualFeatureQuery {
 	 *            where clause
 	 * 
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int count(boolean distinct, String column, String where) {
 		return featureDao.count(distinct, column, where);
@@ -435,7 +435,7 @@ public class ManualFeatureQuery {
 	 *            where arguments
 	 * 
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct, String where,
 			String[] whereArgs) {
@@ -473,7 +473,7 @@ public class ManualFeatureQuery {
 	 *            where arguments
 	 * 
 	 * @return feature results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureResultSet query(boolean distinct, String[] columns,
 			String where, String[] whereArgs) {
@@ -506,7 +506,7 @@ public class ManualFeatureQuery {
 	 *            where arguments
 	 * 
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int count(String column, String where, String[] whereArgs) {
 		return featureDao.count(column, where, whereArgs);
@@ -525,7 +525,7 @@ public class ManualFeatureQuery {
 	 *            where arguments
 	 * 
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public int count(boolean distinct, String column, String where,
 			String[] whereArgs) {
@@ -620,7 +620,7 @@ public class ManualFeatureQuery {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox) {
@@ -652,7 +652,7 @@ public class ManualFeatureQuery {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox) {
@@ -695,7 +695,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox, Map<String, Object> fieldValues) {
@@ -731,7 +731,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues) {
@@ -779,7 +779,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox, String where) {
@@ -815,7 +815,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where) {
@@ -865,7 +865,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox, String where, String[] whereArgs) {
@@ -905,7 +905,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs) {
@@ -956,7 +956,7 @@ public class ManualFeatureQuery {
 	 * @param projection
 	 *            projection
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox, Projection projection) {
@@ -996,7 +996,7 @@ public class ManualFeatureQuery {
 	 * @param projection
 	 *            projection
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection) {
@@ -1052,7 +1052,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox, Projection projection,
@@ -1098,7 +1098,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -1159,7 +1159,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where) {
@@ -1201,7 +1201,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where) {
@@ -1261,7 +1261,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -1311,7 +1311,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -1362,7 +1362,7 @@ public class ManualFeatureQuery {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			GeometryEnvelope envelope) {
@@ -1395,7 +1395,7 @@ public class ManualFeatureQuery {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope) {
@@ -1440,7 +1440,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
@@ -1477,7 +1477,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
@@ -1526,7 +1526,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			GeometryEnvelope envelope, String where) {
@@ -1562,7 +1562,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where) {
@@ -1612,7 +1612,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct,
 			GeometryEnvelope envelope, String where, String[] whereArgs) {
@@ -1653,7 +1653,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs) {
@@ -1711,7 +1711,7 @@ public class ManualFeatureQuery {
 	 * @param maxY
 	 *            max y
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, double minX,
 			double minY, double maxX, double maxY) {
@@ -1755,7 +1755,7 @@ public class ManualFeatureQuery {
 	 * @param maxY
 	 *            max y
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			double minX, double minY, double maxX, double maxY) {
@@ -1816,7 +1816,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, double minX,
 			double minY, double maxX, double maxY,
@@ -1868,7 +1868,7 @@ public class ManualFeatureQuery {
 	 * @param fieldValues
 	 *            field values
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			double minX, double minY, double maxX, double maxY,
@@ -1939,7 +1939,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, double minX,
 			double minY, double maxX, double maxY, String where) {
@@ -1987,7 +1987,7 @@ public class ManualFeatureQuery {
 	 * @param where
 	 *            where clause
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			double minX, double minY, double maxX, double maxY, String where) {
@@ -2056,7 +2056,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where args
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, double minX,
 			double minY, double maxX, double maxY, String where,
@@ -2111,7 +2111,7 @@ public class ManualFeatureQuery {
 	 * @param whereArgs
 	 *            where args
 	 * @return results
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public ManualFeatureQueryResults query(boolean distinct, String[] columns,
 			double minX, double minY, double maxX, double maxY, String where,

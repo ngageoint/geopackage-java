@@ -9,7 +9,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.index.GeometryIndex;
+import mil.nga.geopackage.extension.nga.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;

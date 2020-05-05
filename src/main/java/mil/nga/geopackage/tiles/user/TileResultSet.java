@@ -55,7 +55,7 @@ public class TileResultSet
 	 *            SQL statement
 	 * @param selectionArgs
 	 *            selection arguments
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public TileResultSet(TileTable table, ResultSet resultSet, String sql,
 			String[] selectionArgs) {
@@ -75,7 +75,7 @@ public class TileResultSet
 	 *            SQL statement
 	 * @param selectionArgs
 	 *            selection arguments
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public TileResultSet(TileTable table, String[] columns, ResultSet resultSet,
 			String sql, String[] selectionArgs) {

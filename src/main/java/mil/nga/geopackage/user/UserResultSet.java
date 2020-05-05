@@ -124,7 +124,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 *            SQL statement
 	 * @param selectionArgs
 	 *            selection arguments
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	protected UserResultSet(TTable table, ResultSet resultSet, String sql,
 			String[] selectionArgs) {
@@ -144,7 +144,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 *            SQL statement
 	 * @param selectionArgs
 	 *            selection arguments
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	protected UserResultSet(TTable table, String[] columns, ResultSet resultSet,
 			String sql, String[] selectionArgs) {
@@ -174,7 +174,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 *            SQL statement
 	 * @param selectionArgs
 	 *            selection arguments
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	protected UserResultSet(TTable table, UserColumns<TColumn> columns,
 			ResultSet resultSet, String sql, String[] selectionArgs) {
@@ -326,7 +326,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * Get the SQL statement (if available)
 	 * 
 	 * @return SQL statement
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public String getSql() {
 		return sql;
@@ -336,7 +336,7 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	 * Get the SQL selection arguments (if available)
 	 * 
 	 * @return selection arguments
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public String[] getSelectionArgs() {
 		return selectionArgs;

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>mil.nga.geopackage</groupId>
 	<artifactId>geopackage</artifactId>
-	<version>3.5.1</version>
+	<version>4.0.0</version>
 	<packaging>jar</packaging>
 	<name>GeoPackage</name>
 	<url>https://github.com/ngageoint/geopackage-java</url>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>mil.nga.geopackage</groupId>
 			<artifactId>geopackage-core</artifactId>
-			<version>3.5.1</version>
+			<version>4.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>mil.nga</groupId>

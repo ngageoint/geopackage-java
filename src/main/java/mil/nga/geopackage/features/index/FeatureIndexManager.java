@@ -15,9 +15,9 @@ import java.util.logging.Logger;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.RTreeIndexExtension;
-import mil.nga.geopackage.extension.RTreeIndexTableDao;
-import mil.nga.geopackage.extension.index.FeatureTableIndex;
+import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
+import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
+import mil.nga.geopackage.extension.rtree.RTreeIndexTableDao;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -31,7 +31,7 @@ import mil.nga.sf.proj.Projection;
  * GeoPackage using the Geometry Index Extension and the RTree extension
  *
  * @author osbornb
- * @see mil.nga.geopackage.extension.index.FeatureTableIndex
+ * @see mil.nga.geopackage.extension.nga.index.FeatureTableIndex
  * @since 3.1.0
  */
 public class FeatureIndexManager {
@@ -750,7 +750,7 @@ public class FeatureIndexManager {
 	 * @param distinct
 	 *            distinct rows
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct) {
 		return query(distinct, featureDao.getColumnNames());
@@ -778,7 +778,7 @@ public class FeatureIndexManager {
 	 *            columns
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns) {
 		FeatureIndexResults results = null;
@@ -860,7 +860,7 @@ public class FeatureIndexManager {
 	 * @param column
 	 *            count column name
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long countColumn(String column) {
 		return count(false, column);
@@ -874,7 +874,7 @@ public class FeatureIndexManager {
 	 * @param column
 	 *            count column name
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column) {
 		Long count = null;
@@ -931,7 +931,7 @@ public class FeatureIndexManager {
 	 *            field values
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct,
 			Map<String, Object> fieldValues) {
@@ -967,7 +967,7 @@ public class FeatureIndexManager {
 	 *            field values
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues) {
@@ -998,7 +998,7 @@ public class FeatureIndexManager {
 	 *            field values
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, Map<String, Object> fieldValues) {
 		return count(false, column, fieldValues);
@@ -1015,7 +1015,7 @@ public class FeatureIndexManager {
 	 *            field values
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column,
 			Map<String, Object> fieldValues) {
@@ -1046,7 +1046,7 @@ public class FeatureIndexManager {
 	 *            where clause
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String where) {
 		return query(distinct, where, null);
@@ -1078,7 +1078,7 @@ public class FeatureIndexManager {
 	 *            where clause
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			String where) {
@@ -1107,7 +1107,7 @@ public class FeatureIndexManager {
 	 *            where clause
 	 *
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, String where) {
 		return count(false, column, where);
@@ -1124,7 +1124,7 @@ public class FeatureIndexManager {
 	 *            where clause
 	 *
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, String where) {
 		return count(distinct, column, where, null);
@@ -1156,7 +1156,7 @@ public class FeatureIndexManager {
 	 *            where arguments
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String where,
 			String[] whereArgs) {
@@ -1194,7 +1194,7 @@ public class FeatureIndexManager {
 	 *            where arguments
 	 *
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			String where, String[] whereArgs) {
@@ -1261,7 +1261,7 @@ public class FeatureIndexManager {
 	 *            where arguments
 	 *
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, String where, String[] whereArgs) {
 		return count(false, column, where, whereArgs);
@@ -1280,7 +1280,7 @@ public class FeatureIndexManager {
 	 *            where arguments
 	 *
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, String where,
 			String[] whereArgs) {
@@ -1420,7 +1420,7 @@ public class FeatureIndexManager {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct,
 			BoundingBox boundingBox) {
@@ -1454,7 +1454,7 @@ public class FeatureIndexManager {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox) {
@@ -1482,7 +1482,7 @@ public class FeatureIndexManager {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox) {
 		return count(false, column, boundingBox);
@@ -1499,7 +1499,7 @@ public class FeatureIndexManager {
 	 * @param boundingBox
 	 *            bounding box
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column,
 			BoundingBox boundingBox) {
@@ -1533,7 +1533,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -1571,7 +1571,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues) {
@@ -1606,7 +1606,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -1626,7 +1626,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, BoundingBox boundingBox,
 			Map<String, Object> fieldValues) {
@@ -1660,7 +1660,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, BoundingBox boundingBox,
 			String where) {
@@ -1698,7 +1698,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where) {
@@ -1731,7 +1731,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox, String where) {
 		return count(false, column, boundingBox, where);
@@ -1750,7 +1750,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, BoundingBox boundingBox,
 			String where) {
@@ -1788,7 +1788,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, BoundingBox boundingBox,
 			String where, String[] whereArgs) {
@@ -1830,7 +1830,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs) {
@@ -1869,7 +1869,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox, String where,
 			String[] whereArgs) {
@@ -1891,7 +1891,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, BoundingBox boundingBox,
 			String where, String[] whereArgs) {
@@ -1918,7 +1918,7 @@ public class FeatureIndexManager {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct,
 			GeometryEnvelope envelope) {
@@ -1950,7 +1950,7 @@ public class FeatureIndexManager {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope) {
@@ -1976,7 +1976,7 @@ public class FeatureIndexManager {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, GeometryEnvelope envelope) {
 		return count(false, column, envelope);
@@ -1992,7 +1992,7 @@ public class FeatureIndexManager {
 	 * @param envelope
 	 *            geometry envelope
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column,
 			GeometryEnvelope envelope) {
@@ -2067,7 +2067,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
@@ -2105,7 +2105,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
@@ -2139,7 +2139,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, GeometryEnvelope envelope,
 			Map<String, Object> fieldValues) {
@@ -2158,7 +2158,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues) {
@@ -2191,7 +2191,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct,
 			GeometryEnvelope envelope, String where) {
@@ -2227,7 +2227,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where) {
@@ -2258,7 +2258,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, GeometryEnvelope envelope, String where) {
 		return count(false, column, envelope, where);
@@ -2276,7 +2276,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column,
 			GeometryEnvelope envelope, String where) {
@@ -2312,7 +2312,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct,
 			GeometryEnvelope envelope, String where, String[] whereArgs) {
@@ -2353,7 +2353,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs) {
@@ -2424,7 +2424,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, GeometryEnvelope envelope, String where,
 			String[] whereArgs) {
@@ -2445,7 +2445,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column,
 			GeometryEnvelope envelope, String where, String[] whereArgs) {
@@ -2513,7 +2513,7 @@ public class FeatureIndexManager {
 	 * @param projection
 	 *            projection
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, BoundingBox boundingBox,
 			Projection projection) {
@@ -2553,7 +2553,7 @@ public class FeatureIndexManager {
 	 * @param projection
 	 *            projection
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection) {
@@ -2587,7 +2587,7 @@ public class FeatureIndexManager {
 	 * @param projection
 	 *            projection
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox,
 			Projection projection) {
@@ -2607,7 +2607,7 @@ public class FeatureIndexManager {
 	 * @param projection
 	 *            projection
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, BoundingBox boundingBox,
 			Projection projection) {
@@ -2647,7 +2647,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues) {
@@ -2691,7 +2691,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -2732,7 +2732,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues) {
@@ -2754,7 +2754,7 @@ public class FeatureIndexManager {
 	 * @param fieldValues
 	 *            field values
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues) {
@@ -2794,7 +2794,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, BoundingBox boundingBox,
 			Projection projection, String where) {
@@ -2836,7 +2836,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where) {
@@ -2874,7 +2874,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox,
 			Projection projection, String where) {
@@ -2896,7 +2896,7 @@ public class FeatureIndexManager {
 	 * @param where
 	 *            where clause
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, BoundingBox boundingBox,
 			Projection projection, String where) {
@@ -2938,7 +2938,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs) {
@@ -2986,7 +2986,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return feature index results, close when done
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public FeatureIndexResults query(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -3031,7 +3031,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(String column, BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs) {
@@ -3055,7 +3055,7 @@ public class FeatureIndexManager {
 	 * @param whereArgs
 	 *            where arguments
 	 * @return count
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	public long count(boolean distinct, String column, BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs) {

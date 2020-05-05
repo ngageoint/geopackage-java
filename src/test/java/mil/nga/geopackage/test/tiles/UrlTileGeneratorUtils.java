@@ -35,8 +35,8 @@ public class UrlTileGeneratorUtils {
 
 	private static final String TABLE_NAME = "generate_test";
 
-	private static final String BASE_URL = "http://osm.geointservices.io";
-	private static final String URL = BASE_URL + "/osm_tiles/{z}/{x}/{y}.png";
+	private static final String BASE_URL = "http://osm.gs.mil";
+	private static final String URL = BASE_URL + "/tiles/default/{z}/{x}/{y}.png";
 
 	// private static final String BASE_URL = "http://a.tile.openstreetmap.org";
 	// private static final String URL = BASE_URL + "/{z}/{x}/{y}.png";

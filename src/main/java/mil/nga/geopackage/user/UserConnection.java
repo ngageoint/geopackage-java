@@ -74,7 +74,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * @param selectionArgs
 	 *            selection arguments
 	 * @return result
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	protected TResult createResult(ResultSet resultSet, String sql,
 			String[] selectionArgs) {
@@ -93,7 +93,7 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 	 * @param selectionArgs
 	 *            selection arguments
 	 * @return result
-	 * @since 3.5.1
+	 * @since 4.0.0
 	 */
 	protected abstract TResult createResult(String[] columns,
 			ResultSet resultSet, String sql, String[] selectionArgs);

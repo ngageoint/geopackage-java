@@ -28,8 +28,8 @@ import mil.nga.geopackage.db.master.SQLiteMasterQuery;
 import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.db.table.TableColumn;
 import mil.nga.geopackage.db.table.TableInfo;
-import mil.nga.geopackage.extension.RTreeIndexExtension;
 import mil.nga.geopackage.extension.coverage.CoverageData;
+import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 

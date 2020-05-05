@@ -6,8 +6,8 @@ import java.sql.SQLException;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.extension.index.FeatureTableIndex;
-import mil.nga.geopackage.extension.index.GeometryIndex;
+import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
+import mil.nga.geopackage.extension.nga.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;

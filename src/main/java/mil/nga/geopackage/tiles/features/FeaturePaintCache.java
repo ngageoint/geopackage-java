@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import mil.nga.geopackage.extension.style.StyleRow;
+import mil.nga.geopackage.extension.nga.style.StyleRow;
 
 /**
  * Feature Paint Cache of Feature Paint objects for each feature id and draw

@@ -16,7 +16,7 @@ import org.locationtech.proj4j.units.Units;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.index.FeatureTableIndex;
+import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;

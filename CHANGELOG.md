@@ -4,9 +4,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 3.5.1 (TBD)
+## 4.0.0 (TBD)
 
-* geopackage-core version 3.5.1
+* geopackage-core version 4.0.0
 * DAO options to enable modifying row ids or disable column value type validation
 * Distinct select statement queries and counts
 * Lazy on demand result set counts
