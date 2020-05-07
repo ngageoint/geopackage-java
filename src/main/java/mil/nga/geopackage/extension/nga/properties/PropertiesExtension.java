@@ -10,6 +10,8 @@ import mil.nga.geopackage.extension.nga.properties.PropertiesCoreExtension;
  * GeoPackage properties extension for defining GeoPackage specific properties,
  * attributes, and metadata
  * 
+ * http://ngageoint.github.io/GeoPackage/docs/extensions/properties.html
+ * 
  * @author osbornb
  * @since 3.0.2
  */

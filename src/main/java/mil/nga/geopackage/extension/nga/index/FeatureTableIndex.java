@@ -29,6 +29,8 @@ import mil.nga.sf.proj.Projection;
  * implementation when a SQLite version is used before SpatialLite support
  * (Android).
  * 
+ * http://ngageoint.github.io/GeoPackage/docs/extensions/geometry-index.html
+ * 
  * @author osbornb
  * @since 1.1.0
  */

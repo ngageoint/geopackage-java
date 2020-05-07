@@ -6,7 +6,6 @@ import java.util.List;
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.Extensions;
-import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileScalingDao;
 import mil.nga.geopackage.extension.nga.scale.TileScalingType;
@@ -22,7 +21,7 @@ public class TileTableScalingUtils {
 	 */
 	public static void testScaling(GeoPackage geoPackage) throws SQLException {
 
-		GeoPackageExtensions.deleteExtensions(geoPackage);
+		geoPackage.getExtensionManager().deleteExtensions();
 		
 		List<String> tileTables = geoPackage.getTileTables();
 
@@ -107,7 +106,7 @@ public class TileTableScalingUtils {
 				TestCase.assertTrue(dao.isTableExists());
 
 				// Test deleting all NGA extensions
-				GeoPackageExtensions.deleteExtensions(geoPackage);
+				geoPackage.getExtensionManager().deleteExtensions();
 
 				TestCase.assertFalse(dao.isTableExists());
 				TestCase.assertNull(tableScaling.getExtension());

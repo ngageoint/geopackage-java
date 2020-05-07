@@ -9,7 +9,6 @@ import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDataType;
-import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.nga.contents.ContentsId;
 import mil.nga.geopackage.extension.nga.contents.ContentsIdExtension;
 
@@ -24,7 +23,7 @@ public class ContentsIdUtils {
 	public static void testContentsId(GeoPackage geoPackage)
 			throws SQLException {
 
-		GeoPackageExtensions.deleteExtensions(geoPackage);
+		geoPackage.getExtensionManager().deleteExtensions();
 
 		ContentsIdExtension contentsIdExtension = new ContentsIdExtension(
 				geoPackage);

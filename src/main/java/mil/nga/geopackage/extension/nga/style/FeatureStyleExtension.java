@@ -16,6 +16,8 @@ import mil.nga.sf.GeometryType;
 /**
  * Feature Style extension for styling features
  * 
+ * http://ngageoint.github.io/GeoPackage/docs/extensions/feature-style.html
+ * 
  * @author osbornb
  * @since 3.2.0
  */

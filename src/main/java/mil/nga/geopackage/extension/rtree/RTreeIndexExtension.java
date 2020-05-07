@@ -18,6 +18,8 @@ import mil.nga.sf.GeometryEnvelope;
 /**
  * RTree Index Extension
  * 
+ * https://www.geopackage.org/spec/#extension_rtree
+ * 
  * @author osbornb
  * @since 2.0.1
  */

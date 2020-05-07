@@ -32,7 +32,6 @@ import mil.nga.geopackage.db.DateConverter;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.ExtensionsDao;
-import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.GeometryExtensions;
 import mil.nga.geopackage.extension.MetadataExtension;
 import mil.nga.geopackage.extension.SchemaExtension;
@@ -232,7 +231,7 @@ public class GeoPackageExample {
 		validateExtensions(geoPackage, true);
 		validateNGAExtensions(geoPackage, true);
 
-		GeoPackageExtensions.deleteExtensions(geoPackage);
+		geoPackage.getExtensionManager().deleteExtensions();
 
 		validateExtensions(geoPackage, false);
 		validateNGAExtensions(geoPackage, false);
@@ -262,7 +261,8 @@ public class GeoPackageExample {
 		validateExtensions(geoPackage, true);
 		validateNGAExtensions(geoPackage, true);
 
-		NGAExtensions.deleteExtensions(geoPackage);
+		NGAExtensions extensions = new NGAExtensions(geoPackage);
+		extensions.deleteExtensions();
 
 		validateExtensions(geoPackage, true);
 		validateNGAExtensions(geoPackage, false);

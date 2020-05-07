@@ -8,7 +8,6 @@ import java.util.Set;
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.Extensions;
-import mil.nga.geopackage.extension.GeoPackageExtensions;
 import mil.nga.geopackage.extension.nga.link.FeatureTileLink;
 import mil.nga.geopackage.extension.nga.link.FeatureTileLinkDao;
 import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
@@ -23,7 +22,7 @@ public class FeatureTileTableLinkerUtils {
 	 */
 	public static void testLink(GeoPackage geoPackage) throws SQLException {
 
-		GeoPackageExtensions.deleteExtensions(geoPackage);
+		geoPackage.getExtensionManager().deleteExtensions();
 
 		FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
 		TestCase.assertNull(linker.getExtension());
@@ -139,7 +138,7 @@ public class FeatureTileTableLinkerUtils {
 			TestCase.assertNotNull(linker.getExtension());
 
 			// Test deleting all NGA extensions
-			GeoPackageExtensions.deleteExtensions(geoPackage);
+			geoPackage.getExtensionManager().deleteExtensions();
 
 			TestCase.assertFalse(dao.isTableExists());
 			TestCase.assertNull(linker.getExtension());
