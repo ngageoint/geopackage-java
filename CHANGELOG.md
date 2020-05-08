@@ -7,6 +7,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 4.0.0 (TBD)
 
 * geopackage-core version 4.0.0
+* Community extensions decoupling and management, including class repackaging
+* Contents Data Type refactor, core data types and expanded custom data type support
 * DAO options to enable modifying row ids or disable column value type validation
 * Distinct select statement queries and counts
 * Lazy on demand result set counts
