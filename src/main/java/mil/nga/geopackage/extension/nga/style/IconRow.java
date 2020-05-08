@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.nga.style.IconTable;
 import mil.nga.geopackage.extension.related.media.MediaRow;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.geopackage.user.custom.UserCustomRow;

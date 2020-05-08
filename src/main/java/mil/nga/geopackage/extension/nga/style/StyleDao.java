@@ -3,7 +3,6 @@ package mil.nga.geopackage.extension.nga.style;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesResultSet;
 import mil.nga.geopackage.attributes.AttributesRow;
-import mil.nga.geopackage.extension.nga.style.StyleTable;
 
 /**
  * Style DAO for reading style tables

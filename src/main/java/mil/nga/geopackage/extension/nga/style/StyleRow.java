@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesRow;
-import mil.nga.geopackage.extension.nga.style.StyleTable;
 import mil.nga.geopackage.style.Color;
 
 /**

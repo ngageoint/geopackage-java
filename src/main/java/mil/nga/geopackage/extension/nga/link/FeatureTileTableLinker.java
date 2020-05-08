@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.extension.nga.link.FeatureTileTableCoreLinker;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 

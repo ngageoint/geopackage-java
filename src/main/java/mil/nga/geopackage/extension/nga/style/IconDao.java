@@ -1,6 +1,5 @@
 package mil.nga.geopackage.extension.nga.style;
 
-import mil.nga.geopackage.extension.nga.style.IconTable;
 import mil.nga.geopackage.extension.related.media.MediaDao;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;

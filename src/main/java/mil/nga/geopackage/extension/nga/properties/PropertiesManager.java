@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageCache;
-import mil.nga.geopackage.extension.nga.properties.PropertiesManagerCore;
 
 /**
  * Properties Manager, utilizes the Properties Extension on a collection of

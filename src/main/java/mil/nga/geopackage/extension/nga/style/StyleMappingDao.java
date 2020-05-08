@@ -3,7 +3,6 @@ package mil.nga.geopackage.extension.nga.style;
 import java.util.ArrayList;
 import java.util.List;
 
-import mil.nga.geopackage.extension.nga.style.StyleMappingTable;
 import mil.nga.geopackage.extension.related.UserMappingDao;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;

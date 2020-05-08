@@ -5,9 +5,6 @@ import java.util.Map.Entry;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.attributes.AttributesDao;
-import mil.nga.geopackage.extension.nga.style.FeatureCoreStyleExtension;
-import mil.nga.geopackage.extension.nga.style.IconTable;
-import mil.nga.geopackage.extension.nga.style.StyleTable;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
