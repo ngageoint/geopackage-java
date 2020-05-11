@@ -33,8 +33,8 @@ import mil.nga.sf.proj.ProjectionTransform;
  * @author osbornb
  * @since 2.0.1
  */
-public abstract class CoverageData<TImage extends CoverageDataImage> extends
-		CoverageDataCore<TImage> {
+public abstract class CoverageData<TImage extends CoverageDataImage>
+		extends CoverageDataCore<TImage> {
 
 	/**
 	 * Get a Tiled Gridded Coverage Data
@@ -56,8 +56,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 			Projection requestProjection) {
 
 		TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
-		GriddedCoverageDao griddedCoverageDao = geoPackage
-				.getGriddedCoverageDao();
+		GriddedCoverageDao griddedCoverageDao = getGriddedCoverageDao(
+				geoPackage);
 
 		GriddedCoverage griddedCoverage = null;
 		try {
@@ -67,7 +67,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to get Gridded Coverage for table name: "
-							+ tileMatrixSet.getTableName(), e);
+							+ tileMatrixSet.getTableName(),
+					e);
 		}
 
 		CoverageData<?> coverageData = null;
@@ -345,18 +346,18 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 				int tileWidth = requestedCoverageDataWidth;
 				int tileHeight = requestedCoverageDataHeight;
 				if (!sameProjection) {
-					int projectedWidth = (int) Math
-							.round((requestProjectedBoundingBox
-									.getMaxLongitude() - requestProjectedBoundingBox
-									.getMinLongitude())
+					int projectedWidth = (int) Math.round(
+							(requestProjectedBoundingBox.getMaxLongitude()
+									- requestProjectedBoundingBox
+											.getMinLongitude())
 									/ tileMatrix.getPixelXSize());
 					if (projectedWidth > 0) {
 						tileWidth = projectedWidth;
 					}
 					int projectedHeight = (int) Math
-							.round((requestProjectedBoundingBox
-									.getMaxLatitude() - requestProjectedBoundingBox
-									.getMinLatitude())
+							.round((requestProjectedBoundingBox.getMaxLatitude()
+									- requestProjectedBoundingBox
+											.getMinLatitude())
 									/ tileMatrix.getPixelYSize());
 					if (projectedHeight > 0) {
 						tileHeight = projectedHeight;
@@ -456,7 +457,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 	 * @return tile matrix results
 	 */
 	private CoverageDataTileMatrixResults getResults(
-			CoverageDataRequest request, BoundingBox requestProjectedBoundingBox) {
+			CoverageDataRequest request,
+			BoundingBox requestProjectedBoundingBox) {
 		return getResults(request, requestProjectedBoundingBox, 0);
 	}
 
@@ -507,8 +509,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 		CoverageDataTileMatrixResults results = null;
 		BoundingBox paddedBoundingBox = padBoundingBox(tileMatrix,
 				requestProjectedBoundingBox, overlappingPixels);
-		TileResultSet tileResults = retrieveSortedTileResults(
-				paddedBoundingBox, tileMatrix);
+		TileResultSet tileResults = retrieveSortedTileResults(paddedBoundingBox,
+				tileMatrix);
 		if (tileResults != null) {
 			if (tileResults.getCount() > 0) {
 				results = new CoverageDataTileMatrixResults(tileMatrix,
@@ -543,8 +545,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 					overlappingPixels);
 		}
 		if (results == null && zoomOut) {
-			results = getResultsZoomOut(requestProjectedBoundingBox,
-					tileMatrix, overlappingPixels);
+			results = getResultsZoomOut(requestProjectedBoundingBox, tileMatrix,
+					overlappingPixels);
 		}
 		if (results == null && zoomIn && !zoomInBeforeOut) {
 			results = getResultsZoomIn(requestProjectedBoundingBox, tileMatrix,
@@ -571,8 +573,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 			int overlappingPixels) {
 
 		CoverageDataTileMatrixResults results = null;
-		for (long zoomLevel = tileMatrix.getZoomLevel() + 1; zoomLevel <= tileDao
-				.getMaxZoom(); zoomLevel++) {
+		for (long zoomLevel = tileMatrix.getZoomLevel()
+				+ 1; zoomLevel <= tileDao.getMaxZoom(); zoomLevel++) {
 			TileMatrix zoomTileMatrix = tileDao.getTileMatrix(zoomLevel);
 			if (zoomTileMatrix != null) {
 				results = getResults(requestProjectedBoundingBox,
@@ -602,8 +604,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 			int overlappingPixels) {
 
 		CoverageDataTileMatrixResults results = null;
-		for (long zoomLevel = tileMatrix.getZoomLevel() - 1; zoomLevel >= tileDao
-				.getMinZoom(); zoomLevel--) {
+		for (long zoomLevel = tileMatrix.getZoomLevel()
+				- 1; zoomLevel >= tileDao.getMinZoom(); zoomLevel--) {
 			TileMatrix zoomTileMatrix = tileDao.getTileMatrix(zoomLevel);
 			if (zoomTileMatrix != null) {
 				results = getResults(requestProjectedBoundingBox,
@@ -720,9 +722,9 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 						dest = new ImageRectangleF(0, 0, tileWidth, tileHeight);
 					}
 				} else {
-					dest = TileBoundingBoxJavaUtils.getFloatRectangle(
-							tileWidth, tileHeight,
-							request.getProjectedBoundingBox(), overlap);
+					dest = TileBoundingBoxJavaUtils.getFloatRectangle(tileWidth,
+							tileHeight, request.getProjectedBoundingBox(),
+							overlap);
 				}
 
 				if (src.isValidAllowEmpty() && dest.isValidAllowEmpty()) {
@@ -767,14 +769,14 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 							* overlappingPixels;
 
 					// Determine the range of destination values to set
-					int minDestY = (int) Math.floor(dest.getTop()
-							- algorithmDestHeightPixelOverlap);
-					int maxDestY = (int) Math.ceil(dest.getBottom()
-							+ algorithmDestHeightPixelOverlap);
-					int minDestX = (int) Math.floor(dest.getLeft()
-							- algorithmDestWidthPixelOverlap);
-					int maxDestX = (int) Math.ceil(dest.getRight()
-							+ algorithmDestWidthPixelOverlap);
+					int minDestY = (int) Math.floor(
+							dest.getTop() - algorithmDestHeightPixelOverlap);
+					int maxDestY = (int) Math.ceil(
+							dest.getBottom() + algorithmDestHeightPixelOverlap);
+					int minDestX = (int) Math.floor(
+							dest.getLeft() - algorithmDestWidthPixelOverlap);
+					int maxDestX = (int) Math.ceil(
+							dest.getRight() + algorithmDestWidthPixelOverlap);
 					minDestY = Math.max(minDestY, 0);
 					minDestX = Math.max(minDestX, 0);
 					maxDestY = Math.min(maxDestY, tileHeight - 1);
@@ -791,9 +793,8 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 								Double value = null;
 								switch (algorithm) {
 								case NEAREST_NEIGHBOR:
-									value = getNearestNeighborValue(
-											griddedTile, image,
-											leftLastColumns, topLeftRows,
+									value = getNearestNeighborValue(griddedTile,
+											image, leftLastColumns, topLeftRows,
 											topRows, y, x, widthRatio,
 											heightRatio, dest.getTop(),
 											dest.getLeft(), src.getTop(),
@@ -801,21 +802,19 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 									break;
 								case BILINEAR:
 									value = getBilinearInterpolationValue(
-											griddedTile, image,
-											leftLastColumns, topLeftRows,
-											topRows, y, x, widthRatio,
-											heightRatio, dest.getTop(),
-											dest.getLeft(), src.getTop(),
-											src.getLeft());
+											griddedTile, image, leftLastColumns,
+											topLeftRows, topRows, y, x,
+											widthRatio, heightRatio,
+											dest.getTop(), dest.getLeft(),
+											src.getTop(), src.getLeft());
 									break;
 								case BICUBIC:
 									value = getBicubicInterpolationValue(
-											griddedTile, image,
-											leftLastColumns, topLeftRows,
-											topRows, y, x, widthRatio,
-											heightRatio, dest.getTop(),
-											dest.getLeft(), src.getTop(),
-											src.getLeft());
+											griddedTile, image, leftLastColumns,
+											topLeftRows, topRows, y, x,
+											widthRatio, heightRatio,
+											dest.getTop(), dest.getLeft(),
+											src.getTop(), src.getLeft());
 									break;
 								default:
 									throw new UnsupportedOperationException(
@@ -849,15 +848,16 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 				int lastColumnIndex = (int) tileMatrix.getTileWidth()
 						- lastIndex - 1;
 				for (int row = 0; row < tileMatrix.getTileHeight(); row++) {
-					Double value = getValue(griddedTile, image,
-							lastColumnIndex, row);
+					Double value = getValue(griddedTile, image, lastColumnIndex,
+							row);
 					leftLastColumns[lastIndex][row] = value;
 				}
 
 				// Store the last row column coverage data values
 				int lastRowIndex = (int) tileMatrix.getTileHeight() - lastIndex
 						- 1;
-				for (int column = 0; column < tileMatrix.getTileWidth(); column++) {
+				for (int column = 0; column < tileMatrix
+						.getTileWidth(); column++) {
 					Double value = getValue(griddedTile, image, column,
 							lastRowIndex);
 					lastRows[lastIndex][column] = value;
@@ -943,12 +943,12 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 					TImage image = createImage(tileRow);
 
 					// Create the coverage data results for this tile
-					Double[][] values = new Double[srcBottom - srcTop + 1][srcRight
-							- srcLeft + 1];
+					Double[][] values = new Double[srcBottom - srcTop
+							+ 1][srcRight - srcLeft + 1];
 
 					// Get or add the columns map to the rows map
-					Map<Long, Double[][]> columnsMap = rowsMap.get(tileRow
-							.getTileRow());
+					Map<Long, Double[][]> columnsMap = rowsMap
+							.get(tileRow.getTileRow());
 					if (columnsMap == null) {
 						columnsMap = new TreeMap<Long, Double[][]>();
 						rowsMap.put(tileRow.getTileRow(), columnsMap);
@@ -973,10 +973,10 @@ public abstract class CoverageData<TImage extends CoverageDataImage> extends
 					tileCount++;
 
 					// Track the min and max row and column
-					minRow = minRow == null ? tileRow.getTileRow() : Math.min(
-							minRow, tileRow.getTileRow());
-					maxRow = maxRow == null ? tileRow.getTileRow() : Math.max(
-							maxRow, tileRow.getTileRow());
+					minRow = minRow == null ? tileRow.getTileRow()
+							: Math.min(minRow, tileRow.getTileRow());
+					maxRow = maxRow == null ? tileRow.getTileRow()
+							: Math.max(maxRow, tileRow.getTileRow());
 					minColumn = minColumn == null ? tileRow.getTileColumn()
 							: Math.min(minColumn, tileRow.getTileColumn());
 					maxColumn = maxColumn == null ? tileRow.getTileColumn()
