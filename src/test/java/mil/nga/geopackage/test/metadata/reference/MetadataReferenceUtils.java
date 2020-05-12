@@ -6,21 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.metadata.Metadata;
-import mil.nga.geopackage.metadata.MetadataDao;
-import mil.nga.geopackage.metadata.MetadataScopeType;
-import mil.nga.geopackage.metadata.reference.MetadataReference;
-import mil.nga.geopackage.metadata.reference.MetadataReferenceDao;
-import mil.nga.geopackage.metadata.reference.ReferenceScopeType;
-
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
+
+import junit.framework.TestCase;
+import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.extension.MetadataExtension;
+import mil.nga.geopackage.metadata.Metadata;
+import mil.nga.geopackage.metadata.MetadataDao;
+import mil.nga.geopackage.metadata.MetadataScopeType;
+import mil.nga.geopackage.metadata.reference.MetadataReference;
+import mil.nga.geopackage.metadata.reference.MetadataReferenceDao;
+import mil.nga.geopackage.metadata.reference.ReferenceScopeType;
 
 /**
  * Metadata Reference Utility test methods
@@ -39,7 +40,8 @@ public class MetadataReferenceUtils {
 	public static void testRead(GeoPackage geoPackage, Integer expectedResults)
 			throws SQLException {
 
-		MetadataReferenceDao dao = geoPackage.getMetadataReferenceDao();
+		MetadataReferenceDao dao = MetadataExtension
+				.getMetadataReferenceDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<MetadataReference> results = dao.queryForAll();
@@ -68,8 +70,8 @@ public class MetadataReferenceUtils {
 					Metadata parentMetadata = result.getParentMetadata();
 					if (parentMetadata != null) {
 						TestCase.assertNotNull(parentMetadata.getId());
-						TestCase.assertNotNull(parentMetadata
-								.getMetadataScope());
+						TestCase.assertNotNull(
+								parentMetadata.getMetadataScope());
 						TestCase.assertNotNull(parentMetadata.getStandardUri());
 						TestCase.assertNotNull(parentMetadata.getMimeType());
 						TestCase.assertNotNull(parentMetadata.getMetadata());
@@ -100,14 +102,15 @@ public class MetadataReferenceUtils {
 				TestCase.assertTrue(queryMetadataReferenceList.size() >= 1);
 				boolean found = false;
 				for (MetadataReference queryMetadataReferenceValue : queryMetadataReferenceList) {
-					TestCase.assertEquals(
-							metadataReference.getReferenceScope(),
+					TestCase.assertEquals(metadataReference.getReferenceScope(),
 							queryMetadataReferenceValue.getReferenceScope());
 					if (!found) {
-						found = metadataReference.getFileId() == queryMetadataReferenceValue
-								.getFileId()
-								&& metadataReference.getParentId() == queryMetadataReferenceValue
-										.getParentId();
+						found = metadataReference
+								.getFileId() == queryMetadataReferenceValue
+										.getFileId()
+								&& metadataReference
+										.getParentId() == queryMetadataReferenceValue
+												.getParentId();
 					}
 				}
 				TestCase.assertTrue(found);
@@ -124,16 +127,17 @@ public class MetadataReferenceUtils {
 				TestCase.assertTrue(queryMetadataReferenceList.size() >= 1);
 				found = false;
 				for (MetadataReference queryMetadataReferenceValue : queryMetadataReferenceList) {
-					TestCase.assertEquals(
-							metadataReference.getReferenceScope(),
+					TestCase.assertEquals(metadataReference.getReferenceScope(),
 							queryMetadataReferenceValue.getReferenceScope());
 					TestCase.assertEquals(metadataReference.getFileId(),
 							queryMetadataReferenceValue.getFileId());
 					if (!found) {
-						found = metadataReference.getFileId() == queryMetadataReferenceValue
-								.getFileId()
-								&& metadataReference.getParentId() == queryMetadataReferenceValue
-										.getParentId();
+						found = metadataReference
+								.getFileId() == queryMetadataReferenceValue
+										.getFileId()
+								&& metadataReference
+										.getParentId() == queryMetadataReferenceValue
+												.getParentId();
 					}
 				}
 				TestCase.assertTrue(found);
@@ -149,7 +153,8 @@ public class MetadataReferenceUtils {
 	 */
 	public static void testUpdate(GeoPackage geoPackage) throws SQLException {
 
-		MetadataReferenceDao dao = geoPackage.getMetadataReferenceDao();
+		MetadataReferenceDao dao = MetadataExtension
+				.getMetadataReferenceDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<MetadataReference> results = dao.queryForAll();
@@ -166,7 +171,7 @@ public class MetadataReferenceUtils {
 				dao.update(metadataReference);
 
 				// Verify update
-				dao = geoPackage.getMetadataReferenceDao();
+				dao = MetadataExtension.getMetadataReferenceDao(geoPackage);
 				List<MetadataReference> updatedMetadataReferenceList = dao
 						.queryByMetadata(metadataReference.getFileId(),
 								metadataReference.getParentId());
@@ -196,10 +201,12 @@ public class MetadataReferenceUtils {
 								preparedUpdateMetadataReference.getTableName());
 						count++;
 						if (!found) {
-							found = metadataReference.getFileId() == preparedUpdateMetadataReference
-									.getFileId()
-									&& metadataReference.getParentId() == preparedUpdateMetadataReference
-											.getParentId();
+							found = metadataReference
+									.getFileId() == preparedUpdateMetadataReference
+											.getFileId()
+									&& metadataReference
+											.getParentId() == preparedUpdateMetadataReference
+													.getParentId();
 						}
 					}
 				}
@@ -218,8 +225,9 @@ public class MetadataReferenceUtils {
 	 */
 	public static void testCreate(GeoPackage geoPackage) throws SQLException {
 
-		MetadataReferenceDao dao = geoPackage.getMetadataReferenceDao();
-		MetadataDao metadataDao = geoPackage.getMetadataDao();
+		MetadataReferenceDao dao = MetadataExtension
+				.getMetadataReferenceDao(geoPackage);
+		MetadataDao metadataDao = MetadataExtension.getMetadataDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			// Get current count
@@ -272,13 +280,13 @@ public class MetadataReferenceUtils {
 			TestCase.assertEquals(tableName,
 					queryMetadataReference.getTableName());
 			TestCase.assertNull(queryMetadataReference.getColumnName());
-			TestCase.assertEquals(rowIdValue, queryMetadataReference
-					.getRowIdValue().longValue());
+			TestCase.assertEquals(rowIdValue,
+					queryMetadataReference.getRowIdValue().longValue());
 			TestCase.assertEquals(timestamp,
 					queryMetadataReference.getTimestamp());
 			TestCase.assertEquals(fileId, queryMetadataReference.getFileId());
-			TestCase.assertEquals(parentId, queryMetadataReference
-					.getParentId().longValue());
+			TestCase.assertEquals(parentId,
+					queryMetadataReference.getParentId().longValue());
 			TestCase.assertNotNull(queryMetadataReference.getMetadata());
 			TestCase.assertNotNull(queryMetadataReference.getParentMetadata());
 		}
@@ -293,7 +301,8 @@ public class MetadataReferenceUtils {
 	 */
 	public static void testDelete(GeoPackage geoPackage) throws SQLException {
 
-		MetadataReferenceDao dao = geoPackage.getMetadataReferenceDao();
+		MetadataReferenceDao dao = MetadataExtension
+				.getMetadataReferenceDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<MetadataReference> results = dao.queryForAll();

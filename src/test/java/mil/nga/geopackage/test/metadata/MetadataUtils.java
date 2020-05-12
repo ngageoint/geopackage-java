@@ -14,6 +14,7 @@ import com.j256.ormlite.stmt.UpdateBuilder;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.extension.MetadataExtension;
 import mil.nga.geopackage.metadata.Metadata;
 import mil.nga.geopackage.metadata.MetadataDao;
 import mil.nga.geopackage.metadata.MetadataScopeType;
@@ -37,7 +38,7 @@ public class MetadataUtils {
 	public static void testRead(GeoPackage geoPackage, Integer expectedResults)
 			throws SQLException {
 
-		MetadataDao dao = geoPackage.getMetadataDao();
+		MetadataDao dao = MetadataExtension.getMetadataDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<Metadata> results = dao.queryForAll();
@@ -114,7 +115,7 @@ public class MetadataUtils {
 	 */
 	public static void testUpdate(GeoPackage geoPackage) throws SQLException {
 
-		MetadataDao dao = geoPackage.getMetadataDao();
+		MetadataDao dao = MetadataExtension.getMetadataDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<Metadata> results = dao.queryForAll();
@@ -131,7 +132,7 @@ public class MetadataUtils {
 				dao.update(metadata);
 
 				// Verify update
-				dao = geoPackage.getMetadataDao();
+				dao = MetadataExtension.getMetadataDao(geoPackage);
 				Metadata updatedMetadata = dao.queryForId(metadata.getId());
 				TestCase.assertEquals(updatedScopeType,
 						updatedMetadata.getMetadataScope());
@@ -177,7 +178,7 @@ public class MetadataUtils {
 	 */
 	public static void testCreate(GeoPackage geoPackage) throws SQLException {
 
-		MetadataDao dao = geoPackage.getMetadataDao();
+		MetadataDao dao = MetadataExtension.getMetadataDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			// Get current count
@@ -247,7 +248,7 @@ public class MetadataUtils {
 	private static void testDeleteHelper(GeoPackage geoPackage, boolean cascade)
 			throws SQLException {
 
-		MetadataDao dao = geoPackage.getMetadataDao();
+		MetadataDao dao = MetadataExtension.getMetadataDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<Metadata> results = dao.queryForAll();
@@ -259,8 +260,8 @@ public class MetadataUtils {
 				Metadata metadata = results.get(random);
 
 				// Get reference counts
-				MetadataReferenceDao metadataReferenceDao = geoPackage
-						.getMetadataReferenceDao();
+				MetadataReferenceDao metadataReferenceDao = MetadataExtension
+						.getMetadataReferenceDao(geoPackage);
 				int referenceCount = metadataReferenceDao
 						.queryByMetadata(metadata.getId()).size();
 				List<MetadataReference> metadataReferenceList = metadataReferenceDao

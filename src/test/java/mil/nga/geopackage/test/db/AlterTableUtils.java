@@ -24,6 +24,7 @@ import mil.nga.geopackage.db.table.Constraint;
 import mil.nga.geopackage.db.table.ConstraintType;
 import mil.nga.geopackage.db.table.RawConstraint;
 import mil.nga.geopackage.db.table.UniqueConstraint;
+import mil.nga.geopackage.extension.MetadataExtension;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.coverage.GriddedCoverage;
 import mil.nga.geopackage.extension.coverage.GriddedTile;
@@ -517,8 +518,8 @@ public class AlterTableUtils {
 				ContentsId contentsId = contentsIdExtension.get(tableName);
 
 				List<MetadataReference> metadataReference = null;
-				MetadataReferenceDao metadataReferenceDao = geoPackage
-						.getMetadataReferenceDao();
+				MetadataReferenceDao metadataReferenceDao = MetadataExtension
+						.getMetadataReferenceDao(geoPackage);
 				if (metadataReferenceDao.isTableExists()) {
 					metadataReference = metadataReferenceDao
 							.queryByTable(tableName);
@@ -852,8 +853,8 @@ public class AlterTableUtils {
 				ContentsId contentsId = contentsIdExtension.get(tableName);
 
 				List<MetadataReference> metadataReference = null;
-				MetadataReferenceDao metadataReferenceDao = geoPackage
-						.getMetadataReferenceDao();
+				MetadataReferenceDao metadataReferenceDao = MetadataExtension
+						.getMetadataReferenceDao(geoPackage);
 				if (metadataReferenceDao.isTableExists()) {
 					metadataReference = metadataReferenceDao
 							.queryByTable(tableName);
@@ -1100,8 +1101,8 @@ public class AlterTableUtils {
 			ContentsId contentsId = contentsIdExtension.get(tableName);
 
 			List<MetadataReference> metadataReference = null;
-			MetadataReferenceDao metadataReferenceDao = geoPackage
-					.getMetadataReferenceDao();
+			MetadataReferenceDao metadataReferenceDao = MetadataExtension
+					.getMetadataReferenceDao(geoPackage);
 			if (metadataReferenceDao.isTableExists()) {
 				metadataReference = metadataReferenceDao
 						.queryByTable(tableName);
