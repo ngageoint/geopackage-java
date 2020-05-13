@@ -1,4 +1,4 @@
-package mil.nga.geopackage.test.metadata.reference;
+package mil.nga.geopackage.test.extension.metadata;
 
 import java.sql.SQLException;
 
@@ -8,16 +8,16 @@ import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 import mil.nga.geopackage.test.TestSetupTeardown;
 
 /**
- * Test Metadata Reference from a created database
+ * Test Metadata from a created database
  * 
  * @author osbornb
  */
-public class MetadataReferenceCreateTest extends CreateGeoPackageTestCase {
+public class MetadataCreateTest extends CreateGeoPackageTestCase {
 
 	/**
 	 * Constructor
 	 */
-	public MetadataReferenceCreateTest() {
+	public MetadataCreateTest() {
 
 	}
 
@@ -29,8 +29,8 @@ public class MetadataReferenceCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testRead() throws SQLException {
 
-		MetadataReferenceUtils.testRead(geoPackage,
-				TestSetupTeardown.CREATE_METADATA_REFERENCE_COUNT);
+		MetadataUtils.testRead(geoPackage,
+				TestSetupTeardown.CREATE_METADATA_COUNT);
 
 	}
 
@@ -42,7 +42,7 @@ public class MetadataReferenceCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testUpdate() throws SQLException {
 
-		MetadataReferenceUtils.testUpdate(geoPackage);
+		MetadataUtils.testUpdate(geoPackage);
 
 	}
 
@@ -54,7 +54,7 @@ public class MetadataReferenceCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testCreate() throws SQLException {
 
-		MetadataReferenceUtils.testCreate(geoPackage);
+		MetadataUtils.testCreate(geoPackage);
 
 	}
 
@@ -66,7 +66,19 @@ public class MetadataReferenceCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testDelete() throws SQLException {
 
-		MetadataReferenceUtils.testDelete(geoPackage);
+		MetadataUtils.testDelete(geoPackage);
+
+	}
+
+	/**
+	 * Test cascade deleting
+	 * 
+	 * @throws SQLException
+	 */
+	@Test
+	public void testDeleteCascade() throws SQLException {
+
+		MetadataUtils.testDeleteCascade(geoPackage);
 
 	}
 

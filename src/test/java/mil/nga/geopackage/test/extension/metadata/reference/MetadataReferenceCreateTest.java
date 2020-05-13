@@ -1,4 +1,4 @@
-package mil.nga.geopackage.test.schema.constraints;
+package mil.nga.geopackage.test.extension.metadata.reference;
 
 import java.sql.SQLException;
 
@@ -8,16 +8,16 @@ import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 import mil.nga.geopackage.test.TestSetupTeardown;
 
 /**
- * Test Data Column Constraints from a created database
+ * Test Metadata Reference from a created database
  * 
  * @author osbornb
  */
-public class DataColumnConstraintsCreateTest extends CreateGeoPackageTestCase {
+public class MetadataReferenceCreateTest extends CreateGeoPackageTestCase {
 
 	/**
 	 * Constructor
 	 */
-	public DataColumnConstraintsCreateTest() {
+	public MetadataReferenceCreateTest() {
 
 	}
 
@@ -29,8 +29,8 @@ public class DataColumnConstraintsCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testRead() throws SQLException {
 
-		DataColumnConstraintsUtils.testRead(geoPackage,
-				TestSetupTeardown.CREATE_DATA_COLUMN_CONSTRAINTS_COUNT);
+		MetadataReferenceUtils.testRead(geoPackage,
+				TestSetupTeardown.CREATE_METADATA_REFERENCE_COUNT);
 
 	}
 
@@ -42,7 +42,7 @@ public class DataColumnConstraintsCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testUpdate() throws SQLException {
 
-		DataColumnConstraintsUtils.testUpdate(geoPackage);
+		MetadataReferenceUtils.testUpdate(geoPackage);
 
 	}
 
@@ -54,7 +54,7 @@ public class DataColumnConstraintsCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testCreate() throws SQLException {
 
-		DataColumnConstraintsUtils.testCreate(geoPackage);
+		MetadataReferenceUtils.testCreate(geoPackage);
 
 	}
 
@@ -66,7 +66,7 @@ public class DataColumnConstraintsCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testDelete() throws SQLException {
 
-		DataColumnConstraintsUtils.testDelete(geoPackage);
+		MetadataReferenceUtils.testDelete(geoPackage);
 
 	}
 

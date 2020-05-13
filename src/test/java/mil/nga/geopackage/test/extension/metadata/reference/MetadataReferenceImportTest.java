@@ -1,4 +1,4 @@
-package mil.nga.geopackage.test.schema.columns;
+package mil.nga.geopackage.test.extension.metadata.reference;
 
 import java.sql.SQLException;
 
@@ -7,16 +7,16 @@ import org.junit.Test;
 import mil.nga.geopackage.test.ImportGeoPackageTestCase;
 
 /**
- * Test Data Columns from an imported database
+ * Test Metadata Reference from an imported database
  * 
  * @author osbornb
  */
-public class DataColumnsImportTest extends ImportGeoPackageTestCase {
+public class MetadataReferenceImportTest extends ImportGeoPackageTestCase {
 
 	/**
 	 * Constructor
 	 */
-	public DataColumnsImportTest() {
+	public MetadataReferenceImportTest() {
 
 	}
 
@@ -28,7 +28,7 @@ public class DataColumnsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testRead() throws SQLException {
 
-		DataColumnsUtils.testRead(geoPackage, null);
+		MetadataReferenceUtils.testRead(geoPackage, null);
 
 	}
 
@@ -40,7 +40,7 @@ public class DataColumnsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testUpdate() throws SQLException {
 
-		DataColumnsUtils.testUpdate(geoPackage);
+		MetadataReferenceUtils.testUpdate(geoPackage);
 
 	}
 
@@ -52,7 +52,7 @@ public class DataColumnsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testCreate() throws SQLException {
 
-		DataColumnsUtils.testCreate(geoPackage);
+		MetadataReferenceUtils.testCreate(geoPackage);
 
 	}
 
@@ -64,7 +64,7 @@ public class DataColumnsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testDelete() throws SQLException {
 
-		DataColumnsUtils.testDelete(geoPackage);
+		MetadataReferenceUtils.testDelete(geoPackage);
 
 	}
 

@@ -1,4 +1,4 @@
-package mil.nga.geopackage.test.metadata.reference;
+package mil.nga.geopackage.test.extension.metadata.reference;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -15,13 +15,13 @@ import com.j256.ormlite.stmt.UpdateBuilder;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.extension.MetadataExtension;
-import mil.nga.geopackage.metadata.Metadata;
-import mil.nga.geopackage.metadata.MetadataDao;
-import mil.nga.geopackage.metadata.MetadataScopeType;
-import mil.nga.geopackage.metadata.reference.MetadataReference;
-import mil.nga.geopackage.metadata.reference.MetadataReferenceDao;
-import mil.nga.geopackage.metadata.reference.ReferenceScopeType;
+import mil.nga.geopackage.extension.metadata.Metadata;
+import mil.nga.geopackage.extension.metadata.MetadataDao;
+import mil.nga.geopackage.extension.metadata.MetadataExtension;
+import mil.nga.geopackage.extension.metadata.MetadataScopeType;
+import mil.nga.geopackage.extension.metadata.reference.MetadataReference;
+import mil.nga.geopackage.extension.metadata.reference.MetadataReferenceDao;
+import mil.nga.geopackage.extension.metadata.reference.ReferenceScopeType;
 
 /**
  * Metadata Reference Utility test methods

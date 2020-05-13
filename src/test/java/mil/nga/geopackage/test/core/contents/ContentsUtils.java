@@ -21,9 +21,9 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
-import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.sf.GeometryType;
 

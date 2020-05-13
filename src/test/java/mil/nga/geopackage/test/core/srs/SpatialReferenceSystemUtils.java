@@ -23,9 +23,9 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemSfSql;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemSfSqlDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemSqlMm;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemSqlMmDao;
+import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
-import mil.nga.geopackage.schema.TableColumnKey;
 
 /**
  * Spatial Reference System Utility test methods

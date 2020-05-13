@@ -1,4 +1,4 @@
-package mil.nga.geopackage.test.schema.constraints;
+package mil.nga.geopackage.test.extension.metadata;
 
 import java.sql.SQLException;
 
@@ -7,16 +7,16 @@ import org.junit.Test;
 import mil.nga.geopackage.test.ImportGeoPackageTestCase;
 
 /**
- * Test Data Column Constraints from an imported database
+ * Test Metadata from an imported database
  * 
  * @author osbornb
  */
-public class DataColumnConstraintsImportTest extends ImportGeoPackageTestCase {
+public class MetadataImportTest extends ImportGeoPackageTestCase {
 
 	/**
 	 * Constructor
 	 */
-	public DataColumnConstraintsImportTest() {
+	public MetadataImportTest() {
 
 	}
 
@@ -28,7 +28,7 @@ public class DataColumnConstraintsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testRead() throws SQLException {
 
-		DataColumnConstraintsUtils.testRead(geoPackage, null);
+		MetadataUtils.testRead(geoPackage, null);
 
 	}
 
@@ -40,7 +40,7 @@ public class DataColumnConstraintsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testUpdate() throws SQLException {
 
-		DataColumnConstraintsUtils.testUpdate(geoPackage);
+		MetadataUtils.testUpdate(geoPackage);
 
 	}
 
@@ -52,7 +52,7 @@ public class DataColumnConstraintsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testCreate() throws SQLException {
 
-		DataColumnConstraintsUtils.testCreate(geoPackage);
+		MetadataUtils.testCreate(geoPackage);
 
 	}
 
@@ -64,7 +64,19 @@ public class DataColumnConstraintsImportTest extends ImportGeoPackageTestCase {
 	@Test
 	public void testDelete() throws SQLException {
 
-		DataColumnConstraintsUtils.testDelete(geoPackage);
+		MetadataUtils.testDelete(geoPackage);
+
+	}
+
+	/**
+	 * Test cascade deleting
+	 * 
+	 * @throws SQLException
+	 */
+	@Test
+	public void testDeleteCascade() throws SQLException {
+
+		MetadataUtils.testDeleteCascade(geoPackage);
 
 	}
 
