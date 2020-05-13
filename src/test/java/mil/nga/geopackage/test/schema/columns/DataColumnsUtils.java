@@ -5,6 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedDelete;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.PreparedUpdate;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.UpdateBuilder;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
@@ -12,6 +19,7 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.contents.ContentsDataType;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.extension.SchemaExtension;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.schema.columns.DataColumns;
 import mil.nga.geopackage.schema.columns.DataColumnsDao;
@@ -22,13 +30,6 @@ import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.sf.GeometryType;
-
-import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.PreparedDelete;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.PreparedUpdate;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.UpdateBuilder;
 
 /**
  * Tile Data Columns Utility test methods
@@ -47,7 +48,8 @@ public class DataColumnsUtils {
 	public static void testRead(GeoPackage geoPackage, Integer expectedResults)
 			throws SQLException {
 
-		DataColumnsDao dao = geoPackage.getDataColumnsDao();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnsDao dao = schemaExtension.getDataColumnsDao();
 		if (dao.isTableExists()) {
 
 			List<DataColumns> results = dao.queryForAll();
@@ -58,7 +60,7 @@ public class DataColumnsUtils {
 
 			if (!results.isEmpty()) {
 
-				DataColumnConstraintsDao dataColumnConstraintsDao = geoPackage
+				DataColumnConstraintsDao dataColumnConstraintsDao = schemaExtension
 						.getDataColumnConstraintsDao();
 
 				// Verify non nulls
@@ -85,16 +87,16 @@ public class DataColumnsUtils {
 				DataColumns dataColumns = results.get(random);
 
 				// Query by id
-				DataColumns queryDataColumns = dao.queryForId(dataColumns
-						.getId());
+				DataColumns queryDataColumns = dao
+						.queryForId(dataColumns.getId());
 				TestCase.assertNotNull(queryDataColumns);
 				TestCase.assertEquals(dataColumns.getId(),
 						queryDataColumns.getId());
 
 				// Query by id shortcut method
-				DataColumns queryDataColumns2 = dao
-						.getDataColumn(dataColumns.getTableName(),
-								dataColumns.getColumnName());
+				DataColumns queryDataColumns2 = dao.getDataColumn(
+						dataColumns.getTableName(),
+						dataColumns.getColumnName());
 				TestCase.assertNotNull(queryDataColumns2);
 				TestCase.assertEquals(dataColumns.getId(),
 						queryDataColumns2.getId());
@@ -110,8 +112,8 @@ public class DataColumnsUtils {
 					TestCase.assertEquals(dataColumns.getColumnName(),
 							queryDataColumnsValue.getColumnName());
 					if (!found) {
-						found = dataColumns.getId().equals(
-								queryDataColumnsValue.getId());
+						found = dataColumns.getId()
+								.equals(queryDataColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -133,8 +135,8 @@ public class DataColumnsUtils {
 					TestCase.assertEquals(dataColumns.getMimeType(),
 							queryDataColumnsValue.getMimeType());
 					if (!found) {
-						found = dataColumns.getId().equals(
-								queryDataColumnsValue.getId());
+						found = dataColumns.getId()
+								.equals(queryDataColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -149,8 +151,8 @@ public class DataColumnsUtils {
 
 				found = false;
 				for (DataColumns queryDataColumnsValue : queryDataColumnsList) {
-					if (dataColumns.getId().equals(
-							queryDataColumnsValue.getId())) {
+					if (dataColumns.getId()
+							.equals(queryDataColumnsValue.getId())) {
 						found = true;
 						break;
 					}
@@ -169,7 +171,8 @@ public class DataColumnsUtils {
 	 */
 	public static void testUpdate(GeoPackage geoPackage) throws SQLException {
 
-		DataColumnsDao dao = geoPackage.getDataColumnsDao();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnsDao dao = schemaExtension.getDataColumnsDao();
 		if (dao.isTableExists()) {
 			List<DataColumns> results = dao.queryForAll();
 
@@ -185,9 +188,9 @@ public class DataColumnsUtils {
 				dao.update(dataColumns);
 
 				// Verify update
-				dao = geoPackage.getDataColumnsDao();
-				DataColumns updatedDataColumns = dao.queryForId(dataColumns
-						.getId());
+				dao = schemaExtension.getDataColumnsDao();
+				DataColumns updatedDataColumns = dao
+						.queryForId(dataColumns.getId());
 				TestCase.assertEquals(updatedDescription,
 						updatedDataColumns.getDescription());
 
@@ -234,8 +237,9 @@ public class DataColumnsUtils {
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
 		ContentsDao contentsDao = geoPackage.getContentsDao();
-		DataColumnsDao dao = geoPackage.getDataColumnsDao();
-		DataColumnConstraintsDao dataColumnConstraintsDao = geoPackage
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnsDao dao = schemaExtension.getDataColumnsDao();
+		DataColumnConstraintsDao dataColumnConstraintsDao = schemaExtension
 				.getDataColumnConstraintsDao();
 
 		if (dao.isTableExists()) {
@@ -265,8 +269,8 @@ public class DataColumnsUtils {
 			tileContents.setSrs(srs);
 
 			// Create the user tile table
-			geoPackage.createTileTable(TestUtils.buildTileTable(tileContents
-					.getTableName()));
+			geoPackage.createTileTable(
+					TestUtils.buildTileTable(tileContents.getTableName()));
 
 			contentsDao.create(tileContents);
 
@@ -300,8 +304,8 @@ public class DataColumnsUtils {
 			TestCase.assertEquals(description,
 					queryDataColumns.getDescription());
 			TestCase.assertEquals(mimeType, queryDataColumns.getMimeType());
-			TestCase.assertEquals(tileContents.getId(), queryDataColumns
-					.getContents().getId());
+			TestCase.assertEquals(tileContents.getId(),
+					queryDataColumns.getContents().getId());
 
 			// Get current count
 			count = dao.countOf();
@@ -320,9 +324,9 @@ public class DataColumnsUtils {
 			featureContents.setSrs(srs);
 
 			// Create the feature table
-			geoPackage.createFeatureTable(TestUtils.buildFeatureTable(
-					featureContents.getTableName(), "geom",
-					GeometryType.GEOMETRY));
+			geoPackage.createFeatureTable(
+					TestUtils.buildFeatureTable(featureContents.getTableName(),
+							"geom", GeometryType.GEOMETRY));
 
 			contentsDao.create(featureContents);
 
@@ -370,8 +374,8 @@ public class DataColumnsUtils {
 			TestCase.assertEquals(description,
 					queryDataColumns.getDescription());
 			TestCase.assertNull(queryDataColumns.getMimeType());
-			TestCase.assertEquals(tileContents.getId(), queryDataColumns
-					.getContents().getId());
+			TestCase.assertEquals(tileContents.getId(),
+					queryDataColumns.getContents().getId());
 			List<DataColumnConstraints> constraints = queryDataColumns
 					.getConstraints(dataColumnConstraintsDao);
 			TestCase.assertTrue(constraints.size() > 1);
@@ -392,7 +396,8 @@ public class DataColumnsUtils {
 	 */
 	public static void testDelete(GeoPackage geoPackage) throws SQLException {
 
-		DataColumnsDao dao = geoPackage.getDataColumnsDao();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnsDao dao = schemaExtension.getDataColumnsDao();
 		if (dao.isTableExists()) {
 			List<DataColumns> results = dao.queryForAll();
 
@@ -406,8 +411,8 @@ public class DataColumnsUtils {
 				dao.delete(dataColumns);
 
 				// Verify deleted
-				DataColumns queryDataColumns = dao.queryForId(dataColumns
-						.getId());
+				DataColumns queryDataColumns = dao
+						.queryForId(dataColumns.getId());
 				TestCase.assertNull(queryDataColumns);
 
 				// Prepared deleted

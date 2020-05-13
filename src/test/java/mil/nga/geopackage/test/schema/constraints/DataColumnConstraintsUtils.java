@@ -6,21 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.schema.columns.DataColumns;
-import mil.nga.geopackage.schema.columns.DataColumnsDao;
-import mil.nga.geopackage.schema.constraints.DataColumnConstraintType;
-import mil.nga.geopackage.schema.constraints.DataColumnConstraints;
-import mil.nga.geopackage.schema.constraints.DataColumnConstraintsDao;
-import mil.nga.geopackage.test.TestUtils;
-
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
+
+import junit.framework.TestCase;
+import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.extension.SchemaExtension;
+import mil.nga.geopackage.schema.columns.DataColumns;
+import mil.nga.geopackage.schema.columns.DataColumnsDao;
+import mil.nga.geopackage.schema.constraints.DataColumnConstraintType;
+import mil.nga.geopackage.schema.constraints.DataColumnConstraints;
+import mil.nga.geopackage.schema.constraints.DataColumnConstraintsDao;
+import mil.nga.geopackage.test.TestUtils;
 
 /**
  * Tile Data Column Constraints Utility test methods
@@ -39,7 +40,9 @@ public class DataColumnConstraintsUtils {
 	public static void testRead(GeoPackage geoPackage, Integer expectedResults)
 			throws SQLException {
 
-		DataColumnConstraintsDao dao = geoPackage.getDataColumnConstraintsDao();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnConstraintsDao dao = schemaExtension
+				.getDataColumnConstraintsDao();
 		if (dao.isTableExists()) {
 
 			List<DataColumnConstraints> results = dao.queryForAll();
@@ -51,14 +54,16 @@ public class DataColumnConstraintsUtils {
 
 			if (!results.isEmpty()) {
 
-				DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+				DataColumnsDao dataColumnsDao = schemaExtension
+						.getDataColumnsDao();
 
 				// Verify non nulls
 				for (DataColumnConstraints result : results) {
 					TestCase.assertNotNull(result.getConstraintName());
 					TestCase.assertNotNull(result.getConstraintType());
 
-					for (DataColumns column : result.getColumns(dataColumnsDao)) {
+					for (DataColumns column : result
+							.getColumns(dataColumnsDao)) {
 						TestCase.assertEquals(result.getConstraintName(),
 								column.getConstraintName());
 					}
@@ -71,8 +76,8 @@ public class DataColumnConstraintsUtils {
 
 				// Query by constraint name
 				List<DataColumnConstraints> queryDataColumnConstraintsList = dao
-						.queryByConstraintName(dataColumnConstraints
-								.getConstraintName());
+						.queryByConstraintName(
+								dataColumnConstraints.getConstraintName());
 				TestCase.assertNotNull(queryDataColumnConstraintsList);
 				TestCase.assertTrue(queryDataColumnConstraintsList.size() > 0);
 				for (DataColumnConstraints queryDataColumns : queryDataColumnConstraintsList) {
@@ -92,16 +97,17 @@ public class DataColumnConstraintsUtils {
 				for (DataColumnConstraints queryDataColumnConstraintsValue : queryDataColumnConstraintsList) {
 					TestCase.assertEquals(
 							dataColumnConstraints.getConstraintType(),
-							queryDataColumnConstraintsValue.getConstraintType());
+							queryDataColumnConstraintsValue
+									.getConstraintType());
 					if (!found) {
 						TestCase.assertFalse(found);
 						found = dataColumnConstraints.getConstraintName()
 								.equals(queryDataColumnConstraintsValue
 										.getConstraintName())
-								&& (dataColumnConstraints.getValue() == null ? queryDataColumnConstraintsValue
-										.getValue() == null
-										: dataColumnConstraints
-												.getValue()
+								&& (dataColumnConstraints.getValue() == null
+										? queryDataColumnConstraintsValue
+												.getValue() == null
+										: dataColumnConstraints.getValue()
 												.equals(queryDataColumnConstraintsValue
 														.getValue()));
 					}
@@ -123,16 +129,19 @@ public class DataColumnConstraintsUtils {
 				for (DataColumnConstraints queryDataColumnConstraintsValue : queryDataColumnConstraintsList) {
 					TestCase.assertEquals(
 							dataColumnConstraints.getConstraintName(),
-							queryDataColumnConstraintsValue.getConstraintName());
+							queryDataColumnConstraintsValue
+									.getConstraintName());
 					TestCase.assertEquals(
 							dataColumnConstraints.getConstraintType(),
-							queryDataColumnConstraintsValue.getConstraintType());
+							queryDataColumnConstraintsValue
+									.getConstraintType());
 					if (!found) {
 						TestCase.assertFalse(found);
-						found = dataColumnConstraints.getValue() == null ? queryDataColumnConstraintsValue
-								.getValue() == null : dataColumnConstraints
-								.getValue().equals(
-										queryDataColumnConstraintsValue
+						found = dataColumnConstraints.getValue() == null
+								? queryDataColumnConstraintsValue
+										.getValue() == null
+								: dataColumnConstraints.getValue()
+										.equals(queryDataColumnConstraintsValue
 												.getValue());
 					}
 				}
@@ -150,13 +159,14 @@ public class DataColumnConstraintsUtils {
 				for (DataColumnConstraints queryDataColumnConstraintsValue : queryDataColumnConstraintsList) {
 					TestCase.assertEquals(
 							dataColumnConstraints.getConstraintName(),
-							queryDataColumnConstraintsValue.getConstraintName());
-					if (dataColumnConstraints.getConstraintType()
-							.equals(queryDataColumnConstraintsValue
-									.getConstraintType())
-							&& (dataColumnConstraints.getValue() == null ? queryDataColumnConstraintsValue
-									.getValue() == null : dataColumnConstraints
-									.getValue().equals(
+							queryDataColumnConstraintsValue
+									.getConstraintName());
+					if (dataColumnConstraints.getConstraintType().equals(
+							queryDataColumnConstraintsValue.getConstraintType())
+							&& (dataColumnConstraints.getValue() == null
+									? queryDataColumnConstraintsValue
+											.getValue() == null
+									: dataColumnConstraints.getValue().equals(
 											queryDataColumnConstraintsValue
 													.getValue()))) {
 						TestCase.assertFalse(found);
@@ -177,7 +187,9 @@ public class DataColumnConstraintsUtils {
 	 */
 	public static void testUpdate(GeoPackage geoPackage) throws SQLException {
 
-		DataColumnConstraintsDao dao = geoPackage.getDataColumnConstraintsDao();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnConstraintsDao dao = schemaExtension
+				.getDataColumnConstraintsDao();
 		if (dao.isTableExists()) {
 			List<DataColumnConstraints> results = dao.queryForAll();
 
@@ -186,7 +198,8 @@ public class DataColumnConstraintsUtils {
 				// Get a range constraint
 				DataColumnConstraints dataColumnConstraints = dao
 						.queryByConstraintName(
-								TestUtils.SAMPLE_RANGE_CONSTRAINT).get(0);
+								TestUtils.SAMPLE_RANGE_CONSTRAINT)
+						.get(0);
 
 				// Update
 				BigDecimal updatedMax = new BigDecimal(99.1234);
@@ -194,10 +207,11 @@ public class DataColumnConstraintsUtils {
 				dao.update(dataColumnConstraints);
 
 				// Verify update
-				dao = geoPackage.getDataColumnConstraintsDao();
+				dao = schemaExtension.getDataColumnConstraintsDao();
 				DataColumnConstraints updatedDataColumns = dao
 						.queryByConstraintName(
-								TestUtils.SAMPLE_RANGE_CONSTRAINT).get(0);
+								TestUtils.SAMPLE_RANGE_CONSTRAINT)
+						.get(0);
 				TestCase.assertEquals(updatedMax.doubleValue(),
 						updatedDataColumns.getMax().doubleValue(), .00001);
 
@@ -215,7 +229,8 @@ public class DataColumnConstraintsUtils {
 				TestCase.assertTrue(updated > 0);
 
 				for (DataColumnConstraints updatedQueryDataColumnConstraints : dao
-						.queryByConstraintName(TestUtils.SAMPLE_RANGE_CONSTRAINT)) {
+						.queryByConstraintName(
+								TestUtils.SAMPLE_RANGE_CONSTRAINT)) {
 					TestCase.assertEquals(false,
 							updatedQueryDataColumnConstraints
 									.getMinIsInclusive().booleanValue());
@@ -236,7 +251,9 @@ public class DataColumnConstraintsUtils {
 	 */
 	public static void testCreate(GeoPackage geoPackage) throws SQLException {
 
-		DataColumnConstraintsDao dao = geoPackage.getDataColumnConstraintsDao();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnConstraintsDao dao = schemaExtension
+				.getDataColumnConstraintsDao();
 
 		if (dao.isTableExists()) {
 
@@ -294,8 +311,10 @@ public class DataColumnConstraintsUtils {
 	 */
 	public static void testDelete(GeoPackage geoPackage) throws SQLException {
 
-		DataColumnConstraintsDao dao = geoPackage.getDataColumnConstraintsDao();
-		DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		DataColumnConstraintsDao dao = schemaExtension
+				.getDataColumnConstraintsDao();
+		DataColumnsDao dataColumnsDao = schemaExtension.getDataColumnsDao();
 		if (dao.isTableExists()) {
 			List<DataColumnConstraints> results = dao.queryForAll();
 
@@ -306,10 +325,14 @@ public class DataColumnConstraintsUtils {
 				DataColumnConstraints dataColumnConstraints = results
 						.get(random);
 
-				int remainingConstraints = dao.queryByConstraintName(
-						dataColumnConstraints.getConstraintName()).size();
-				int dataColumns = dataColumnsDao.queryByConstraintName(
-						dataColumnConstraints.getConstraintName()).size();
+				int remainingConstraints = dao
+						.queryByConstraintName(
+								dataColumnConstraints.getConstraintName())
+						.size();
+				int dataColumns = dataColumnsDao
+						.queryByConstraintName(
+								dataColumnConstraints.getConstraintName())
+						.size();
 
 				// Delete the data column constraints
 				dao.deleteCascade(dataColumnConstraints);
@@ -322,10 +345,14 @@ public class DataColumnConstraintsUtils {
 				TestCase.assertNull(queryDataColumns);
 
 				// Verify cascade delete
-				int afterRemainingConstraints = dao.queryByConstraintName(
-						dataColumnConstraints.getConstraintName()).size();
-				int afterDataColumns = dataColumnsDao.queryByConstraintName(
-						dataColumnConstraints.getConstraintName()).size();
+				int afterRemainingConstraints = dao
+						.queryByConstraintName(
+								dataColumnConstraints.getConstraintName())
+						.size();
+				int afterDataColumns = dataColumnsDao
+						.queryByConstraintName(
+								dataColumnConstraints.getConstraintName())
+						.size();
 
 				TestCase.assertEquals(remainingConstraints - 1,
 						afterRemainingConstraints);

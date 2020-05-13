@@ -1111,9 +1111,11 @@ public class GeoPackageExample {
 	private static void createSchemaExtension(GeoPackage geoPackage)
 			throws SQLException {
 
-		geoPackage.createDataColumnConstraintsTable();
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+		schemaExtension.createDataColumnConstraintsTable();
 
-		DataColumnConstraintsDao dao = geoPackage.getDataColumnConstraintsDao();
+		DataColumnConstraintsDao dao = schemaExtension
+				.getDataColumnConstraintsDao();
 
 		DataColumnConstraints sampleRange = new DataColumnConstraints();
 		sampleRange.setConstraintName("sampleRange");
@@ -1167,9 +1169,9 @@ public class GeoPackageExample {
 		sampleGlob.setDescription("sampleGlob description");
 		dao.create(sampleGlob);
 
-		geoPackage.createDataColumnsTable();
+		schemaExtension.createDataColumnsTable();
 
-		DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+		DataColumnsDao dataColumnsDao = schemaExtension.getDataColumnsDao();
 
 		List<String> featureTables = geoPackage.getFeatureTables();
 		for (String featureTable : featureTables) {
