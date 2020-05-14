@@ -8,9 +8,9 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.core.contents.ContentsDataType;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.ExtendedRelationsDao;
@@ -68,8 +68,9 @@ public class RelatedMediaUtils {
 		MediaTable mediaTable = MediaTable.create("media_table",
 				additionalMediaColumns);
 		String[] mediaColumns = mediaTable.getColumnNames();
-		TestCase.assertEquals(MediaTable.numRequiredColumns()
-				+ additionalMediaColumns.size(), mediaColumns.length);
+		TestCase.assertEquals(
+				MediaTable.numRequiredColumns() + additionalMediaColumns.size(),
+				mediaColumns.length);
 		UserCustomColumn idColumn = mediaTable.getIdColumn();
 		TestCase.assertNotNull(idColumn);
 		TestCase.assertTrue(idColumn.isNamed(MediaTable.COLUMN_ID));
@@ -80,13 +81,14 @@ public class RelatedMediaUtils {
 		UserCustomColumn dataColumn = mediaTable.getDataColumn();
 		TestCase.assertNotNull(dataColumn);
 		TestCase.assertTrue(dataColumn.isNamed(MediaTable.COLUMN_DATA));
-		TestCase.assertEquals(GeoPackageDataType.BLOB, dataColumn.getDataType());
+		TestCase.assertEquals(GeoPackageDataType.BLOB,
+				dataColumn.getDataType());
 		TestCase.assertTrue(dataColumn.isNotNull());
 		TestCase.assertFalse(dataColumn.isPrimaryKey());
 		UserCustomColumn contentTypeColumn = mediaTable.getContentTypeColumn();
 		TestCase.assertNotNull(contentTypeColumn);
-		TestCase.assertTrue(contentTypeColumn
-				.isNamed(MediaTable.COLUMN_CONTENT_TYPE));
+		TestCase.assertTrue(
+				contentTypeColumn.isNamed(MediaTable.COLUMN_CONTENT_TYPE));
 		TestCase.assertEquals(GeoPackageDataType.TEXT,
 				contentTypeColumn.getDataType());
 		TestCase.assertTrue(contentTypeColumn.isNotNull());
@@ -96,16 +98,17 @@ public class RelatedMediaUtils {
 		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
 		final String mappingTableName = "features_media";
-		UserMappingTable userMappingTable = UserMappingTable.create(
-				mappingTableName, additionalMappingColumns);
+		UserMappingTable userMappingTable = UserMappingTable
+				.create(mappingTableName, additionalMappingColumns);
 		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
-		TestCase.assertEquals(UserMappingTable.numRequiredColumns()
-				+ additionalMappingColumns.size(), userMappingTable
-				.getColumns().size());
+		TestCase.assertEquals(
+				UserMappingTable.numRequiredColumns()
+						+ additionalMappingColumns.size(),
+				userMappingTable.getColumns().size());
 		UserCustomColumn baseIdColumn = userMappingTable.getBaseIdColumn();
 		TestCase.assertNotNull(baseIdColumn);
-		TestCase.assertTrue(baseIdColumn
-				.isNamed(UserMappingTable.COLUMN_BASE_ID));
+		TestCase.assertTrue(
+				baseIdColumn.isNamed(UserMappingTable.COLUMN_BASE_ID));
 		TestCase.assertEquals(GeoPackageDataType.INTEGER,
 				baseIdColumn.getDataType());
 		TestCase.assertTrue(baseIdColumn.isNotNull());
@@ -113,8 +116,8 @@ public class RelatedMediaUtils {
 		UserCustomColumn relatedIdColumn = userMappingTable
 				.getRelatedIdColumn();
 		TestCase.assertNotNull(relatedIdColumn);
-		TestCase.assertTrue(relatedIdColumn
-				.isNamed(UserMappingTable.COLUMN_RELATED_ID));
+		TestCase.assertTrue(
+				relatedIdColumn.isNamed(UserMappingTable.COLUMN_RELATED_ID));
 		TestCase.assertEquals(GeoPackageDataType.INTEGER,
 				relatedIdColumn.getDataType());
 		TestCase.assertTrue(relatedIdColumn.isNotNull());
@@ -124,8 +127,8 @@ public class RelatedMediaUtils {
 		// Create the media table, content row, and relationship between the
 		// feature table and media table
 		ContentsDao contentsDao = geoPackage.getContentsDao();
-		TestCase.assertFalse(contentsDao.getTables().contains(
-				mediaTable.getTableName()));
+		TestCase.assertFalse(
+				contentsDao.getTables().contains(mediaTable.getTableName()));
 		ExtendedRelation extendedRelation = rte.addMediaRelationship(
 				baseTableName, mediaTable, userMappingTable);
 		validateContents(mediaTable, mediaTable.getContents());
@@ -136,15 +139,14 @@ public class RelatedMediaUtils {
 		TestCase.assertEquals(1, extendedRelations.size());
 		TestCase.assertTrue(geoPackage.isTable(mappingTableName));
 		TestCase.assertTrue(geoPackage.isTable(mediaTable.getTableName()));
-		TestCase.assertTrue(contentsDao.getTables().contains(
-				mediaTable.getTableName()));
+		TestCase.assertTrue(
+				contentsDao.getTables().contains(mediaTable.getTableName()));
 		validateContents(mediaTable,
 				contentsDao.queryForId(mediaTable.getTableName()));
 		TestCase.assertEquals(MediaTable.RELATION_TYPE.getDataType(),
 				geoPackage.getTableType(mediaTable.getTableName()));
-		TestCase.assertTrue(geoPackage.isTableType(
-				MediaTable.RELATION_TYPE.getDataType(),
-				mediaTable.getTableName()));
+		TestCase.assertTrue(geoPackage.isTableType(mediaTable.getTableName(),
+				MediaTable.RELATION_TYPE.getDataType()));
 
 		// Validate the media DAO
 		MediaDao mediaDao = rte.getMediaDao(mediaTable);
@@ -204,12 +206,12 @@ public class RelatedMediaUtils {
 		UserMappingRow userMappingRow = null;
 		for (int i = 0; i < 10; i++) {
 			userMappingRow = dao.newRow();
-			userMappingRow
-					.setBaseId(featureIds.get((int) (Math.random() * featureCount)));
-			userMappingRow
-					.setRelatedId(mediaIds.get((int) (Math.random() * mediaCount)));
-			RelatedTablesUtils.populateUserRow(userMappingTable,
-					userMappingRow, UserMappingTable.requiredColumns());
+			userMappingRow.setBaseId(
+					featureIds.get((int) (Math.random() * featureCount)));
+			userMappingRow.setRelatedId(
+					mediaIds.get((int) (Math.random() * mediaCount)));
+			RelatedTablesUtils.populateUserRow(userMappingTable, userMappingRow,
+					UserMappingTable.requiredColumns());
 			TestCase.assertTrue(dao.create(userMappingRow) > 0);
 		}
 		TestCase.assertEquals(10, dao.count());
@@ -247,8 +249,8 @@ public class RelatedMediaUtils {
 		TestCase.assertEquals(1, featureExtendedRelations2.size());
 		TestCase.assertEquals(featureExtendedRelations.get(0).getId(),
 				featureExtendedRelations2.get(0).getId());
-		TestCase.assertTrue(extendedRelationsDao.getRelatedTableRelations(
-				featureDao.getTableName()).isEmpty());
+		TestCase.assertTrue(extendedRelationsDao
+				.getRelatedTableRelations(featureDao.getTableName()).isEmpty());
 
 		// Test the feature table relations
 		for (ExtendedRelation featureRelation : featureExtendedRelations) {
@@ -257,8 +259,7 @@ public class RelatedMediaUtils {
 			TestCase.assertTrue(featureRelation.getId() >= 0);
 			TestCase.assertEquals(featureDao.getTableName(),
 					featureRelation.getBaseTableName());
-			TestCase.assertEquals(
-					featureDao.getTable().getPkColumn().getName(),
+			TestCase.assertEquals(featureDao.getTable().getPkColumn().getName(),
 					featureRelation.getBasePrimaryColumn());
 			TestCase.assertEquals(mediaDao.getTableName(),
 					featureRelation.getRelatedTableName());
@@ -275,10 +276,10 @@ public class RelatedMediaUtils {
 			UserCustomResultSet mappingResultSet = userMappingDao.queryForAll();
 			while (mappingResultSet.moveToNext()) {
 				userMappingRow = userMappingDao.getRow(mappingResultSet);
-				TestCase.assertTrue(featureIds.contains(userMappingRow
-						.getBaseId()));
-				TestCase.assertTrue(mediaIds.contains(userMappingRow
-						.getRelatedId()));
+				TestCase.assertTrue(
+						featureIds.contains(userMappingRow.getBaseId()));
+				TestCase.assertTrue(
+						mediaIds.contains(userMappingRow.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
 				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
@@ -335,8 +336,8 @@ public class RelatedMediaUtils {
 		TestCase.assertEquals(1, mediaExtendedRelations2.size());
 		TestCase.assertEquals(mediaExtendedRelations.get(0).getId(),
 				mediaExtendedRelations2.get(0).getId());
-		TestCase.assertTrue(extendedRelationsDao.getBaseTableRelations(
-				mediaTable.getTableName()).isEmpty());
+		TestCase.assertTrue(extendedRelationsDao
+				.getBaseTableRelations(mediaTable.getTableName()).isEmpty());
 
 		// Test the media table relations
 		for (ExtendedRelation mediaRelation : mediaExtendedRelations) {
@@ -345,8 +346,7 @@ public class RelatedMediaUtils {
 			TestCase.assertTrue(mediaRelation.getId() >= 0);
 			TestCase.assertEquals(featureDao.getTableName(),
 					mediaRelation.getBaseTableName());
-			TestCase.assertEquals(
-					featureDao.getTable().getPkColumn().getName(),
+			TestCase.assertEquals(featureDao.getTable().getPkColumn().getName(),
 					mediaRelation.getBasePrimaryColumn());
 			TestCase.assertEquals(mediaDao.getTableName(),
 					mediaRelation.getRelatedTableName());
@@ -363,10 +363,10 @@ public class RelatedMediaUtils {
 			UserCustomResultSet mappingResultSet = userMappingDao.queryForAll();
 			while (mappingResultSet.moveToNext()) {
 				userMappingRow = userMappingDao.getRow(mappingResultSet);
-				TestCase.assertTrue(featureIds.contains(userMappingRow
-						.getBaseId()));
-				TestCase.assertTrue(mediaIds.contains(userMappingRow
-						.getRelatedId()));
+				TestCase.assertTrue(
+						featureIds.contains(userMappingRow.getBaseId()));
+				TestCase.assertTrue(
+						mediaIds.contains(userMappingRow.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
 				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
@@ -402,10 +402,11 @@ public class RelatedMediaUtils {
 
 					TestCase.assertTrue(featureRow.hasId());
 					TestCase.assertTrue(featureRow.getId() >= 0);
-					TestCase.assertTrue(featureIds.contains(featureRow.getId()));
+					TestCase.assertTrue(
+							featureIds.contains(featureRow.getId()));
 					TestCase.assertTrue(mappedIds.contains(featureRow.getId()));
-					if (featureRow
-							.getValue(featureRow.getGeometryColumnIndex()) != null) {
+					if (featureRow.getValue(
+							featureRow.getGeometryColumnIndex()) != null) {
 						GeoPackageGeometryData geometryData = featureRow
 								.getGeometry();
 						TestCase.assertNotNull(geometryData);
@@ -429,22 +430,23 @@ public class RelatedMediaUtils {
 				.getContentTypeColumn();
 		int newColumns = 0;
 		String newColumnName = "new_column";
-		mediaDao.addColumn(UserCustomColumn.createColumn(newColumnName
-				+ ++newColumns, GeoPackageDataType.TEXT));
-		mediaDao.addColumn(UserCustomColumn.createColumn(newColumnName
-				+ ++newColumns, GeoPackageDataType.BLOB));
-		TestCase.assertEquals(existingColumns + 2, mediaTable.getColumns()
-				.size());
+		mediaDao.addColumn(UserCustomColumn.createColumn(
+				newColumnName + ++newColumns, GeoPackageDataType.TEXT));
+		mediaDao.addColumn(UserCustomColumn.createColumn(
+				newColumnName + ++newColumns, GeoPackageDataType.BLOB));
+		TestCase.assertEquals(existingColumns + 2,
+				mediaTable.getColumns().size());
 		for (int index = existingColumns; index < mediaTable.getColumns()
 				.size(); index++) {
 			String name = newColumnName + (index - existingColumns + 1);
 			TestCase.assertEquals(name, mediaTable.getColumnName(index));
 			TestCase.assertEquals(index, mediaTable.getColumnIndex(name));
 			TestCase.assertEquals(name, mediaTable.getColumn(index).getName());
-			TestCase.assertEquals(index, mediaTable.getColumn(index).getIndex());
+			TestCase.assertEquals(index,
+					mediaTable.getColumn(index).getIndex());
 			TestCase.assertEquals(name, mediaTable.getColumnNames()[index]);
-			TestCase.assertEquals(name, mediaTable.getColumns().get(index)
-					.getName());
+			TestCase.assertEquals(name,
+					mediaTable.getColumns().get(index).getName());
 			try {
 				mediaTable.getColumn(index).setIndex(index - 1);
 				TestCase.fail("Changed index on a created table column");
@@ -468,8 +470,8 @@ public class RelatedMediaUtils {
 		mediaRow.setValue(existingColumns + 1, mediaRow.getData());
 		mediaRowId = mediaDao.create(mediaRow);
 		TestCase.assertTrue(mediaRowId > 0);
-		MediaRow newMediaRow = mediaDao.getRow(mediaDao
-				.queryForIdRow(mediaRowId));
+		MediaRow newMediaRow = mediaDao
+				.getRow(mediaDao.queryForIdRow(mediaRowId));
 		TestCase.assertNotNull(newMediaRow);
 		TestCase.assertEquals(newValue, newMediaRow.getValue(existingColumns));
 		GeoPackageGeometryDataUtils.compareByteArrays(mediaRow.getData(),
@@ -489,7 +491,8 @@ public class RelatedMediaUtils {
 
 		// Delete the media table and contents row
 		TestCase.assertTrue(geoPackage.isTable(mediaTable.getTableName()));
-		TestCase.assertNotNull(contentsDao.queryForId(mediaTable.getTableName()));
+		TestCase.assertNotNull(
+				contentsDao.queryForId(mediaTable.getTableName()));
 		geoPackage.deleteTable(mediaTable.getTableName());
 		TestCase.assertFalse(geoPackage.isTable(mediaTable.getTableName()));
 		TestCase.assertNull(contentsDao.queryForId(mediaTable.getTableName()));
@@ -512,8 +515,8 @@ public class RelatedMediaUtils {
 			Contents contents) {
 		TestCase.assertNotNull(contents);
 		TestCase.assertNotNull(contents.getDataType());
-		TestCase.assertEquals(MediaTable.RELATION_TYPE.getDataType(), contents
-				.getDataType().getName());
+		TestCase.assertEquals(MediaTable.RELATION_TYPE.getDataType(),
+				contents.getDataType().getName());
 		TestCase.assertEquals(MediaTable.RELATION_TYPE.getDataType(),
 				contents.getDataTypeName());
 		TestCase.assertEquals(mediaTable.getTableName(),

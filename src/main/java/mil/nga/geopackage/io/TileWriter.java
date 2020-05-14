@@ -15,8 +15,8 @@ import org.locationtech.proj4j.units.Units;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.manager.GeoPackageManager;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.tiles.GeoPackageTile;
 import mil.nga.geopackage.tiles.GeoPackageTileRetriever;
 import mil.nga.geopackage.tiles.ImageUtils;

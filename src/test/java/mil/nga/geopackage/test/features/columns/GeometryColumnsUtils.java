@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedDelete;
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.PreparedUpdate;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.UpdateBuilder;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.core.contents.ContentsDataType;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.contents.ContentsDataType;
 import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -19,16 +24,11 @@ import mil.nga.geopackage.features.columns.GeometryColumnsSfSql;
 import mil.nga.geopackage.features.columns.GeometryColumnsSfSqlDao;
 import mil.nga.geopackage.features.columns.GeometryColumnsSqlMm;
 import mil.nga.geopackage.features.columns.GeometryColumnsSqlMmDao;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.test.TestUtils;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.wkb.GeometryCodes;
-
-import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.PreparedDelete;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.PreparedUpdate;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.UpdateBuilder;
 
 /**
  * Geometry Columns Utility test methods
@@ -100,9 +100,9 @@ public class GeometryColumnsUtils {
 						queryGeometryColumns.getId());
 
 				// Query for equal
-				List<GeometryColumns> queryGeometryColumnsList = dao
-						.queryForEq(GeometryColumns.COLUMN_GEOMETRY_TYPE_NAME,
-								geometryColumns.getGeometryType().getName());
+				List<GeometryColumns> queryGeometryColumnsList = dao.queryForEq(
+						GeometryColumns.COLUMN_GEOMETRY_TYPE_NAME,
+						geometryColumns.getGeometryType().getName());
 				TestCase.assertNotNull(queryGeometryColumnsList);
 				if (queryGeometryColumnsList.isEmpty()) {
 					queryGeometryColumnsList = dao.queryForEq(
@@ -115,8 +115,8 @@ public class GeometryColumnsUtils {
 					TestCase.assertEquals(geometryColumns.getGeometryType(),
 							queryGeometryColumnsValue.getGeometryType());
 					if (!found) {
-						found = geometryColumns.getId().equals(
-								queryGeometryColumnsValue.getId());
+						found = geometryColumns.getId()
+								.equals(queryGeometryColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -138,8 +138,8 @@ public class GeometryColumnsUtils {
 					TestCase.assertEquals(geometryColumns.getM(),
 							queryGeometryColumnsValue.getM());
 					if (!found) {
-						found = geometryColumns.getId().equals(
-								queryGeometryColumnsValue.getId());
+						found = geometryColumns.getId()
+								.equals(queryGeometryColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -154,8 +154,8 @@ public class GeometryColumnsUtils {
 
 				found = false;
 				for (GeometryColumns queryGeometryColumnsValue : queryGeometryColumnsList) {
-					if (geometryColumns.getId().equals(
-							queryGeometryColumnsValue.getId())) {
+					if (geometryColumns.getId()
+							.equals(queryGeometryColumnsValue.getId())) {
 						found = true;
 						break;
 					}
@@ -176,7 +176,8 @@ public class GeometryColumnsUtils {
 	public static void testSqlMmRead(GeoPackage geoPackage,
 			Integer expectedResults) throws SQLException {
 
-		GeometryColumnsSqlMmDao dao = geoPackage.getGeometryColumnsSqlMmDao();
+		GeometryColumnsSqlMmDao dao = GeometryColumnsSqlMmDao
+				.getDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<GeometryColumnsSqlMm> results = dao.queryForAll();
@@ -197,10 +198,8 @@ public class GeometryColumnsUtils {
 					TestCase.assertNotNull(result.getId().getColumnName());
 					TestCase.assertNotNull(result.getGeometryType());
 					TestCase.assertNotNull(result.getGeometryTypeName());
-					TestCase.assertTrue(result
-							.getGeometryTypeName()
-							.startsWith(
-									GeometryColumnsSqlMm.COLUMN_GEOMETRY_TYPE_NAME_PREFIX));
+					TestCase.assertTrue(result.getGeometryTypeName().startsWith(
+							GeometryColumnsSqlMm.COLUMN_GEOMETRY_TYPE_NAME_PREFIX));
 					TestCase.assertNotNull(result.getSrsId());
 					TestCase.assertNotNull(result.getSrsName());
 
@@ -245,8 +244,8 @@ public class GeometryColumnsUtils {
 					TestCase.assertEquals(geometryColumns.getGeometryType(),
 							queryGeometryColumnsValue.getGeometryType());
 					if (!found) {
-						found = geometryColumns.getId().equals(
-								queryGeometryColumnsValue.getId());
+						found = geometryColumns.getId()
+								.equals(queryGeometryColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -265,12 +264,11 @@ public class GeometryColumnsUtils {
 				for (GeometryColumnsSqlMm queryGeometryColumnsValue : queryGeometryColumnsList) {
 					TestCase.assertEquals(geometryColumns.getSrsName(),
 							queryGeometryColumnsValue.getSrsName());
-					TestCase.assertEquals(
-							geometryColumns.getGeometryTypeName(),
+					TestCase.assertEquals(geometryColumns.getGeometryTypeName(),
 							queryGeometryColumnsValue.getGeometryTypeName());
 					if (!found) {
-						found = geometryColumns.getId().equals(
-								queryGeometryColumnsValue.getId());
+						found = geometryColumns.getId()
+								.equals(queryGeometryColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -285,8 +283,8 @@ public class GeometryColumnsUtils {
 
 				found = false;
 				for (GeometryColumnsSqlMm queryGeometryColumnsValue : queryGeometryColumnsList) {
-					if (geometryColumns.getId().equals(
-							queryGeometryColumnsValue.getId())) {
+					if (geometryColumns.getId()
+							.equals(queryGeometryColumnsValue.getId())) {
 						found = true;
 						break;
 					}
@@ -307,7 +305,8 @@ public class GeometryColumnsUtils {
 	public static void testSfSqlRead(GeoPackage geoPackage,
 			Integer expectedResults) throws SQLException {
 
-		GeometryColumnsSfSqlDao dao = geoPackage.getGeometryColumnsSfSqlDao();
+		GeometryColumnsSfSqlDao dao = GeometryColumnsSfSqlDao
+				.getDao(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<GeometryColumnsSfSql> results = dao.queryForAll();
@@ -327,8 +326,8 @@ public class GeometryColumnsUtils {
 					TestCase.assertNotNull(result.getId().getTableName());
 					TestCase.assertNotNull(result.getId().getColumnName());
 					TestCase.assertNotNull(result.getGeometryType());
-					TestCase.assertNotNull(GeometryCodes.getGeometryType(result
-							.getGeometryTypeCode()));
+					TestCase.assertNotNull(GeometryCodes
+							.getGeometryType(result.getGeometryTypeCode()));
 					TestCase.assertTrue(result.getCoordDimension() >= 2
 							&& result.getCoordDimension() <= 5);
 					TestCase.assertNotNull(result.getSrid());
@@ -363,20 +362,21 @@ public class GeometryColumnsUtils {
 				// Query for equal
 				List<GeometryColumnsSfSql> queryGeometryColumnsList = dao
 						.queryForEq(GeometryColumnsSfSql.COLUMN_GEOMETRY_TYPE,
-								GeometryCodes.getCode(geometryColumns
-										.getGeometryType()));
+								GeometryCodes.getCode(
+										geometryColumns.getGeometryType()));
 				TestCase.assertNotNull(queryGeometryColumnsList);
 				TestCase.assertTrue(queryGeometryColumnsList.size() >= 1);
 				boolean found = false;
 				for (GeometryColumnsSfSql queryGeometryColumnsValue : queryGeometryColumnsList) {
 					TestCase.assertEquals(geometryColumns.getGeometryType(),
 							queryGeometryColumnsValue.getGeometryType());
-					TestCase.assertEquals(GeometryCodes.getCode(geometryColumns
-							.getGeometryType()), queryGeometryColumnsValue
-							.getGeometryTypeCode());
+					TestCase.assertEquals(
+							GeometryCodes
+									.getCode(geometryColumns.getGeometryType()),
+							queryGeometryColumnsValue.getGeometryTypeCode());
 					if (!found) {
-						found = geometryColumns.getId().equals(
-								queryGeometryColumnsValue.getId());
+						found = geometryColumns.getId()
+								.equals(queryGeometryColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -395,14 +395,13 @@ public class GeometryColumnsUtils {
 				for (GeometryColumnsSfSql queryGeometryColumnsValue : queryGeometryColumnsList) {
 					TestCase.assertEquals(geometryColumns.getGeometryType(),
 							queryGeometryColumnsValue.getGeometryType());
-					TestCase.assertEquals(
-							geometryColumns.getGeometryTypeCode(),
+					TestCase.assertEquals(geometryColumns.getGeometryTypeCode(),
 							queryGeometryColumnsValue.getGeometryTypeCode());
 					TestCase.assertEquals(geometryColumns.getSrid(),
 							queryGeometryColumnsValue.getSrid());
 					if (!found) {
-						found = geometryColumns.getId().equals(
-								queryGeometryColumnsValue.getId());
+						found = geometryColumns.getId()
+								.equals(queryGeometryColumnsValue.getId());
 					}
 				}
 				TestCase.assertTrue(found);
@@ -417,8 +416,8 @@ public class GeometryColumnsUtils {
 
 				found = false;
 				for (GeometryColumnsSfSql queryGeometryColumnsValue : queryGeometryColumnsList) {
-					if (geometryColumns.getId().equals(
-							queryGeometryColumnsValue.getId())) {
+					if (geometryColumns.getId()
+							.equals(queryGeometryColumnsValue.getId())) {
 						found = true;
 						break;
 					}
@@ -560,8 +559,8 @@ public class GeometryColumnsUtils {
 			long newCount = dao.countOf();
 			TestCase.assertEquals(count + 1, newCount);
 			TestCase.assertEquals(newCount, dao.getFeatureTables().size());
-			TestCase.assertTrue(dao.getFeatureTables().contains(
-					contents.getTableName()));
+			TestCase.assertTrue(
+					dao.getFeatureTables().contains(contents.getTableName()));
 
 			// Verify saved geometry columns
 			GeometryColumns queryGeometryColumns = dao
@@ -576,8 +575,8 @@ public class GeometryColumnsUtils {
 					queryGeometryColumns.getSrsId());
 			TestCase.assertEquals(z, queryGeometryColumns.getZ());
 			TestCase.assertEquals(m, queryGeometryColumns.getM());
-			TestCase.assertEquals(contents.getId(), queryGeometryColumns
-					.getContents().getId());
+			TestCase.assertEquals(contents.getId(),
+					queryGeometryColumns.getContents().getId());
 			TestCase.assertEquals(contents.getSrsId().longValue(),
 					queryGeometryColumns.getSrs().getId());
 		}

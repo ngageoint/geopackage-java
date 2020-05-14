@@ -10,9 +10,9 @@ import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesResultSet;
 import mil.nga.geopackage.attributes.AttributesRow;
 import mil.nga.geopackage.attributes.AttributesTable;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.core.contents.ContentsDataType;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.ExtendedRelationsDao;
@@ -60,7 +60,8 @@ public class RelatedSimpleAttributesUtils {
 		try {
 			SimpleAttributesTable.create("simple_table",
 					RelatedTablesUtils.createAdditionalUserColumns());
-			TestCase.fail("Simple Attributes Table created with nullable non simple columns");
+			TestCase.fail(
+					"Simple Attributes Table created with nullable non simple columns");
 		} catch (Exception e) {
 			// pass
 		}
@@ -68,7 +69,8 @@ public class RelatedSimpleAttributesUtils {
 		try {
 			SimpleAttributesTable.create("simple_table",
 					RelatedTablesUtils.createAdditionalUserColumns(true));
-			TestCase.fail("Simple Attributes Table created with non nullable non simple columns");
+			TestCase.fail(
+					"Simple Attributes Table created with non nullable non simple columns");
 		} catch (Exception e) {
 			// pass
 		}
@@ -76,7 +78,8 @@ public class RelatedSimpleAttributesUtils {
 		try {
 			SimpleAttributesTable.create("simple_table",
 					RelatedTablesUtils.createSimpleUserColumns(false));
-			TestCase.fail("Simple Attributes Table created with nullable simple columns");
+			TestCase.fail(
+					"Simple Attributes Table created with nullable simple columns");
 		} catch (Exception e) {
 			// pass
 		}
@@ -84,8 +87,8 @@ public class RelatedSimpleAttributesUtils {
 		// Populate and validate a simple attributes table
 		List<UserCustomColumn> simpleUserColumns = RelatedTablesUtils
 				.createSimpleUserColumns();
-		SimpleAttributesTable simpleTable = SimpleAttributesTable.create(
-				"simple_table", simpleUserColumns);
+		SimpleAttributesTable simpleTable = SimpleAttributesTable
+				.create("simple_table", simpleUserColumns);
 		String[] simpleColumns = simpleTable.getColumnNames();
 		TestCase.assertEquals(SimpleAttributesTable.numRequiredColumns()
 				+ simpleUserColumns.size(), simpleColumns.length);
@@ -101,16 +104,17 @@ public class RelatedSimpleAttributesUtils {
 		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
 		final String mappingTableName = "attributes_simple_attributes";
-		UserMappingTable userMappingTable = UserMappingTable.create(
-				mappingTableName, additionalMappingColumns);
+		UserMappingTable userMappingTable = UserMappingTable
+				.create(mappingTableName, additionalMappingColumns);
 		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
-		TestCase.assertEquals(UserMappingTable.numRequiredColumns()
-				+ additionalMappingColumns.size(), userMappingTable
-				.getColumns().size());
+		TestCase.assertEquals(
+				UserMappingTable.numRequiredColumns()
+						+ additionalMappingColumns.size(),
+				userMappingTable.getColumns().size());
 		UserCustomColumn baseIdColumn = userMappingTable.getBaseIdColumn();
 		TestCase.assertNotNull(baseIdColumn);
-		TestCase.assertTrue(baseIdColumn
-				.isNamed(UserMappingTable.COLUMN_BASE_ID));
+		TestCase.assertTrue(
+				baseIdColumn.isNamed(UserMappingTable.COLUMN_BASE_ID));
 		TestCase.assertEquals(GeoPackageDataType.INTEGER,
 				baseIdColumn.getDataType());
 		TestCase.assertTrue(baseIdColumn.isNotNull());
@@ -118,8 +122,8 @@ public class RelatedSimpleAttributesUtils {
 		UserCustomColumn relatedIdColumn = userMappingTable
 				.getRelatedIdColumn();
 		TestCase.assertNotNull(relatedIdColumn);
-		TestCase.assertTrue(relatedIdColumn
-				.isNamed(UserMappingTable.COLUMN_RELATED_ID));
+		TestCase.assertTrue(
+				relatedIdColumn.isNamed(UserMappingTable.COLUMN_RELATED_ID));
 		TestCase.assertEquals(GeoPackageDataType.INTEGER,
 				relatedIdColumn.getDataType());
 		TestCase.assertTrue(relatedIdColumn.isNotNull());
@@ -129,11 +133,10 @@ public class RelatedSimpleAttributesUtils {
 		// Create the simple attributes table, content row, and relationship
 		// between the attributes table and simple attributes table
 		ContentsDao contentsDao = geoPackage.getContentsDao();
-		TestCase.assertFalse(contentsDao.getTables().contains(
-				simpleTable.getTableName()));
-		ExtendedRelation extendedRelation = rte
-				.addSimpleAttributesRelationship(baseTableName, simpleTable,
-						userMappingTable);
+		TestCase.assertFalse(
+				contentsDao.getTables().contains(simpleTable.getTableName()));
+		ExtendedRelation extendedRelation = rte.addSimpleAttributesRelationship(
+				baseTableName, simpleTable, userMappingTable);
 		validateContents(simpleTable, simpleTable.getContents());
 		TestCase.assertTrue(rte.has());
 		TestCase.assertTrue(rte.has(userMappingTable.getTableName()));
@@ -142,16 +145,14 @@ public class RelatedSimpleAttributesUtils {
 		TestCase.assertEquals(1, extendedRelations.size());
 		TestCase.assertTrue(geoPackage.isTable(mappingTableName));
 		TestCase.assertTrue(geoPackage.isTable(simpleTable.getTableName()));
-		TestCase.assertTrue(contentsDao.getTables().contains(
-				simpleTable.getTableName()));
+		TestCase.assertTrue(
+				contentsDao.getTables().contains(simpleTable.getTableName()));
 		validateContents(simpleTable,
 				contentsDao.queryForId(simpleTable.getTableName()));
-		TestCase.assertEquals(
-				SimpleAttributesTable.RELATION_TYPE.getDataType(),
+		TestCase.assertEquals(SimpleAttributesTable.RELATION_TYPE.getDataType(),
 				geoPackage.getTableType(simpleTable.getTableName()));
-		TestCase.assertTrue(geoPackage.isTableType(
-				SimpleAttributesTable.RELATION_TYPE.getDataType(),
-				simpleTable.getTableName()));
+		TestCase.assertTrue(geoPackage.isTableType(simpleTable.getTableName(),
+				SimpleAttributesTable.RELATION_TYPE.getDataType()));
 
 		// Validate the simple attributes DAO
 		SimpleAttributesDao simpleDao = rte.getSimpleAttributesDao(simpleTable);
@@ -206,12 +207,12 @@ public class RelatedSimpleAttributesUtils {
 		UserMappingRow userMappingRow = null;
 		for (int i = 0; i < 10; i++) {
 			userMappingRow = dao.newRow();
-			userMappingRow
-					.setBaseId(attributeIds.get((int) (Math.random() * attributesCount)));
-			userMappingRow
-					.setRelatedId(simpleIds.get((int) (Math.random() * simpleCount)));
-			RelatedTablesUtils.populateUserRow(userMappingTable,
-					userMappingRow, UserMappingTable.requiredColumns());
+			userMappingRow.setBaseId(
+					attributeIds.get((int) (Math.random() * attributesCount)));
+			userMappingRow.setRelatedId(
+					simpleIds.get((int) (Math.random() * simpleCount)));
+			RelatedTablesUtils.populateUserRow(userMappingTable, userMappingRow,
+					UserMappingTable.requiredColumns());
 			TestCase.assertTrue(dao.create(userMappingRow) > 0);
 		}
 		TestCase.assertEquals(10, dao.count());
@@ -249,8 +250,9 @@ public class RelatedSimpleAttributesUtils {
 		TestCase.assertEquals(1, attributesExtendedRelations2.size());
 		TestCase.assertEquals(attributesExtendedRelations.get(0).getId(),
 				attributesExtendedRelations2.get(0).getId());
-		TestCase.assertTrue(extendedRelationsDao.getRelatedTableRelations(
-				attributesDao.getTableName()).isEmpty());
+		TestCase.assertTrue(extendedRelationsDao
+				.getRelatedTableRelations(attributesDao.getTableName())
+				.isEmpty());
 
 		// Test the attributes table relations
 		for (ExtendedRelation attributesRelation : attributesExtendedRelations) {
@@ -259,14 +261,14 @@ public class RelatedSimpleAttributesUtils {
 			TestCase.assertTrue(attributesRelation.getId() >= 0);
 			TestCase.assertEquals(attributesDao.getTableName(),
 					attributesRelation.getBaseTableName());
-			TestCase.assertEquals(attributesDao.getTable().getPkColumn()
-					.getName(), attributesRelation.getBasePrimaryColumn());
+			TestCase.assertEquals(
+					attributesDao.getTable().getPkColumn().getName(),
+					attributesRelation.getBasePrimaryColumn());
 			TestCase.assertEquals(simpleDao.getTableName(),
 					attributesRelation.getRelatedTableName());
 			TestCase.assertEquals(simpleDao.getTable().getPkColumn().getName(),
 					attributesRelation.getRelatedPrimaryColumn());
-			TestCase.assertEquals(
-					SimpleAttributesTable.RELATION_TYPE.getName(),
+			TestCase.assertEquals(SimpleAttributesTable.RELATION_TYPE.getName(),
 					attributesRelation.getRelationName());
 			TestCase.assertEquals(mappingTableName,
 					attributesRelation.getMappingTableName());
@@ -278,10 +280,10 @@ public class RelatedSimpleAttributesUtils {
 			UserCustomResultSet mappingResultSet = userMappingDao.queryForAll();
 			while (mappingResultSet.moveToNext()) {
 				userMappingRow = userMappingDao.getRow(mappingResultSet);
-				TestCase.assertTrue(attributeIds.contains(userMappingRow
-						.getBaseId()));
-				TestCase.assertTrue(simpleIds.contains(userMappingRow
-						.getRelatedId()));
+				TestCase.assertTrue(
+						attributeIds.contains(userMappingRow.getBaseId()));
+				TestCase.assertTrue(
+						simpleIds.contains(userMappingRow.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
 				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
@@ -312,8 +314,8 @@ public class RelatedSimpleAttributesUtils {
 					TestCase.assertTrue(simpleRow.getId() >= 0);
 					TestCase.assertTrue(simpleIds.contains(simpleRow.getId()));
 					TestCase.assertTrue(mappedIds.contains(simpleRow.getId()));
-					RelatedTablesUtils
-							.validateUserRow(simpleColumns, simpleRow);
+					RelatedTablesUtils.validateUserRow(simpleColumns,
+							simpleRow);
 					RelatedTablesUtils
 							.validateSimpleDublinCoreColumns(simpleRow);
 				}
@@ -333,8 +335,8 @@ public class RelatedSimpleAttributesUtils {
 		TestCase.assertEquals(1, simpleExtendedRelations2.size());
 		TestCase.assertEquals(simpleExtendedRelations.get(0).getId(),
 				simpleExtendedRelations2.get(0).getId());
-		TestCase.assertTrue(extendedRelationsDao.getBaseTableRelations(
-				simpleTable.getTableName()).isEmpty());
+		TestCase.assertTrue(extendedRelationsDao
+				.getBaseTableRelations(simpleTable.getTableName()).isEmpty());
 
 		// Test the simple attributes table relations
 		for (ExtendedRelation simpleRelation : simpleExtendedRelations) {
@@ -343,14 +345,14 @@ public class RelatedSimpleAttributesUtils {
 			TestCase.assertTrue(simpleRelation.getId() >= 0);
 			TestCase.assertEquals(attributesDao.getTableName(),
 					simpleRelation.getBaseTableName());
-			TestCase.assertEquals(attributesDao.getTable().getPkColumn()
-					.getName(), simpleRelation.getBasePrimaryColumn());
+			TestCase.assertEquals(
+					attributesDao.getTable().getPkColumn().getName(),
+					simpleRelation.getBasePrimaryColumn());
 			TestCase.assertEquals(simpleDao.getTableName(),
 					simpleRelation.getRelatedTableName());
 			TestCase.assertEquals(simpleDao.getTable().getPkColumn().getName(),
 					simpleRelation.getRelatedPrimaryColumn());
-			TestCase.assertEquals(
-					SimpleAttributesTable.RELATION_TYPE.getName(),
+			TestCase.assertEquals(SimpleAttributesTable.RELATION_TYPE.getName(),
 					simpleRelation.getRelationName());
 			TestCase.assertEquals(mappingTableName,
 					simpleRelation.getMappingTableName());
@@ -361,10 +363,10 @@ public class RelatedSimpleAttributesUtils {
 			UserCustomResultSet mappingResultSet = userMappingDao.queryForAll();
 			while (mappingResultSet.moveToNext()) {
 				userMappingRow = userMappingDao.getRow(mappingResultSet);
-				TestCase.assertTrue(attributeIds.contains(userMappingRow
-						.getBaseId()));
-				TestCase.assertTrue(simpleIds.contains(userMappingRow
-						.getRelatedId()));
+				TestCase.assertTrue(
+						attributeIds.contains(userMappingRow.getBaseId()));
+				TestCase.assertTrue(
+						simpleIds.contains(userMappingRow.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
 				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
@@ -372,8 +374,8 @@ public class RelatedSimpleAttributesUtils {
 			mappingResultSet.close();
 
 			// Get and test the attributes DAO
-			attributesDao = geoPackage.getAttributesDao(attributesDao
-					.getTableName());
+			attributesDao = geoPackage
+					.getAttributesDao(attributesDao.getTableName());
 			TestCase.assertNotNull(attributesDao);
 			AttributesTable attributesTable = attributesDao.getTable();
 			TestCase.assertNotNull(attributesTable);
@@ -394,8 +396,8 @@ public class RelatedSimpleAttributesUtils {
 			while (simpleResultSet.moveToNext()) {
 				SimpleAttributesRow simpleRow = simpleDao
 						.getRow(simpleResultSet);
-				List<Long> mappedIds = rte.getMappingsForRelated(
-						simpleRelation, simpleRow.getId());
+				List<Long> mappedIds = rte.getMappingsForRelated(simpleRelation,
+						simpleRow.getId());
 				for (long mappedId : mappedIds) {
 					AttributesRow attributesRow = attributesDao
 							.queryForIdRow(mappedId);
@@ -403,10 +405,10 @@ public class RelatedSimpleAttributesUtils {
 
 					TestCase.assertTrue(attributesRow.hasId());
 					TestCase.assertTrue(attributesRow.getId() >= 0);
-					TestCase.assertTrue(attributeIds.contains(attributesRow
-							.getId()));
-					TestCase.assertTrue(mappedIds.contains(attributesRow
-							.getId()));
+					TestCase.assertTrue(
+							attributeIds.contains(attributesRow.getId()));
+					TestCase.assertTrue(
+							mappedIds.contains(attributesRow.getId()));
 				}
 
 				totalMapped += mappedIds.size();
@@ -429,8 +431,8 @@ public class RelatedSimpleAttributesUtils {
 
 		// Delete the simple attributes table and contents row
 		TestCase.assertTrue(geoPackage.isTable(simpleTable.getTableName()));
-		TestCase.assertNotNull(contentsDao.queryForId(simpleTable
-				.getTableName()));
+		TestCase.assertNotNull(
+				contentsDao.queryForId(simpleTable.getTableName()));
 		geoPackage.deleteTable(simpleTable.getTableName());
 		TestCase.assertFalse(geoPackage.isTable(simpleTable.getTableName()));
 		TestCase.assertNull(contentsDao.queryForId(simpleTable.getTableName()));
@@ -453,11 +455,9 @@ public class RelatedSimpleAttributesUtils {
 			SimpleAttributesTable simpleAttributesTable, Contents contents) {
 		TestCase.assertNotNull(contents);
 		TestCase.assertNotNull(contents.getDataType());
-		TestCase.assertEquals(
-				SimpleAttributesTable.RELATION_TYPE.getDataType(), contents
-						.getDataType().getName());
-		TestCase.assertEquals(
-				SimpleAttributesTable.RELATION_TYPE.getDataType(),
+		TestCase.assertEquals(SimpleAttributesTable.RELATION_TYPE.getDataType(),
+				contents.getDataType().getName());
+		TestCase.assertEquals(SimpleAttributesTable.RELATION_TYPE.getDataType(),
 				contents.getDataTypeName());
 		TestCase.assertEquals(simpleAttributesTable.getTableName(),
 				contents.getTableName());

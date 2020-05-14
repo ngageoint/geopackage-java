@@ -3,7 +3,7 @@ package mil.nga.geopackage;
 import java.sql.ResultSet;
 
 import mil.nga.geopackage.attributes.AttributesDao;
-import mil.nga.geopackage.core.contents.Contents;
+import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;

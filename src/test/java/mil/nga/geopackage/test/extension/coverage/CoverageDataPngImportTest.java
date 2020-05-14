@@ -4,11 +4,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.coverage.CoverageDataAlgorithm;
 import mil.nga.geopackage.extension.coverage.CoverageDataPng;
 import mil.nga.geopackage.extension.coverage.CoverageDataResults;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.test.ImportCoverageDataGeoPackageTestCase;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;

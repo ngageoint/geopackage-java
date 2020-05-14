@@ -887,8 +887,8 @@ public class AlterTableUtils {
 
 				GriddedCoverage griddedCoverage = null;
 				List<GriddedTile> griddedTiles = null;
-				if (geoPackage.isTableType(CoverageData.GRIDDED_COVERAGE,
-						tableName)) {
+				if (geoPackage.isTableType(tableName,
+						CoverageData.GRIDDED_COVERAGE)) {
 					CoverageData<?> coverageData = CoverageData
 							.getCoverageData(geoPackage, dao);
 					griddedCoverage = coverageData.queryGriddedCoverage();

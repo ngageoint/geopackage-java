@@ -9,13 +9,13 @@ import java.util.logging.Logger;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.manager.GeoPackageManager;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.LineString;
 import mil.nga.sf.Point;

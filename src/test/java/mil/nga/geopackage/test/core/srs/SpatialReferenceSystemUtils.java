@@ -15,17 +15,17 @@ import com.j256.ormlite.stmt.UpdateBuilder;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemSfSql;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemSfSqlDao;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemSqlMm;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemSqlMmDao;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.srs.SpatialReferenceSystemSfSql;
+import mil.nga.geopackage.srs.SpatialReferenceSystemSfSqlDao;
+import mil.nga.geopackage.srs.SpatialReferenceSystemSqlMm;
+import mil.nga.geopackage.srs.SpatialReferenceSystemSqlMmDao;
 
 /**
  * Spatial Reference System Utility test methods
@@ -126,8 +126,8 @@ public class SpatialReferenceSystemUtils {
 	public static void testSqlMmRead(GeoPackage geoPackage,
 			Integer expectedResults) throws SQLException {
 
-		SpatialReferenceSystemSqlMmDao dao = geoPackage
-				.getSpatialReferenceSystemSqlMmDao();
+		SpatialReferenceSystemSqlMmDao dao = SpatialReferenceSystemSqlMmDao
+				.getDao(geoPackage);
 		List<SpatialReferenceSystemSqlMm> results = dao.queryForAll();
 		if (expectedResults != null) {
 			TestCase.assertEquals(
@@ -151,8 +151,8 @@ public class SpatialReferenceSystemUtils {
 			SpatialReferenceSystemSqlMm srs = results.get(random);
 
 			// Query by id
-			SpatialReferenceSystemSqlMm querySrs = dao.queryForId(srs
-					.getSrsId());
+			SpatialReferenceSystemSqlMm querySrs = dao
+					.queryForId(srs.getSrsId());
 			TestCase.assertNotNull(querySrs);
 			TestCase.assertEquals(srs.getSrsId(), querySrs.getSrsId());
 
@@ -209,8 +209,8 @@ public class SpatialReferenceSystemUtils {
 	public static void testSfSqlRead(GeoPackage geoPackage,
 			Integer expectedResults) throws SQLException {
 
-		SpatialReferenceSystemSfSqlDao dao = geoPackage
-				.getSpatialReferenceSystemSfSqlDao();
+		SpatialReferenceSystemSfSqlDao dao = SpatialReferenceSystemSfSqlDao
+				.getDao(geoPackage);
 		List<SpatialReferenceSystemSfSql> results = dao.queryForAll();
 		if (expectedResults != null) {
 			TestCase.assertEquals(
@@ -363,7 +363,8 @@ public class SpatialReferenceSystemUtils {
 				copySrs.getOrganization());
 		TestCase.assertEquals(querySrs.getOrganizationCoordsysId(),
 				copySrs.getOrganizationCoordsysId());
-		TestCase.assertEquals(querySrs.getDefinition(), copySrs.getDefinition());
+		TestCase.assertEquals(querySrs.getDefinition(),
+				copySrs.getDefinition());
 		TestCase.assertEquals(querySrs.getDescription(),
 				copySrs.getDescription());
 		TestCase.assertEquals(querySrs.getDefinition_12_063(),
@@ -451,7 +452,8 @@ public class SpatialReferenceSystemUtils {
 			GeometryColumnsDao geometryColumnsDao = geoPackage
 					.getGeometryColumnsDao();
 			if (geometryColumnsDao.isTableExists()) {
-				for (GeometryColumns geometryColumns : srs.getGeometryColumns()) {
+				for (GeometryColumns geometryColumns : srs
+						.getGeometryColumns()) {
 					geometryColumnsIds.add(geometryColumns.getId());
 				}
 			}

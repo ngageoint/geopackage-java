@@ -9,7 +9,7 @@ import org.junit.Test;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.core.contents.Contents;
+import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.features.OAPIFeatureGenerator;
 import mil.nga.geopackage.features.user.FeatureDao;
