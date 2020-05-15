@@ -1,23 +1,22 @@
-package mil.nga.geopackage.test.core.contents;
+package mil.nga.geopackage.test.contents;
 
 import java.sql.SQLException;
 
 import org.junit.Test;
 
-import mil.nga.geopackage.test.CreateGeoPackageTestCase;
-import mil.nga.geopackage.test.TestSetupTeardown;
+import mil.nga.geopackage.test.ImportGeoPackageTestCase;
 
 /**
- * Test Contents from a created database
+ * Test Contents from an imported database
  * 
  * @author osbornb
  */
-public class ContentsCreateTest extends CreateGeoPackageTestCase {
+public class ContentsImportTest extends ImportGeoPackageTestCase {
 
 	/**
 	 * Constructor
 	 */
-	public ContentsCreateTest() {
+	public ContentsImportTest() {
 
 	}
 
@@ -29,8 +28,7 @@ public class ContentsCreateTest extends CreateGeoPackageTestCase {
 	@Test
 	public void testRead() throws SQLException {
 
-		ContentsUtils.testRead(geoPackage,
-				TestSetupTeardown.CREATE_CONTENTS_COUNT);
+		ContentsUtils.testRead(geoPackage, null);
 
 	}
 
