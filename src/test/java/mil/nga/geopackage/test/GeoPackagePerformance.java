@@ -15,6 +15,7 @@ import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.geopackage.features.user.FeatureTableMetadata;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
@@ -77,21 +78,22 @@ public class GeoPackagePerformance {
 
 		Geometry geometry = createGeometry();
 
+		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
+				.getOrCreateCode(ProjectionConstants.AUTHORITY_EPSG,
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+
 		GeometryColumns geometryColumns = new GeometryColumns();
 		geometryColumns.setId(new TableColumnKey(TABLE_NAME, COLUMN_NAME));
 		geometryColumns.setGeometryType(geometry.getGeometryType());
 		geometryColumns.setZ((byte) 0);
 		geometryColumns.setM((byte) 0);
+		geometryColumns.setSrs(srs);
 
 		BoundingBox boundingBox = new BoundingBox(
 				GeometryEnvelopeBuilder.buildEnvelope(geometry));
 
-		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
-				.getOrCreateCode(ProjectionConstants.AUTHORITY_EPSG,
-						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-
-		geoPackage.createFeatureTableWithMetadata(geometryColumns, boundingBox,
-				srs.getId());
+		geoPackage.createFeatureTable(
+				new FeatureTableMetadata(geometryColumns, boundingBox));
 
 		SQLiteMaster table = SQLiteMaster.queryByType(geoPackage.getDatabase(),
 				SQLiteMasterType.TABLE, TABLE_NAME);

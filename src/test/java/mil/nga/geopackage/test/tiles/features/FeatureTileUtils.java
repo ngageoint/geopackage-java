@@ -15,6 +15,7 @@ import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.geopackage.features.user.FeatureTableMetadata;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTilePointIcon;
@@ -35,6 +36,9 @@ public class FeatureTileUtils {
 	/**
 	 * Create feature dao
 	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 *
 	 * @return feature dao
 	 */
 	public static FeatureDao createFeatureDao(GeoPackage geoPackage) {
@@ -46,9 +50,11 @@ public class FeatureTileUtils {
 		geometryColumns.setGeometryType(GeometryType.GEOMETRY);
 		geometryColumns.setZ((byte) 0);
 		geometryColumns.setM((byte) 0);
+		geometryColumns
+				.setSrsId(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
-		geoPackage.createFeatureTableWithMetadata(geometryColumns, boundingBox,
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		geoPackage.createFeatureTable(
+				new FeatureTableMetadata(geometryColumns, boundingBox));
 
 		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
 
@@ -86,10 +92,11 @@ public class FeatureTileUtils {
 				{ 90.0, 45.0 }, { 135.0, 45.0 } });
 
 		count += 4;
-		insertFourPolygons(featureDao, new double[][] { { 60.0, 35.0 },
-				{ 65.0, 15.0 }, { 15.0, 20.0 }, { 20.0, 40.0 } },
-				new double[][] { { 50.0, 30.0 }, { 48.0, 22.0 },
-						{ 30.0, 23.0 }, { 25.0, 34.0 } });
+		insertFourPolygons(featureDao,
+				new double[][] { { 60.0, 35.0 }, { 65.0, 15.0 }, { 15.0, 20.0 },
+						{ 20.0, 40.0 } },
+				new double[][] { { 50.0, 30.0 }, { 48.0, 22.0 }, { 30.0, 23.0 },
+						{ 25.0, 34.0 } });
 
 		updateLastChange(geoPackage, featureDao);
 
@@ -145,7 +152,8 @@ public class FeatureTileUtils {
 		insertPoint(featureDao, -1 * x, -1 * y);
 	}
 
-	public static void insertFourLines(FeatureDao featureDao, double[][] points) {
+	public static void insertFourLines(FeatureDao featureDao,
+			double[][] points) {
 		insertLine(featureDao, convertPoints(points, false, false));
 		insertLine(featureDao, convertPoints(points, true, false));
 		insertLine(featureDao, convertPoints(points, false, true));
