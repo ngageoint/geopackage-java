@@ -20,6 +20,7 @@ import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesRow;
 import mil.nga.geopackage.attributes.AttributesTable;
+import mil.nga.geopackage.attributes.AttributesTableMetadata;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.contents.ContentsDataType;
@@ -281,8 +282,8 @@ public class TestSetupTeardown {
 		columns.add(AttributesColumn.createColumn(5, "test_integer",
 				GeoPackageDataType.INTEGER));
 
-		AttributesTable attributesTable = geoPackage
-				.createAttributesTableWithId("test_attributes", columns);
+		AttributesTable attributesTable = geoPackage.createAttributesTable(
+				AttributesTableMetadata.create("test_attributes", columns));
 		TestCase.assertNotNull(attributesTable);
 		Contents attributesContents = attributesTable.getContents();
 		TestCase.assertNotNull(attributesContents);

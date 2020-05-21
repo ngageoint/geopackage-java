@@ -66,8 +66,8 @@ public class RelatedMediaUtils {
 		// Populate and validate a media table
 		List<UserCustomColumn> additionalMediaColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
-		MediaTable mediaTable = MediaTable.create(
-				new MediaTableMetadata("media_table", additionalMediaColumns));
+		MediaTable mediaTable = MediaTable.create(MediaTableMetadata
+				.create("media_table", additionalMediaColumns));
 		String[] mediaColumns = mediaTable.getColumnNames();
 		TestCase.assertEquals(
 				MediaTable.numRequiredColumns() + additionalMediaColumns.size(),

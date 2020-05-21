@@ -23,6 +23,7 @@ import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesResultSet;
 import mil.nga.geopackage.attributes.AttributesRow;
 import mil.nga.geopackage.attributes.AttributesTable;
+import mil.nga.geopackage.attributes.AttributesTableMetadata;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.contents.ContentsDataType;
@@ -76,6 +77,7 @@ import mil.nga.geopackage.extension.related.media.MediaTableMetadata;
 import mil.nga.geopackage.extension.related.simple.SimpleAttributesDao;
 import mil.nga.geopackage.extension.related.simple.SimpleAttributesRow;
 import mil.nga.geopackage.extension.related.simple.SimpleAttributesTable;
+import mil.nga.geopackage.extension.related.simple.SimpleAttributesTableMetadata;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
@@ -1032,8 +1034,8 @@ public class GeoPackageExample {
 		columns.add(AttributesColumn.createColumn(DATETIME_COLUMN,
 				GeoPackageDataType.DATETIME));
 
-		AttributesTable attributesTable = geoPackage
-				.createAttributesTableWithId("attributes", columns);
+		AttributesTable attributesTable = geoPackage.createAttributesTable(
+				AttributesTableMetadata.create("attributes", columns));
 
 		AttributesDao attributesDao = geoPackage
 				.getAttributesDao(attributesTable.getTableName());
@@ -1668,7 +1670,7 @@ public class GeoPackageExample {
 		List<UserCustomColumn> additionalMediaColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
 		MediaTable mediaTable = MediaTable.create(
-				new MediaTableMetadata("media", additionalMediaColumns));
+				MediaTableMetadata.create("media", additionalMediaColumns));
 
 		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
@@ -1758,7 +1760,7 @@ public class GeoPackageExample {
 		ContentsIdExtension contentsId = new ContentsIdExtension(geoPackage);
 
 		MediaTable mediaTable = MediaTable
-				.create(new MediaTableMetadata("preview"));
+				.create(MediaTableMetadata.create("preview"));
 		UserMappingTable userMappingTable = UserMappingTable
 				.create("features_" + mediaTable.getTableName());
 
@@ -1872,7 +1874,8 @@ public class GeoPackageExample {
 		List<UserCustomColumn> simpleUserColumns = RelatedTablesUtils
 				.createSimpleUserColumns();
 		SimpleAttributesTable simpleTable = SimpleAttributesTable
-				.create("simple_attributes", simpleUserColumns);
+				.create(SimpleAttributesTableMetadata
+						.create("simple_attributes", simpleUserColumns));
 
 		String tableName = "attributes";
 

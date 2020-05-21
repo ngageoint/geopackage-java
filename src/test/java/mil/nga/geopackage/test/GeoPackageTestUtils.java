@@ -65,7 +65,7 @@ public class GeoPackageTestUtils {
 
 		BoundingBox boundingBox = new BoundingBox(-90, -45, 90, 45);
 		geoPackage.createFeatureTable(
-				new FeatureTableMetadata(geometryColumns, boundingBox));
+				FeatureTableMetadata.create(geometryColumns, boundingBox));
 
 		validateFeatureTableWithMetadata(geoPackage, geometryColumns, null,
 				null);
@@ -93,8 +93,8 @@ public class GeoPackageTestUtils {
 
 		BoundingBox boundingBox = new BoundingBox(-90, -45, 90, 45);
 		String idColumn = "my_id";
-		geoPackage.createFeatureTable(new FeatureTableMetadata(geometryColumns,
-				idColumn, boundingBox));
+		geoPackage.createFeatureTable(FeatureTableMetadata
+				.create(geometryColumns, idColumn, boundingBox));
 
 		validateFeatureTableWithMetadata(geoPackage, geometryColumns, idColumn,
 				null);
@@ -123,8 +123,8 @@ public class GeoPackageTestUtils {
 		BoundingBox boundingBox = new BoundingBox(-90, -45, 90, 45);
 
 		List<FeatureColumn> additionalColumns = getFeatureColumns();
-		geoPackage.createFeatureTable(new FeatureTableMetadata(geometryColumns,
-				additionalColumns, boundingBox));
+		geoPackage.createFeatureTable(FeatureTableMetadata
+				.create(geometryColumns, additionalColumns, boundingBox));
 
 		validateFeatureTableWithMetadata(geoPackage, geometryColumns, null,
 				additionalColumns);
@@ -156,8 +156,8 @@ public class GeoPackageTestUtils {
 		List<FeatureColumn> additionalColumns = getFeatureColumns();
 
 		String idColumn = "my_other_id";
-		geoPackage.createFeatureTable(new FeatureTableMetadata(geometryColumns,
-				idColumn, additionalColumns, boundingBox));
+		geoPackage.createFeatureTable(FeatureTableMetadata.create(
+				geometryColumns, idColumn, additionalColumns, boundingBox));
 
 		validateFeatureTableWithMetadata(geoPackage, geometryColumns, idColumn,
 				additionalColumns);
@@ -360,8 +360,8 @@ public class GeoPackageTestUtils {
 		geometryColumns.setZ((byte) 0);
 		geometryColumns.setM((byte) 0);
 		geometryColumns.setSrs(srs);
-		geoPackage
-				.createFeatureTable(new FeatureTableMetadata(geometryColumns));
+		geoPackage.createFeatureTable(
+				FeatureTableMetadata.create(geometryColumns));
 
 		BoundingBox geoPackageContentsBoundingBox = geoPackage
 				.getContentsBoundingBox(projection);

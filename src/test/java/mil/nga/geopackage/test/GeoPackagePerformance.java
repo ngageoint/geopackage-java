@@ -93,7 +93,7 @@ public class GeoPackagePerformance {
 				GeometryEnvelopeBuilder.buildEnvelope(geometry));
 
 		geoPackage.createFeatureTable(
-				new FeatureTableMetadata(geometryColumns, boundingBox));
+				FeatureTableMetadata.create(geometryColumns, boundingBox));
 
 		SQLiteMaster table = SQLiteMaster.queryByType(geoPackage.getDatabase(),
 				SQLiteMasterType.TABLE, TABLE_NAME);
