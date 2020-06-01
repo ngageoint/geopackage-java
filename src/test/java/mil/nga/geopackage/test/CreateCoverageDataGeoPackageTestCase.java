@@ -4,10 +4,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import org.junit.After;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.extension.coverage.CoverageDataPng;
 import mil.nga.geopackage.extension.coverage.GriddedCoverage;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageDao;
@@ -15,7 +18,6 @@ import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
 import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.extension.coverage.GriddedTileDao;
-import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.test.geom.GeoPackageGeometryDataUtils;
@@ -24,17 +26,16 @@ import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.sf.proj.ProjectionConstants;
-
-import org.junit.After;
 
 /**
  * Abstract Test Case for Created Tiled Gridded Coverage Data GeoPackages
  * 
  * @author osbornb
  */
-public abstract class CreateCoverageDataGeoPackageTestCase extends
-		GeoPackageTestCase {
+public abstract class CreateCoverageDataGeoPackageTestCase
+		extends GeoPackageTestCase {
 
 	public class CoverageDataValues {
 
@@ -87,26 +88,28 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 		double maxLongitude = minLongitude
 				+ ((180.0 - minLongitude) * Math.random());
 		double minLatitude = ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE
-				+ ((ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE - ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE) * Math
-						.random());
+				+ ((ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE
+						- ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE)
+						* Math.random());
 		double maxLatitude = minLatitude
-				+ ((ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE - minLatitude) * Math
-						.random());
+				+ ((ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE
+						- minLatitude) * Math.random());
 
 		BoundingBox bbox = new BoundingBox(minLongitude, minLatitude,
 				maxLongitude, maxLatitude);
 
 		SpatialReferenceSystemDao srsDao = geoPackage
 				.getSpatialReferenceSystemDao();
-		SpatialReferenceSystem contentsSrs = srsDao
-				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
-		SpatialReferenceSystem tileMatrixSetSrs = srsDao
-				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		SpatialReferenceSystem contentsSrs = srsDao.getOrCreateFromEpsg(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
+		SpatialReferenceSystem tileMatrixSetSrs = srsDao.getOrCreateFromEpsg(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
 
-		CoverageDataPng coverageData = CoverageDataPng
-				.createTileTableWithMetadata(geoPackage,
+		CoverageDataPng coverageData = CoverageDataPng.createTileTable(
+				geoPackage,
+				TileTableMetadata.create(
 						TestConstants.CREATE_COVERAGE_DATA_DB_TABLE_NAME, bbox,
-						contentsSrs.getId(), bbox, tileMatrixSetSrs.getId());
+						contentsSrs.getId(), bbox, tileMatrixSetSrs.getId()));
 		TileDao tileDao = coverageData.getTileDao();
 		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
 
@@ -131,8 +134,8 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 			griddedCoverage.setPrecision(10.0 * Math.random());
 			defaultPrecision = false;
 		}
-		griddedCoverage.setDataNull(new Double(Short.MAX_VALUE
-				- Short.MIN_VALUE));
+		griddedCoverage
+				.setDataNull(new Double(Short.MAX_VALUE - Short.MIN_VALUE));
 		GriddedCoverageEncodingType encoding;
 		double randomEncoding = Math.random();
 		if (randomEncoding < 1.0 / 3.0) {
@@ -171,7 +174,8 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 		TestCase.assertEquals(encoding.getName(),
 				griddedCoverage.getGridCellEncoding());
 		TestCase.assertEquals("Height", griddedCoverage.getFieldName());
-		TestCase.assertEquals("Height", griddedCoverage.getQuantityDefinition());
+		TestCase.assertEquals("Height",
+				griddedCoverage.getQuantityDefinition());
 
 		GriddedTile commonGriddedTile = new GriddedTile();
 		commonGriddedTile.setContents(tileMatrixSet.getContents());
@@ -194,28 +198,31 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 		}
 		boolean defaultGTMax = true;
 		if (Math.random() < .5) {
-			commonGriddedTile.setMax(1000.0
-					* Math.random()
+			commonGriddedTile.setMax(1000.0 * Math.random()
 					+ (commonGriddedTile.getMin() == null ? 0
 							: commonGriddedTile.getMin()));
 			defaultGTMax = false;
 		}
 		boolean defaultGTMean = true;
 		if (Math.random() < .5) {
-			double min = commonGriddedTile.getMin() != null ? commonGriddedTile
-					.getMin() : 0;
-			double max = commonGriddedTile.getMax() != null ? commonGriddedTile
-					.getMax() : 2000.0;
+			double min = commonGriddedTile.getMin() != null
+					? commonGriddedTile.getMin()
+					: 0;
+			double max = commonGriddedTile.getMax() != null
+					? commonGriddedTile.getMax()
+					: 2000.0;
 			commonGriddedTile.setMean(((max - min) * Math.random()) + min);
 			defaultGTMean = false;
 		}
 		boolean defaultGTStandardDeviation = true;
 		if (Math.random() < .5) {
 
-			double min = commonGriddedTile.getMin() != null ? commonGriddedTile
-					.getMin() : 0;
-			double max = commonGriddedTile.getMax() != null ? commonGriddedTile
-					.getMax() : 2000.0;
+			double min = commonGriddedTile.getMin() != null
+					? commonGriddedTile.getMin()
+					: 0;
+			double max = commonGriddedTile.getMax() != null
+					? commonGriddedTile.getMax()
+					: 2000.0;
 			commonGriddedTile.setStandardDeviation((max - min) * Math.random());
 			defaultGTStandardDeviation = false;
 		}
@@ -244,10 +251,12 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 			tileMatrix.setMatrixWidth(width);
 			tileMatrix.setTileHeight(tileHeight);
 			tileMatrix.setTileWidth(tileWidth);
-			tileMatrix.setPixelXSize((bbox.getMaxLongitude() - bbox
-					.getMinLongitude()) / width / tileWidth);
-			tileMatrix.setPixelYSize((bbox.getMaxLatitude() - bbox
-					.getMinLatitude()) / height / tileHeight);
+			tileMatrix.setPixelXSize(
+					(bbox.getMaxLongitude() - bbox.getMinLongitude()) / width
+							/ tileWidth);
+			tileMatrix.setPixelYSize(
+					(bbox.getMaxLatitude() - bbox.getMinLatitude()) / height
+							/ tileHeight);
 			tileMatrix.setZoomLevel(zoomLevel);
 			TestCase.assertEquals(1, tileMatrixDao.create(tileMatrix));
 
@@ -271,10 +280,11 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 					griddedTile.setMin(commonGriddedTile.getMin());
 					griddedTile.setMax(commonGriddedTile.getMax());
 					griddedTile.setMean(commonGriddedTile.getMean());
-					griddedTile.setStandardDeviation(commonGriddedTile
-							.getStandardDeviation());
+					griddedTile.setStandardDeviation(
+							commonGriddedTile.getStandardDeviation());
 
-					TestCase.assertEquals(1, griddedTileDao.create(griddedTile));
+					TestCase.assertEquals(1,
+							griddedTileDao.create(griddedTile));
 					long gtId = griddedTile.getId();
 					TestCase.assertTrue(gtId >= 0);
 
@@ -313,8 +323,10 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 					if (defaultGTStandardDeviation) {
 						TestCase.assertNull(griddedTile.getStandardDeviation());
 					} else {
-						TestCase.assertTrue(griddedTile.getStandardDeviation() >= 0.0
-								&& griddedTile.getStandardDeviation() <= 2000.0);
+						TestCase.assertTrue(griddedTile
+								.getStandardDeviation() >= 0.0
+								&& griddedTile
+										.getStandardDeviation() <= 2000.0);
 					}
 				}
 
@@ -357,7 +369,8 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 		coverageDataValues.tilePixelsFlat = new short[tileHeight * tileWidth];
 		coverageDataValues.tileUnsignedPixelsFlat = new int[tileHeight
 				* tileWidth];
-		coverageDataValues.coverageDataFlat = new Double[tileHeight * tileWidth];
+		coverageDataValues.coverageDataFlat = new Double[tileHeight
+				* tileWidth];
 
 		GriddedTile griddedTile = new GriddedTile();
 		griddedTile.setScale(commonGriddedTile.getScale());
@@ -365,8 +378,8 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 		griddedTile.setMin(commonGriddedTile.getMin());
 		griddedTile.setMax(commonGriddedTile.getMax());
 		griddedTile.setMean(commonGriddedTile.getMean());
-		griddedTile.setStandardDeviation(commonGriddedTile
-				.getStandardDeviation());
+		griddedTile
+				.setStandardDeviation(commonGriddedTile.getStandardDeviation());
 
 		// Create the image and graphics
 		for (int x = 0; x < tileWidth; x++) {
@@ -376,19 +389,22 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 					unsignedValue = griddedCoverage.getDataNull().intValue();
 				} else {
 					unsignedValue = Short.MAX_VALUE - Short.MIN_VALUE - 1;
-					unsignedValue = (int) Math.floor(Math.random()
-							* unsignedValue);
+					unsignedValue = (int) Math
+							.floor(Math.random() * unsignedValue);
 				}
 				short value = (short) unsignedValue;
 
 				coverageDataValues.tilePixels[y][x] = value;
 				coverageDataValues.tileUnsignedPixels[y][x] = unsignedValue;
-				coverageDataValues.coverageData[y][x] = coverageData.getValue(
-						griddedTile, value);
+				coverageDataValues.coverageData[y][x] = coverageData
+						.getValue(griddedTile, value);
 
-				coverageDataValues.tilePixelsFlat[(y * tileWidth) + x] = coverageDataValues.tilePixels[y][x];
-				coverageDataValues.tileUnsignedPixelsFlat[(y * tileWidth) + x] = coverageDataValues.tileUnsignedPixels[y][x];
-				coverageDataValues.coverageDataFlat[(y * tileWidth) + x] = coverageDataValues.coverageData[y][x];
+				coverageDataValues.tilePixelsFlat[(y * tileWidth)
+						+ x] = coverageDataValues.tilePixels[y][x];
+				coverageDataValues.tileUnsignedPixelsFlat[(y * tileWidth)
+						+ x] = coverageDataValues.tileUnsignedPixels[y][x];
+				coverageDataValues.coverageDataFlat[(y * tileWidth)
+						+ x] = coverageDataValues.coverageData[y][x];
 			}
 		}
 
@@ -399,15 +415,17 @@ public abstract class CreateCoverageDataGeoPackageTestCase extends
 				.drawTileData(coverageDataValues.tileUnsignedPixels));
 		GeoPackageGeometryDataUtils.compareByteArrays(imageData, coverageData
 				.drawTileData(griddedTile, coverageDataValues.coverageData));
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData, coverageData
-				.drawTileData(coverageDataValues.tilePixelsFlat, tileWidth,
+		GeoPackageGeometryDataUtils.compareByteArrays(imageData,
+				coverageData.drawTileData(coverageDataValues.tilePixelsFlat,
+						tileWidth, tileHeight));
+		GeoPackageGeometryDataUtils.compareByteArrays(imageData,
+				coverageData.drawTileData(
+						coverageDataValues.tileUnsignedPixelsFlat, tileWidth,
 						tileHeight));
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData, coverageData
-				.drawTileData(coverageDataValues.tileUnsignedPixelsFlat,
-						tileWidth, tileHeight));
-		GeoPackageGeometryDataUtils.compareByteArrays(imageData, coverageData
-				.drawTileData(griddedTile, coverageDataValues.coverageDataFlat,
-						tileWidth, tileHeight));
+		GeoPackageGeometryDataUtils.compareByteArrays(imageData,
+				coverageData.drawTileData(griddedTile,
+						coverageDataValues.coverageDataFlat, tileWidth,
+						tileHeight));
 
 		return imageData;
 	}

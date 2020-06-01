@@ -9,13 +9,13 @@ import org.junit.Test;
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.features.OAPIFeatureGenerator;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.Progress;
 import mil.nga.geopackage.io.SQLExec;
-import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 
 /**

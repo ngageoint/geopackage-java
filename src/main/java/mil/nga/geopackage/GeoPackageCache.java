@@ -2,8 +2,6 @@ package mil.nga.geopackage;
 
 import java.io.File;
 
-import mil.nga.geopackage.manager.GeoPackageManager;
-
 /**
  * GeoPackage Cache
  *

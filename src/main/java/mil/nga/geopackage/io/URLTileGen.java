@@ -11,7 +11,7 @@ import org.locationtech.proj4j.units.Units;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.manager.GeoPackageManager;
+import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 import mil.nga.sf.proj.Projection;

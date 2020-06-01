@@ -1,4 +1,4 @@
-package mil.nga.geopackage.manager;
+package mil.nga.geopackage;
 
 import java.io.File;
 import java.sql.Connection;
@@ -9,9 +9,6 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.support.ConnectionSource;
 
-import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageConstants;
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.db.GeoPackageTableCreator;
 import mil.nga.geopackage.io.GeoPackageIOUtils;

@@ -6,8 +6,8 @@ import java.sql.SQLException;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
-import mil.nga.geopackage.manager.GeoPackageManager;
 
 import org.junit.After;
 

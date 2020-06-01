@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesResultSet;
@@ -94,7 +95,6 @@ import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
-import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.style.Color;
@@ -116,6 +116,7 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.geopackage.user.ContentValues;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.sf.CircularString;
@@ -1470,9 +1471,10 @@ public class GeoPackageExample {
 		}
 
 		CoverageDataPng coverageData = CoverageDataPng
-				.createTileTableWithMetadata(geoPackage, "coverage_png",
-						contentsBoundingBox, contentsSrs.getId(), bbox,
-						tileMatrixSetSrs.getId());
+				.createTileTable(geoPackage,
+						TileTableMetadata.create("coverage_png",
+								contentsBoundingBox, contentsSrs.getId(), bbox,
+								tileMatrixSetSrs.getId()));
 		TileDao tileDao = coverageData.getTileDao();
 		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
 
@@ -1568,9 +1570,10 @@ public class GeoPackageExample {
 		}
 
 		CoverageDataTiff coverageData = CoverageDataTiff
-				.createTileTableWithMetadata(geoPackage, "coverage_tiff",
-						contentsBoundingBox, contentsSrs.getId(), bbox,
-						tileMatrixSetSrs.getId());
+				.createTileTable(geoPackage,
+						TileTableMetadata.create("coverage_tiff",
+								contentsBoundingBox, contentsSrs.getId(), bbox,
+								tileMatrixSetSrs.getId()));
 		TileDao tileDao = coverageData.getTileDao();
 		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
 

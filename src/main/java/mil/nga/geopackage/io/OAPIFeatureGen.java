@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.features.OAPIFeatureGenerator;
-import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionFactory;
 

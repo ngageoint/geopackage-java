@@ -9,8 +9,8 @@ import java.io.IOException;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageConstants;
+import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
-import mil.nga.geopackage.manager.GeoPackageManager;
 import mil.nga.geopackage.test.BaseTestCase;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;

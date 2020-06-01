@@ -1,10 +1,10 @@
 package mil.nga.geopackage.extension.coverage;
 
-import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.sf.proj.Projection;
 import mil.nga.tiff.FileDirectory;
 import mil.nga.tiff.Rasters;
@@ -101,8 +101,8 @@ public class CoverageDataTiff extends CoverageData<CoverageDataTiffImage> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Double getValue(GriddedTile griddedTile,
-			CoverageDataTiffImage image, int x, int y) {
+	public Double getValue(GriddedTile griddedTile, CoverageDataTiffImage image,
+			int x, int y) {
 		Double value = null;
 		if (image.getDirectory() != null) {
 			float pixelValue = image.getPixel(x, y);
@@ -185,10 +185,8 @@ public class CoverageDataTiff extends CoverageData<CoverageDataTiffImage> {
 				|| sampleFormat != TiffConstants.SAMPLE_FORMAT_FLOAT) {
 			throw new GeoPackageException(
 					"The coverage data tile is expected to be a single sample 32 bit float. Samples Per Pixel: "
-							+ samplesPerPixel
-							+ ", Bits Per Sample: "
-							+ bitsPerSample
-							+ ", Sample Format: "
+							+ samplesPerPixel + ", Bits Per Sample: "
+							+ bitsPerSample + ", Sample Format: "
 							+ sampleFormat);
 		}
 
@@ -396,23 +394,23 @@ public class CoverageDataTiff extends CoverageData<CoverageDataTiffImage> {
 	 */
 	public CoverageDataTiffImage createImage(int tileWidth, int tileHeight) {
 
-		Rasters rasters = new Rasters(tileWidth, tileHeight, 1,
-				BITS_PER_SAMPLE, TiffConstants.SAMPLE_FORMAT_FLOAT);
+		Rasters rasters = new Rasters(tileWidth, tileHeight, 1, BITS_PER_SAMPLE,
+				TiffConstants.SAMPLE_FORMAT_FLOAT);
 
-		int rowsPerStrip = rasters
-				.calculateRowsPerStrip(TiffConstants.PLANAR_CONFIGURATION_CHUNKY);
+		int rowsPerStrip = rasters.calculateRowsPerStrip(
+				TiffConstants.PLANAR_CONFIGURATION_CHUNKY);
 
 		FileDirectory fileDirectory = new FileDirectory();
 		fileDirectory.setImageWidth(tileWidth);
 		fileDirectory.setImageHeight(tileHeight);
 		fileDirectory.setBitsPerSample(BITS_PER_SAMPLE);
 		fileDirectory.setCompression(TiffConstants.COMPRESSION_NO);
-		fileDirectory
-				.setPhotometricInterpretation(TiffConstants.PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO);
+		fileDirectory.setPhotometricInterpretation(
+				TiffConstants.PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO);
 		fileDirectory.setSamplesPerPixel(SAMPLES_PER_PIXEL);
 		fileDirectory.setRowsPerStrip(rowsPerStrip);
-		fileDirectory
-				.setPlanarConfiguration(TiffConstants.PLANAR_CONFIGURATION_CHUNKY);
+		fileDirectory.setPlanarConfiguration(
+				TiffConstants.PLANAR_CONFIGURATION_CHUNKY);
 		fileDirectory.setSampleFormat(TiffConstants.SAMPLE_FORMAT_FLOAT);
 		fileDirectory.setWriteRasters(rasters);
 
@@ -443,29 +441,15 @@ public class CoverageDataTiff extends CoverageData<CoverageDataTiffImage> {
 	 *
 	 * @param geoPackage
 	 *            GeoPackage
-	 * @param tableName
-	 *            table name
-	 * @param contentsBoundingBox
-	 *            contents bounding box
-	 * @param contentsSrsId
-	 *            contents srs id
-	 * @param tileMatrixSetBoundingBox
-	 *            tile matrix set bounding box
-	 * @param tileMatrixSetSrsId
-	 *            tile matrix set srs id
+	 * @param metadata
+	 *            tile table metadata
 	 * @return coverage data
+	 * @since 4.0.0
 	 */
-	public static CoverageDataTiff createTileTableWithMetadata(
-			GeoPackage geoPackage, String tableName,
-			BoundingBox contentsBoundingBox, long contentsSrsId,
-			BoundingBox tileMatrixSetBoundingBox, long tileMatrixSetSrsId) {
-
-		CoverageDataTiff coverageData = (CoverageDataTiff) CoverageData
-				.createTileTableWithMetadata(geoPackage, tableName,
-						contentsBoundingBox, contentsSrsId,
-						tileMatrixSetBoundingBox, tileMatrixSetSrsId,
-						GriddedCoverageDataType.FLOAT);
-		return coverageData;
+	public static CoverageDataTiff createTileTable(GeoPackage geoPackage,
+			TileTableMetadata metadata) {
+		return (CoverageDataTiff) CoverageData.createTileTable(geoPackage,
+				metadata, GriddedCoverageDataType.FLOAT);
 	}
 
 }

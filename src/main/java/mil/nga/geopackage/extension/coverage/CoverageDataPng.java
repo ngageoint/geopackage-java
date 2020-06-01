@@ -6,12 +6,12 @@ import java.awt.image.DataBufferUShort;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
-import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.sf.proj.Projection;
 
 /**
@@ -688,29 +688,15 @@ public class CoverageDataPng extends CoverageData<CoverageDataPngImage> {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
-	 * @param tableName
-	 *            table name
-	 * @param contentsBoundingBox
-	 *            contents bounding box
-	 * @param contentsSrsId
-	 *            contents srs id
-	 * @param tileMatrixSetBoundingBox
-	 *            tile matrix set bounding box
-	 * @param tileMatrixSetSrsId
-	 *            tile matrix set srs id
+	 * @param metadata
+	 *            tile table metadata
 	 * @return coverage data
+	 * @since 4.0.0
 	 */
-	public static CoverageDataPng createTileTableWithMetadata(
-			GeoPackage geoPackage, String tableName,
-			BoundingBox contentsBoundingBox, long contentsSrsId,
-			BoundingBox tileMatrixSetBoundingBox, long tileMatrixSetSrsId) {
-
-		CoverageDataPng coverageData = (CoverageDataPng) CoverageData
-				.createTileTableWithMetadata(geoPackage, tableName,
-						contentsBoundingBox, contentsSrsId,
-						tileMatrixSetBoundingBox, tileMatrixSetSrsId,
-						GriddedCoverageDataType.INTEGER);
-		return coverageData;
+	public static CoverageDataPng createTileTable(GeoPackage geoPackage,
+			TileTableMetadata metadata) {
+		return (CoverageDataPng) CoverageData.createTileTable(geoPackage,
+				metadata, GriddedCoverageDataType.INTEGER);
 	}
 
 }
