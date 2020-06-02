@@ -1,7 +1,5 @@
 package mil.nga.geopackage.test;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 
 import org.junit.After;
@@ -75,8 +73,7 @@ public abstract class CreateCoverageDataGeoPackageTestCase
 				TestConstants.CREATE_COVERAGE_DATA_DB_FILE_NAME);
 
 		// Create
-		assertTrue("Database failed to create",
-				GeoPackageManager.create(dbFile));
+		GeoPackageManager.create(dbFile);
 
 		// Open
 		GeoPackage geoPackage = GeoPackageManager.open(dbFile);

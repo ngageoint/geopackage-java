@@ -31,41 +31,67 @@ public class GeoPackageManager {
 	 * 
 	 * @param file
 	 *            file
-	 * @return true if created
+	 * @return created file
+	 * @since 4.0.0
 	 */
-	public static boolean create(File file) {
+	public static File create(File file) {
+		return create(file, true);
+	}
 
-		boolean created = false;
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param file
+	 *            file
+	 * @param validate
+	 *            validate the file extension
+	 * @return created file
+	 * @since 4.0.0
+	 */
+	public static File create(File file, boolean validate) {
+
+		boolean isGeoPackage = true;
 
 		// Validate or add the file extension
 		if (GeoPackageIOUtils.hasFileExtension(file)) {
-			GeoPackageValidate.validateGeoPackageExtension(file);
+			if (validate) {
+				GeoPackageValidate.validateGeoPackageExtension(file);
+			} else {
+				isGeoPackage = GeoPackageValidate.hasGeoPackageExtension(file);
+			}
 		} else {
-			file = GeoPackageIOUtils.addFileExtension(file,
-					GeoPackageConstants.EXTENSION);
+			file = addExtension(file);
 		}
 
 		if (file.exists()) {
 			throw new GeoPackageException(
-					"GeoPackage already exists: " + file.getAbsolutePath());
-		} else {
-			// Create the GeoPackage Connection
-			GeoPackageConnection connection = connect(file);
-
-			// Set the GeoPackage application id and user version
-			connection.setApplicationId();
-			connection.setUserVersion();
-
-			// Create the minimum required tables
-			GeoPackageTableCreator tableCreator = new GeoPackageTableCreator(
-					connection);
-			tableCreator.createRequired();
-
-			connection.close();
-			created = true;
+					"File already exists: " + file.getAbsolutePath());
 		}
 
-		return created;
+		// Create the file connection
+		GeoPackageConnection connection = connect(file);
+
+		try {
+
+			// Set GeoPackage values and create required tables
+			if (isGeoPackage) {
+
+				// Set the GeoPackage application id and user version
+				connection.setApplicationId();
+				connection.setUserVersion();
+
+				// Create the minimum required tables
+				GeoPackageTableCreator tableCreator = new GeoPackageTableCreator(
+						connection);
+				tableCreator.createRequired();
+
+			}
+
+		} finally {
+			connection.close();
+		}
+
+		return file;
 	}
 
 	/**
@@ -121,14 +147,17 @@ public class GeoPackageManager {
 	 */
 	public static GeoPackage open(String name, File file, boolean validate) {
 
-		// Validate or add the file extension
-		if (validate) {
-			if (GeoPackageIOUtils.hasFileExtension(file)) {
-				GeoPackageValidate.validateGeoPackageExtension(file);
-			} else {
-				file = GeoPackageIOUtils.addFileExtension(file,
-						GeoPackageConstants.EXTENSION);
-			}
+		// Check if the file exists
+		File existingFile = existingFile(file);
+		if (existingFile == null) {
+			throw new GeoPackageException(
+					"File not found: " + file.getAbsolutePath());
+		}
+		file = existingFile;
+
+		// Validate the extension
+		if (validate && GeoPackageIOUtils.hasFileExtension(file)) {
+			GeoPackageValidate.validateGeoPackageExtension(file);
 		}
 
 		// Create the GeoPackage Connection and table creator
@@ -148,6 +177,61 @@ public class GeoPackageManager {
 		}
 
 		return geoPackage;
+	}
+
+	/**
+	 * Add a GeoPackage file extension to the file if it does not already
+	 * contain a file extension
+	 * 
+	 * @param file
+	 *            file
+	 * @return original file or file with extension
+	 * @since 4.0.0
+	 */
+	public static File addExtension(File file) {
+		if (!GeoPackageIOUtils.hasFileExtension(file)) {
+			file = GeoPackageIOUtils.addFileExtension(file,
+					GeoPackageConstants.EXTENSION);
+		}
+		return file;
+	}
+
+	/**
+	 * Check if the file exists in either its' current form or with a GeoPackage
+	 * file extension, and return the existing file
+	 * 
+	 * @param file
+	 *            file
+	 * @return existing file or null if not file exists
+	 * @since 4.0.0
+	 */
+	public static File existingFile(File file) {
+
+		File existingFile = null;
+
+		if (file.exists()) {
+			existingFile = file;
+		} else {
+			file = addExtension(file);
+			if (file.exists()) {
+				existingFile = file;
+			}
+		}
+
+		return existingFile;
+	}
+
+	/**
+	 * Check if the file exists in either its' current form or with a GeoPackage
+	 * file extension
+	 * 
+	 * @param file
+	 *            file
+	 * @return true if exists
+	 * @since 4.0.0
+	 */
+	public static boolean exists(File file) {
+		return existingFile(file) != null;
 	}
 
 	/**
@@ -197,4 +281,5 @@ public class GeoPackageManager {
 
 		return connection;
 	}
+
 }

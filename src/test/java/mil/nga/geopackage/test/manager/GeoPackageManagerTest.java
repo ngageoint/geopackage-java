@@ -7,6 +7,9 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.GeoPackageManager;
@@ -14,9 +17,6 @@ import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.test.BaseTestCase;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;
-
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Test GeoPackage Manager methods
@@ -48,8 +48,7 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		File dbFile = new File(testFolder, TestConstants.TEST_DB_FILE_NAME);
 
 		// Create
-		assertTrue("Database failed to create",
-				GeoPackageManager.create(dbFile));
+		GeoPackageManager.create(dbFile);
 		assertTrue("Database does not exist", dbFile.exists());
 
 		// Open
@@ -110,12 +109,11 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		File dbFile = new File(testFolder, TestConstants.TEST_DB_NAME);
 
 		// Create
-		assertTrue("Database failed to create",
-				GeoPackageManager.create(dbFile));
-		assertTrue(
-				"Database does not exist",
-				GeoPackageIOUtils.addFileExtension(dbFile,
-						GeoPackageConstants.EXTENSION).exists());
+		GeoPackageManager.create(dbFile);
+		assertTrue("Database does not exist",
+				GeoPackageIOUtils
+						.addFileExtension(dbFile, GeoPackageConstants.EXTENSION)
+						.exists());
 
 		// Open
 		GeoPackage geoPackage = GeoPackageManager.open(dbFile);
@@ -132,8 +130,8 @@ public class GeoPackageManagerTest extends BaseTestCase {
 	public void testCreateInvalidExtension() throws IOException {
 
 		File testFolder = folder.newFolder();
-		File dbFile = new File(testFolder, TestConstants.TEST_DB_FILE_NAME
-				+ "a");
+		File dbFile = new File(testFolder,
+				TestConstants.TEST_DB_FILE_NAME + "a");
 
 		try {
 			GeoPackageManager.create(dbFile);
@@ -155,8 +153,7 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		File dbFile = new File(testFolder, TestConstants.TEST_DB_FILE_NAME);
 
 		// Create
-		assertTrue("Database failed to create",
-				GeoPackageManager.create(dbFile));
+		GeoPackageManager.create(dbFile);
 		assertTrue("Database does not exist", dbFile.exists());
 
 		try {
@@ -195,8 +192,8 @@ public class GeoPackageManagerTest extends BaseTestCase {
 	public void testOpenInvalidExtension() throws IOException {
 
 		File testFolder = folder.newFolder();
-		File dbFile = new File(testFolder, TestConstants.TEST_DB_FILE_NAME
-				+ "a");
+		File dbFile = new File(testFolder,
+				TestConstants.TEST_DB_FILE_NAME + "a");
 
 		try {
 			GeoPackageManager.open(dbFile);
@@ -237,8 +234,7 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		File testFolder = folder.newFolder();
 		File dbFile = new File(testFolder, TestConstants.TEST_DB_FILE_NAME);
 
-		assertTrue("Database failed to create",
-				GeoPackageManager.create(dbFile));
+		GeoPackageManager.create(dbFile);
 		assertTrue("Database does not exist", dbFile.exists());
 
 		// Try to garbage collect

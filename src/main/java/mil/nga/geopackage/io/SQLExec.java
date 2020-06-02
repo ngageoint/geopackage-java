@@ -264,6 +264,11 @@ public class SQLExec {
 			printUsage();
 		} else {
 
+			// Create the file if it does not exist
+			if (!GeoPackageManager.exists(sqliteFile)) {
+				sqliteFile = GeoPackageManager.create(sqliteFile, false);
+			}
+
 			GeoPackage database = GeoPackageManager.open(sqliteFile, false);
 			try {
 
@@ -274,6 +279,16 @@ public class SQLExec {
 				}
 				System.out.println(": " + database.getName());
 				System.out.println("Path: " + database.getPath());
+				Integer applicationId = database.getApplicationIdInteger();
+				if (applicationId != null) {
+					System.out.println("Application ID: " + applicationId + ", "
+							+ database.getApplicationIdHex() + ", "
+							+ database.getApplicationId());
+				}
+				Integer userVersion = database.getUserVersion();
+				if (userVersion != null) {
+					System.out.println("User Version: " + userVersion);
+				}
 				System.out.println("Max Rows: "
 						+ (maxRows != null ? maxRows : DEFAULT_MAX_ROWS));
 

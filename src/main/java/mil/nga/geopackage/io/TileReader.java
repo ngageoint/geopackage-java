@@ -80,8 +80,8 @@ public class TileReader {
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(TileReader.class
-			.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(TileReader.class.getName());
 
 	/**
 	 * Progress log frequency within a zoom level
@@ -151,8 +151,8 @@ public class TileReader {
 					requiredArguments = true;
 				} else {
 					valid = false;
-					System.out.println("Error: Unsupported extra argument: "
-							+ arg);
+					System.out.println(
+							"Error: Unsupported extra argument: " + arg);
 				}
 			}
 		}
@@ -198,11 +198,7 @@ public class TileReader {
 
 		// If the GeoPackage does not exist create it
 		if (!geoPackageFile.exists()) {
-			if (!GeoPackageManager.create(geoPackageFile)) {
-				throw new GeoPackageException(
-						"Failed to create GeoPackage file: "
-								+ geoPackageFile.getAbsolutePath());
-			}
+			GeoPackageManager.create(geoPackageFile);
 		}
 
 		// Open the GeoPackage
@@ -250,17 +246,12 @@ public class TileReader {
 		// Build the tile directory structure
 		TileDirectory tileDirectory = buildTileDirectory(directory);
 
-		LOGGER.log(Level.INFO,
-				"GeoPackage: "
-						+ geoPackage.getName()
-						+ ", Tile Table: "
-						+ tileTable
-						+ ", Input Directory: "
-						+ directory
-						+ (rawImage ? ", Raw Images" : ", Image Format: "
-								+ imageFormat) + ", Tiles Type: " + tileType
-						+ ", Zoom Range: " + tileDirectory.minZoom + " - "
-						+ tileDirectory.maxZoom);
+		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName()
+				+ ", Tile Table: " + tileTable + ", Input Directory: "
+				+ directory
+				+ (rawImage ? ", Raw Images" : ", Image Format: " + imageFormat)
+				+ ", Tiles Type: " + tileType + ", Zoom Range: "
+				+ tileDirectory.minZoom + " - " + tileDirectory.maxZoom);
 
 		int totalCount = 0;
 
@@ -278,8 +269,8 @@ public class TileReader {
 			break;
 
 		default:
-			throw new UnsupportedOperationException("Tile Type Not Supported: "
-					+ tileType);
+			throw new UnsupportedOperationException(
+					"Tile Type Not Supported: " + tileType);
 		}
 
 		LOGGER.log(Level.INFO, "Total Tiles: " + totalCount);
@@ -422,9 +413,10 @@ public class TileReader {
 			lastMatrixWidth = matrixWidth;
 			lastMatrixHeight = matrixHeight;
 
-			LOGGER.log(Level.INFO, "Zoom Level: " + zoomDirectory.zoom
-					+ ", Width: " + matrixWidth + ", Height: " + matrixHeight
-					+ ", Max Tiles: " + (matrixWidth * matrixHeight));
+			LOGGER.log(Level.INFO,
+					"Zoom Level: " + zoomDirectory.zoom + ", Width: "
+							+ matrixWidth + ", Height: " + matrixHeight
+							+ ", Max Tiles: " + (matrixWidth * matrixHeight));
 
 			for (XDirectory xDirectory : zoomDirectory.xValues.values()) {
 
@@ -466,8 +458,8 @@ public class TileReader {
 				}
 			}
 
-			LOGGER.log(Level.INFO, "Zoom " + zoomDirectory.zoom + " Tiles: "
-					+ zoomCount);
+			LOGGER.log(Level.INFO,
+					"Zoom " + zoomDirectory.zoom + " Tiles: " + zoomCount);
 
 			// If tiles were saved for the zoom level, create the tile matrix
 			// row
@@ -524,10 +516,10 @@ public class TileReader {
 
 			// If TMS format, flip the y values
 			if (tileType == TileFormatType.TMS) {
-				int tempMaxY = TileBoundingBoxUtils.getYAsOppositeTileFormat(
-						zoomDirectory.zoom, minY);
-				minY = TileBoundingBoxUtils.getYAsOppositeTileFormat(
-						zoomDirectory.zoom, maxY);
+				int tempMaxY = TileBoundingBoxUtils
+						.getYAsOppositeTileFormat(zoomDirectory.zoom, minY);
+				minY = TileBoundingBoxUtils
+						.getYAsOppositeTileFormat(zoomDirectory.zoom, maxY);
 				maxY = tempMaxY;
 			}
 
@@ -548,10 +540,11 @@ public class TileReader {
 
 		// Get the bounding box that includes all zoom levels at the min zoom
 		// level
-		TileGrid totalTileGrid = TileBoundingBoxUtils.getTileGrid(
-				webMercatorBoundingBox, tileDirectory.minZoom);
+		TileGrid totalTileGrid = TileBoundingBoxUtils
+				.getTileGrid(webMercatorBoundingBox, tileDirectory.minZoom);
 		BoundingBox totalWebMercatorBoundingBox = TileBoundingBoxUtils
-				.getWebMercatorBoundingBox(totalTileGrid, tileDirectory.minZoom);
+				.getWebMercatorBoundingBox(totalTileGrid,
+						tileDirectory.minZoom);
 
 		// Create the user tile table
 		List<TileColumn> columns = TileTable.createRequiredColumns();
@@ -618,16 +611,19 @@ public class TileReader {
 			long matrixHeight = zoomTotalTileGrid.getMaxY()
 					- zoomTotalTileGrid.getMinY() + 1;
 
-			LOGGER.log(Level.INFO, "Zoom Level: " + zoomDirectory.zoom
-					+ ", Width: " + matrixWidth + ", Height: " + matrixHeight
-					+ ", Max Tiles: " + (matrixWidth * matrixHeight));
+			LOGGER.log(Level.INFO,
+					"Zoom Level: " + zoomDirectory.zoom + ", Width: "
+							+ matrixWidth + ", Height: " + matrixHeight
+							+ ", Max Tiles: " + (matrixWidth * matrixHeight));
 
 			// Shortcut for raw images with zoom directories with smaller bounds
 			// than the bounds of the minimum zoom value
 			int minColumn, maxColumn, minRow, maxRow;
 			if (rawImage) {
-				minColumn = zoomDirectory.minX - (int) zoomTotalTileGrid.getMinX();
-				maxColumn = zoomDirectory.maxX - (int) zoomTotalTileGrid.getMinX();
+				minColumn = zoomDirectory.minX
+						- (int) zoomTotalTileGrid.getMinX();
+				maxColumn = zoomDirectory.maxX
+						- (int) zoomTotalTileGrid.getMinX();
 				minRow = zoomDirectory.minY - (int) zoomTotalTileGrid.getMinY();
 				maxRow = zoomDirectory.maxY - (int) zoomTotalTileGrid.getMinY();
 			} else {
@@ -659,15 +655,16 @@ public class TileReader {
 
 					// Build the column and row image from images in the
 					// matching x and y locations
-					for (int x = (int) tileMatrixGrid.getMinX(); x <= tileMatrixGrid
-							.getMaxX(); x++) {
+					for (int x = (int) tileMatrixGrid
+							.getMinX(); x <= tileMatrixGrid.getMaxX(); x++) {
 
 						// Check if the x directory exists and contains images
 						XDirectory xDirectory = zoomDirectory.xValues.get(x);
 						if (xDirectory != null) {
 
-							for (int y = (int) tileMatrixGrid.getMinY(); y <= tileMatrixGrid
-									.getMaxY(); y++) {
+							for (int y = (int) tileMatrixGrid
+									.getMinY(); y <= tileMatrixGrid
+											.getMaxY(); y++) {
 
 								// If TMS file format, change the y value to TMS
 								int yLocation = (int) y;
@@ -806,8 +803,8 @@ public class TileReader {
 
 			}
 
-			LOGGER.log(Level.INFO, "Zoom " + zoomDirectory.zoom + " Tiles: "
-					+ zoomCount);
+			LOGGER.log(Level.INFO,
+					"Zoom " + zoomDirectory.zoom + " Tiles: " + zoomCount);
 
 			// If tiles were saved for the zoom level, create the tile matrix
 			// row
@@ -867,8 +864,8 @@ public class TileReader {
 					for (File xDirectory : zoomDirectory.listFiles()) {
 						if (xDirectory.isDirectory()) {
 							try {
-								Integer xValue = Integer.valueOf(xDirectory
-										.getName());
+								Integer xValue = Integer
+										.valueOf(xDirectory.getName());
 								XDirectory x = tileDirectory.new XDirectory();
 								x.directory = new File(zoom.directory,
 										xDirectory.getName());
@@ -899,17 +896,15 @@ public class TileReader {
 											x.minY = Math.min(x.minY, y.y);
 											x.maxY = Math.max(x.maxY, y.y);
 										} catch (NumberFormatException e) {
-											LOGGER.log(
-													Level.INFO,
-													"Skipping file: "
-															+ yImage.getAbsolutePath());
+											LOGGER.log(Level.INFO,
+													"Skipping file: " + yImage
+															.getAbsolutePath());
 										}
 
 									} else {
-										LOGGER.log(
-												Level.INFO,
-												"Skipping directory: "
-														+ yImage.getAbsolutePath());
+										LOGGER.log(Level.INFO,
+												"Skipping directory: " + yImage
+														.getAbsolutePath());
 									}
 								}
 
@@ -951,80 +946,76 @@ public class TileReader {
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
-		System.out
-				.println("\tReads a tile set from the file system in a z/x/y folder system into a new table in a new or existing GeoPackage file");
+		System.out.println(
+				"\tReads a tile set from the file system in a z/x/y folder system into a new table in a new or existing GeoPackage file");
 		System.out.println();
 		System.out.println("ARGUMENTS");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_FORMAT
 				+ " image_format");
-		System.out
-				.println("\t\tStorage image format in the GeoPackage: png, jpg, jpeg (default is '"
+		System.out.println(
+				"\t\tStorage image format in the GeoPackage: png, jpg, jpeg (default is '"
 						+ DEFAULT_IMAGE_FORMAT + "')");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_RAW_IMAGE);
-		System.out
-				.println("\t\tUse the raw image bytes, only works when combining and cropping is not required. Not compatible with image_format");
+		System.out.println(
+				"\t\tUse the raw image bytes, only works when combining and cropping is not required. Not compatible with image_format");
 		System.out.println();
 		System.out.println("\tinput_directory");
-		System.out
-				.println("\t\tinput directory containing the tile image set used to create the GeoPakage tiles");
+		System.out.println(
+				"\t\tinput directory containing the tile image set used to create the GeoPakage tiles");
 		System.out.println();
 		System.out.println("\ttile_type");
-		System.out
-				.println("\t\tTile input format specifying z/x/y folder organization: "
-						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
-						+ ", "
-						+ TileFormatType.XYZ.name().toLowerCase()
-						+ ", "
+		System.out.println(
+				"\t\tTile input format specifying z/x/y folder organization: "
+						+ TileFormatType.GEOPACKAGE.name().toLowerCase() + ", "
+						+ TileFormatType.XYZ.name().toLowerCase() + ", "
 						+ TileFormatType.TMS.name().toLowerCase());
-		System.out
-				.println("\t\t\t"
-						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
-						+ " - x and y represent GeoPackage Tile Matrix width and height. Requires a input_directory/"
-						+ TileProperties.GEOPACKAGE_PROPERTIES_FILE + " file");
 		System.out.println("\t\t\t"
-				+ TileFormatType.XYZ.name().toLowerCase()
+				+ TileFormatType.GEOPACKAGE.name().toLowerCase()
+				+ " - x and y represent GeoPackage Tile Matrix width and height. Requires a input_directory/"
+				+ TileProperties.GEOPACKAGE_PROPERTIES_FILE + " file");
+		System.out.println("\t\t\t" + TileFormatType.XYZ.name().toLowerCase()
 				+ " - x and y origin is top left");
 		System.out.println("\t\t\t" + TileFormatType.TMS.name().toLowerCase()
 				+ " - (Tile Map Service) x and y origin is bottom left");
 		System.out.println();
 		System.out.println("\tgeopackage_file");
-		System.out
-				.println("\t\tpath to the GeoPackage file to create or add a new tile table to");
+		System.out.println(
+				"\t\tpath to the GeoPackage file to create or add a new tile table to");
 		System.out.println();
 		System.out.println("\ttile_table");
-		System.out
-				.println("\t\tnew tile table name to create within the GeoPackage file");
+		System.out.println(
+				"\t\tnew tile table name to create within the GeoPackage file");
 		System.out.println();
 		System.out.println("GEOPACKAGE PROPERTIES");
 		System.out.println();
-		System.out
-				.println("\tReading tiles with a tile_type of geopackage requires a properties file located at: input_directory/"
+		System.out.println(
+				"\tReading tiles with a tile_type of geopackage requires a properties file located at: input_directory/"
 						+ TileProperties.GEOPACKAGE_PROPERTIES_FILE);
 		System.out.println();
 		System.out.println("\tRequired Properties:");
 		System.out.println();
-		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_EPSG
-				+ "=");
-		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MIN_X
-				+ "=");
-		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MAX_X
-				+ "=");
-		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MIN_Y
-				+ "=");
-		System.out.println("\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MAX_Y
-				+ "=");
+		System.out.println(
+				"\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_EPSG + "=");
+		System.out.println(
+				"\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MIN_X + "=");
+		System.out.println(
+				"\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MAX_X + "=");
+		System.out.println(
+				"\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MIN_Y + "=");
+		System.out.println(
+				"\t\t" + TileProperties.GEOPACKAGE_PROPERTIES_MAX_Y + "=");
 		System.out.println();
 		System.out.println("\tOptional Properties:");
 		System.out.println();
-		System.out
-				.println("\t\tIf the file structure is fully populated and represents the matrix width and height, the properties can be omitted.");
-		System.out
-				.println("\t\tIf a non top zoom level matrix width and height increase by a factor of 2 with each zoom level, the properties can be omitted for those zoom levels.");
+		System.out.println(
+				"\t\tIf the file structure is fully populated and represents the matrix width and height, the properties can be omitted.");
+		System.out.println(
+				"\t\tIf a non top zoom level matrix width and height increase by a factor of 2 with each zoom level, the properties can be omitted for those zoom levels.");
 		System.out.println();
-		System.out.println("\t\t"
-				+ TileProperties.getMatrixWidthProperty("{zoom}") + "=");
+		System.out.println(
+				"\t\t" + TileProperties.getMatrixWidthProperty("{zoom}") + "=");
 		System.out.println("\t\t"
 				+ TileProperties.getMatrixHeightProperty("{zoom}") + "=");
 		System.out.println();

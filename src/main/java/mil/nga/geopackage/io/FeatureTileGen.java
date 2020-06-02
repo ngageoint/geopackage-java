@@ -834,11 +834,7 @@ public class FeatureTileGen {
 
 			// If the GeoPackage does not exist create it
 			if (!tileGeoPackageFile.exists()) {
-				if (!GeoPackageManager.create(tileGeoPackageFile)) {
-					throw new GeoPackageException(
-							"Failed to create GeoPackage file: "
-									+ tileGeoPackageFile.getAbsolutePath());
-				}
+				GeoPackageManager.create(tileGeoPackageFile);
 			}
 
 			// Open the GeoPackage

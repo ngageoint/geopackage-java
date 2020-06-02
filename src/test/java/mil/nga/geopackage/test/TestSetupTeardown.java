@@ -1,7 +1,6 @@
 package mil.nga.geopackage.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,8 +130,7 @@ public class TestSetupTeardown {
 		File dbFile = new File(directory, name);
 
 		// Create
-		assertTrue("Database failed to create",
-				GeoPackageManager.create(dbFile));
+		GeoPackageManager.create(dbFile);
 
 		// Open
 		GeoPackage geoPackage = GeoPackageManager.open(dbFile);
@@ -142,7 +140,7 @@ public class TestSetupTeardown {
 
 		assertEquals("Application Id", geoPackage.getApplicationId(),
 				GeoPackageConstants.APPLICATION_ID);
-		assertEquals("User Version", geoPackage.getUserVersion(),
+		assertEquals("User Version", geoPackage.getUserVersion().intValue(),
 				GeoPackageConstants.USER_VERSION);
 		String userVersionString = String.valueOf(geoPackage.getUserVersion());
 		String majorVersion = userVersionString.substring(0,
@@ -151,11 +149,11 @@ public class TestSetupTeardown {
 				userVersionString.length() - 4, userVersionString.length() - 2);
 		String patchVersion = userVersionString
 				.substring(userVersionString.length() - 2);
-		assertEquals("Major User Version", geoPackage.getUserVersionMajor(),
+		assertEquals("Major User Version", geoPackage.getUserVersionMajor().intValue(),
 				Integer.valueOf(majorVersion).intValue());
-		assertEquals("Minor User Version", geoPackage.getUserVersionMinor(),
+		assertEquals("Minor User Version", geoPackage.getUserVersionMinor().intValue(),
 				Integer.valueOf(minorVersion).intValue());
-		assertEquals("Patch User Version", geoPackage.getUserVersionPatch(),
+		assertEquals("Patch User Version", geoPackage.getUserVersionPatch().intValue(),
 				Integer.valueOf(patchVersion).intValue());
 
 		if (features) {

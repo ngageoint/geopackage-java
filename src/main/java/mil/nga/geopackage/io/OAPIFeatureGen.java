@@ -374,11 +374,7 @@ public class OAPIFeatureGen {
 
 		// If the GeoPackage does not exist create it
 		if (!geoPackageFile.exists()) {
-			if (!GeoPackageManager.create(geoPackageFile)) {
-				throw new GeoPackageException(
-						"Failed to create GeoPackage file: "
-								+ geoPackageFile.getAbsolutePath());
-			}
+			GeoPackageManager.create(geoPackageFile);
 		}
 
 		// Open the GeoPackage
