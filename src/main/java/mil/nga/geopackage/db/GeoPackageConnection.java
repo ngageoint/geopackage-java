@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import com.j256.ormlite.support.ConnectionSource;
 
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.io.GeoPackageIOUtils;
 
 /**
  * GeoPackage Connection wrapper
@@ -72,6 +73,26 @@ public class GeoPackageConnection extends GeoPackageCoreConnection {
 	@Override
 	public ConnectionSource getConnectionSource() {
 		return connectionSource;
+	}
+
+	/**
+	 * Size of the database in bytes
+	 * 
+	 * @return bytes
+	 * @since 4.0.0
+	 */
+	public long size() {
+		return file.length();
+	}
+
+	/**
+	 * Get a readable version of the database size
+	 * 
+	 * @return size
+	 * @since 4.0.0
+	 */
+	public String readableSize() {
+		return GeoPackageIOUtils.formatBytes(size());
 	}
 
 	/**

@@ -167,6 +167,22 @@ public interface GeoPackage extends GeoPackageCore {
 	public GeoPackageConnection getConnection();
 
 	/**
+	 * Size of the database in bytes
+	 * 
+	 * @return bytes
+	 * @since 4.0.0
+	 */
+	public long size();
+
+	/**
+	 * Get a readable version of the database size
+	 * 
+	 * @return size
+	 * @since 4.0.0
+	 */
+	public String readableSize();
+
+	/**
 	 * Perform a foreign key check on the database
 	 *
 	 * @return null if check passed, open result set with results if failed

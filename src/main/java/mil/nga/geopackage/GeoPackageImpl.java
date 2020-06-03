@@ -8,9 +8,6 @@ import java.util.List;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
 
-import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.GeoPackageCoreImpl;
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesTable;
 import mil.nga.geopackage.attributes.AttributesTableReader;
@@ -439,6 +436,22 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	@Override
 	public GeoPackageConnection getConnection() {
 		return database;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long size() {
+		return database.size();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String readableSize() {
+		return database.readableSize();
 	}
 
 	/**
