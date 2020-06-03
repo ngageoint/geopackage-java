@@ -130,6 +130,31 @@ public class SQLExec {
 	public static final String COMMAND_TABLE_INFO = "info";
 
 	/**
+	 * VACUUM command
+	 */
+	public static final String COMMAND_VACUUM = "vacuum";
+
+	/**
+	 * Foreign Keys command
+	 */
+	public static final String COMMAND_FOREIGN_KEYS = "fk";
+
+	/**
+	 * SQLite Master command
+	 */
+	public static final String COMMAND_FOREIGN_KEY_CHECK = "fkc";
+
+	/**
+	 * SQLite Master command
+	 */
+	public static final String COMMAND_INTEGRITY_CHECK = "integrity";
+
+	/**
+	 * Quick Check command
+	 */
+	public static final String COMMAND_QUICK_CHECK = "quick";
+
+	/**
 	 * SQLite Master command
 	 */
 	public static final String COMMAND_SQLITE_MASTER = "sqlite_master";
@@ -272,25 +297,7 @@ public class SQLExec {
 			GeoPackage database = GeoPackageManager.open(sqliteFile, false);
 			try {
 
-				if (isGeoPackage(database)) {
-					System.out.print("GeoPackage");
-				} else {
-					System.out.print("Database");
-				}
-				System.out.println(": " + database.getName());
-				System.out.println("Path: " + database.getPath());
-				Integer applicationId = database.getApplicationIdInteger();
-				if (applicationId != null) {
-					System.out.println("Application ID: " + applicationId + ", "
-							+ database.getApplicationIdHex() + ", "
-							+ database.getApplicationId());
-				}
-				Integer userVersion = database.getUserVersion();
-				if (userVersion != null) {
-					System.out.println("User Version: " + userVersion);
-				}
-				System.out.println("Max Rows: "
-						+ (maxRows != null ? maxRows : DEFAULT_MAX_ROWS));
+				printInfo(database, maxRows);
 
 				if (sql != null) {
 
@@ -358,6 +365,8 @@ public class SQLExec {
 
 						boolean command = true;
 
+						String sqlLineLower = sqlLine.toLowerCase();
+
 						if (sqlLine.isEmpty()) {
 
 							break;
@@ -368,8 +377,7 @@ public class SQLExec {
 
 							resetCommandPrompt(sqlBuilder);
 
-						} else if (sqlLine.toLowerCase()
-								.startsWith(COMMAND_TABLES)) {
+						} else if (sqlLineLower.startsWith(COMMAND_TABLES)) {
 
 							String name = sqlLine
 									.substring(COMMAND_TABLES.length(),
@@ -380,8 +388,7 @@ public class SQLExec {
 							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, history);
 
-						} else if (sqlLine.toLowerCase()
-								.startsWith(COMMAND_INDEXES)) {
+						} else if (sqlLineLower.startsWith(COMMAND_INDEXES)) {
 
 							String name = sqlLine
 									.substring(COMMAND_INDEXES.length(),
@@ -392,8 +399,7 @@ public class SQLExec {
 							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, history);
 
-						} else if (sqlLine.toLowerCase()
-								.startsWith(COMMAND_VIEWS)) {
+						} else if (sqlLineLower.startsWith(COMMAND_VIEWS)) {
 
 							String name = sqlLine
 									.substring(COMMAND_VIEWS.length(),
@@ -404,8 +410,7 @@ public class SQLExec {
 							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, history);
 
-						} else if (sqlLine.toLowerCase()
-								.startsWith(COMMAND_TRIGGERS)) {
+						} else if (sqlLineLower.startsWith(COMMAND_TRIGGERS)) {
 
 							String name = sqlLine
 									.substring(COMMAND_TRIGGERS.length(),
@@ -431,7 +436,7 @@ public class SQLExec {
 							executeSQL(database, sqlBuilder, history.size(),
 									maxRows, history);
 
-						} else if (sqlLine.toLowerCase()
+						} else if (sqlLineLower
 								.startsWith(COMMAND_WRITE_BLOBS)) {
 
 							writeBlobs(database, sqlBuilder, maxRows, history,
@@ -446,8 +451,7 @@ public class SQLExec {
 							executeSQL(database, sqlBuilder, historyNumber,
 									maxRows, history);
 
-						} else if (sqlLine.toLowerCase()
-								.startsWith(COMMAND_MAX_ROWS)) {
+						} else if (sqlLineLower.startsWith(COMMAND_MAX_ROWS)) {
 
 							maxRows = Integer.parseInt(
 									sqlLine.substring(COMMAND_MAX_ROWS.length(),
@@ -455,7 +459,7 @@ public class SQLExec {
 							System.out.println("Max Rows: " + maxRows);
 							resetCommandPrompt(sqlBuilder);
 
-						} else if (sqlLine.toLowerCase()
+						} else if (sqlLineLower
 								.startsWith(COMMAND_TABLE_INFO)) {
 
 							String tableName = sqlLine
@@ -468,6 +472,7 @@ public class SQLExec {
 												+ "\");",
 										COMMAND_ALL_ROWS, history);
 							} else {
+								printInfo(database, maxRows);
 								resetCommandPrompt(sqlBuilder);
 							}
 
@@ -485,10 +490,32 @@ public class SQLExec {
 									"SELECT * FROM \"" + sqlLine + "\";",
 									maxRows, history);
 
+						} else if (sqlLineLower.startsWith(COMMAND_VACUUM)) {
+							executeShortcutSQL(database, sqlBuilder, sqlLine,
+									maxRows, history, COMMAND_VACUUM, "VACUUM");
+						} else if (sqlLineLower
+								.startsWith(COMMAND_FOREIGN_KEY_CHECK)) {
+							executeShortcutSQL(database, sqlBuilder, sqlLine,
+									maxRows, history, COMMAND_FOREIGN_KEY_CHECK,
+									"PRAGMA foreign_key_check");
+						} else if (sqlLineLower
+								.startsWith(COMMAND_FOREIGN_KEYS)) {
+							executeShortcutSQL(database, sqlBuilder, sqlLine,
+									maxRows, history, COMMAND_FOREIGN_KEYS,
+									"PRAGMA foreign_keys");
+						} else if (sqlLineLower
+								.startsWith(COMMAND_INTEGRITY_CHECK)) {
+							executeShortcutSQL(database, sqlBuilder, sqlLine,
+									maxRows, history, COMMAND_INTEGRITY_CHECK,
+									"PRAGMA integrity_check");
+						} else if (sqlLineLower
+								.startsWith(COMMAND_QUICK_CHECK)) {
+							executeShortcutSQL(database, sqlBuilder, sqlLine,
+									maxRows, history, COMMAND_QUICK_CHECK,
+									"PRAGMA quick_check");
 						} else if (isGeoPackage(database)) {
 
-							if (sqlLine.toLowerCase()
-									.startsWith(COMMAND_CONTENTS)) {
+							if (sqlLineLower.startsWith(COMMAND_CONTENTS)) {
 
 								String tableName = sqlLine
 										.substring(COMMAND_CONTENTS.length(),
@@ -505,7 +532,7 @@ public class SQLExec {
 								executeSQL(database, sqlBuilder, sql.toString(),
 										COMMAND_ALL_ROWS, history);
 
-							} else if (sqlLine.toLowerCase()
+							} else if (sqlLineLower
 									.startsWith(COMMAND_GEOPACKAGE_INFO)) {
 
 								String tableName = sqlLine.substring(
@@ -576,7 +603,7 @@ public class SQLExec {
 
 								resetCommandPrompt(sqlBuilder);
 
-							} else if (sqlLine.toLowerCase()
+							} else if (sqlLineLower
 									.startsWith(COMMAND_EXTENSIONS)) {
 
 								String tableName = sqlLine
@@ -713,6 +740,43 @@ public class SQLExec {
 	}
 
 	/**
+	 * Print header information
+	 * 
+	 * @param database
+	 *            database
+	 * @param maxRows
+	 *            max rows
+	 */
+	private static void printInfo(GeoPackage database, Integer maxRows) {
+
+		boolean isGeoPackage = isGeoPackage(database);
+
+		System.out.println();
+		if (isGeoPackage) {
+			System.out.print("GeoPackage");
+		} else {
+			System.out.print("Database");
+		}
+		System.out.println(": " + database.getName());
+		System.out.println("Path: " + database.getPath());
+		System.out.println("Size: " + database.readableSize() + " ("
+				+ database.size() + " bytes)");
+		Integer applicationId = database.getApplicationIdInteger();
+		if (applicationId != null) {
+			System.out.println("Application ID: " + applicationId + ", "
+					+ database.getApplicationIdHex() + ", "
+					+ database.getApplicationId());
+		}
+		Integer userVersion = database.getUserVersion();
+		if (userVersion != null) {
+			System.out.println("User Version: " + userVersion);
+		}
+		System.out.println(
+				"Max Rows: " + (maxRows != null ? maxRows : DEFAULT_MAX_ROWS));
+
+	}
+
+	/**
 	 * Print the command prompt help
 	 * 
 	 * @param database
@@ -731,6 +795,8 @@ public class SQLExec {
 		System.out.println();
 		System.out.println("Commands:");
 		System.out.println();
+		System.out.println("\t" + COMMAND_TABLE_INFO + "              - "
+				+ (isGeoPackage ? "GeoPackage" : "Database") + " information");
 		System.out.println("\t" + COMMAND_HELP
 				+ "              - print this help information");
 		System.out.println("\t" + COMMAND_TABLES
@@ -772,7 +838,19 @@ public class SQLExec {
 				"\t                                       (column_name)/(column_name2)");
 		System.out.println("\t" + COMMAND_TABLE_INFO
 				+ " <name>       - PRAGMA table_info(<name>);");
+		System.out.println("\t" + COMMAND_SQLITE_MASTER
+				+ "     - SELECT * FROM " + COMMAND_SQLITE_MASTER + ";");
 		System.out.println("\t<name>            - SELECT * FROM <name>;");
+		System.out.println("\t" + COMMAND_VACUUM
+				+ "            - VACUUM [INTO 'filename'];");
+		System.out.println("\t" + COMMAND_FOREIGN_KEYS
+				+ "                - PRAGMA foreign_keys [= boolean];");
+		System.out.println("\t" + COMMAND_FOREIGN_KEY_CHECK
+				+ "               - PRAGMA foreign_key_check[(<table-name>)];");
+		System.out.println("\t" + COMMAND_INTEGRITY_CHECK
+				+ "         - PRAGMA integrity_check[(N)];");
+		System.out.println("\t" + COMMAND_QUICK_CHECK
+				+ "             - PRAGMA quick_check[(N)];");
 		if (isGeoPackage) {
 			System.out.println("\t" + COMMAND_CONTENTS
 					+ " [name]   - List GeoPackage contents (all or LIKE table name)");
@@ -807,6 +885,7 @@ public class SQLExec {
 					"\tDrop Table   - User tables are dropped throughout the GeoPackage");
 			System.out.println("\t                  * DROP TABLE table_name");
 		}
+
 	}
 
 	/**
@@ -903,6 +982,34 @@ public class SQLExec {
 		if (resetCommandPrompt) {
 			resetCommandPrompt(sqlBuilder);
 		}
+	}
+
+	/**
+	 * Execute the SQL on the database
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param sql
+	 *            SQL statement
+	 * @param maxRows
+	 *            max rows
+	 * @param history
+	 *            history
+	 * @param shortcut
+	 *            shortcut command
+	 * @param replacement
+	 *            shortcut replacement command
+	 * @throws SQLException
+	 *             upon SQL error
+	 */
+	private static void executeShortcutSQL(GeoPackage database,
+			StringBuilder sqlBuilder, String sql, Integer maxRows,
+			List<String> history, String shortcut, String replacement)
+			throws SQLException {
+		String replacedSql = replacement + sql.substring(shortcut.length());
+		executeSQL(database, sqlBuilder, replacedSql, maxRows, history);
 	}
 
 	/**
