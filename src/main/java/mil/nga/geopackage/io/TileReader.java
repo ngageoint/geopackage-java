@@ -120,7 +120,7 @@ public class TileReader {
 				switch (argument) {
 
 				case ARGUMENT_IMAGE_FORMAT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						imageFormat = args[++i];
 					} else {
 						valid = false;

@@ -88,8 +88,8 @@ public class TileWriter {
 	/**
 	 * Logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(TileWriter.class
-			.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(TileWriter.class.getName());
 
 	/**
 	 * Progress log frequency within a zoom level
@@ -129,29 +129,26 @@ public class TileWriter {
 
 				switch (argument) {
 				case ARGUMENT_TILE_TYPE:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String tiletypeString = args[++i].toUpperCase();
 						try {
 							tileType = TileFormatType.valueOf(tiletypeString);
 						} catch (IllegalArgumentException e) {
 							valid = false;
-							System.out
-									.println("Error: Image Tile Type argument '"
-											+ arg
+							System.out.println(
+									"Error: Image Tile Type argument '" + arg
 											+ "' must be followed by a valid tile format type. Invalid: "
 											+ tiletypeString);
 						}
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Tile Type argument '"
-										+ arg
-										+ "' must be followed by a tile type (geopackage, standard, tms)");
+						System.out.println("Error: Tile Type argument '" + arg
+								+ "' must be followed by a tile type (geopackage, standard, tms)");
 					}
 					break;
 
 				case ARGUMENT_IMAGE_FORMAT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						imageFormat = args[++i];
 					} else {
 						valid = false;
@@ -165,46 +162,41 @@ public class TileWriter {
 					break;
 
 				case ARGUMENT_IMAGE_WIDTH:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String widthString = args[++i];
 						try {
 							width = Integer.valueOf(widthString);
 						} catch (NumberFormatException e) {
 							valid = false;
-							System.out
-									.println("Error: Image Width argument '"
-											+ arg
-											+ "' must be followed by a valid width in pixels. Invalid: "
-											+ widthString);
+							System.out.println("Error: Image Width argument '"
+									+ arg
+									+ "' must be followed by a valid width in pixels. Invalid: "
+									+ widthString);
 						}
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Image Width argument '"
-										+ arg
-										+ "' must be followed by a image width in pixels");
+						System.out.println("Error: Image Width argument '" + arg
+								+ "' must be followed by a image width in pixels");
 					}
 					break;
 
 				case ARGUMENT_IMAGE_HEIGHT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String heightString = args[++i];
 						try {
 							height = Integer.valueOf(heightString);
 						} catch (NumberFormatException e) {
 							valid = false;
-							System.out
-									.println("Error: Image Height argument '"
-											+ arg
-											+ "' must be followed by a valid height in pixels. Invalid: "
-											+ heightString);
+							System.out.println("Error: Image Height argument '"
+									+ arg
+									+ "' must be followed by a valid height in pixels. Invalid: "
+									+ heightString);
 						}
 					} else {
 						valid = false;
-						System.out
-								.println("Error: Image Height argument '"
-										+ arg
-										+ "' must be followed by a height width in pixels");
+						System.out.println("Error: Image Height argument '"
+								+ arg
+								+ "' must be followed by a height width in pixels");
 					}
 					break;
 
@@ -224,8 +216,8 @@ public class TileWriter {
 					requiredArguments = true;
 				} else {
 					valid = false;
-					System.out.println("Error: Unsupported extra argument: "
-							+ arg);
+					System.out.println(
+							"Error: Unsupported extra argument: " + arg);
 				}
 			}
 		}
@@ -323,13 +315,14 @@ public class TileWriter {
 			tileType = DEFAULT_TILE_TYPE;
 		}
 
-		LOGGER.log(Level.INFO, "GeoPackage: " + geoPackage.getName()
-				+ ", Tile Table: " + tileTable + ", Output Directory: "
-				+ directory + (rawImage ? ", Raw Images" : "")
-				+ ", Image Format: " + imageFormat + ", Image Width: " + width
-				+ ", Image Height: " + height + ", Tiles Type: " + tileType
-				+ ", Tile Zoom Range: " + tileDao.getMinZoom() + " - "
-				+ tileDao.getMaxZoom());
+		LOGGER.log(Level.INFO,
+				"GeoPackage: " + geoPackage.getName() + ", Tile Table: "
+						+ tileTable + ", Output Directory: " + directory
+						+ (rawImage ? ", Raw Images" : "") + ", Image Format: "
+						+ imageFormat + ", Image Width: " + width
+						+ ", Image Height: " + height + ", Tiles Type: "
+						+ tileType + ", Tile Zoom Range: "
+						+ tileDao.getMinZoom() + " - " + tileDao.getMaxZoom());
 
 		int totalCount = 0;
 
@@ -347,8 +340,8 @@ public class TileWriter {
 			break;
 
 		default:
-			throw new UnsupportedOperationException("Tile Type Not Supported: "
-					+ tileType);
+			throw new UnsupportedOperationException(
+					"Tile Type Not Supported: " + tileType);
 
 		}
 
@@ -389,17 +382,12 @@ public class TileWriter {
 			// Get the tile matrix at this zoom level
 			TileMatrix tileMatrix = tileDao.getTileMatrix(zoomLevel);
 
-			LOGGER.log(
-					Level.INFO,
-					"Zoom Level: "
-							+ zoomLevel
-							+ ", Width: "
-							+ tileMatrix.getMatrixWidth()
-							+ ", Height: "
-							+ tileMatrix.getMatrixHeight()
-							+ ", Max Tiles: "
-							+ (tileMatrix.getMatrixWidth() * tileMatrix
-									.getMatrixHeight()));
+			LOGGER.log(Level.INFO,
+					"Zoom Level: " + zoomLevel + ", Width: "
+							+ tileMatrix.getMatrixWidth() + ", Height: "
+							+ tileMatrix.getMatrixHeight() + ", Max Tiles: "
+							+ (tileMatrix.getMatrixWidth()
+									* tileMatrix.getMatrixHeight()));
 
 			File zDirectory = new File(directory, String.valueOf(zoomLevel));
 
@@ -442,8 +430,8 @@ public class TileWriter {
 							BufferedImage tileImage = tileRow
 									.getTileDataImage();
 
-							int tileWidth = width != null ? width : tileImage
-									.getWidth();
+							int tileWidth = width != null ? width
+									: tileImage.getWidth();
 							int tileHeight = height != null ? height
 									: tileImage.getHeight();
 
@@ -481,7 +469,8 @@ public class TileWriter {
 			}
 			tileResultSet.close();
 
-			LOGGER.log(Level.INFO, "Zoom " + zoomLevel + " Tiles: " + zoomCount);
+			LOGGER.log(Level.INFO,
+					"Zoom " + zoomLevel + " Tiles: " + zoomCount);
 
 			tileCount += zoomCount;
 
@@ -522,7 +511,8 @@ public class TileWriter {
 		BoundingBox zoomBoundingBox = tileDao.getBoundingBox();
 		if (projection.isUnit(Units.DEGREES)) {
 			zoomBoundingBox = TileBoundingBoxUtils
-					.boundDegreesBoundingBoxWithWebMercatorLimits(zoomBoundingBox);
+					.boundDegreesBoundingBoxWithWebMercatorLimits(
+							zoomBoundingBox);
 		}
 		BoundingBox zoomWebMercatorBoundingBox = zoomBoundingBox
 				.transform(projectionToWebMercator);
@@ -581,26 +571,23 @@ public class TileWriter {
 		for (int zoomLevel = minZoomCeiling; zoomLevel <= maxZoomFloor; zoomLevel++) {
 
 			File zDirectory = new File(directory, String.valueOf(zoomLevel));
-			TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-					zoomWebMercatorBoundingBox, zoomLevel);
+			TileGrid tileGrid = TileBoundingBoxUtils
+					.getTileGrid(zoomWebMercatorBoundingBox, zoomLevel);
 
 			int zoomCount = 0;
 
-			LOGGER.log(
-					Level.INFO,
-					"Zoom Level: " + zoomLevel + ", Min X: "
-							+ tileGrid.getMinX() + ", Max X: "
-							+ tileGrid.getMaxX() + ", Min Y: "
-							+ tileGrid.getMinY() + ", Max Y: "
-							+ tileGrid.getMaxY() + ", Max Tiles: "
-							+ tileGrid.count());
+			LOGGER.log(Level.INFO, "Zoom Level: " + zoomLevel + ", Min X: "
+					+ tileGrid.getMinX() + ", Max X: " + tileGrid.getMaxX()
+					+ ", Min Y: " + tileGrid.getMinY() + ", Max Y: "
+					+ tileGrid.getMaxY() + ", Max Tiles: " + tileGrid.count());
 
 			for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
 
 				// Build the z/x directory
 				File xDirectory = new File(zDirectory, String.valueOf(x));
 
-				for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
+				for (long y = tileGrid.getMinY(); y <= tileGrid
+						.getMaxY(); y++) {
 
 					GeoPackageTile geoPackageTile = retriever.getTile((int) x,
 							(int) y, zoomLevel);
@@ -644,7 +631,8 @@ public class TileWriter {
 				}
 			}
 
-			LOGGER.log(Level.INFO, "Zoom " + zoomLevel + " Tiles: " + zoomCount);
+			LOGGER.log(Level.INFO,
+					"Zoom " + zoomLevel + " Tiles: " + zoomCount);
 
 			tileCount += zoomCount;
 		}
@@ -697,28 +685,24 @@ public class TileWriter {
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
-		System.out
-				.println("\tWrites a tile set from within a GeoPackage tile table to the file system in a z/x/y folder system according to the specified tile type");
+		System.out.println(
+				"\tWrites a tile set from within a GeoPackage tile table to the file system in a z/x/y folder system according to the specified tile type");
 		System.out.println();
 		System.out.println("ARGUMENTS");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_TYPE
-				+ " tile_type");
-		System.out
-				.println("\t\tTile output format specifying z/x/y folder organization: "
-						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
-						+ ", "
-						+ TileFormatType.XYZ.name().toLowerCase()
-						+ ", "
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_TILE_TYPE + " tile_type");
+		System.out.println(
+				"\t\tTile output format specifying z/x/y folder organization: "
+						+ TileFormatType.GEOPACKAGE.name().toLowerCase() + ", "
+						+ TileFormatType.XYZ.name().toLowerCase() + ", "
 						+ TileFormatType.TMS.name().toLowerCase()
 						+ " (Default is "
 						+ DEFAULT_TILE_TYPE.name().toLowerCase() + ")");
-		System.out
-				.println("\t\t\t"
-						+ TileFormatType.GEOPACKAGE.name().toLowerCase()
-						+ " - x and y represent GeoPackage Tile Matrix width and height");
 		System.out.println("\t\t\t"
-				+ TileFormatType.XYZ.name().toLowerCase()
+				+ TileFormatType.GEOPACKAGE.name().toLowerCase()
+				+ " - x and y represent GeoPackage Tile Matrix width and height");
+		System.out.println("\t\t\t" + TileFormatType.XYZ.name().toLowerCase()
 				+ " - x and y origin is top left");
 		System.out.println("\t\t\t" + TileFormatType.TMS.name().toLowerCase()
 				+ " - (Tile Map Service) x and y origin is bottom left");
@@ -729,23 +713,23 @@ public class TileWriter {
 				.println("\t\tOutput image format: png, jpg, jpeg (default is '"
 						+ DEFAULT_IMAGE_FORMAT + "')");
 		System.out.println();
-		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_WIDTH
-				+ " image_width");
-		System.out
-				.println("\t\tOutput image width in pixels (default is GeoPackage tile width)");
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_WIDTH + " image_width");
+		System.out.println(
+				"\t\tOutput image width in pixels (default is GeoPackage tile width)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_IMAGE_HEIGHT
 				+ " image_height");
-		System.out
-				.println("\t\tOutput image height in pixels (default is GeoPackage tile height)");
+		System.out.println(
+				"\t\tOutput image height in pixels (default is GeoPackage tile height)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_RAW_IMAGE);
-		System.out
-				.println("\t\tUse the raw image bytes, only works when combining and cropping is not required");
+		System.out.println(
+				"\t\tUse the raw image bytes, only works when combining and cropping is not required");
 		System.out.println();
 		System.out.println("\tgeopackage_file");
-		System.out
-				.println("\t\tpath to the GeoPackage file containing the tiles");
+		System.out.println(
+				"\t\tpath to the GeoPackage file containing the tiles");
 		System.out.println();
 		System.out.println("\ttile_table");
 		System.out.println("\t\ttile table name within the GeoPackage file");

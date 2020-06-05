@@ -228,7 +228,7 @@ public class URLTileGen {
 				switch (argument) {
 
 				case ARGUMENT_COMPRESS_FORMAT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						compressFormat = args[++i];
 					} else {
 						valid = false;
@@ -239,7 +239,7 @@ public class URLTileGen {
 					break;
 
 				case ARGUMENT_COMPRESS_QUALITY:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						compressQuality = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -254,7 +254,7 @@ public class URLTileGen {
 					break;
 
 				case ARGUMENT_BOUNDING_BOX:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String bbox = args[++i];
 						String[] bboxParts = bbox.split(",");
 						if (bboxParts.length != 4) {
@@ -279,7 +279,7 @@ public class URLTileGen {
 					break;
 
 				case ARGUMENT_EPSG:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						epsg = Long.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -289,7 +289,7 @@ public class URLTileGen {
 					break;
 
 				case ARGUMENT_URL_EPSG:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						urlEpsg = Long.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -307,7 +307,7 @@ public class URLTileGen {
 					break;
 
 				case ARGUMENT_LOG_COUNT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						progress.setCountFrequency(Integer.valueOf(args[++i]));
 					} else {
 						valid = false;
@@ -317,7 +317,7 @@ public class URLTileGen {
 					break;
 
 				case ARGUMENT_LOG_TIME:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						progress.setTimeFrequency(Integer.valueOf(args[++i]));
 					} else {
 						valid = false;

@@ -411,7 +411,7 @@ public class FeatureTileGen {
 				switch (argument) {
 
 				case ARGUMENT_MAX_FEATURES_PER_TILE:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						int max = Integer.valueOf(args[++i]);
 						if (max >= 0) {
 							maxFeaturesPerTile = max;
@@ -427,7 +427,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_COMPRESS_FORMAT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						compressFormat = args[++i];
 					} else {
 						valid = false;
@@ -438,7 +438,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_COMPRESS_QUALITY:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						compressQuality = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -453,7 +453,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_BOUNDING_BOX:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String bbox = args[++i];
 						String[] bboxParts = bbox.split(",");
 						if (bboxParts.length != 4) {
@@ -478,7 +478,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_EPSG:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						epsg = Long.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -488,7 +488,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_TILE_WIDTH:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						tileWidth = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -498,7 +498,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_TILE_HEIGHT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						tileHeight = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -508,7 +508,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_TILE_SCALE:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						tileScale = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -518,7 +518,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_POINT_RADIUS:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						pointRadius = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -528,7 +528,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_POINT_COLOR:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						pointColor = getColor(args[++i]);
 					} else {
 						valid = false;
@@ -538,7 +538,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_POINT_ICON:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						File pointIconFile = new File(args[++i]);
 						try {
 							BufferedImage iconImage = ImageIO
@@ -558,7 +558,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_ICON_WIDTH:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						iconWidth = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -568,7 +568,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_ICON_HEIGHT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						iconHeight = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -582,7 +582,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_LINE_STROKE_WIDTH:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						lineStrokeWidth = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -592,7 +592,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_LINE_COLOR:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						lineColor = getColor(args[++i]);
 					} else {
 						valid = false;
@@ -602,7 +602,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_POLYGON_STROKE_WIDTH:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						polygonStrokeWidth = Float.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -613,7 +613,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_POLYGON_COLOR:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						polygonColor = getColor(args[++i]);
 					} else {
 						valid = false;
@@ -627,7 +627,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_POLYGON_FILL_COLOR:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						polygonFillColor = getColor(args[++i]);
 					} else {
 						valid = false;
@@ -638,7 +638,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_SIMPLIFY_GEOMETRIES:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						simplifyGeometries = Boolean.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -649,7 +649,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_IGNORE_GEOPACKAGE_STYLES:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						ignoreGeoPackageStyles = Boolean.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -661,7 +661,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_LOG_COUNT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						progress.setCountFrequency(Integer.valueOf(args[++i]));
 					} else {
 						valid = false;
@@ -671,7 +671,7 @@ public class FeatureTileGen {
 					break;
 
 				case ARGUMENT_LOG_TIME:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						progress.setTimeFrequency(Integer.valueOf(args[++i]));
 					} else {
 						valid = false;

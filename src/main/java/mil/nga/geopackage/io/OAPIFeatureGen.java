@@ -203,7 +203,7 @@ public class OAPIFeatureGen {
 				switch (argument) {
 
 				case ARGUMENT_LIMIT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						limit = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -213,7 +213,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_BOUNDING_BOX:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String bbox = args[++i];
 						String[] bboxParts = bbox.split(",");
 						if (bboxParts.length != 4) {
@@ -238,7 +238,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_BOUNDING_BOX_PROJECTION:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String proj = args[++i];
 						String[] projParts = proj.split(",");
 						if (projParts.length != 2) {
@@ -261,7 +261,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_TIME:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						time = args[++i];
 					} else {
 						valid = false;
@@ -271,7 +271,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_PROJECTION:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String proj = args[++i];
 						String[] projParts = proj.split(",");
 						if (projParts.length != 2) {
@@ -291,7 +291,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_TOTAL_LIMIT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						totalLimit = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -301,7 +301,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_TRANSACTION_LIMIT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						transactionLimit = Integer.valueOf(args[++i]);
 					} else {
 						valid = false;
@@ -311,7 +311,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_LOG_COUNT:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						progress.setCountFrequency(Integer.valueOf(args[++i]));
 					} else {
 						valid = false;
@@ -321,7 +321,7 @@ public class OAPIFeatureGen {
 					break;
 
 				case ARGUMENT_LOG_TIME:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						progress.setTimeFrequency(Integer.valueOf(args[++i]));
 					} else {
 						valid = false;
