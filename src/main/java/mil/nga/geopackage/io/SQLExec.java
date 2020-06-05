@@ -8,17 +8,22 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.contents.ContentsDataType;
 import mil.nga.geopackage.db.CoreSQLUtils;
@@ -32,6 +37,9 @@ import mil.nga.geopackage.db.table.TableInfo;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.validate.GeoPackageValidate;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 /**
  * Executes SQL on a SQLite database
@@ -210,6 +218,31 @@ public class SQLExec {
 	public static final String BLOBS_COLUMN_END_REGEX = "\\)";
 
 	/**
+	 * GeoPackage contents bounds command
+	 */
+	public static final String COMMAND_CONTENTS_BOUNDS = "cbounds";
+
+	/**
+	 * GeoPackage bounds command
+	 */
+	public static final String COMMAND_BOUNDS = "bounds";
+
+	/**
+	 * GeoPackage table bounds command
+	 */
+	public static final String COMMAND_TABLE_BOUNDS = "tbounds";
+
+	/**
+	 * Bounds projection argument
+	 */
+	public static final String BOUNDS_ARGUMENT_PROJECTION = "p";
+
+	/**
+	 * Bounds manual argument
+	 */
+	public static final String BOUNDS_ARGUMENT_MANUAL = "m";
+
+	/**
 	 * Blobs column pattern
 	 */
 	public static final Pattern BLOBS_COLUMN_PATTERN = Pattern
@@ -220,6 +253,13 @@ public class SQLExec {
 	 * Blobs column pattern group
 	 */
 	public static final int BLOBS_COLUMN_PATTERN_GROUP = 1;
+
+	/**
+	 * Bounds query type
+	 */
+	private static enum BoundsType {
+		CONTENTS, ALL, TABLE;
+	}
 
 	/**
 	 * Main method to execute SQL in a SQLite database
@@ -249,7 +289,7 @@ public class SQLExec {
 
 				switch (argument) {
 				case ARGUMENT_MAX_ROWS:
-					if (i < args.length) {
+					if (i + 1 < args.length) {
 						String maxRowsString = args[++i];
 						try {
 							maxRows = Integer.valueOf(maxRowsString);
@@ -604,6 +644,32 @@ public class SQLExec {
 								resetCommandPrompt(sqlBuilder);
 
 							} else if (sqlLineLower
+									.startsWith(COMMAND_CONTENTS_BOUNDS)
+									|| sqlLineLower.startsWith(COMMAND_BOUNDS)
+									|| sqlLineLower
+											.startsWith(COMMAND_TABLE_BOUNDS)) {
+
+								BoundsType type = null;
+								int commandLength;
+								if (sqlLineLower
+										.startsWith(COMMAND_CONTENTS_BOUNDS)) {
+									type = BoundsType.CONTENTS;
+									commandLength = COMMAND_CONTENTS_BOUNDS
+											.length();
+								} else if (sqlLineLower
+										.startsWith(COMMAND_TABLE_BOUNDS)) {
+									type = BoundsType.TABLE;
+									commandLength = COMMAND_TABLE_BOUNDS
+											.length();
+								} else {
+									type = BoundsType.ALL;
+									commandLength = COMMAND_BOUNDS.length();
+								}
+
+								bounds(database, sqlBuilder, type,
+										sqlLine.substring(commandLength));
+
+							} else if (sqlLineLower
 									.startsWith(COMMAND_EXTENSIONS)) {
 
 								String tableName = sqlLine
@@ -862,6 +928,34 @@ public class SQLExec {
 					+ " [name]      - List GeoPackage tile tables (all or LIKE table name)");
 			System.out.println("\t" + COMMAND_GEOPACKAGE_INFO
 					+ " <name>      - Query GeoPackage metadata for the table name");
+			System.out.println("\t" + COMMAND_CONTENTS_BOUNDS + " ["
+					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_PROJECTION
+					+ " projection] [name]");
+			System.out.println(
+					"\t                  - Determine the bounds (using only the contents) of the entire GeoPackage or single table name");
+			System.out.println(
+					"\t                     projection     - desired projection as 'authority:code' or 'epsg_code'");
+			System.out.println("\t" + COMMAND_BOUNDS + " [" + ARGUMENT_PREFIX
+					+ BOUNDS_ARGUMENT_PROJECTION + " projection] ["
+					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_MANUAL + "] [name]");
+			System.out.println(
+					"\t                  - Determine the bounds of the entire GeoPackage or single table name");
+			System.out.println(
+					"\t                     projection     - desired projection as 'authority:code' or 'epsg_code'");
+			System.out.println("\t                     "
+					+ BOUNDS_ARGUMENT_MANUAL
+					+ "              - manually query unindexed tables");
+			System.out.println("\t" + COMMAND_TABLE_BOUNDS + " ["
+					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_PROJECTION
+					+ " projection] [" + ARGUMENT_PREFIX
+					+ BOUNDS_ARGUMENT_MANUAL + "] [name]");
+			System.out.println(
+					"\t                  - Determine the bounds (using only table metadata) of the entire GeoPackage or single table name");
+			System.out.println(
+					"\t                     projection     - desired projection as 'authority:code' or 'epsg_code'");
+			System.out.println("\t                     "
+					+ BOUNDS_ARGUMENT_MANUAL
+					+ "              - manually query unindexed tables");
 			System.out.println("\t" + COMMAND_EXTENSIONS
 					+ " [name] - List GeoPackage extensions (all or LIKE table name)");
 		}
@@ -1268,7 +1362,7 @@ public class SQLExec {
 						switch (argument) {
 
 						case BLOBS_ARGUMENT_EXTENSION:
-							if (i < argParts.length) {
+							if (i + 1 < argParts.length) {
 								extension = argParts[++i];
 							} else {
 								valid = false;
@@ -1280,7 +1374,7 @@ public class SQLExec {
 							break;
 
 						case BLOBS_ARGUMENT_DIRECTORY:
-							if (i < argParts.length) {
+							if (i + 1 < argParts.length) {
 								directory = argParts[++i];
 							} else {
 								valid = false;
@@ -1292,7 +1386,7 @@ public class SQLExec {
 							break;
 
 						case BLOBS_ARGUMENT_PATTERN:
-							if (i < argParts.length) {
+							if (i + 1 < argParts.length) {
 								pattern = argParts[++i];
 								Matcher matcher = BLOBS_COLUMN_PATTERN
 										.matcher(pattern);
@@ -1528,6 +1622,246 @@ public class SQLExec {
 		}
 
 		resetCommandPrompt(sqlBuilder);
+	}
+
+	/**
+	 * Determine the bounds
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param type
+	 *            bounds type
+	 * @param args
+	 *            bounds arguments
+	 */
+	private static void bounds(GeoPackage database, StringBuilder sqlBuilder,
+			BoundsType type, String args) {
+
+		boolean valid = true;
+
+		String table = null;
+		String authority = null;
+		String code = null;
+		boolean manual = false;
+
+		if (args != null && !args.isEmpty()) {
+
+			String[] argParts = args.trim().split("\\s+");
+
+			for (int i = 0; valid && i < argParts.length; i++) {
+
+				String arg = argParts[i];
+
+				if (arg.startsWith(ARGUMENT_PREFIX)) {
+
+					String argument = arg.substring(ARGUMENT_PREFIX.length());
+
+					switch (argument) {
+
+					case BOUNDS_ARGUMENT_PROJECTION:
+						if (i + 1 < argParts.length) {
+							String projection = argParts[++i];
+							String[] projectionParts = projection.split(":");
+							switch (projectionParts.length) {
+							case 1:
+								authority = ProjectionConstants.AUTHORITY_EPSG;
+								code = projectionParts[0];
+								break;
+							case 2:
+								authority = projectionParts[0];
+								code = projectionParts[1];
+								break;
+							default:
+								valid = false;
+								System.out.println(
+										"Error: Invalid bounds projection argument '"
+												+ projection
+												+ "', expected 'authority:code' or 'epsg_code'");
+							}
+						} else {
+							valid = false;
+							System.out.println(
+									"Error: Bounds projection argument '" + arg
+											+ "' must be followed by 'authority:code' or 'epsg_code'");
+						}
+						break;
+
+					case BOUNDS_ARGUMENT_MANUAL:
+						if (type == BoundsType.CONTENTS) {
+							valid = false;
+							System.out.println(
+									"Error: Unsupported arg: '" + arg + "'");
+						} else {
+							manual = true;
+						}
+						break;
+
+					default:
+						valid = false;
+						System.out.println(
+								"Error: Unsupported arg: '" + arg + "'");
+					}
+
+				} else {
+					if (table == null) {
+						table = arg;
+						if (!database.isContentsTable(table)) {
+							valid = false;
+							System.out.println("Error: Not a contents table: '"
+									+ table + "'");
+						}
+					} else {
+						valid = false;
+						System.out.println(
+								"Error: Unsupported arg: '" + arg + "'");
+					}
+				}
+			}
+		}
+
+		if (valid) {
+
+			BoundingBox bounds = null;
+			Projection projection = null;
+			if (authority != null) {
+				projection = ProjectionFactory.getProjection(authority, code);
+			}
+
+			if (table != null) {
+
+				switch (type) {
+				case CONTENTS:
+					if (projection != null) {
+						bounds = database.getContentsBoundingBox(projection,
+								table);
+					} else {
+						bounds = database.getContentsBoundingBox(table);
+						projection = database.getContentsProjection(table);
+					}
+					break;
+				case ALL:
+					if (projection != null) {
+						bounds = database.getBoundingBox(projection, table,
+								manual);
+					} else {
+						bounds = database.getBoundingBox(table, manual);
+						projection = database.getProjection(table);
+					}
+					break;
+				case TABLE:
+					if (projection != null) {
+						bounds = database.getTableBoundingBox(projection, table,
+								manual);
+					} else {
+						bounds = database.getTableBoundingBox(table, manual);
+						projection = database.getProjection(table);
+					}
+					break;
+				default:
+					throw new GeoPackageException("Unsupported type: " + type);
+				}
+
+			} else {
+
+				if (projection == null) {
+					projection = ProjectionFactory.getProjection(
+							ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+				}
+
+				switch (type) {
+				case CONTENTS:
+					bounds = database.getContentsBoundingBox(projection);
+					break;
+				case ALL:
+					bounds = database.getBoundingBox(projection, manual);
+					break;
+				case TABLE:
+					bounds = database.getTableBoundingBox(projection, manual);
+					break;
+				default:
+					throw new GeoPackageException("Unsupported type: " + type);
+				}
+
+			}
+
+			printBounds(table, projection, bounds);
+
+		}
+
+		resetCommandPrompt(sqlBuilder);
+	}
+
+	/**
+	 * Print table bounds
+	 * 
+	 * @param table
+	 *            table name
+	 * @param projection
+	 *            bounds projection
+	 * @param bounds
+	 *            bounding box bounds
+	 */
+	private static void printBounds(String table, Projection projection,
+			BoundingBox bounds) {
+
+		SQLExecResult result = new SQLExecResult();
+		result.addTable(table);
+
+		List<String> columns = new ArrayList<>();
+		columns.add("Projection");
+		columns.add("Min Longitude");
+		columns.add("Min Latitude");
+		columns.add("Max Longitude");
+		columns.add("Max Latitude");
+
+		result.addColumns(columns);
+
+		int[] columnWidths = new int[columns.size()];
+		for (int i = 0; i < columnWidths.length; i++) {
+			columnWidths[i] = columns.get(i).length();
+		}
+
+		String proj = null;
+		if (projection != null) {
+			proj = projection.getAuthority() + ":" + projection.getCode();
+		}
+
+		String minLon = null;
+		String minLat = null;
+		String maxLon = null;
+		String maxLat = null;
+
+		if (bounds != null) {
+			DecimalFormat df = new DecimalFormat("0",
+					DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+			df.setMaximumFractionDigits(340);
+			minLon = df.format(bounds.getMinLongitude());
+			minLat = df.format(bounds.getMinLatitude());
+			maxLon = df.format(bounds.getMaxLongitude());
+			maxLat = df.format(bounds.getMaxLatitude());
+		}
+
+		List<String> row = new ArrayList<>();
+		row.add(proj);
+		row.add(minLon);
+		row.add(minLat);
+		row.add(maxLon);
+		row.add(maxLat);
+
+		result.addRow(row);
+
+		for (int i = 0; i < columnWidths.length; i++) {
+			String value = row.get(i);
+			if (value != null) {
+				columnWidths[i] = Math.max(columnWidths[i], value.length());
+			}
+		}
+
+		result.addColumnWidths(columnWidths);
+
+		result.printResults();
 	}
 
 	/**

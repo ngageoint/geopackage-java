@@ -1,6 +1,7 @@
 package mil.nga.geopackage.io;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -80,6 +81,16 @@ public class SQLExecResult {
 	 */
 	protected void addColumn(String column) {
 		columns.add(column);
+	}
+
+	/**
+	 * Add columns
+	 * 
+	 * @param columns
+	 *            column names
+	 */
+	protected void addColumns(Collection<String> columns) {
+		this.columns.addAll(columns);
 	}
 
 	/**
