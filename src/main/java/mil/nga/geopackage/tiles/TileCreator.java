@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.locationtech.proj4j.ProjCoordinate;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
@@ -17,8 +19,6 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionTransform;
-
-import org.locationtech.proj4j.ProjCoordinate;
 
 /**
  * Tile Creator, creates a tile from a tile matrix to the desired projection
@@ -64,9 +64,14 @@ public class TileCreator {
 	private final BoundingBox tileSetBoundingBox;
 
 	/**
-	 * Flag indicating the the tile and request projections are the same
+	 * Flag indicating if the tile and request projections are the same
 	 */
 	private final boolean sameProjection;
+
+	/**
+	 * Flag indicating if the tile and request projection units are the same
+	 */
+	private final boolean sameUnit;
 
 	/**
 	 * Tile Scaling options
@@ -109,8 +114,9 @@ public class TileCreator {
 		tilesProjection = tileDao.getTileMatrixSet().getProjection();
 		tileSetBoundingBox = tileMatrixSet.getBoundingBox();
 
-		// Check if the projections have the same units
-		sameProjection = (requestProjection.getUnit().name
+		// Check if the projections are the same or have the same units
+		sameProjection = requestProjection.equals(tilesProjection);
+		sameUnit = (requestProjection.getUnit().name
 				.equals(tilesProjection.getUnit().name));
 
 		if (imageFormat == null && !sameProjection) {
@@ -231,6 +237,16 @@ public class TileCreator {
 	}
 
 	/**
+	 * Is the request and tile projection the same unit
+	 *
+	 * @return true if the same
+	 * @since 4.0.0
+	 */
+	public boolean isSameUnit() {
+		return sameUnit;
+	}
+
+	/**
 	 * Get the tile scaling options
 	 *
 	 * @return tile scaling options
@@ -342,16 +358,18 @@ public class TileCreator {
 						// Determine the size of the tile to initially draw
 						int tileWidth = requestedTileWidth;
 						int tileHeight = requestedTileHeight;
-						if (!sameProjection) {
+						if (!sameUnit) {
 							tileWidth = (int) Math
 									.round((requestProjectedBoundingBox
-											.getMaxLongitude() - requestProjectedBoundingBox
-											.getMinLongitude())
+											.getMaxLongitude()
+											- requestProjectedBoundingBox
+													.getMinLongitude())
 											/ tileMatrix.getPixelXSize());
 							tileHeight = (int) Math
 									.round((requestProjectedBoundingBox
-											.getMaxLatitude() - requestProjectedBoundingBox
-											.getMinLatitude())
+											.getMaxLatitude()
+											- requestProjectedBoundingBox
+													.getMinLatitude())
 											/ tileMatrix.getPixelYSize());
 						}
 
@@ -368,14 +386,13 @@ public class TileCreator {
 									&& geoPackageTile.getImage() != null) {
 								BufferedImage reprojectTile = reprojectTile(
 										geoPackageTile.getImage(),
-										requestedTileWidth,
-										requestedTileHeight,
+										requestedTileWidth, requestedTileHeight,
 										requestBoundingBox,
 										transformRequestToTiles,
 										tilesBoundingBox);
 								geoPackageTile = new GeoPackageTile(
-										requestedTileWidth,
-										requestedTileHeight, reprojectTile);
+										requestedTileWidth, requestedTileHeight,
+										reprojectTile);
 							}
 
 							tile = geoPackageTile;
@@ -549,13 +566,12 @@ public class TileCreator {
 				double projectedLongitude = toCoord.x;
 				double projectedLatitude = toCoord.y;
 
-				int xPixel = (int) Math
-						.round(((projectedLongitude - tilesBoundingBox
-								.getMinLongitude()) / tilesDistanceWidth)
-								* width);
-				int yPixel = (int) Math
-						.round(((tilesBoundingBox.getMaxLatitude() - projectedLatitude) / tilesDistanceHeight)
-								* height);
+				int xPixel = (int) Math.round(((projectedLongitude
+						- tilesBoundingBox.getMinLongitude())
+						/ tilesDistanceWidth) * width);
+				int yPixel = (int) Math.round(
+						((tilesBoundingBox.getMaxLatitude() - projectedLatitude)
+								/ tilesDistanceHeight) * height);
 
 				xPixel = Math.max(0, xPixel);
 				xPixel = Math.min(width - 1, xPixel);
@@ -569,10 +585,10 @@ public class TileCreator {
 		}
 
 		// Draw the new image
-		BufferedImage projectedTileImage = new BufferedImage(
-				requestedTileWidth, requestedTileHeight, tile.getType());
-		projectedTileImage.setRGB(0, 0, requestedTileWidth,
-				requestedTileHeight, projectedPixels, 0, requestedTileWidth);
+		BufferedImage projectedTileImage = new BufferedImage(requestedTileWidth,
+				requestedTileHeight, tile.getType());
+		projectedTileImage.setRGB(0, 0, requestedTileWidth, requestedTileHeight,
+				projectedPixels, 0, requestedTileWidth);
 
 		return projectedTileImage;
 	}
@@ -595,11 +611,9 @@ public class TileCreator {
 				&& projectedRequestBoundingBox.intersects(tileSetBoundingBox)) {
 
 			// Get the tile distance
-			double distanceWidth = projectedRequestBoundingBox
-					.getMaxLongitude()
+			double distanceWidth = projectedRequestBoundingBox.getMaxLongitude()
 					- projectedRequestBoundingBox.getMinLongitude();
-			double distanceHeight = projectedRequestBoundingBox
-					.getMaxLatitude()
+			double distanceHeight = projectedRequestBoundingBox.getMaxLatitude()
 					- projectedRequestBoundingBox.getMinLatitude();
 
 			// Get the zoom level to request based upon the tile size
@@ -607,8 +621,8 @@ public class TileCreator {
 			if (scaling != null) {
 				// When options are provided, get the approximate zoom level
 				// regardless of whether a tile level exists
-				requestZoomLevel = tileDao.getApproximateZoomLevel(
-						distanceWidth, distanceHeight);
+				requestZoomLevel = tileDao
+						.getApproximateZoomLevel(distanceWidth, distanceHeight);
 			} else {
 				// Get the closest existing zoom level
 				requestZoomLevel = tileDao.getZoomLevel(distanceWidth,
@@ -627,10 +641,11 @@ public class TileCreator {
 					// Find zoom in levels
 					List<Long> zoomInLevels = new ArrayList<>();
 					if (scaling.isZoomIn()) {
-						long zoomIn = scaling.getZoomIn() != null ? requestZoomLevel
-								+ scaling.getZoomIn()
+						long zoomIn = scaling.getZoomIn() != null
+								? requestZoomLevel + scaling.getZoomIn()
 								: tileDao.getMaxZoom();
-						for (long zoomLevel = requestZoomLevel + 1; zoomLevel <= zoomIn; zoomLevel++) {
+						for (long zoomLevel = requestZoomLevel
+								+ 1; zoomLevel <= zoomIn; zoomLevel++) {
 							zoomInLevels.add(zoomLevel);
 						}
 					}
@@ -638,10 +653,11 @@ public class TileCreator {
 					// Find zoom out levels
 					List<Long> zoomOutLevels = new ArrayList<>();
 					if (scaling.isZoomOut()) {
-						long zoomOut = scaling.getZoomOut() != null ? requestZoomLevel
-								- scaling.getZoomOut()
+						long zoomOut = scaling.getZoomOut() != null
+								? requestZoomLevel - scaling.getZoomOut()
 								: tileDao.getMinZoom();
-						for (long zoomLevel = requestZoomLevel - 1; zoomLevel >= zoomOut; zoomLevel--) {
+						for (long zoomLevel = requestZoomLevel
+								- 1; zoomLevel >= zoomOut; zoomLevel--) {
 							zoomOutLevels.add(zoomLevel);
 						}
 					}
