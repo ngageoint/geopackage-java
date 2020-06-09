@@ -9,9 +9,14 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-core version 4.0.0
 * Community extensions decoupling and management, including class repackaging
 * Contents Data Type refactor, core data types and expanded custom data type support
+* GeoPackage Manager refactor and enhancements
 * DAO options to enable modifying row ids or disable column value type validation
 * Distinct select statement queries and counts
 * Lazy on demand result set counts
+* GeoPackage DAO by table and file size methods
+* Tile creation projection fix for different projections in the same unit
+* SQL Exec enhancements, including projected bounds, checks, and file size
+* Standalone Utilities out of bounds fix when ending on an argument
 
 ## [3.5.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.5.0) (03-10-2020)
 
