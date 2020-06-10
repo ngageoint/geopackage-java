@@ -177,7 +177,7 @@ public class GeometryColumnsUtils {
 			Integer expectedResults) throws SQLException {
 
 		GeometryColumnsSqlMmDao dao = GeometryColumnsSqlMmDao
-				.getDao(geoPackage);
+				.create(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<GeometryColumnsSqlMm> results = dao.queryForAll();
@@ -306,7 +306,7 @@ public class GeometryColumnsUtils {
 			Integer expectedResults) throws SQLException {
 
 		GeometryColumnsSfSqlDao dao = GeometryColumnsSfSqlDao
-				.getDao(geoPackage);
+				.create(geoPackage);
 
 		if (dao.isTableExists()) {
 			List<GeometryColumnsSfSql> results = dao.queryForAll();
