@@ -198,19 +198,17 @@ public class FeatureTileUtils {
 	}
 
 	public static void setPoint(FeatureRow featureRow, double x, double y) {
-		GeoPackageGeometryData geomData = new GeoPackageGeometryData(
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		Point point = new Point(false, false, x, y);
-		geomData.setGeometry(point);
+		GeoPackageGeometryData geomData = GeoPackageGeometryData.create(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
+				new Point(x, y));
 		featureRow.setGeometry(geomData);
 	}
 
 	public static long insertLine(FeatureDao featureDao, double[][] points) {
 		FeatureRow featureRow = featureDao.newRow();
-		GeoPackageGeometryData geomData = new GeoPackageGeometryData(
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		LineString lineString = getLineString(points);
-		geomData.setGeometry(lineString);
+		GeoPackageGeometryData geomData = GeoPackageGeometryData.create(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
+				getLineString(points));
 		featureRow.setGeometry(geomData);
 		return featureDao.insert(featureRow);
 	}
@@ -227,14 +225,13 @@ public class FeatureTileUtils {
 	public static long insertPolygon(FeatureDao featureDao,
 			double[][]... points) {
 		FeatureRow featureRow = featureDao.newRow();
-		GeoPackageGeometryData geomData = new GeoPackageGeometryData(
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-		Polygon polygon = new Polygon(false, false);
+		Polygon polygon = new Polygon();
+		GeoPackageGeometryData geomData = GeoPackageGeometryData.create(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM, polygon);
 		for (double[][] ring : points) {
 			LineString lineString = getLineString(ring);
 			polygon.addRing(lineString);
 		}
-		geomData.setGeometry(polygon);
 		featureRow.setGeometry(geomData);
 		return featureDao.insert(featureRow);
 	}

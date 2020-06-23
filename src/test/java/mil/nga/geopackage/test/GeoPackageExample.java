@@ -845,9 +845,8 @@ public class GeoPackageExample {
 
 			FeatureRow newRow = dao.newRow();
 
-			GeoPackageGeometryData geometryData = new GeoPackageGeometryData(
-					geometryColumns.getSrsId());
-			geometryData.setGeometry(geometry);
+			GeoPackageGeometryData geometryData = GeoPackageGeometryData
+					.create(geometryColumns.getSrsId(), geometry);
 			newRow.setGeometry(geometryData);
 
 			newRow.setValue(TEXT_COLUMN, name);

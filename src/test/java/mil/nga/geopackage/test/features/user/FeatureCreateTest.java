@@ -1,5 +1,6 @@
 package mil.nga.geopackage.test.features.user;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import org.junit.Test;
@@ -25,9 +26,11 @@ public class FeatureCreateTest extends CreateGeoPackageTestCase {
 	 * 
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testRead() throws SQLException {
+	public void testRead() throws SQLException, IOException {
 
 		FeatureUtils.testRead(geoPackage);
 

@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.contents.Contents;
@@ -17,8 +19,6 @@ import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
 import mil.nga.sf.Point;
-
-import org.junit.Test;
 
 /**
  * Test multiple ways to perform a transaction
@@ -99,8 +99,8 @@ public class TransactionTest extends CreateGeoPackageTestCase {
 	 * @throws SQLException
 	 *             upon error
 	 */
-	private void testUserDao(FeatureDao featureDao, int rows, boolean successful)
-			throws SQLException {
+	private void testUserDao(FeatureDao featureDao, int rows,
+			boolean successful) throws SQLException {
 
 		int countBefore = featureDao.count();
 
@@ -291,9 +291,8 @@ public class TransactionTest extends CreateGeoPackageTestCase {
 	private void insertRow(FeatureDao featureDao) {
 
 		FeatureRow row = featureDao.newRow();
-		GeoPackageGeometryData geometry = new GeoPackageGeometryData(featureDao
-				.getGeometryColumns().getSrsId());
-		geometry.setGeometry(new Point(0, 0));
+		GeoPackageGeometryData geometry = GeoPackageGeometryData.create(
+				featureDao.getGeometryColumns().getSrsId(), new Point(0, 0));
 		row.setGeometry(geometry);
 		featureDao.insert(row);
 
@@ -338,8 +337,8 @@ public class TransactionTest extends CreateGeoPackageTestCase {
 
 		}
 
-		TestCase.assertEquals(successful ? count + 1 : count, SQLiteMaster
-				.countViewsOnTable(geoPackage.getConnection(),
+		TestCase.assertEquals(successful ? count + 1 : count,
+				SQLiteMaster.countViewsOnTable(geoPackage.getConnection(),
 						Contents.TABLE_NAME));
 	}
 

@@ -73,7 +73,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 	public void setValue(int index, Object value) {
 		if (index == getGeometryColumnIndex() && value instanceof byte[]) {
 			byte[] bytes = (byte[]) value;
-			value = new GeoPackageGeometryData(bytes);
+			value = GeoPackageGeometryData.create(bytes);
 		}
 		super.setValue(index, value);
 	}
@@ -94,7 +94,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 			try {
 				byte[] bytes = geometryData.toBytes();
 				byte[] copyBytes = Arrays.copyOf(bytes, bytes.length);
-				copyValue = new GeoPackageGeometryData(copyBytes);
+				copyValue = GeoPackageGeometryData.create(copyBytes);
 			} catch (IOException e) {
 				throw new GeoPackageException(
 						"Failed to copy Geometry Data bytes. column: "

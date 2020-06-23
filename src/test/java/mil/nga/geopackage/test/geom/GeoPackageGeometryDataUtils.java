@@ -86,9 +86,10 @@ public class GeoPackageGeometryDataUtils {
 
 						// Create a new geometry data from the bytes and compare
 						// with original
-						GeoPackageGeometryData geometryDataFromBytes = new GeoPackageGeometryData(
-								geometryDataToBytes);
-						compareGeometryData(geometryData, geometryDataFromBytes);
+						GeoPackageGeometryData geometryDataFromBytes = GeoPackageGeometryData
+								.create(geometryDataToBytes);
+						compareGeometryData(geometryData,
+								geometryDataFromBytes);
 
 						// Set the geometry empty flag and verify the geometry
 						// was not written / read
@@ -96,9 +97,10 @@ public class GeoPackageGeometryDataUtils {
 						geometryDataAfterToBytes.setEmpty(true);
 						geometryDataToBytes = geometryDataAfterToBytes
 								.toBytes();
-						geometryDataFromBytes = new GeoPackageGeometryData(
-								geometryDataToBytes);
-						TestCase.assertNull(geometryDataFromBytes.getGeometry());
+						geometryDataFromBytes = GeoPackageGeometryData
+								.create(geometryDataToBytes);
+						TestCase.assertNull(
+								geometryDataFromBytes.getGeometry());
 						compareByteArrays(
 								geometryDataAfterToBytes.getHeaderBytes(),
 								geometryDataFromBytes.getHeaderBytes());
@@ -109,20 +111,21 @@ public class GeoPackageGeometryDataUtils {
 						geometryDataAfterToBytes = cursor.getGeometry();
 						geometryDataAfterToBytes
 								.setByteOrder(geometryDataAfterToBytes
-										.getByteOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN
-										: ByteOrder.BIG_ENDIAN);
+										.getByteOrder() == ByteOrder.BIG_ENDIAN
+												? ByteOrder.LITTLE_ENDIAN
+												: ByteOrder.BIG_ENDIAN);
 						geometryDataToBytes = geometryDataAfterToBytes
 								.toBytes();
-						geometryDataFromBytes = new GeoPackageGeometryData(
-								geometryDataToBytes);
+						geometryDataFromBytes = GeoPackageGeometryData
+								.create(geometryDataToBytes);
 						compareGeometryData(geometryDataAfterToBytes,
 								geometryDataFromBytes);
 						TestCase.assertFalse(equalByteArrays(
 								geometryDataAfterToBytes.getHeaderBytes(),
 								geometryData.getHeaderBytes()));
 						TestCase.assertFalse(equalByteArrays(
-								geometryDataAfterToBytes.getWkbBytes(),
-								geometryData.getWkbBytes()));
+								geometryDataAfterToBytes.getWkb(),
+								geometryData.getWkb()));
 						TestCase.assertFalse(equalByteArrays(
 								geometryDataAfterToBytes.getBytes(),
 								geometryData.getBytes()));
@@ -186,24 +189,19 @@ public class GeoPackageGeometryDataUtils {
 							ProjectionTransform transformTo = projection
 									.getTransformation(toEpsg);
 							ProjectionTransform transformFrom = srs
-									.getTransformation(transformTo
-											.getToProjection());
+									.getTransformation(
+											transformTo.getToProjection());
 
-							byte[] bytes = geometryData.getWkbBytes();
+							byte[] bytes = geometryData.getWkb();
 
 							Geometry projectedGeometry = transformTo
 									.transform(geometry);
-							GeoPackageGeometryData projectedGeometryData = new GeoPackageGeometryData(
-									-1);
-							projectedGeometryData
-									.setGeometry(projectedGeometry);
-							projectedGeometryData.toBytes();
-							byte[] projectedBytes = projectedGeometryData
-									.getWkbBytes();
+							byte[] projectedBytes = GeoPackageGeometryData
+									.wkb(projectedGeometry);
 
 							if (epsg > 0) {
-								TestCase.assertFalse(equalByteArrays(bytes,
-										projectedBytes));
+								TestCase.assertFalse(
+										equalByteArrays(bytes, projectedBytes));
 							}
 
 							Geometry restoredGeometry = transformFrom
@@ -244,7 +242,7 @@ public class GeoPackageGeometryDataUtils {
 		compareGeometries(expected.getGeometry(), actual.getGeometry());
 
 		// Compare well-known binary geometries
-		compareByteArrays(expected.getWkbBytes(), actual.getWkbBytes());
+		compareByteArrays(expected.getWkb(), actual.getWkb());
 
 		// Compare all bytes
 		compareByteArrays(expected.getBytes(), actual.getBytes());
@@ -265,8 +263,7 @@ public class GeoPackageGeometryDataUtils {
 		} else {
 			TestCase.assertNotNull(actual);
 
-			TestCase.assertEquals(
-					GeoPackageGeometryData.getIndicator(expected),
+			TestCase.assertEquals(GeoPackageGeometryData.getIndicator(expected),
 					GeoPackageGeometryData.getIndicator(actual));
 			TestCase.assertEquals(expected.getMinX(), actual.getMinX());
 			TestCase.assertEquals(expected.getMaxX(), actual.getMaxX());
@@ -373,8 +370,8 @@ public class GeoPackageGeometryDataUtils {
 				compareTriangle((Triangle) expected, (Triangle) actual, delta);
 				break;
 			default:
-				throw new GeoPackageException("Geometry Type not supported: "
-						+ geometryType);
+				throw new GeoPackageException(
+						"Geometry Type not supported: " + geometryType);
 			}
 		}
 	}
@@ -401,7 +398,8 @@ public class GeoPackageGeometryDataUtils {
 	 * @param expected
 	 * @param actual
 	 */
-	private static void comparePoint(Point expected, Point actual, double delta) {
+	private static void comparePoint(Point expected, Point actual,
+			double delta) {
 
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.getX(), actual.getX(), delta);
@@ -431,8 +429,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numPoints(), actual.numPoints());
 		for (int i = 0; i < expected.numPoints(); i++) {
-			comparePoint(expected.getPoints().get(i),
-					actual.getPoints().get(i), delta);
+			comparePoint(expected.getPoints().get(i), actual.getPoints().get(i),
+					delta);
 		}
 	}
 
@@ -449,8 +447,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numRings(), actual.numRings());
 		for (int i = 0; i < expected.numRings(); i++) {
-			compareLineString(expected.getRings().get(i), actual.getRings()
-					.get(i), delta);
+			compareLineString(expected.getRings().get(i),
+					actual.getRings().get(i), delta);
 		}
 	}
 
@@ -467,8 +465,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numPoints(), actual.numPoints());
 		for (int i = 0; i < expected.numPoints(); i++) {
-			comparePoint(expected.getPoints().get(i),
-					actual.getPoints().get(i), delta);
+			comparePoint(expected.getPoints().get(i), actual.getPoints().get(i),
+					delta);
 		}
 	}
 
@@ -486,8 +484,8 @@ public class GeoPackageGeometryDataUtils {
 		TestCase.assertEquals(expected.numLineStrings(),
 				actual.numLineStrings());
 		for (int i = 0; i < expected.numLineStrings(); i++) {
-			compareLineString(expected.getLineStrings().get(i), actual
-					.getLineStrings().get(i), delta);
+			compareLineString(expected.getLineStrings().get(i),
+					actual.getLineStrings().get(i), delta);
 		}
 	}
 
@@ -504,8 +502,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numPolygons(), actual.numPolygons());
 		for (int i = 0; i < expected.numPolygons(); i++) {
-			comparePolygon(expected.getPolygons().get(i), actual.getPolygons()
-					.get(i), delta);
+			comparePolygon(expected.getPolygons().get(i),
+					actual.getPolygons().get(i), delta);
 		}
 	}
 
@@ -523,8 +521,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numGeometries(), actual.numGeometries());
 		for (int i = 0; i < expected.numGeometries(); i++) {
-			compareGeometries(expected.getGeometries().get(i), actual
-					.getGeometries().get(i), delta);
+			compareGeometries(expected.getGeometries().get(i),
+					actual.getGeometries().get(i), delta);
 		}
 	}
 
@@ -541,8 +539,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numPoints(), actual.numPoints());
 		for (int i = 0; i < expected.numPoints(); i++) {
-			comparePoint(expected.getPoints().get(i),
-					actual.getPoints().get(i), delta);
+			comparePoint(expected.getPoints().get(i), actual.getPoints().get(i),
+					delta);
 		}
 	}
 
@@ -560,8 +558,8 @@ public class GeoPackageGeometryDataUtils {
 		TestCase.assertEquals(expected.numLineStrings(),
 				actual.numLineStrings());
 		for (int i = 0; i < expected.numLineStrings(); i++) {
-			compareLineString(expected.getLineStrings().get(i), actual
-					.getLineStrings().get(i), delta);
+			compareLineString(expected.getLineStrings().get(i),
+					actual.getLineStrings().get(i), delta);
 		}
 	}
 
@@ -578,8 +576,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numRings(), actual.numRings());
 		for (int i = 0; i < expected.numRings(); i++) {
-			compareGeometries(expected.getRings().get(i), actual.getRings()
-					.get(i), delta);
+			compareGeometries(expected.getRings().get(i),
+					actual.getRings().get(i), delta);
 		}
 	}
 
@@ -596,8 +594,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numPolygons(), actual.numPolygons());
 		for (int i = 0; i < expected.numPolygons(); i++) {
-			compareGeometries(expected.getPolygons().get(i), actual
-					.getPolygons().get(i), delta);
+			compareGeometries(expected.getPolygons().get(i),
+					actual.getPolygons().get(i), delta);
 		}
 	}
 
@@ -613,8 +611,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numPolygons(), actual.numPolygons());
 		for (int i = 0; i < expected.numPolygons(); i++) {
-			compareGeometries(expected.getPolygons().get(i), actual
-					.getPolygons().get(i), delta);
+			compareGeometries(expected.getPolygons().get(i),
+					actual.getPolygons().get(i), delta);
 		}
 	}
 
@@ -631,8 +629,8 @@ public class GeoPackageGeometryDataUtils {
 		compareBaseGeometryAttributes(expected, actual);
 		TestCase.assertEquals(expected.numRings(), actual.numRings());
 		for (int i = 0; i < expected.numRings(); i++) {
-			compareLineString(expected.getRings().get(i), actual.getRings()
-					.get(i), delta);
+			compareLineString(expected.getRings().get(i),
+					actual.getRings().get(i), delta);
 		}
 	}
 

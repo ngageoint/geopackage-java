@@ -99,9 +99,8 @@ public class GeoPackagePerformance {
 				SQLiteMasterType.TABLE, TABLE_NAME);
 		LOGGER.log(Level.INFO, table.getSql(0));
 
-		GeoPackageGeometryData geometryData = new GeoPackageGeometryData(
-				srs.getSrsId());
-		geometryData.setGeometry(geometry);
+		GeoPackageGeometryData geometryData = GeoPackageGeometryData
+				.create(srs.getSrsId(), geometry);
 
 		FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 

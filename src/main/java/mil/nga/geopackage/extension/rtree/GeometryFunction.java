@@ -2,9 +2,9 @@ package mil.nga.geopackage.extension.rtree;
 
 import java.sql.SQLException;
 
-import mil.nga.geopackage.geom.GeoPackageGeometryData;
-
 import org.sqlite.Function;
+
+import mil.nga.geopackage.geom.GeoPackageGeometryData;
 
 /**
  * Geometry Function for reading Geometry Data from a geometry column blob
@@ -31,14 +31,14 @@ public abstract class GeometryFunction extends Function {
 
 		int argCount = args();
 		if (argCount != 1) {
-			throw new SQLException("Single argument is required. args: "
-					+ argCount);
+			throw new SQLException(
+					"Single argument is required. args: " + argCount);
 		}
 
 		byte[] bytes = value_blob(0);
 		GeoPackageGeometryData geometryData = null;
 		if (bytes != null && bytes.length > 0) {
-			geometryData = new GeoPackageGeometryData(bytes);
+			geometryData = GeoPackageGeometryData.create(bytes);
 		}
 
 		Object response = execute(geometryData);
