@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +37,8 @@ import mil.nga.geopackage.db.table.TableColumn;
 import mil.nga.geopackage.db.table.TableInfo;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
+import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
@@ -71,6 +74,26 @@ public class SQLExec {
 	 * Default max rows
 	 */
 	public static final int DEFAULT_MAX_ROWS = 100;
+
+	/**
+	 * Max column width argument
+	 */
+	public static final String ARGUMENT_MAX_COLUMN_WIDTH = "w";
+
+	/**
+	 * Default max column width
+	 */
+	public static final Integer DEFAULT_MAX_COLUMN_WIDTH = 120;
+
+	/**
+	 * Max lines per row argument
+	 */
+	public static final String ARGUMENT_MAX_LINES_PER_ROW = "l";
+
+	/**
+	 * Default max lines per row
+	 */
+	public static final Integer DEFAULT_MAX_LINES_PER_ROW = null;
 
 	/**
 	 * History pattern
@@ -131,6 +154,16 @@ public class SQLExec {
 	 * Max rows command
 	 */
 	public static final String COMMAND_MAX_ROWS = "rows";
+
+	/**
+	 * Max column width command
+	 */
+	public static final String COMMAND_MAX_COLUMN_WIDTH = "width";
+
+	/**
+	 * Max lines per row command
+	 */
+	public static final String COMMAND_MAX_LINES_PER_ROW = "lines";
 
 	/**
 	 * Table Info command
@@ -275,7 +308,9 @@ public class SQLExec {
 		boolean requiredArguments = false;
 
 		File sqliteFile = null;
-		Integer maxRows = null;
+		Integer maxRows = DEFAULT_MAX_ROWS;
+		Integer maxColumnWidth = DEFAULT_MAX_COLUMN_WIDTH;
+		Integer maxLinesPerRow = DEFAULT_MAX_LINES_PER_ROW;
 		StringBuilder sql = null;
 
 		for (int i = 0; valid && i < args.length; i++) {
@@ -288,6 +323,7 @@ public class SQLExec {
 				String argument = arg.substring(ARGUMENT_PREFIX.length());
 
 				switch (argument) {
+
 				case ARGUMENT_MAX_ROWS:
 					if (i + 1 < args.length) {
 						String maxRowsString = args[++i];
@@ -300,10 +336,53 @@ public class SQLExec {
 									+ "' must be followed by a valid number. Invalid: "
 									+ maxRowsString);
 						}
+						maxRows = Math.max(0, maxRows);
 					} else {
 						valid = false;
 						System.out.println("Error: Max Rows argument '" + arg
 								+ "' must be followed by a valid number");
+					}
+					break;
+
+				case ARGUMENT_MAX_COLUMN_WIDTH:
+					if (i + 1 < args.length) {
+						String maxColumnWidthString = args[++i];
+						try {
+							maxColumnWidth = Integer
+									.valueOf(maxColumnWidthString);
+						} catch (NumberFormatException e) {
+							valid = false;
+							System.out.println(
+									"Error: Max Column Width argument '" + arg
+											+ "' must be followed by a valid number. Invalid: "
+											+ maxColumnWidthString);
+						}
+						maxColumnWidth = Math.max(0, maxColumnWidth);
+					} else {
+						valid = false;
+						System.out.println("Error: Max Column Width argument '"
+								+ arg + "' must be followed by a valid number");
+					}
+					break;
+
+				case ARGUMENT_MAX_LINES_PER_ROW:
+					if (i + 1 < args.length) {
+						String maxLinesPerRowString = args[++i];
+						try {
+							maxLinesPerRow = Integer
+									.valueOf(maxLinesPerRowString);
+						} catch (NumberFormatException e) {
+							valid = false;
+							System.out.println(
+									"Error: Max Lines Per Row argument '" + arg
+											+ "' must be followed by a valid number. Invalid: "
+											+ maxLinesPerRowString);
+						}
+						maxLinesPerRow = Math.max(0, maxLinesPerRow);
+					} else {
+						valid = false;
+						System.out.println("Error: Max Lines Per Row argument '"
+								+ arg + "' must be followed by a valid number");
 					}
 					break;
 
@@ -337,13 +416,14 @@ public class SQLExec {
 			GeoPackage database = GeoPackageManager.open(sqliteFile, false);
 			try {
 
-				printInfo(database, maxRows);
+				printInfo(database, maxRows, maxColumnWidth, maxLinesPerRow);
 
 				if (sql != null) {
 
 					try {
 						SQLExecResult result = executeSQL(database,
 								sql.toString(), maxRows);
+						setPrintOptions(result, maxColumnWidth, maxLinesPerRow);
 						result.printResults();
 					} catch (Exception e) {
 						System.out.println(e);
@@ -351,7 +431,8 @@ public class SQLExec {
 
 				} else {
 
-					commandPrompt(database, maxRows);
+					commandPrompt(database, maxRows, maxColumnWidth,
+							maxLinesPerRow);
 
 				}
 
@@ -367,8 +448,15 @@ public class SQLExec {
 	 * 
 	 * @param database
 	 *            open database
+	 * @param maxRows
+	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
 	 */
-	private static void commandPrompt(GeoPackage database, Integer maxRows) {
+	private static void commandPrompt(GeoPackage database, Integer maxRows,
+			Integer maxColumnWidth, Integer maxLinesPerRow) {
 
 		printHelp(database);
 
@@ -426,7 +514,8 @@ public class SQLExec {
 							String sql = buildSqlMasterQuery(false,
 									SQLiteMasterType.TABLE, name);
 							executeSQL(database, sqlBuilder, sql,
-									COMMAND_ALL_ROWS, history);
+									COMMAND_ALL_ROWS, maxColumnWidth,
+									maxLinesPerRow, history);
 
 						} else if (sqlLineLower.startsWith(COMMAND_INDEXES)) {
 
@@ -437,7 +526,8 @@ public class SQLExec {
 							String sql = buildSqlMasterQuery(true,
 									SQLiteMasterType.INDEX, name);
 							executeSQL(database, sqlBuilder, sql,
-									COMMAND_ALL_ROWS, history);
+									COMMAND_ALL_ROWS, maxColumnWidth,
+									maxLinesPerRow, history);
 
 						} else if (sqlLineLower.startsWith(COMMAND_VIEWS)) {
 
@@ -448,7 +538,8 @@ public class SQLExec {
 							String sql = buildSqlMasterQuery(false,
 									SQLiteMasterType.VIEW, name);
 							executeSQL(database, sqlBuilder, sql,
-									COMMAND_ALL_ROWS, history);
+									COMMAND_ALL_ROWS, maxColumnWidth,
+									maxLinesPerRow, history);
 
 						} else if (sqlLineLower.startsWith(COMMAND_TRIGGERS)) {
 
@@ -459,7 +550,8 @@ public class SQLExec {
 							String sql = buildSqlMasterQuery(true,
 									SQLiteMasterType.TRIGGER, name);
 							executeSQL(database, sqlBuilder, sql,
-									COMMAND_ALL_ROWS, history);
+									COMMAND_ALL_ROWS, maxColumnWidth,
+									maxLinesPerRow, history);
 
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_HISTORY)) {
 
@@ -474,7 +566,8 @@ public class SQLExec {
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_PREVIOUS)) {
 
 							executeSQL(database, sqlBuilder, history.size(),
-									maxRows, history);
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history);
 
 						} else if (sqlLineLower
 								.startsWith(COMMAND_WRITE_BLOBS)) {
@@ -489,14 +582,51 @@ public class SQLExec {
 									sqlLine.substring(1, sqlLine.length()));
 
 							executeSQL(database, sqlBuilder, historyNumber,
-									maxRows, history);
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history);
 
 						} else if (sqlLineLower.startsWith(COMMAND_MAX_ROWS)) {
 
-							maxRows = Integer.parseInt(
-									sqlLine.substring(COMMAND_MAX_ROWS.length(),
-											sqlLine.length()).trim());
-							System.out.println("Max Rows: " + maxRows);
+							String maxRowsString = sqlLine
+									.substring(COMMAND_MAX_ROWS.length(),
+											sqlLine.length())
+									.trim();
+							if (!maxRowsString.isEmpty()) {
+								maxRows = Integer.parseInt(maxRowsString);
+								maxRows = Math.max(0, maxRows);
+							}
+							System.out.println(
+									"Max Rows: " + printableValue(maxRows));
+							resetCommandPrompt(sqlBuilder);
+
+						} else if (sqlLineLower
+								.startsWith(COMMAND_MAX_COLUMN_WIDTH)) {
+
+							String maxColumnWidthString = sqlLine.substring(
+									COMMAND_MAX_COLUMN_WIDTH.length(),
+									sqlLine.length()).trim();
+							if (!maxColumnWidthString.isEmpty()) {
+								maxColumnWidth = Integer
+										.parseInt(maxColumnWidthString);
+								maxColumnWidth = Math.max(0, maxColumnWidth);
+							}
+							System.out.println("Max Column Width: "
+									+ printableValue(maxColumnWidth));
+							resetCommandPrompt(sqlBuilder);
+
+						} else if (sqlLineLower
+								.startsWith(COMMAND_MAX_LINES_PER_ROW)) {
+
+							String maxLinesPerRowString = sqlLine.substring(
+									COMMAND_MAX_LINES_PER_ROW.length(),
+									sqlLine.length()).trim();
+							if (!maxLinesPerRowString.isEmpty()) {
+								maxLinesPerRow = Integer
+										.parseInt(maxLinesPerRowString);
+								maxLinesPerRow = Math.max(0, maxLinesPerRow);
+							}
+							System.out.println("Max Lines Per Row: "
+									+ printableValue(maxLinesPerRow));
 							resetCommandPrompt(sqlBuilder);
 
 						} else if (sqlLineLower
@@ -510,9 +640,11 @@ public class SQLExec {
 								executeSQL(database, sqlBuilder,
 										"PRAGMA table_info(\"" + tableName
 												+ "\");",
-										COMMAND_ALL_ROWS, history);
+										COMMAND_ALL_ROWS, maxColumnWidth,
+										maxLinesPerRow, history);
 							} else {
-								printInfo(database, maxRows);
+								printInfo(database, maxRows, maxColumnWidth,
+										maxLinesPerRow);
 								resetCommandPrompt(sqlBuilder);
 							}
 
@@ -528,30 +660,36 @@ public class SQLExec {
 
 							executeSQL(database, sqlBuilder,
 									"SELECT * FROM \"" + sqlLine + "\";",
-									maxRows, history);
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history);
 
 						} else if (sqlLineLower.startsWith(COMMAND_VACUUM)) {
 							executeShortcutSQL(database, sqlBuilder, sqlLine,
-									maxRows, history, COMMAND_VACUUM, "VACUUM");
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history, COMMAND_VACUUM, "VACUUM");
 						} else if (sqlLineLower
 								.startsWith(COMMAND_FOREIGN_KEY_CHECK)) {
 							executeShortcutSQL(database, sqlBuilder, sqlLine,
-									maxRows, history, COMMAND_FOREIGN_KEY_CHECK,
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history, COMMAND_FOREIGN_KEY_CHECK,
 									"PRAGMA foreign_key_check");
 						} else if (sqlLineLower
 								.startsWith(COMMAND_FOREIGN_KEYS)) {
 							executeShortcutSQL(database, sqlBuilder, sqlLine,
-									maxRows, history, COMMAND_FOREIGN_KEYS,
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history, COMMAND_FOREIGN_KEYS,
 									"PRAGMA foreign_keys");
 						} else if (sqlLineLower
 								.startsWith(COMMAND_INTEGRITY_CHECK)) {
 							executeShortcutSQL(database, sqlBuilder, sqlLine,
-									maxRows, history, COMMAND_INTEGRITY_CHECK,
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history, COMMAND_INTEGRITY_CHECK,
 									"PRAGMA integrity_check");
 						} else if (sqlLineLower
 								.startsWith(COMMAND_QUICK_CHECK)) {
 							executeShortcutSQL(database, sqlBuilder, sqlLine,
-									maxRows, history, COMMAND_QUICK_CHECK,
+									maxRows, maxColumnWidth, maxLinesPerRow,
+									history, COMMAND_QUICK_CHECK,
 									"PRAGMA quick_check");
 						} else if (isGeoPackage(database)) {
 
@@ -570,7 +708,8 @@ public class SQLExec {
 								}
 								sql.append(" ORDER BY table_name;");
 								executeSQL(database, sqlBuilder, sql.toString(),
-										COMMAND_ALL_ROWS, history);
+										COMMAND_ALL_ROWS, maxColumnWidth,
+										maxLinesPerRow, history);
 
 							} else if (sqlLineLower
 									.startsWith(COMMAND_GEOPACKAGE_INFO)) {
@@ -585,7 +724,8 @@ public class SQLExec {
 											"SELECT * FROM gpkg_contents WHERE LOWER(table_name) = '"
 													+ tableName.toLowerCase()
 													+ "';",
-											COMMAND_ALL_ROWS, history, false);
+											COMMAND_ALL_ROWS, maxColumnWidth,
+											maxLinesPerRow, history, false);
 
 									String tableType = database
 											.getTableType(tableName);
@@ -595,12 +735,16 @@ public class SQLExec {
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
 															+ tableName + "';",
-													COMMAND_ALL_ROWS, history,
+													COMMAND_ALL_ROWS,
+													maxColumnWidth,
+													maxLinesPerRow, history,
 													false);
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
 															+ tableName + "';",
-													COMMAND_ALL_ROWS, history,
+													COMMAND_ALL_ROWS,
+													maxColumnWidth,
+													maxLinesPerRow, history,
 													false);
 											break;
 										}
@@ -617,19 +761,25 @@ public class SQLExec {
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_geometry_columns WHERE table_name = '"
 															+ tableName + "';",
-													COMMAND_ALL_ROWS, history,
+													COMMAND_ALL_ROWS,
+													maxColumnWidth,
+													maxLinesPerRow, history,
 													false);
 											break;
 										case TILES:
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"
 															+ tableName + "';",
-													COMMAND_ALL_ROWS, history,
+													COMMAND_ALL_ROWS,
+													maxColumnWidth,
+													maxLinesPerRow, history,
 													false);
 											executeSQL(database, sqlBuilder,
 													"SELECT * FROM gpkg_tile_matrix WHERE table_name = '"
 															+ tableName + "';",
-													COMMAND_ALL_ROWS, history,
+													COMMAND_ALL_ROWS,
+													maxColumnWidth,
+													maxLinesPerRow, history,
 													false);
 											break;
 										}
@@ -638,7 +788,8 @@ public class SQLExec {
 									executeSQL(database, sqlBuilder,
 											"PRAGMA table_info(\"" + tableName
 													+ "\");",
-											COMMAND_ALL_ROWS, history, false);
+											COMMAND_ALL_ROWS, maxColumnWidth,
+											maxLinesPerRow, history, false);
 								}
 
 								resetCommandPrompt(sqlBuilder);
@@ -687,7 +838,8 @@ public class SQLExec {
 								sql.append(";");
 
 								executeSQL(database, sqlBuilder, sql.toString(),
-										COMMAND_ALL_ROWS, history);
+										COMMAND_ALL_ROWS, maxColumnWidth,
+										maxLinesPerRow, history);
 
 							} else {
 
@@ -722,6 +874,7 @@ public class SQLExec {
 
 									executeSQL(database, sqlBuilder,
 											sql.toString(), COMMAND_ALL_ROWS,
+											maxColumnWidth, maxLinesPerRow,
 											history);
 
 								} else {
@@ -743,7 +896,8 @@ public class SQLExec {
 					if (executeSql) {
 
 						executeSQL(database, sqlBuilder, sqlBuilder.toString(),
-								maxRows, history);
+								maxRows, maxColumnWidth, maxLinesPerRow,
+								history);
 
 					}
 
@@ -812,8 +966,13 @@ public class SQLExec {
 	 *            database
 	 * @param maxRows
 	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
 	 */
-	private static void printInfo(GeoPackage database, Integer maxRows) {
+	private static void printInfo(GeoPackage database, Integer maxRows,
+			Integer maxColumnWidth, Integer maxLinesPerRow) {
 
 		boolean isGeoPackage = isGeoPackage(database);
 
@@ -837,8 +996,11 @@ public class SQLExec {
 		if (userVersion != null) {
 			System.out.println("User Version: " + userVersion);
 		}
+		System.out.println("Max Rows: " + printableValue(maxRows));
+		System.out
+				.println("Max Column Width: " + printableValue(maxColumnWidth));
 		System.out.println(
-				"Max Rows: " + (maxRows != null ? maxRows : DEFAULT_MAX_ROWS));
+				"Max Lines Per Row: " + printableValue(maxLinesPerRow));
 
 	}
 
@@ -874,7 +1036,11 @@ public class SQLExec {
 		System.out.println("\t" + COMMAND_TRIGGERS
 				+ " [name]   - list database triggers (all or LIKE trigger name)");
 		System.out.println("\t" + COMMAND_MAX_ROWS
-				+ " n            - set the max rows per query to n");
+				+ " [n]          - display or set the max rows per query");
+		System.out.println("\t" + COMMAND_MAX_COLUMN_WIDTH
+				+ " [n]         - display or set the max width (in characters) per column");
+		System.out.println("\t" + COMMAND_MAX_LINES_PER_ROW
+				+ " [n]         - display or set the max lines per row");
 		System.out.println("\t" + COMMAND_HISTORY
 				+ "           - list successfully executed sql commands");
 		System.out.println("\t" + COMMAND_PREVIOUS
@@ -993,6 +1159,10 @@ public class SQLExec {
 	 *            history number
 	 * @param maxRows
 	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
 	 * @param history
 	 *            history
 	 * @throws SQLException
@@ -1000,6 +1170,7 @@ public class SQLExec {
 	 */
 	private static void executeSQL(GeoPackage database,
 			StringBuilder sqlBuilder, int historyNumber, Integer maxRows,
+			Integer maxColumnWidth, Integer maxLinesPerRow,
 			List<String> history) throws SQLException {
 
 		int number = historyNumber;
@@ -1014,7 +1185,8 @@ public class SQLExec {
 
 			String sql = history.get(number);
 			System.out.println(sql);
-			executeSQL(database, sqlBuilder, sql, maxRows, history);
+			executeSQL(database, sqlBuilder, sql, maxRows, maxColumnWidth,
+					maxLinesPerRow, history);
 
 		} else {
 			System.out.println("No History at " + historyNumber);
@@ -1034,6 +1206,10 @@ public class SQLExec {
 	 *            SQL statement
 	 * @param maxRows
 	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
 	 * @param history
 	 *            history
 	 * @throws SQLException
@@ -1041,8 +1217,10 @@ public class SQLExec {
 	 */
 	private static void executeSQL(GeoPackage database,
 			StringBuilder sqlBuilder, String sql, Integer maxRows,
+			Integer maxColumnWidth, Integer maxLinesPerRow,
 			List<String> history) throws SQLException {
-		executeSQL(database, sqlBuilder, sql, maxRows, history, true);
+		executeSQL(database, sqlBuilder, sql, maxRows, maxColumnWidth,
+				maxLinesPerRow, history, true);
 	}
 
 	/**
@@ -1056,6 +1234,10 @@ public class SQLExec {
 	 *            SQL statement
 	 * @param maxRows
 	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
 	 * @param history
 	 *            history
 	 * @param resetCommandPrompt
@@ -1065,10 +1247,12 @@ public class SQLExec {
 	 */
 	private static void executeSQL(GeoPackage database,
 			StringBuilder sqlBuilder, String sql, Integer maxRows,
+			Integer maxColumnWidth, Integer maxLinesPerRow,
 			List<String> history, boolean resetCommandPrompt)
 			throws SQLException {
 
 		SQLExecResult result = executeSQL(database, sql, maxRows);
+		setPrintOptions(result, maxColumnWidth, maxLinesPerRow);
 		result.printResults();
 
 		history.add(sql);
@@ -1076,6 +1260,33 @@ public class SQLExec {
 		if (resetCommandPrompt) {
 			resetCommandPrompt(sqlBuilder);
 		}
+	}
+
+	/**
+	 * Set print formatting options
+	 * 
+	 * @param result
+	 *            result
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 */
+	private static void setPrintOptions(SQLExecResult result,
+			Integer maxColumnWidth, Integer maxLinesPerRow) {
+
+		// If no max column width, use the default
+		if (maxColumnWidth == null) {
+			maxColumnWidth = DEFAULT_MAX_COLUMN_WIDTH;
+		}
+
+		// If no max lines per row, use the default
+		if (maxLinesPerRow == null) {
+			maxLinesPerRow = DEFAULT_MAX_LINES_PER_ROW;
+		}
+
+		result.setMaxColumnWidth(maxColumnWidth);
+		result.setMaxLinesPerRow(maxLinesPerRow);
 	}
 
 	/**
@@ -1089,6 +1300,10 @@ public class SQLExec {
 	 *            SQL statement
 	 * @param maxRows
 	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
 	 * @param history
 	 *            history
 	 * @param shortcut
@@ -1100,10 +1315,12 @@ public class SQLExec {
 	 */
 	private static void executeShortcutSQL(GeoPackage database,
 			StringBuilder sqlBuilder, String sql, Integer maxRows,
+			Integer maxColumnWidth, Integer maxLinesPerRow,
 			List<String> history, String shortcut, String replacement)
 			throws SQLException {
 		String replacedSql = replacement + sql.substring(shortcut.length());
-		executeSQL(database, sqlBuilder, replacedSql, maxRows, history);
+		executeSQL(database, sqlBuilder, replacedSql, maxRows, maxColumnWidth,
+				maxLinesPerRow, history);
 	}
 
 	/**
@@ -1194,11 +1411,6 @@ public class SQLExec {
 	public static SQLExecResult executeSQL(GeoPackage database, String sql,
 			Integer maxRows) throws SQLException {
 
-		// If no max number of results, use the default
-		if (maxRows == null) {
-			maxRows = DEFAULT_MAX_ROWS;
-		}
-
 		sql = sql.trim();
 
 		RTreeIndexExtension rtree = new RTreeIndexExtension(database);
@@ -1228,7 +1440,7 @@ public class SQLExec {
 	 *             upon SQL error
 	 */
 	private static SQLExecResult executeQuery(GeoPackage database, String sql,
-			int maxRows) throws SQLException {
+			Integer maxRows) throws SQLException {
 
 		SQLExecResult result = new SQLExecResult();
 
@@ -1239,9 +1451,11 @@ public class SQLExec {
 
 				statement = database.getConnection().getConnection()
 						.prepareStatement(sql);
-				statement.setMaxRows(maxRows);
 
-				result.setMaxRows(maxRows);
+				if (maxRows != null) {
+					statement.setMaxRows(maxRows);
+					result.setMaxRows(maxRows);
+				}
 
 				boolean hasResultSet = statement.execute();
 
@@ -1255,12 +1469,41 @@ public class SQLExec {
 					int[] columnWidths = new int[numColumns];
 					int[] columnTypes = new int[numColumns];
 
+					boolean isGeoPackage = isGeoPackage(database);
+					Map<String, String> tableGeometryColumns = new HashMap<>();
+					Set<Integer> geometryColumns = new HashSet<>();
+
 					for (int col = 1; col <= numColumns; col++) {
-						result.addTable(metadata.getTableName(col));
+						String tableName = metadata.getTableName(col);
+						result.addTable(tableName);
 						String columnName = metadata.getColumnName(col);
 						result.addColumn(columnName);
 						columnTypes[col - 1] = metadata.getColumnType(col);
 						columnWidths[col - 1] = columnName.length();
+
+						// Determine if the column is a GeoPackage geometry
+						if (isGeoPackage) {
+							String geometryColumn = null;
+							if (tableGeometryColumns.containsKey(tableName)) {
+								geometryColumn = tableGeometryColumns
+										.get(tableName);
+							} else {
+								if (database.isFeatureTable(tableName)) {
+									GeometryColumns gc = database
+											.getGeometryColumnsDao()
+											.queryForTableName(tableName);
+									if (gc != null) {
+										geometryColumn = gc.getColumnName();
+									}
+								}
+								tableGeometryColumns.put(tableName,
+										geometryColumn);
+							}
+							if (geometryColumn != null && geometryColumn
+									.equalsIgnoreCase(columnName)) {
+								geometryColumns.add(col);
+							}
+						}
 					}
 
 					while (resultSet.next()) {
@@ -1269,16 +1512,24 @@ public class SQLExec {
 						result.addRow(row);
 						for (int col = 1; col <= numColumns; col++) {
 
-							String stringValue = resultSet.getString(col);
+							String stringValue = null;
+							Object value = resultSet.getObject(col);
 
-							if (stringValue != null) {
+							if (value != null) {
 
 								switch (columnTypes[col - 1]) {
 								case Types.BLOB:
 									stringValue = BLOB_DISPLAY_VALUE;
+									if (geometryColumns.contains(col)) {
+										try {
+											stringValue = GeoPackageGeometryData
+													.wkt((byte[]) value);
+										} catch (IOException e) {
+										}
+									}
 									break;
 								default:
-									stringValue = stringValue.replaceAll(
+									stringValue = value.toString().replaceAll(
 											"\\s*[\\r\\n]+\\s*", " ");
 								}
 
@@ -1428,10 +1679,6 @@ public class SQLExec {
 
 				String sql = history.get(history.size() - 1);
 
-				if (maxRows == null) {
-					maxRows = DEFAULT_MAX_ROWS;
-				}
-
 				Set<String> blobsWritten = new LinkedHashSet<>();
 				int blobsWrittenCount = 0;
 
@@ -1440,7 +1687,9 @@ public class SQLExec {
 
 					statement = database.getConnection().getConnection()
 							.prepareStatement(sql);
-					statement.setMaxRows(maxRows);
+					if (maxRows != null) {
+						statement.setMaxRows(maxRows);
+					}
 
 					boolean hasResultSet = statement.execute();
 
@@ -1872,7 +2121,10 @@ public class SQLExec {
 		System.out.println("USAGE");
 		System.out.println();
 		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_MAX_ROWS
-				+ " max_rows] sqlite_file [sql]");
+				+ " max_rows] [" + ARGUMENT_PREFIX + ARGUMENT_MAX_COLUMN_WIDTH
+				+ " max_column_width] [" + ARGUMENT_PREFIX
+				+ ARGUMENT_MAX_LINES_PER_ROW
+				+ " max_lines_per_row] sqlite_file [sql]");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -1885,8 +2137,19 @@ public class SQLExec {
 		System.out.println();
 		System.out.println(
 				"\t" + ARGUMENT_PREFIX + ARGUMENT_MAX_ROWS + " max_rows");
-		System.out.println("\t\tMax rows to query and display" + " (Default is "
-				+ DEFAULT_MAX_ROWS + ")");
+		System.out.println("\t\tMax rows per query" + " (Default is "
+				+ printableValue(DEFAULT_MAX_ROWS) + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_MAX_COLUMN_WIDTH
+				+ " max_column_width");
+		System.out.println(
+				"\t\tMax width (in characters) per column" + " (Default is "
+						+ printableValue(DEFAULT_MAX_COLUMN_WIDTH) + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_MAX_LINES_PER_ROW
+				+ " max_lines_per_row");
+		System.out.println("\t\tMax lines per row" + " (Default is "
+				+ printableValue(DEFAULT_MAX_LINES_PER_ROW) + ")");
 		System.out.println();
 		System.out.println("\tsqlite_file");
 		System.out.println("\t\tpath to the SQLite database file");
@@ -1894,6 +2157,17 @@ public class SQLExec {
 		System.out.println("\tsql");
 		System.out.println("\t\tSQL statement to execute");
 		System.out.println();
+	}
+
+	/**
+	 * Get a printable string for the integer value
+	 * 
+	 * @param value
+	 *            value
+	 * @return string
+	 */
+	private static String printableValue(Integer value) {
+		return (value != null && value > 0) ? value.toString() : "0 = none";
 	}
 
 	/**

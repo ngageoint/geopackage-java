@@ -26,6 +26,16 @@ public class SQLExecResult {
 	private List<String> columns = new ArrayList<>();
 
 	/**
+	 * Max column width for any value, used when printing
+	 */
+	private Integer maxColumnWidth = null;
+
+	/**
+	 * Max number of printed lines per row, used when printing
+	 */
+	private Integer maxLinesPerRow = null;
+
+	/**
 	 * Result column formatting widths
 	 */
 	private List<Integer> columnWidths = new ArrayList<>();
@@ -48,7 +58,7 @@ public class SQLExecResult {
 	/**
 	 * Constructor
 	 */
-	protected SQLExecResult() {
+	public SQLExecResult() {
 
 	}
 
@@ -58,7 +68,7 @@ public class SQLExecResult {
 	 * @param table
 	 *            table name
 	 */
-	protected void addTable(String table) {
+	public void addTable(String table) {
 		if (table != null && !table.trim().isEmpty()) {
 			tables.add(table.trim());
 		}
@@ -79,7 +89,7 @@ public class SQLExecResult {
 	 * @param column
 	 *            column name
 	 */
-	protected void addColumn(String column) {
+	public void addColumn(String column) {
 		columns.add(column);
 	}
 
@@ -89,7 +99,7 @@ public class SQLExecResult {
 	 * @param columns
 	 *            column names
 	 */
-	protected void addColumns(Collection<String> columns) {
+	public void addColumns(Collection<String> columns) {
 		this.columns.addAll(columns);
 	}
 
@@ -132,12 +142,71 @@ public class SQLExecResult {
 	}
 
 	/**
+	 * Get the max column width
+	 * 
+	 * @return max column width
+	 * @since 4.0.0
+	 */
+	public Integer getMaxColumnWidth() {
+		return maxColumnWidth;
+	}
+
+	/**
+	 * Set the max column width
+	 * 
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @since 4.0.0
+	 */
+	public void setMaxColumnWidth(Integer maxColumnWidth) {
+		if (maxColumnWidth != null && maxColumnWidth <= 0) {
+			maxColumnWidth = null;
+		}
+		this.maxColumnWidth = maxColumnWidth;
+		if (maxColumnWidth != null) {
+			for (int i = 0; i < columnWidths.size(); i++) {
+				Integer width = columnWidths.get(i);
+				if (width != null && maxColumnWidth < width) {
+					columnWidths.set(i, maxColumnWidth);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get the max lines per row
+	 * 
+	 * @return max lines per row
+	 * @since 4.0.0
+	 */
+	public Integer getMaxLinesPerRow() {
+		return maxLinesPerRow;
+	}
+
+	/**
+	 * Set the max lines per row
+	 * 
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @since 4.0.0
+	 */
+	public void setMaxLinesPerRow(Integer maxLinesPerRow) {
+		if (maxLinesPerRow != null && maxLinesPerRow <= 0) {
+			maxLinesPerRow = null;
+		}
+		this.maxLinesPerRow = maxLinesPerRow;
+	}
+
+	/**
 	 * Add a column width
 	 * 
 	 * @param width
 	 *            column width
 	 */
-	protected void addColumnWidth(int width) {
+	public void addColumnWidth(int width) {
+		if (maxColumnWidth != null) {
+			width = Math.min(width, maxColumnWidth);
+		}
 		columnWidths.add(width);
 	}
 
@@ -147,7 +216,7 @@ public class SQLExecResult {
 	 * @param widths
 	 *            column widths
 	 */
-	protected void addColumnWidths(int[] widths) {
+	public void addColumnWidths(int[] widths) {
 		for (int width : widths) {
 			addColumnWidth(width);
 		}
@@ -179,7 +248,7 @@ public class SQLExecResult {
 	 * @param row
 	 *            result row
 	 */
-	protected void addRow(List<String> row) {
+	public void addRow(List<String> row) {
 		rows.add(row);
 	}
 
@@ -240,7 +309,7 @@ public class SQLExecResult {
 	 * @param updateCount
 	 *            update count
 	 */
-	protected void setUpdateCount(Integer updateCount) {
+	public void setUpdateCount(Integer updateCount) {
 		this.updateCount = updateCount;
 	}
 
@@ -268,7 +337,10 @@ public class SQLExecResult {
 	 * @param maxRows
 	 *            max rows
 	 */
-	protected void setMaxRows(Integer maxRows) {
+	public void setMaxRows(Integer maxRows) {
+		if (maxRows != null && maxRows <= 0) {
+			maxRows = null;
+		}
 		this.maxRows = maxRows;
 	}
 
@@ -405,11 +477,52 @@ public class SQLExecResult {
 	 *            row index
 	 */
 	private void printRow(int index) {
-		List<String> values = getRow(index);
+		printRowValues(getRow(index), 1);
+	}
+
+	/**
+	 * Print a single line for row values
+	 * 
+	 * @param values
+	 *            row values
+	 * @param line
+	 *            number within the current row
+	 */
+	private void printRowValues(List<String> values, int line) {
+
+		List<String> nextLine = null;
+
 		for (int col = 0; col < numColumns(); col++) {
 			printVerticalDivider();
 			printSpace();
+
 			String value = values.get(col);
+
+			// Check if the value is longer than the max column width
+			if (value != null && maxColumnWidth != null
+					&& value.length() > maxColumnWidth) {
+
+				if (maxLinesPerRow == null || line < maxLinesPerRow) {
+
+					String nextLineValue = value.substring(maxColumnWidth);
+					value = value.substring(0, maxColumnWidth);
+
+					if (nextLine == null) {
+						nextLine = new ArrayList<String>();
+						for (int i = 0; i < values.size(); i++) {
+							nextLine.add(null);
+						}
+					}
+
+					nextLine.set(col, nextLineValue);
+
+				} else {
+					// end with HORIZONTAL ELLIPSIS
+					value = value.substring(0, maxColumnWidth - 1) + "\u2026";
+				}
+
+			}
+
 			int width = getColumnWidth(col);
 			int valueLength = 0;
 			if (value != null) {
@@ -418,9 +531,16 @@ public class SQLExecResult {
 			}
 			printSpace(width - valueLength);
 			printSpace();
+
 		}
+
 		printVerticalDivider();
 		System.out.println();
+
+		if (nextLine != null) {
+			printRowValues(nextLine, line + 1);
+		}
+
 	}
 
 	/**
