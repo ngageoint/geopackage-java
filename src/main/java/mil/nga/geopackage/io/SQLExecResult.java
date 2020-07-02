@@ -56,6 +56,11 @@ public class SQLExecResult {
 	private Integer maxRows = null;
 
 	/**
+	 * Print sides flag
+	 */
+	private boolean printSides = true;
+
+	/**
 	 * Constructor
 	 */
 	public SQLExecResult() {
@@ -363,6 +368,25 @@ public class SQLExecResult {
 	}
 
 	/**
+	 * Is the print sides flag enabled
+	 * 
+	 * @return true to print sides
+	 */
+	public boolean isPrintSides() {
+		return printSides;
+	}
+
+	/**
+	 * Set the print sides flag
+	 * 
+	 * @param printSides
+	 *            true to print sides
+	 */
+	public void setPrintSides(boolean printSides) {
+		this.printSides = printSides;
+	}
+
+	/**
 	 * Print the results using {@link System#out}
 	 */
 	public void printResults() {
@@ -383,19 +407,27 @@ public class SQLExecResult {
 			// Add space buffers
 			width += (2 * numColumns());
 
-			printTables();
+			if (printSides) {
 
-			printHorizontalDivider(width);
+				printTables();
 
-			printColumns();
+				printHorizontalDivider(width);
 
-			printHorizontalDivider(width);
+				printColumns();
+
+				printHorizontalDivider(width);
+
+			}
 
 			printRows(width);
 
-			printHorizontalDivider(width);
+			if (printSides) {
 
-			printRowCount();
+				printHorizontalDivider(width);
+
+				printRowCount();
+
+			}
 
 		} else if (hasUpdateCount()) {
 			System.out.println("Update Count: " + getUpdateCount());
@@ -462,7 +494,7 @@ public class SQLExecResult {
 			for (int row = 0; row < numRows(); row++) {
 				printRow(row);
 			}
-		} else {
+		} else if (printSides) {
 			printVerticalDivider();
 			printSpace(width - 2);
 			printVerticalDivider();
@@ -492,9 +524,16 @@ public class SQLExecResult {
 
 		List<String> nextLine = null;
 
-		for (int col = 0; col < numColumns(); col++) {
-			printVerticalDivider();
-			printSpace();
+		int numColumns = numColumns();
+		for (int col = 0; col < numColumns; col++) {
+
+			if (col > 0 || printSides) {
+				if (col > 0) {
+					printSpace();
+				}
+				printVerticalDivider();
+				printSpace();
+			}
 
 			String value = values.get(col);
 
@@ -529,12 +568,16 @@ public class SQLExecResult {
 				System.out.print(value);
 				valueLength = value.length();
 			}
-			printSpace(width - valueLength);
-			printSpace();
+			if (printSides || numColumns > 1) {
+				printSpace(width - valueLength);
+			}
 
 		}
 
-		printVerticalDivider();
+		if (printSides) {
+			printSpace();
+			printVerticalDivider();
+		}
 		System.out.println();
 
 		if (nextLine != null) {

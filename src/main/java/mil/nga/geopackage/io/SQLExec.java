@@ -38,6 +38,8 @@ import mil.nga.geopackage.db.table.TableInfo;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 import mil.nga.sf.proj.Projection;
@@ -214,6 +216,11 @@ public class SQLExec {
 	 * GeoPackage extensions command
 	 */
 	public static final String COMMAND_EXTENSIONS = "extensions";
+
+	/**
+	 * GeoPackage geometry command
+	 */
+	public static final String COMMAND_GEOMETRY = "geometry";
 
 	/**
 	 * Blob display value
@@ -841,6 +848,15 @@ public class SQLExec {
 										COMMAND_ALL_ROWS, maxColumnWidth,
 										maxLinesPerRow, history);
 
+							} else if (sqlLineLower
+									.startsWith(COMMAND_GEOMETRY)) {
+
+								geometries(database, sqlBuilder, maxRows,
+										history,
+										sqlLine.substring(
+												COMMAND_GEOMETRY.length(),
+												sqlLine.length()));
+
 							} else {
 
 								String[] parts = sqlLine.split("\\s+");
@@ -1124,6 +1140,12 @@ public class SQLExec {
 					+ "              - manually query unindexed tables");
 			System.out.println("\t" + COMMAND_EXTENSIONS
 					+ " [name] - List GeoPackage extensions (all or LIKE table name)");
+			System.out.println("\t" + COMMAND_GEOMETRY + " <name> [ids]");
+			System.out.println(
+					"\t                  - Display feature table name geometries as Well-Known Text, optional comma delimited ids");
+			System.out.println("\t" + COMMAND_GEOMETRY + " <name> <id> <wkt>");
+			System.out.println(
+					"\t                  - Update the feature table name geometry with id as the provided Well-Known Text");
 		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
@@ -1251,8 +1273,44 @@ public class SQLExec {
 			List<String> history, boolean resetCommandPrompt)
 			throws SQLException {
 
+		executeSQL(database, sqlBuilder, sql, maxRows, maxColumnWidth,
+				maxLinesPerRow, history, resetCommandPrompt, true);
+
+	}
+
+	/**
+	 * Execute the SQL
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param sql
+	 *            SQL statement
+	 * @param maxRows
+	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @param history
+	 *            history
+	 * @param resetCommandPrompt
+	 *            reset command prompt
+	 * @param printSides
+	 *            true to print table sides
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void executeSQL(GeoPackage database,
+			StringBuilder sqlBuilder, String sql, Integer maxRows,
+			Integer maxColumnWidth, Integer maxLinesPerRow,
+			List<String> history, boolean resetCommandPrompt,
+			boolean printSides) throws SQLException {
+
 		SQLExecResult result = executeSQL(database, sql, maxRows);
 		setPrintOptions(result, maxColumnWidth, maxLinesPerRow);
+		result.setPrintSides(printSides);
 		result.printResults();
 
 		history.add(sql);
@@ -1868,6 +1926,108 @@ public class SQLExec {
 				}
 			}
 
+		}
+
+		resetCommandPrompt(sqlBuilder);
+	}
+
+	/**
+	 * Print or update geometries
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param maxRows
+	 *            max rows
+	 * @param history
+	 *            history
+	 * @param args
+	 *            write blob arguments
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void geometries(GeoPackage database,
+			StringBuilder sqlBuilder, Integer maxRows, List<String> history,
+			String args) throws SQLException, IOException {
+
+		String[] parts = args.trim().split("\\s+");
+		String tableName = parts[0];
+		if (database.isFeatureTable(tableName)) {
+
+			FeatureDao featureDao = database.getFeatureDao(tableName);
+
+			if (parts.length > 2) {
+				Integer id = null;
+				try {
+					id = Integer.parseInt(parts[1]);
+				} catch (NumberFormatException e) {
+					System.out.println(
+							"Error: Single feature id required for update, found '"
+									+ parts[1] + "'");
+				}
+
+				if (id != null) {
+
+					StringBuilder geometryWktBuilder = new StringBuilder();
+					for (int i = 2; i < parts.length; i++) {
+						geometryWktBuilder.append(parts[i]).append(" ");
+					}
+
+					String geometryWkt = geometryWktBuilder.toString().trim();
+					if (geometryWkt.startsWith("'")
+							|| geometryWkt.startsWith("\"")) {
+						geometryWkt = geometryWkt.substring(1);
+					}
+					if (geometryWkt.endsWith("'")
+							|| geometryWkt.endsWith("\"")) {
+						geometryWkt = geometryWkt.substring(0,
+								geometryWkt.length() - 1);
+					}
+
+					FeatureRow featureRow = featureDao.queryForIdRow(id);
+					if (featureRow != null) {
+						GeoPackageGeometryData geometryData = GeoPackageGeometryData
+								.createFromWktAndBuildEnvelope(
+										featureDao.getSrsId(), geometryWkt);
+						featureRow.setGeometry(geometryData);
+						featureDao.update(featureRow);
+						featureRow = featureDao.queryForIdRow(id);
+						System.out.println();
+						System.out.println(featureRow.getGeometry().getWkt());
+					} else {
+						System.out.println(
+								"Error: No row found for feature table '"
+										+ tableName + "' with id '" + id + "'");
+					}
+
+				}
+
+			} else {
+
+				StringBuilder sql = new StringBuilder("SELECT "
+						+ CoreSQLUtils
+								.quoteWrap(featureDao.getGeometryColumnName())
+						+ " FROM " + CoreSQLUtils.quoteWrap(tableName));
+				if (parts.length > 1) {
+					sql.append(" WHERE "
+							+ CoreSQLUtils
+									.quoteWrap(featureDao.getIdColumnName())
+							+ " IN (" + parts[1] + ")");
+				}
+				executeSQL(database, sqlBuilder, sql.toString(),
+						COMMAND_ALL_ROWS, 0, 0, history, false, false);
+			}
+
+		} else {
+			if (tableName.isEmpty()) {
+				System.out.println("Error: Feature table required");
+			} else {
+				System.out.println(
+						"Error: '" + tableName + "' is not a feature table");
+			}
 		}
 
 		resetCommandPrompt(sqlBuilder);
