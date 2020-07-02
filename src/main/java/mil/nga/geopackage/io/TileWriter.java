@@ -16,7 +16,6 @@ import org.locationtech.proj4j.units.Units;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
-import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.tiles.GeoPackageTile;
 import mil.nga.geopackage.tiles.GeoPackageTileRetriever;
 import mil.nga.geopackage.tiles.ImageUtils;
@@ -498,8 +497,7 @@ public class TileWriter {
 		int tileCount = 0;
 
 		// Get the projection of the tile matrix set
-		SpatialReferenceSystem srs = tileDao.getTileMatrixSet().getSrs();
-		Projection projection = srs.getProjection();
+		Projection projection = tileDao.getProjection();
 
 		// Get the transformation to web mercator
 		Projection webMercator = ProjectionFactory

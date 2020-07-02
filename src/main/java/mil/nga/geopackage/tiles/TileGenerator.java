@@ -625,8 +625,7 @@ public abstract class TileGenerator {
 					+ " which already contains GeoPackage formatted tiles");
 		}
 
-		Projection tileMatrixProjection = tileMatrixSet.getSrs()
-				.getProjection();
+		Projection tileMatrixProjection = tileMatrixSet.getProjection();
 		if (!tileMatrixProjection.equals(projection)) {
 			throw new GeoPackageException("Can not update tiles projected at "
 					+ tileMatrixProjection.getCode()
