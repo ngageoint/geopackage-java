@@ -238,7 +238,7 @@ public class FeatureTileUtils {
 
 	public static void updateLastChange(GeoPackage geoPackage,
 			FeatureDao featureDao) throws SQLException {
-		Contents contents = featureDao.getGeometryColumns().getContents();
+		Contents contents = featureDao.getContents();
 		contents.setLastChange(new Date());
 		ContentsDao contentsDao = geoPackage.getContentsDao();
 		contentsDao.update(contents);

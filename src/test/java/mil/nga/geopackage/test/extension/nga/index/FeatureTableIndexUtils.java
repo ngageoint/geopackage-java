@@ -185,7 +185,7 @@ public class FeatureTableIndexUtils {
 			// Update a Geometry and update the index of a single feature row
 			Point point = new Point(5, 5);
 			GeoPackageGeometryData geometryData = GeoPackageGeometryData
-					.create(featureDao.getGeometryColumns().getSrsId(), point);
+					.create(featureDao.getSrsId(), point);
 			testFeatureRow.setGeometry(geometryData);
 			TestCase.assertEquals(1, featureDao.update(testFeatureRow));
 			Date lastIndexedBefore = featureTableIndex.getLastIndexed();

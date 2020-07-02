@@ -1188,8 +1188,7 @@ public class GeoPackageExample {
 						&& column.getDataType() == GeoPackageDataType.INTEGER) {
 
 					DataColumns dataColumns = new DataColumns();
-					dataColumns.setContents(
-							featureDao.getGeometryColumns().getContents());
+					dataColumns.setContents(featureDao.getContents());
 					dataColumns.setColumnName(column.getName());
 					dataColumns.setName(featureTable);
 					dataColumns.setTitle("TEST_TITLE");

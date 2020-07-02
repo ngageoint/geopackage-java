@@ -291,8 +291,8 @@ public class TransactionTest extends CreateGeoPackageTestCase {
 	private void insertRow(FeatureDao featureDao) {
 
 		FeatureRow row = featureDao.newRow();
-		GeoPackageGeometryData geometry = GeoPackageGeometryData.create(
-				featureDao.getGeometryColumns().getSrsId(), new Point(0, 0));
+		GeoPackageGeometryData geometry = GeoPackageGeometryData
+				.create(featureDao.getSrsId(), new Point(0, 0));
 		row.setGeometry(geometry);
 		featureDao.insert(row);
 
