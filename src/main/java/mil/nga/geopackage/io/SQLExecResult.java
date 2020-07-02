@@ -402,32 +402,30 @@ public class SQLExecResult {
 			}
 
 			// Add dividers
-			width += numColumns() + 1;
+			width += numColumns() - 1;
+			if (printSides) {
+				width += 2;
+			}
 
 			// Add space buffers
-			width += (2 * numColumns());
-
+			width += (2 * (numColumns() - 1));
 			if (printSides) {
-
-				printTables();
-
-				printHorizontalDivider(width);
-
-				printColumns();
-
-				printHorizontalDivider(width);
-
+				width += 2;
 			}
+
+			printTables();
+
+			printHorizontalDivider(width);
+
+			printColumns();
+
+			printHorizontalDivider(width);
 
 			printRows(width);
 
-			if (printSides) {
+			printHorizontalDivider(width);
 
-				printHorizontalDivider(width);
-
-				printRowCount();
-
-			}
+			printRowCount();
 
 		} else if (hasUpdateCount()) {
 			System.out.println("Update Count: " + getUpdateCount());
@@ -471,15 +469,21 @@ public class SQLExecResult {
 	 */
 	private void printColumns() {
 		for (int col = 0; col < numColumns(); col++) {
-			printVerticalDivider();
-			printSpace();
+			if (col > 0 || printSides) {
+				printVerticalDivider();
+				printSpace();
+			}
 			String column = getColumn(col);
-			int width = getColumnWidth(col);
 			System.out.print(column);
-			printSpace(width - column.length());
-			printSpace();
+			if (col + 1 < numColumns() || printSides) {
+				int width = getColumnWidth(col);
+				printSpace(width - column.length());
+				printSpace();
+			}
 		}
-		printVerticalDivider();
+		if (printSides) {
+			printVerticalDivider();
+		}
 		System.out.println();
 	}
 
