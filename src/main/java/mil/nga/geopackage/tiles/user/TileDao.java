@@ -238,6 +238,26 @@ public class TileDao
 	}
 
 	/**
+	 * Get the Spatial Reference System
+	 * 
+	 * @return srs
+	 * @since 4.0.0
+	 */
+	public SpatialReferenceSystem getSrs() {
+		return tileMatrixSet.getSrs();
+	}
+
+	/**
+	 * Get the Spatial Reference System id
+	 * 
+	 * @return srs id
+	 * @since 4.0.0
+	 */
+	public long getSrsId() {
+		return tileMatrixSet.getSrsId();
+	}
+
+	/**
 	 * Get the min zoom
 	 * 
 	 * @return min zoom
