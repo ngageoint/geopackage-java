@@ -2052,7 +2052,7 @@ public class SQLExec {
 
 			String arg = parts[i];
 
-			if (arg.startsWith(ARGUMENT_PREFIX)) {
+			if (arg.startsWith(ARGUMENT_PREFIX) && !arg.equals("-1")) {
 
 				if (wktBuilder != null) {
 					valid = false;
