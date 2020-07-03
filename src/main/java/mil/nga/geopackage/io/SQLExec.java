@@ -12,7 +12,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -41,10 +40,15 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.validate.GeoPackageValidate;
+import mil.nga.sf.Geometry;
+import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 /**
  * Executes SQL on a SQLite database
@@ -275,7 +279,7 @@ public class SQLExec {
 	/**
 	 * Bounds projection argument
 	 */
-	public static final String BOUNDS_ARGUMENT_PROJECTION = "p";
+	public static final String ARGUMENT_PROJECTION = "p";
 
 	/**
 	 * Bounds manual argument
@@ -1110,16 +1114,16 @@ public class SQLExec {
 					+ " [name]      - List GeoPackage tile tables (all or LIKE table name)");
 			System.out.println("\t" + COMMAND_GEOPACKAGE_INFO
 					+ " <name>      - Query GeoPackage metadata for the table name");
-			System.out.println("\t" + COMMAND_CONTENTS_BOUNDS + " ["
-					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_PROJECTION
-					+ " projection] [name]");
+			System.out.println(
+					"\t" + COMMAND_CONTENTS_BOUNDS + " [" + ARGUMENT_PREFIX
+							+ ARGUMENT_PROJECTION + " projection] [name]");
 			System.out.println(
 					"\t                  - Determine the bounds (using only the contents) of the entire GeoPackage or single table name");
 			System.out.println(
 					"\t                     projection     - desired projection as 'authority:code' or 'epsg_code'");
 			System.out.println("\t" + COMMAND_BOUNDS + " [" + ARGUMENT_PREFIX
-					+ BOUNDS_ARGUMENT_PROJECTION + " projection] ["
-					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_MANUAL + "] [name]");
+					+ ARGUMENT_PROJECTION + " projection] [" + ARGUMENT_PREFIX
+					+ BOUNDS_ARGUMENT_MANUAL + "] [name]");
 			System.out.println(
 					"\t                  - Determine the bounds of the entire GeoPackage or single table name");
 			System.out.println(
@@ -1128,9 +1132,8 @@ public class SQLExec {
 					+ BOUNDS_ARGUMENT_MANUAL
 					+ "              - manually query unindexed tables");
 			System.out.println("\t" + COMMAND_TABLE_BOUNDS + " ["
-					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_PROJECTION
-					+ " projection] [" + ARGUMENT_PREFIX
-					+ BOUNDS_ARGUMENT_MANUAL + "] [name]");
+					+ ARGUMENT_PREFIX + ARGUMENT_PROJECTION + " projection] ["
+					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_MANUAL + "] [name]");
 			System.out.println(
 					"\t                  - Determine the bounds (using only table metadata) of the entire GeoPackage or single table name");
 			System.out.println(
@@ -1140,12 +1143,24 @@ public class SQLExec {
 					+ "              - manually query unindexed tables");
 			System.out.println("\t" + COMMAND_EXTENSIONS
 					+ " [name] - List GeoPackage extensions (all or LIKE table name)");
-			System.out.println("\t" + COMMAND_GEOMETRY + " <name> [ids]");
 			System.out.println(
-					"\t                  - Display feature table name geometries as Well-Known Text, optional comma delimited ids");
-			System.out.println("\t" + COMMAND_GEOMETRY + " <name> <id> <wkt>");
+					"\t" + COMMAND_GEOMETRY + " <name> [-p projection] [ids]");
 			System.out.println(
-					"\t                  - Update the feature table name geometry with id as the provided Well-Known Text");
+					"\t                  - Display feature table geometries as Well-Known Text");
+			System.out.println(
+					"\t                     projection     - desired display projection as 'authority:code' or 'epsg_code'");
+			System.out.println(
+					"\t                     ids            - single or comma delimited feature table row ids");
+			System.out.println("\t" + COMMAND_GEOMETRY
+					+ " <name> [-p projection] <id> <wkt>");
+			System.out.println(
+					"\t                  - Update or insert a feature table geometry with Well-Known Text");
+			System.out.println(
+					"\t                     projection     - Well-Known Text projection as 'authority:code' or 'epsg_code'");
+			System.out.println(
+					"\t                     id             - single feature table row id to update or -1 to insert a new row");
+			System.out.println(
+					"\t                     wkt            - Well-Known Text");
 		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
@@ -1307,8 +1322,43 @@ public class SQLExec {
 			Integer maxColumnWidth, Integer maxLinesPerRow,
 			List<String> history, boolean resetCommandPrompt,
 			boolean printSides) throws SQLException {
+		executeSQL(database, sqlBuilder, sql, null, maxRows, maxColumnWidth,
+				maxLinesPerRow, history, resetCommandPrompt, printSides);
+	}
 
-		SQLExecResult result = executeSQL(database, sql, maxRows);
+	/**
+	 * Execute the SQL
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param sql
+	 *            SQL statement
+	 * @param projection
+	 *            desired projection
+	 * @param maxRows
+	 *            max rows
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @param history
+	 *            history
+	 * @param resetCommandPrompt
+	 *            reset command prompt
+	 * @param printSides
+	 *            true to print table sides
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void executeSQL(GeoPackage database,
+			StringBuilder sqlBuilder, String sql, Projection projection,
+			Integer maxRows, Integer maxColumnWidth, Integer maxLinesPerRow,
+			List<String> history, boolean resetCommandPrompt,
+			boolean printSides) throws SQLException {
+
+		SQLExecResult result = executeSQL(database, sql, projection, maxRows);
 		setPrintOptions(result, maxColumnWidth, maxLinesPerRow);
 		result.setPrintSides(printSides);
 		result.printResults();
@@ -1468,6 +1518,26 @@ public class SQLExec {
 	 */
 	public static SQLExecResult executeSQL(GeoPackage database, String sql,
 			Integer maxRows) throws SQLException {
+		return executeSQL(database, sql, null, maxRows);
+	}
+
+	/**
+	 * Execute the SQL on the GeoPackage database
+	 * 
+	 * @param database
+	 *            open database
+	 * @param sql
+	 *            SQL statement
+	 * @param projection
+	 *            desired projection
+	 * @param maxRows
+	 *            max rows
+	 * @return results
+	 * @throws SQLException
+	 *             upon SQL error
+	 */
+	public static SQLExecResult executeSQL(GeoPackage database, String sql,
+			Projection projection, Integer maxRows) throws SQLException {
 
 		sql = sql.trim();
 
@@ -1478,7 +1548,7 @@ public class SQLExec {
 
 		SQLExecResult result = SQLExecAlterTable.alterTable(database, sql);
 		if (result == null) {
-			result = executeQuery(database, sql, maxRows);
+			result = executeQuery(database, sql, projection, maxRows);
 		}
 
 		return result;
@@ -1491,6 +1561,8 @@ public class SQLExec {
 	 *            open database
 	 * @param sql
 	 *            SQL statement
+	 * @param projection
+	 *            desired projection
 	 * @param maxRows
 	 *            max rows
 	 * @return results
@@ -1498,7 +1570,7 @@ public class SQLExec {
 	 *             upon SQL error
 	 */
 	private static SQLExecResult executeQuery(GeoPackage database, String sql,
-			Integer maxRows) throws SQLException {
+			Projection projection, Integer maxRows) throws SQLException {
 
 		SQLExecResult result = new SQLExecResult();
 
@@ -1528,8 +1600,8 @@ public class SQLExec {
 					int[] columnTypes = new int[numColumns];
 
 					boolean isGeoPackage = isGeoPackage(database);
-					Map<String, String> tableGeometryColumns = new HashMap<>();
-					Set<Integer> geometryColumns = new HashSet<>();
+					Map<String, GeometryColumns> tableGeometryColumns = new HashMap<>();
+					Map<Integer, ProjectionTransform> geometryColumns = new HashMap<>();
 
 					for (int col = 1; col <= numColumns; col++) {
 						String tableName = metadata.getTableName(col);
@@ -1541,25 +1613,28 @@ public class SQLExec {
 
 						// Determine if the column is a GeoPackage geometry
 						if (isGeoPackage) {
-							String geometryColumn = null;
+							GeometryColumns geometryColumn = null;
 							if (tableGeometryColumns.containsKey(tableName)) {
 								geometryColumn = tableGeometryColumns
 										.get(tableName);
 							} else {
 								if (database.isFeatureTable(tableName)) {
-									GeometryColumns gc = database
+									geometryColumn = database
 											.getGeometryColumnsDao()
 											.queryForTableName(tableName);
-									if (gc != null) {
-										geometryColumn = gc.getColumnName();
-									}
 								}
 								tableGeometryColumns.put(tableName,
 										geometryColumn);
 							}
-							if (geometryColumn != null && geometryColumn
-									.equalsIgnoreCase(columnName)) {
-								geometryColumns.add(col);
+							if (geometryColumn != null
+									&& geometryColumn.getColumnName()
+											.equalsIgnoreCase(columnName)) {
+								ProjectionTransform transform = null;
+								if (projection != null) {
+									transform = geometryColumn.getProjection()
+											.getTransformation(projection);
+								}
+								geometryColumns.put(col, transform);
 							}
 						}
 					}
@@ -1578,10 +1653,21 @@ public class SQLExec {
 								switch (columnTypes[col - 1]) {
 								case Types.BLOB:
 									stringValue = BLOB_DISPLAY_VALUE;
-									if (geometryColumns.contains(col)) {
+									if (geometryColumns.containsKey(col)) {
+										ProjectionTransform transform = geometryColumns
+												.get(col);
+										byte[] bytes = (byte[]) value;
 										try {
-											stringValue = GeoPackageGeometryData
-													.wkt((byte[]) value);
+											if (transform == null) {
+												stringValue = GeoPackageGeometryData
+														.wkt(bytes);
+											} else {
+												GeoPackageGeometryData geometryData = GeoPackageGeometryData
+														.create(bytes);
+												stringValue = geometryData
+														.transform(transform)
+														.getWkt();
+											}
 										} catch (IOException e) {
 										}
 									}
@@ -1954,55 +2040,157 @@ public class SQLExec {
 			String args) throws SQLException, IOException {
 
 		String[] parts = args.trim().split("\\s+");
-		String tableName = parts[0];
-		if (database.isFeatureTable(tableName)) {
+
+		boolean valid = true;
+		String tableName = null;
+		String ids = null;
+		Long singleId = null;
+		Projection projection = null;
+		StringBuilder wktBuilder = null;
+
+		for (int i = 0; valid && i < parts.length; i++) {
+
+			String arg = parts[i];
+
+			if (arg.startsWith(ARGUMENT_PREFIX)) {
+
+				if (wktBuilder != null) {
+					valid = false;
+					System.out.println("Error: Unexpected argument '" + arg
+							+ "' after expected Well-Known Text: "
+							+ wktBuilder.toString());
+				} else {
+
+					String argument = arg.substring(ARGUMENT_PREFIX.length());
+
+					switch (argument) {
+
+					case ARGUMENT_PROJECTION:
+						if (i + 1 < parts.length) {
+							String projectionArugment = parts[++i];
+							projection = getProjection(projectionArugment);
+							if (projection == null) {
+								valid = false;
+							}
+						} else {
+							valid = false;
+							System.out.println("Error: Projection argument '"
+									+ arg
+									+ "' must be followed by 'authority:code' or 'epsg_code'");
+						}
+						break;
+
+					default:
+						valid = false;
+						System.out.println(
+								"Error: Unsupported arg: '" + arg + "'");
+					}
+				}
+
+			} else {
+				if (tableName == null) {
+					tableName = arg;
+					if (!database.isFeatureTable(tableName)) {
+						valid = false;
+						if (tableName.isEmpty()) {
+							System.out.println("Error: Feature table required");
+						} else {
+							System.out.println("Error: '" + tableName
+									+ "' is not a feature table");
+						}
+					}
+				} else if (ids == null) {
+					ids = arg;
+					if (ids.indexOf(",") == -1) {
+						try {
+							singleId = Long.parseLong(ids);
+						} catch (NumberFormatException e) {
+							valid = false;
+							System.out.println("Error: Invalid single row id '"
+									+ ids + "'");
+						}
+					}
+				} else if (singleId == null) {
+					valid = false;
+					System.out.println("Error: Unexpected additional argument '"
+							+ arg + "' for multiple id query");
+				} else {
+					if (wktBuilder == null) {
+						wktBuilder = new StringBuilder();
+					} else {
+						wktBuilder.append(" ");
+					}
+					wktBuilder.append(arg);
+				}
+			}
+		}
+
+		if (tableName == null) {
+			valid = false;
+			System.out.println("Error: Feature table required");
+		}
+
+		if (valid) {
 
 			FeatureDao featureDao = database.getFeatureDao(tableName);
 
-			if (parts.length > 2) {
-				Integer id = null;
-				try {
-					id = Integer.parseInt(parts[1]);
-				} catch (NumberFormatException e) {
-					System.out.println(
-							"Error: Single feature id required for update, found '"
-									+ parts[1] + "'");
+			if (wktBuilder != null) {
+
+				String wkt = wktBuilder.toString().trim();
+
+				if (wkt.startsWith("'") || wkt.startsWith("\"")) {
+					wkt = wkt.substring(1);
+				}
+				if (wkt.endsWith("'") || wkt.endsWith("\"")) {
+					wkt = wkt.substring(0, wkt.length() - 1);
 				}
 
-				if (id != null) {
+				GeoPackageGeometryData geometryData = GeoPackageGeometryData
+						.createFromWktAndBuildEnvelope(featureDao.getSrsId(),
+								wkt);
 
-					StringBuilder geometryWktBuilder = new StringBuilder();
-					for (int i = 2; i < parts.length; i++) {
-						geometryWktBuilder.append(parts[i]).append(" ");
+				if (projection != null) {
+					ProjectionTransform transform = projection
+							.getTransformation(featureDao.getProjection());
+					if (!transform.isSameProjection()) {
+						geometryData = geometryData.transform(transform);
 					}
+				}
 
-					String geometryWkt = geometryWktBuilder.toString().trim();
-					if (geometryWkt.startsWith("'")
-							|| geometryWkt.startsWith("\"")) {
-						geometryWkt = geometryWkt.substring(1);
-					}
-					if (geometryWkt.endsWith("'")
-							|| geometryWkt.endsWith("\"")) {
-						geometryWkt = geometryWkt.substring(0,
-								geometryWkt.length() - 1);
-					}
+				FeatureRow featureRow = null;
 
-					FeatureRow featureRow = featureDao.queryForIdRow(id);
+				if (singleId == -1) {
+
+					featureRow = featureDao.newRow();
+					featureRow.setGeometry(geometryData);
+					singleId = featureDao.insert(featureRow);
+					System.out.println();
+					System.out.println("Inserted Row Id: " + singleId);
+
+				} else {
+
+					featureRow = featureDao.queryForIdRow(singleId);
+
 					if (featureRow != null) {
-						GeoPackageGeometryData geometryData = GeoPackageGeometryData
-								.createFromWktAndBuildEnvelope(
-										featureDao.getSrsId(), geometryWkt);
 						featureRow.setGeometry(geometryData);
 						featureDao.update(featureRow);
-						featureRow = featureDao.queryForIdRow(id);
 						System.out.println();
-						System.out.println(featureRow.getGeometry().getWkt());
+						System.out.println("Updated Row Id: " + singleId);
 					} else {
 						System.out.println(
 								"Error: No row found for feature table '"
-										+ tableName + "' with id '" + id + "'");
+										+ tableName + "' with id '" + singleId
+										+ "'");
 					}
 
+				}
+
+				if (featureRow != null) {
+					featureRow = featureDao.queryForIdRow(singleId);
+					if (featureRow != null) {
+						printGeometryData(database, featureDao,
+								featureRow.getGeometry());
+					}
 				}
 
 			} else {
@@ -2011,26 +2199,175 @@ public class SQLExec {
 						+ CoreSQLUtils
 								.quoteWrap(featureDao.getGeometryColumnName())
 						+ " FROM " + CoreSQLUtils.quoteWrap(tableName));
-				if (parts.length > 1) {
+
+				if (ids != null) {
+
 					sql.append(" WHERE "
 							+ CoreSQLUtils
 									.quoteWrap(featureDao.getIdColumnName())
-							+ " IN (" + parts[1] + ")");
+							+ " IN (" + ids + ")");
 				}
-				executeSQL(database, sqlBuilder, sql.toString(),
-						COMMAND_ALL_ROWS, 0, 0, history, false, false);
-			}
 
-		} else {
-			if (tableName.isEmpty()) {
-				System.out.println("Error: Feature table required");
-			} else {
-				System.out.println(
-						"Error: '" + tableName + "' is not a feature table");
+				if (singleId != null) {
+
+					FeatureRow featureRow = featureDao.queryForIdRow(singleId);
+					if (featureRow != null) {
+
+						GeoPackageGeometryData geometryData = featureRow
+								.getGeometry();
+
+						if (projection != null) {
+							ProjectionTransform transform = featureDao
+									.getProjection()
+									.getTransformation(projection);
+							if (!transform.isSameProjection()) {
+								geometryData = geometryData
+										.transform(transform);
+							}
+						}
+
+						printGeometryDataHeader(database, featureDao,
+								geometryData, projection);
+					}
+
+				}
+
+				executeSQL(database, sqlBuilder, sql.toString(), projection,
+						COMMAND_ALL_ROWS, 0, 0, history, false, false);
 			}
 		}
 
 		resetCommandPrompt(sqlBuilder);
+	}
+
+	/**
+	 * Print the geometry data
+	 * 
+	 * @param geometryData
+	 *            geometry data
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void printGeometryData(GeoPackage database,
+			FeatureDao featureDao, GeoPackageGeometryData geometryData)
+			throws SQLException {
+		printGeometryDataHeader(database, featureDao, geometryData, null);
+		System.out.println();
+		System.out.println(geometryData.getWkt());
+	}
+
+	/**
+	 * Print the geometry data header
+	 * 
+	 * @param database
+	 *            database
+	 * @param featureDao
+	 *            feature dao
+	 * @param geometryData
+	 *            geometry data
+	 * @param projection
+	 *            transformed projection
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void printGeometryDataHeader(GeoPackage database,
+			FeatureDao featureDao, GeoPackageGeometryData geometryData,
+			Projection projection) throws SQLException {
+		System.out.println();
+
+		if (projection == null) {
+			int srsId = geometryData.getSrsId();
+			SpatialReferenceSystem geometrySrs = database
+					.getSpatialReferenceSystemDao().queryForId((long) srsId);
+			if (geometrySrs != null) {
+				projection = geometrySrs.getProjection();
+			}
+		}
+
+		if (projection != null) {
+			System.out.println("Projection: " + projection);
+		}
+
+		Projection featureProjection = featureDao.getProjection();
+		if (projection == null || !projection.equals(featureProjection)) {
+			System.out.println("Table Projection: " + featureProjection);
+		}
+
+		GeometryEnvelope envelope = geometryData.getEnvelope();
+		if (envelope != null) {
+			System.out.print("Geometry ");
+			printGeometryEnvelope(envelope);
+		}
+
+		Geometry geometry = geometryData.getGeometry();
+		GeometryEnvelope builtEnvelope = GeometryEnvelopeBuilder
+				.buildEnvelope(geometry);
+		if (builtEnvelope != null
+				&& (envelope == null || !envelope.equals(builtEnvelope))) {
+			System.out.print("Calculated ");
+			printGeometryEnvelope(builtEnvelope);
+		}
+
+	}
+
+	/**
+	 * Print the geometry envelope
+	 * 
+	 * @param envelope
+	 *            geometry envelope
+	 */
+	private static void printGeometryEnvelope(GeometryEnvelope envelope) {
+		System.out.println("Envelope");
+		System.out.println("   min x: " + envelope.getMinX());
+		System.out.println("   min y: " + envelope.getMinY());
+		System.out.println("   max x: " + envelope.getMaxX());
+		System.out.println("   max y: " + envelope.getMaxY());
+		if (envelope.hasZ()) {
+			System.out.println("   min z: " + envelope.getMinZ());
+			System.out.println("   max z: " + envelope.getMaxZ());
+		}
+		if (envelope.hasM()) {
+			System.out.println("   min m: " + envelope.getMinM());
+			System.out.println("   max m: " + envelope.getMaxM());
+		}
+	}
+
+	/**
+	 * Get the projection from the projection authority:code or epsg_code
+	 * argument
+	 * 
+	 * @param argument
+	 *            projection argument
+	 * @return projection or null
+	 */
+	private static Projection getProjection(String argument) {
+
+		Projection projection = null;
+
+		String authority = null;
+		String code = null;
+
+		String[] projectionParts = argument.split(":");
+
+		switch (projectionParts.length) {
+		case 1:
+			authority = ProjectionConstants.AUTHORITY_EPSG;
+			code = projectionParts[0];
+			break;
+		case 2:
+			authority = projectionParts[0];
+			code = projectionParts[1];
+			break;
+		default:
+			System.out.println("Error: Invalid projection argument '" + argument
+					+ "', expected 'authority:code' or 'epsg_code'");
+		}
+
+		if (authority != null) {
+			projection = ProjectionFactory.getProjection(authority, code);
+		}
+
+		return projection;
 	}
 
 	/**
@@ -2051,8 +2388,7 @@ public class SQLExec {
 		boolean valid = true;
 
 		String table = null;
-		String authority = null;
-		String code = null;
+		Projection projection = null;
 		boolean manual = false;
 
 		if (args != null && !args.isEmpty()) {
@@ -2069,31 +2405,18 @@ public class SQLExec {
 
 					switch (argument) {
 
-					case BOUNDS_ARGUMENT_PROJECTION:
+					case ARGUMENT_PROJECTION:
 						if (i + 1 < argParts.length) {
-							String projection = argParts[++i];
-							String[] projectionParts = projection.split(":");
-							switch (projectionParts.length) {
-							case 1:
-								authority = ProjectionConstants.AUTHORITY_EPSG;
-								code = projectionParts[0];
-								break;
-							case 2:
-								authority = projectionParts[0];
-								code = projectionParts[1];
-								break;
-							default:
+							String projectionArugment = argParts[++i];
+							projection = getProjection(projectionArugment);
+							if (projection == null) {
 								valid = false;
-								System.out.println(
-										"Error: Invalid bounds projection argument '"
-												+ projection
-												+ "', expected 'authority:code' or 'epsg_code'");
 							}
 						} else {
 							valid = false;
-							System.out.println(
-									"Error: Bounds projection argument '" + arg
-											+ "' must be followed by 'authority:code' or 'epsg_code'");
+							System.out.println("Error: Projection argument '"
+									+ arg
+									+ "' must be followed by 'authority:code' or 'epsg_code'");
 						}
 						break;
 
@@ -2133,10 +2456,6 @@ public class SQLExec {
 		if (valid) {
 
 			BoundingBox bounds = null;
-			Projection projection = null;
-			if (authority != null) {
-				projection = ProjectionFactory.getProjection(authority, code);
-			}
 
 			if (table != null) {
 
