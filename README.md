@@ -28,21 +28,26 @@ View the latest [Javadoc](http://ngageoint.github.io/geopackage-java/docs/api/)
 // File existingGeoPackage = ...;
 
 // Create a new GeoPackage
-boolean created = GeoPackageManager.create(newGeoPackage);
+File createdGeoPackage = GeoPackageManager.create(newGeoPackage);
 
 // Open a GeoPackage
 GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage);
 
 // GeoPackage Table DAOs
-SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
+SpatialReferenceSystemDao srsDao = geoPackage
+		.getSpatialReferenceSystemDao();
 ContentsDao contentsDao = geoPackage.getContentsDao();
 GeometryColumnsDao geomColumnsDao = geoPackage.getGeometryColumnsDao();
 TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
 TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
-DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
-DataColumnConstraintsDao dataColumnConstraintsDao = geoPackage.getDataColumnConstraintsDao();
-MetadataDao metadataDao = geoPackage.getMetadataDao();
-MetadataReferenceDao metadataReferenceDao = geoPackage.getMetadataReferenceDao();
+SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+DataColumnsDao dao = schemaExtension.getDataColumnsDao();
+DataColumnConstraintsDao dataColumnConstraintsDao = schemaExtension
+		.getDataColumnConstraintsDao();
+MetadataExtension metadataExtension = new MetadataExtension(geoPackage);
+MetadataDao metadataDao = metadataExtension.getMetadataDao();
+MetadataReferenceDao metadataReferenceDao = metadataExtension
+		.getMetadataReferenceDao();
 ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
 
 // Feature and tile tables
@@ -52,32 +57,33 @@ List<String> tiles = geoPackage.getTileTables();
 // Query Features
 FeatureDao featureDao = geoPackage.getFeatureDao(features.get(0));
 FeatureResultSet featureResultSet = featureDao.queryForAll();
-try{
-    while(featureResultSet.moveToNext()){
-        FeatureRow featureRow = featureResultSet.getRow();
-        GeoPackageGeometryData geometryData = featureRow.getGeometry();
-        Geometry geometry = geometryData.getGeometry();
-        // ...
-    }
-}finally{
-    featureResultSet.close();
+try {
+	while (featureResultSet.moveToNext()) {
+		FeatureRow featureRow = featureResultSet.getRow();
+		GeoPackageGeometryData geometryData = featureRow.getGeometry();
+		Geometry geometry = geometryData.getGeometry();
+		// ...
+	}
+} finally {
+	featureResultSet.close();
 }
 
 // Query Tiles
 TileDao tileDao = geoPackage.getTileDao(tiles.get(0));
 TileResultSet tileResultSet = tileDao.queryForAll();
-try{
-    while(tileResultSet.moveToNext()){
-        TileRow tileRow = tileResultSet.getRow();
-        byte[] tileBytes = tileRow.getTileData();
-        // ...
-    }
-}finally{
-    tileResultSet.close();
+try {
+	while (tileResultSet.moveToNext()) {
+		TileRow tileRow = tileResultSet.getRow();
+		byte[] tileBytes = tileRow.getTileData();
+		// ...
+	}
+} finally {
+	tileResultSet.close();
 }
 
 // Index Features
-FeatureTableIndex indexer = new FeatureTableIndex(geoPackage, featureDao);
+FeatureTableIndex indexer = new FeatureTableIndex(geoPackage,
+		featureDao);
 int indexedCount = indexer.index();
 
 // Close database when done
