@@ -2208,13 +2208,14 @@ public class SQLExec {
 							+ " IN (" + ids + ")");
 				}
 
+				GeoPackageGeometryData geometryData = null;
+
 				if (singleId != null) {
 
 					FeatureRow featureRow = featureDao.queryForIdRow(singleId);
 					if (featureRow != null) {
 
-						GeoPackageGeometryData geometryData = featureRow
-								.getGeometry();
+						geometryData = featureRow.getGeometry();
 
 						if (projection != null) {
 							ProjectionTransform transform = featureDao
@@ -2226,11 +2227,12 @@ public class SQLExec {
 							}
 						}
 
-						printGeometryDataHeader(database, featureDao,
-								geometryData, projection);
 					}
 
 				}
+
+				printGeometryDataHeader(database, featureDao, geometryData,
+						projection);
 
 				executeSQL(database, sqlBuilder, sql.toString(), projection,
 						COMMAND_ALL_ROWS, 0, 0, history, false, false);
@@ -2275,7 +2277,7 @@ public class SQLExec {
 			Projection projection) throws SQLException {
 		System.out.println();
 
-		if (projection == null) {
+		if (projection == null && geometryData != null) {
 			int srsId = geometryData.getSrsId();
 			SpatialReferenceSystem geometrySrs = database
 					.getSpatialReferenceSystemDao().queryForId((long) srsId);
@@ -2290,22 +2292,29 @@ public class SQLExec {
 
 		Projection featureProjection = featureDao.getProjection();
 		if (projection == null || !projection.equals(featureProjection)) {
-			System.out.println("Table Projection: " + featureProjection);
+			if (projection != null) {
+				System.out.print("Table ");
+			}
+			System.out.println("Projection: " + featureProjection);
 		}
 
-		GeometryEnvelope envelope = geometryData.getEnvelope();
-		if (envelope != null) {
-			System.out.print("Geometry ");
-			printGeometryEnvelope(envelope);
-		}
+		if (geometryData != null) {
 
-		Geometry geometry = geometryData.getGeometry();
-		GeometryEnvelope builtEnvelope = GeometryEnvelopeBuilder
-				.buildEnvelope(geometry);
-		if (builtEnvelope != null
-				&& (envelope == null || !envelope.equals(builtEnvelope))) {
-			System.out.print("Calculated ");
-			printGeometryEnvelope(builtEnvelope);
+			GeometryEnvelope envelope = geometryData.getEnvelope();
+			if (envelope != null) {
+				System.out.print("Geometry ");
+				printGeometryEnvelope(envelope);
+			}
+
+			Geometry geometry = geometryData.getGeometry();
+			GeometryEnvelope builtEnvelope = GeometryEnvelopeBuilder
+					.buildEnvelope(geometry);
+			if (builtEnvelope != null
+					&& (envelope == null || !envelope.equals(builtEnvelope))) {
+				System.out.print("Calculated ");
+				printGeometryEnvelope(builtEnvelope);
+			}
+
 		}
 
 	}
