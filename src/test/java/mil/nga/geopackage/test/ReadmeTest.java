@@ -103,8 +103,10 @@ public class ReadmeTest extends CreateGeoPackageTestCase {
 			while (featureResultSet.moveToNext()) {
 				FeatureRow featureRow = featureResultSet.getRow();
 				GeoPackageGeometryData geometryData = featureRow.getGeometry();
-				Geometry geometry = geometryData.getGeometry();
-				// ...
+				if (geometryData != null && !geometryData.isEmpty()) {
+					Geometry geometry = geometryData.getGeometry();
+					// ...
+				}
 			}
 		} finally {
 			featureResultSet.close();
