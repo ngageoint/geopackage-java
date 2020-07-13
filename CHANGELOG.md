@@ -7,6 +7,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 4.0.0 (TBD)
 
 * geopackage-core version 4.0.0
+* tiff version 2.0.2
+* sqlite-jdbc version 3.32.3
 * Community extensions decoupling and management, including class repackaging
 * Contents Data Type refactor, core data types and expanded custom data type support
 * GeoPackage Manager refactor and enhancements
@@ -15,7 +17,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Lazy on demand result set counts
 * GeoPackage DAO by table and file size methods
 * Tile creation projection fix for different projections in the same unit
-* SQL Exec enhancements, including projected bounds, checks, and file size
+* SQL Exec enhancements, including projected bounds, checks, file size, and Well-Known Text geometries
+* SRS and Projection shortcut methods
 * Standalone Utilities out of bounds fix when ending on an argument
 
 ## [3.5.0](https://github.com/ngageoint/geopackage-java/releases/tag/3.5.0) (03-10-2020)
