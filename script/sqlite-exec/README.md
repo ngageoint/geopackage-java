@@ -13,11 +13,11 @@ Executes SQL statements on a SQLite database, including GeoPackages.  Most SQLit
 
 ### Script
 
-    ./sqlite-exec.sh [-m max_rows] sqlite_file [sql]
+    ./sqlite-exec.sh [-m max_rows] [-w max_column_width] [-l max_lines_per_row] sqlite_file [sql]
 
 ### Jar
 
-    java -jar sqlite-exec.jar [-m max_rows] sqlite_file [sql]
+    java -jar sqlite-exec.jar [-m max_rows] [-w max_column_width] [-l max_lines_per_row] sqlite_file [sql]
 
 ### Alias
 
@@ -51,7 +51,7 @@ Run using the script, Jar, or alias.
 ```
 USAGE
 
-	[-m max_rows] sqlite_file [sql]
+	[-m max_rows] [-w max_column_width] [-l max_lines_per_row] sqlite_file [sql]
 
 DESCRIPTION
 
@@ -62,7 +62,13 @@ DESCRIPTION
 ARGUMENTS
 
 	-m max_rows
-		Max rows to query and display (Default is 100)
+		Max rows per query (Default is 100)
+
+	-w max_column_width
+		Max width (in characters) per column (Default is 120)
+
+	-l max_lines_per_row
+		Max lines per row (Default is 0 = none)
 
 	sqlite_file
 		path to the SQLite database file
@@ -81,12 +87,15 @@ ARGUMENTS
 
 Commands:
 
+	info              - GeoPackage information
 	help              - print this help information
 	tables [name]     - list database tables (all or LIKE table name)
 	indexes [name]    - list database indexes (all or LIKE index name)
 	views [name]      - list database views (all or LIKE view name)
 	triggers [name]   - list database triggers (all or LIKE trigger name)
-	rows n            - set the max rows per query to n
+	rows [n]          - display or set the max rows per query
+	width [n]         - display or set the max width (in characters) per column
+	lines [n]         - display or set the max lines per row
 	history           - list successfully executed sql commands
 	!!                - re-execute the previous successful sql command
 	!n                - re-execute a sql statement by history id n
@@ -100,13 +109,39 @@ Commands:
 	                                       (column_name)-(column_name2)
 	                                       (column_name)/(column_name2)
 	info <name>       - PRAGMA table_info(<name>);
+	sqlite_master     - SELECT * FROM sqlite_master;
 	<name>            - SELECT * FROM <name>;
+	vacuum            - VACUUM [INTO 'filename'];
+	fk                - PRAGMA foreign_keys [= boolean];
+	fkc               - PRAGMA foreign_key_check[(<table-name>)];
+	integrity         - PRAGMA integrity_check[(N)];
+	quick             - PRAGMA quick_check[(N)];
 	contents [name]   - List GeoPackage contents (all or LIKE table name)
 	attributes [name] - List GeoPackage attributes tables (all or LIKE table name)
 	features [name]   - List GeoPackage feature tables (all or LIKE table name)
 	tiles [name]      - List GeoPackage tile tables (all or LIKE table name)
 	ginfo <name>      - Query GeoPackage metadata for the table name
+	cbounds [-p projection] [name]
+	                  - Determine the bounds (using only the contents) of the entire GeoPackage or single table name
+	                     projection     - desired projection as 'authority:code' or 'epsg_code'
+	bounds [-p projection] [-m] [name]
+	                  - Determine the bounds of the entire GeoPackage or single table name
+	                     projection     - desired projection as 'authority:code' or 'epsg_code'
+	                     m              - manually query unindexed tables
+	tbounds [-p projection] [-m] [name]
+	                  - Determine the bounds (using only table metadata) of the entire GeoPackage or single table name
+	                     projection     - desired projection as 'authority:code' or 'epsg_code'
+	                     m              - manually query unindexed tables
 	extensions [name] - List GeoPackage extensions (all or LIKE table name)
+	geometry <name> [-p projection] [ids]
+	                  - Display feature table geometries as Well-Known Text
+	                     projection     - desired display projection as 'authority:code' or 'epsg_code'
+	                     ids            - single or comma delimited feature table row ids
+	geometry <name> [-p projection] <id> <wkt>
+	                  - Update or insert a feature table geometry with Well-Known Text
+	                     projection     - Well-Known Text projection as 'authority:code' or 'epsg_code'
+	                     id             - single feature table row id to update or -1 to insert a new row
+	                     wkt            - Well-Known Text
 
 Special Supported Cases:
 

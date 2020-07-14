@@ -126,7 +126,7 @@ Executes SQL statements on a SQLite database, including GeoPackages. Download [s
 
 Or run against the jar:
 
-    java -jar geopackage-*standalone.jar [-m max_rows] sqlite_file [sql]
+    java -jar geopackage-*standalone.jar [-m max_rows] [-w max_column_width] [-l max_lines_per_row] sqlite_file [sql]
 
 #### Tile Writer ####
 
