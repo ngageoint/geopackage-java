@@ -99,6 +99,19 @@ public class SQLExecResult {
 	}
 
 	/**
+	 * Add a column
+	 * 
+	 * @param index
+	 *            column index
+	 * @param column
+	 *            column name
+	 * @since 4.0.1
+	 */
+	public void addColumn(int index, String column) {
+		columns.add(index, column);
+	}
+
+	/**
 	 * Add columns
 	 * 
 	 * @param columns
@@ -216,6 +229,22 @@ public class SQLExecResult {
 	}
 
 	/**
+	 * Add a column width
+	 * 
+	 * @param index
+	 *            column index
+	 * @param width
+	 *            column width
+	 * @since 4.0.1
+	 */
+	public void addColumnWidth(int index, int width) {
+		if (maxColumnWidth != null) {
+			width = Math.min(width, maxColumnWidth);
+		}
+		columnWidths.add(index, width);
+	}
+
+	/**
 	 * Add the column widths
 	 * 
 	 * @param widths
@@ -293,6 +322,34 @@ public class SQLExecResult {
 	 */
 	public List<String> getRow(int index) {
 		return rows.get(index);
+	}
+
+	/**
+	 * Add a row value
+	 * 
+	 * @param index
+	 *            row index
+	 * @param value
+	 *            value
+	 * @since 4.0.1
+	 */
+	public void addRowValue(int index, String value) {
+		rows.get(index).add(value);
+	}
+
+	/**
+	 * Add a row value
+	 * 
+	 * @param index
+	 *            row index
+	 * @param columnIndex
+	 *            column index
+	 * @param value
+	 *            value
+	 * @since 4.0.1
+	 */
+	public void addRowValue(int index, int columnIndex, String value) {
+		rows.get(index).add(columnIndex, value);
 	}
 
 	/**

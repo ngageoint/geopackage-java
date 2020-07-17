@@ -41,6 +41,8 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
@@ -785,13 +787,10 @@ public class SQLExec {
 													maxColumnWidth,
 													maxLinesPerRow, history,
 													false);
-											executeSQL(database, sqlBuilder,
-													"SELECT * FROM gpkg_tile_matrix WHERE table_name = '"
-															+ tableName + "';",
-													COMMAND_ALL_ROWS,
+											tileMatrix(database, sqlBuilder,
 													maxColumnWidth,
 													maxLinesPerRow, history,
-													false);
+													tableName);
 											break;
 										}
 									}
@@ -1359,6 +1358,37 @@ public class SQLExec {
 			boolean printSides) throws SQLException {
 
 		SQLExecResult result = executeSQL(database, sql, projection, maxRows);
+
+		printResult(result, sqlBuilder, sql, maxColumnWidth, maxLinesPerRow,
+				history, resetCommandPrompt, printSides);
+
+	}
+
+	/**
+	 * Print the result
+	 * 
+	 * @param result
+	 *            result
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param sql
+	 *            SQL statement
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @param history
+	 *            history
+	 * @param resetCommandPrompt
+	 *            reset command prompt
+	 * @param printSides
+	 *            true to print table sides
+	 */
+	private static void printResult(SQLExecResult result,
+			StringBuilder sqlBuilder, String sql, Integer maxColumnWidth,
+			Integer maxLinesPerRow, List<String> history,
+			boolean resetCommandPrompt, boolean printSides) {
+
 		setPrintOptions(result, maxColumnWidth, maxLinesPerRow);
 		result.setPrintSides(printSides);
 		result.printResults();
@@ -1368,6 +1398,7 @@ public class SQLExec {
 		if (resetCommandPrompt) {
 			resetCommandPrompt(sqlBuilder);
 		}
+
 	}
 
 	/**
@@ -2015,6 +2046,54 @@ public class SQLExec {
 		}
 
 		resetCommandPrompt(sqlBuilder);
+	}
+
+	/**
+	 * Print tile matrix info for a single table
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            sql builder
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @param history
+	 *            history
+	 * @param tableName
+	 *            table name
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void tileMatrix(GeoPackage database,
+			StringBuilder sqlBuilder, Integer maxColumnWidth,
+			Integer maxLinesPerRow, List<String> history, String tableName)
+			throws SQLException {
+
+		String sql = "SELECT * FROM gpkg_tile_matrix WHERE table_name = '"
+				+ tableName + "';";
+
+		SQLExecResult result = executeSQL(database, sql, COMMAND_ALL_ROWS);
+
+		// Add map zoom levels
+		TileDao tileDao = database.getTileDao(tableName);
+		int zoomColumn = result.getColumns()
+				.indexOf(TileMatrix.COLUMN_ZOOM_LEVEL);
+		int mapZoomColumn = zoomColumn + 1;
+		String mapZoomColumnName = "map_zoom_level";
+		int mapZoomColumnWidth = mapZoomColumnName.length();
+		for (int i = 0; i < result.numRows(); i++) {
+			long zoom = Long.parseLong(result.getValue(i, zoomColumn));
+			String mapZoom = Long.toString(tileDao.getMapZoom(zoom));
+			mapZoomColumnWidth = Math.max(mapZoomColumnWidth, mapZoom.length());
+			result.addRowValue(i, mapZoomColumn, mapZoom);
+		}
+		result.addColumn(mapZoomColumn, mapZoomColumnName);
+		result.addColumnWidth(mapZoomColumn, mapZoomColumnWidth);
+
+		printResult(result, sqlBuilder, sql, maxColumnWidth, maxLinesPerRow,
+				history, false, true);
 	}
 
 	/**
