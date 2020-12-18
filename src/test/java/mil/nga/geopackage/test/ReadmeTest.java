@@ -83,7 +83,7 @@ public class ReadmeTest extends CreateGeoPackageTestCase {
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
 		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
 		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
-		DataColumnsDao dao = schemaExtension.getDataColumnsDao();
+		DataColumnsDao dataColumnsDao = schemaExtension.getDataColumnsDao();
 		DataColumnConstraintsDao dataColumnConstraintsDao = schemaExtension
 				.getDataColumnConstraintsDao();
 		MetadataExtension metadataExtension = new MetadataExtension(geoPackage);
