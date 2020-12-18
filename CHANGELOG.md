@@ -6,7 +6,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 4.0.1
 
-* TBD
+* ormlite-jdbc version 5.3
+* sqlite-jdbc version 3.34.0
+* Omit null values in inserts
 
 ## [4.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/4.0.0) (07-14-2020)
 
