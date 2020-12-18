@@ -95,6 +95,14 @@ public abstract class UserRow<TColumn extends UserColumn, TTable extends UserTab
 
 		}
 
+		if (contentValues.size() == 0) {
+			for (TColumn column : columns.getColumns()) {
+				if (!column.isPrimaryKey()) {
+					contentValues.putNull(column.getName());
+				}
+			}
+		}
+
 		return contentValues;
 	}
 
