@@ -1685,7 +1685,7 @@ public class GeoPackageExample {
 
 		insertRelatedTablesMediaExtensionRows(geoPackage, relation1,
 				"BIT Systems%", "BIT Systems", "BITSystems_Logo.png",
-				"image/png", "BIT Systems Logo", "http://www.bit-sys.com");
+				"image/png", "BIT Systems Logo", "https://www.caci.com/bit-systems");
 
 		String tableName2 = "geometry2";
 		UserMappingTable userMappingTable2 = UserMappingTable.create(
