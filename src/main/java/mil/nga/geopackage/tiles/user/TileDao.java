@@ -1,8 +1,11 @@
 package mil.nga.geopackage.tiles.user;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageException;
@@ -43,7 +46,7 @@ public class TileDao
 	/**
 	 * Mapping between zoom levels and the tile matrix
 	 */
-	private final Map<Long, TileMatrix> zoomLevelToTileMatrix = new HashMap<Long, TileMatrix>();
+	private final Map<Long, TileMatrix> zoomLevelToTileMatrix = new TreeMap<>();
 
 	/**
 	 * Min zoom
@@ -224,6 +227,16 @@ public class TileDao
 	 */
 	public List<TileMatrix> getTileMatrices() {
 		return tileMatrices;
+	}
+
+	/**
+	 * Get the zoom levels
+	 * 
+	 * @return zoom level set
+	 * @since 4.0.1
+	 */
+	public Set<Long> getZoomLevels() {
+		return Collections.unmodifiableSet(zoomLevelToTileMatrix.keySet());
 	}
 
 	/**

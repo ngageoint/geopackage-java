@@ -502,7 +502,7 @@ public abstract class TileGenerator {
 				}
 			}
 
-			// Delete the table if cancelled
+			// Delete the table if canceled
 			if (progress != null && !progress.isActive()
 					&& progress.cleanupOnCancel()) {
 				geoPackage.deleteTableQuietly(tableName);
@@ -577,8 +577,8 @@ public abstract class TileGenerator {
 				zoom);
 		tileGridBoundingBox = TileBoundingBoxUtils.getWGS84BoundingBox(tileGrid,
 				zoom);
-		matrixWidth = tileGrid.getMaxX() + 1 - tileGrid.getMinX();
-		matrixHeight = tileGrid.getMaxY() + 1 - tileGrid.getMinY();
+		matrixWidth = tileGrid.getWidth();
+		matrixHeight = tileGrid.getHeight();
 	}
 
 	/**
@@ -596,8 +596,8 @@ public abstract class TileGenerator {
 				.getTileGrid(requestWebMercatorBoundingBox, zoom);
 		tileGridBoundingBox = TileBoundingBoxUtils
 				.getWebMercatorBoundingBox(tileGrid, zoom);
-		matrixWidth = tileGrid.getMaxX() + 1 - tileGrid.getMinX();
-		matrixHeight = tileGrid.getMaxY() + 1 - tileGrid.getMinY();
+		matrixWidth = tileGrid.getWidth();
+		matrixHeight = tileGrid.getHeight();
 	}
 
 	/**
@@ -858,7 +858,7 @@ public abstract class TileGenerator {
 		// Download and create the tile and each coordinate
 		for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
 
-			// Check if the progress has been cancelled
+			// Check if the progress has been canceled
 			if (progress != null && !progress.isActive()) {
 				break;
 			}
@@ -876,7 +876,7 @@ public abstract class TileGenerator {
 
 			for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
 
-				// Check if the progress has been cancelled
+				// Check if the progress has been canceled
 				if (progress != null && !progress.isActive()) {
 					break;
 				}
