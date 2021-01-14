@@ -15,10 +15,13 @@ import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.user.UserDao;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * Tile DAO for reading tile user tables
@@ -46,7 +49,7 @@ public class TileDao
 	/**
 	 * Mapping between zoom levels and the tile matrix
 	 */
-	private final Map<Long, TileMatrix> zoomLevelToTileMatrix = new TreeMap<>();
+	private final TreeMap<Long, TileMatrix> zoomLevelToTileMatrix = new TreeMap<>();
 
 	/**
 	 * Min zoom
@@ -168,6 +171,27 @@ public class TileDao
 	}
 
 	/**
+	 * Get the bounding box of tiles at the zoom level
+	 *
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param projection
+	 *            desired projection
+	 *
+	 * @return bounding box of zoom level, or nil if no tiles
+	 * @since 4.0.1
+	 */
+	public BoundingBox getBoundingBox(long zoomLevel, Projection projection) {
+		BoundingBox boundingBox = getBoundingBox(zoomLevel);
+		if (boundingBox != null) {
+			ProjectionTransform transform = this.projection
+					.getTransformation(projection);
+			boundingBox = boundingBox.transform(transform);
+		}
+		return boundingBox;
+	}
+
+	/**
 	 * Get the tile grid of the zoom level
 	 * 
 	 * @param zoomLevel
@@ -248,6 +272,16 @@ public class TileDao
 	 */
 	public TileMatrix getTileMatrix(long zoomLevel) {
 		return zoomLevelToTileMatrix.get(zoomLevel);
+	}
+
+	/**
+	 * Get the tile matrix at the min (first) zoom
+	 *
+	 * @return tile matrix
+	 * @since 4.0.1
+	 */
+	public TileMatrix getTileMatrixAtMinZoom() {
+		return zoomLevelToTileMatrix.firstEntry().getValue();
 	}
 
 	/**
@@ -734,6 +768,26 @@ public class TileDao
 	 */
 	public long getMapZoom(long zoomLevel) {
 		return getMapZoom(getTileMatrix(zoomLevel));
+	}
+
+	/**
+	 * Get a tile matrix set DAO
+	 *
+	 * @return tile matrix set DAO
+	 * @since 4.0.1
+	 */
+	public TileMatrixSetDao getTileMatrixSetDao() {
+		return TileMatrixSetDao.create(getDb());
+	}
+
+	/**
+	 * Get a tile matrix DAO
+	 *
+	 * @return tile matrix DAO
+	 * @since 4.0.1
+	 */
+	public TileMatrixDao getTileMatrixDao() {
+		return TileMatrixDao.create(getDb());
 	}
 
 }
