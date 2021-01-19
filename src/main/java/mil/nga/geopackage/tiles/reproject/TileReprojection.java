@@ -14,16 +14,6 @@ import mil.nga.sf.proj.Projection;
 public class TileReprojection extends TileReprojectionCore {
 
 	/**
-	 * Tile DAO
-	 */
-	private TileDao tileDao;
-
-	/**
-	 * Reprojection Tile DAO
-	 */
-	private TileDao reprojectTileDao;
-
-	/**
 	 * Constructor, reproject a tile table to a new tile table in a specified
 	 * GeoPackage
 	 *
@@ -39,8 +29,7 @@ public class TileReprojection extends TileReprojectionCore {
 	 */
 	public TileReprojection(TileDao tileDao, GeoPackage geoPackage,
 			String table, Projection projection) {
-		super(geoPackage, table, projection);
-		this.tileDao = tileDao;
+		super(tileDao, geoPackage, table, projection);
 	}
 
 	/**
@@ -53,9 +42,33 @@ public class TileReprojection extends TileReprojectionCore {
 	 * @return tile reprojection
 	 */
 	public TileReprojection(TileDao tileDao, TileDao reprojectTileDao) {
-		super();
-		this.tileDao = tileDao;
-		this.reprojectTileDao = reprojectTileDao;
+		super(tileDao, reprojectTileDao);
+	}
+
+	/**
+	 * Get the tile DAO
+	 * 
+	 * @return tile DAO
+	 */
+	public TileDao getTileDao() {
+		return (TileDao) super.tileDao;
+	}
+
+	/**
+	 * Get the reprojection tile DAO
+	 * 
+	 * @return reprojection tile DAO
+	 */
+	public TileDao getReprojectTileDao() {
+		return (TileDao) super.reprojectTileDao;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected long getOptimizeZoom() {
+		TileDao tileDao = getTileDao();
+		return tileDao.getMapZoom(tileDao.getTileMatrixAtMinZoom());
 	}
 
 	/**
@@ -63,15 +76,8 @@ public class TileReprojection extends TileReprojectionCore {
 	 */
 	protected void initialize() {
 		if (reprojectTileDao == null) {
-			// TODO
+			super.initialize();
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void finish() {
-		// TODO
 	}
 
 }
