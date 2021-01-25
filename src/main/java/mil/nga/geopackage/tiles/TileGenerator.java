@@ -437,9 +437,7 @@ public abstract class TileGenerator {
 			// Create the srs if needed
 			SpatialReferenceSystemDao srsDao = geoPackage
 					.getSpatialReferenceSystemDao();
-			SpatialReferenceSystem srs = srsDao.getOrCreateCode(
-					projection.getAuthority(),
-					Long.parseLong(projection.getCode()));
+			SpatialReferenceSystem srs = srsDao.getOrCreate(projection);
 			// Create the tile table
 			geoPackage.createTileTable(TileTableMetadata.create(tableName,
 					boundingBox, srs.getSrsId(), tileGridBoundingBox,
