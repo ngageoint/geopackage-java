@@ -339,7 +339,7 @@ public class TileCreator {
 	 * @since 4.0.1
 	 */
 	public GeoPackageTile getTile(BoundingBox requestBoundingBox,
-			int zoomLevel) {
+			long zoomLevel) {
 		GeoPackageTile tile = null;
 		TileMatrix tileMatrix = tileDao.getTileMatrix(zoomLevel);
 		if (tileMatrix != null) {

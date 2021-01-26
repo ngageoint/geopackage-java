@@ -3,11 +3,18 @@ package mil.nga.geopackage.tiles.reproject;
 import java.sql.SQLException;
 import java.util.List;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.tiles.GeoPackageTile;
+import mil.nga.geopackage.tiles.ImageUtils;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.TileCreator;
+import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.sf.proj.Projection;
 
 /**
@@ -193,54 +200,77 @@ public class TileReprojection extends TileReprojectionCore {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected int reproject(long zoom) {
+	protected int reproject(long zoom, long toZoom, BoundingBox boundingBox,
+			long matrixWidth, long matrixHeight, long tileWidth,
+			long tileHeight) {
 
 		int tiles = 0;
 
-		// TODO
-		
-//	    GPKGBoundingBox *zoomBounds = [_tileDao boundingBoxWithZoomLevel:zoom inProjection:_reprojectTileDao.projection];
-//	    GPKGTileGrid *tileGrid = [GPKGTileBoundingBoxUtils tileGridWithTotalBoundingBox:boundingBox andMatrixWidth:[matrixWidth intValue] andMatrixHeight:[matrixHeight intValue] andBoundingBox:zoomBounds];
-//	    
-//	    GPKGTileCreator *tileCreator = [[GPKGTileCreator alloc] initWithTileDao:_tileDao andWidth:tileWidth andHeight:tileHeight andProjection:_reprojectTileDao.projection];
-//	    
-//	    for(int tileRow = tileGrid.minY; tileRow <= tileGrid.maxY; tileRow++){
-//	        
-//	        double tileMaxLatitude = maxLatitude - ((tileRow / [matrixHeight doubleValue]) * latitudeRange);
-//	        double tileMinLatitude = maxLatitude - (((tileRow + 1) / [matrixHeight doubleValue]) * latitudeRange);
-//	        
-//	        for(int tileColumn = tileGrid.minX; [self isActive] && tileColumn <= tileGrid.maxX; tileColumn++){
-//	            
-//	            double tileMinLongitude = minLongitude + ((tileColumn / [matrixWidth doubleValue]) * longitudeRange);
-//	            double tileMaxLongitude = minLongitude + (((tileColumn + 1) / [matrixWidth doubleValue]) * longitudeRange);
-//	            
-//	            GPKGBoundingBox *tileBounds = [[GPKGBoundingBox alloc] initWithMinLongitudeDouble:tileMinLongitude andMinLatitudeDouble:tileMinLatitude andMaxLongitudeDouble:tileMaxLongitude andMaxLatitudeDouble:tileMaxLatitude];
-//	            
-//	            GPKGGeoPackageTile *tile = [tileCreator tileWithBoundingBox:tileBounds andZoom:zoom];
-//	            
-//	            if(tile != nil){
-//	                
-//	                GPKGTileRow *row = [_reprojectTileDao queryForTileWithColumn:tileColumn andRow:tileRow andZoomLevel:toZoom];
-//	                
-//	                if(row == nil){
-//	                    row = [_reprojectTileDao newRow];
-//	                    [row setTileColumn:tileColumn];
-//	                    [row setTileRow:tileRow];
-//	                    [row setZoomLevel:toZoom];
-//	                }
-//	                
-//	                [row setTileData:tile.data];
-//	                
-//	                [_reprojectTileDao createOrUpdate:row];
-//	                tiles++;
-//	                
-//	                if(_progress != nil){
-//	                    [_progress addProgress:1];
-//	                }
-//	            }
-//	        }
-//	        
-//	    }
+		TileDao tileDao = getTileDao();
+		TileDao reprojectTileDao = getReprojectTileDao();
+
+		double minLongitude = boundingBox.getMinLongitude();
+		double maxLatitude = boundingBox.getMaxLatitude();
+
+		double longitudeRange = boundingBox.getLongitudeRange();
+		double latitudeRange = boundingBox.getLatitudeRange();
+
+		BoundingBox zoomBounds = tileDao.getBoundingBox(zoom,
+				reprojectTileDao.getProjection());
+		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(boundingBox,
+				matrixWidth, matrixHeight, zoomBounds);
+
+		TileCreator tileCreator = new TileCreator(tileDao, (int) tileWidth,
+				(int) tileHeight, reprojectTileDao.getProjection(),
+				ImageUtils.IMAGE_FORMAT_PNG);
+
+		for (long tileRow = tileGrid.getMinY(); tileRow <= tileGrid
+				.getMaxY(); tileRow++) {
+
+			double tileMaxLatitude = maxLatitude
+					- ((tileRow / (double) matrixHeight) * latitudeRange);
+			double tileMinLatitude = maxLatitude
+					- (((tileRow + 1) / (double) matrixHeight) * latitudeRange);
+
+			for (long tileColumn = tileGrid.getMinX(); isActive()
+					&& tileColumn <= tileGrid.getMaxX(); tileColumn++) {
+
+				double tileMinLongitude = minLongitude
+						+ ((tileColumn / (double) matrixWidth)
+								* longitudeRange);
+				double tileMaxLongitude = minLongitude
+						+ (((tileColumn + 1) / (double) matrixWidth)
+								* longitudeRange);
+
+				BoundingBox tileBounds = new BoundingBox(tileMinLongitude,
+						tileMinLatitude, tileMaxLongitude, tileMaxLatitude);
+
+				GeoPackageTile tile = tileCreator.getTile(tileBounds, zoom);
+
+				if (tile != null) {
+
+					TileRow row = reprojectTileDao.queryForTile(tileColumn,
+							tileRow, toZoom);
+
+					if (row == null) {
+						row = reprojectTileDao.newRow();
+						row.setTileColumn(tileColumn);
+						row.setTileRow(tileRow);
+						row.setZoomLevel(toZoom);
+					}
+
+					row.setTileData(tile.getData());
+
+					reprojectTileDao.create(row);
+					tiles++;
+
+					if (progress != null) {
+						progress.addProgress(1);
+					}
+				}
+			}
+
+		}
 
 		return tiles;
 	}
