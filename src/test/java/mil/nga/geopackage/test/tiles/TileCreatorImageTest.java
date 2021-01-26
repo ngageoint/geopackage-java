@@ -8,11 +8,13 @@ import java.sql.SQLException;
 
 import javax.imageio.ImageIO;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.TestUtils;
-import mil.nga.geopackage.test.LoadGeoPackageTestCase;
 import mil.nga.geopackage.tiles.GeoPackageTile;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
@@ -21,8 +23,7 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
-
-import org.junit.Test;
+import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * Test Tile Creator image accuracy from a GeoPackage with tiles
@@ -64,7 +65,7 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 
 		int width = 256;
 		int height = 256;
-		TileCreator webMeractorTileCreator = new TileCreator(tileDao, width,
+		TileCreator webMercatorTileCreator = new TileCreator(tileDao, width,
 				height, webMercator, "png");
 		TileCreator wgs84TileCreator = new TileCreator(tileDao, width, height,
 				wgs84, "png");
@@ -74,11 +75,11 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 		BoundingBox wgs84BoundingBox = webMercatorBoundingBox
 				.transform(webMercator.getTransformation(wgs84));
 
-		TestCase.assertTrue(webMeractorTileCreator
+		TestCase.assertTrue(webMercatorTileCreator
 				.hasTile(webMercatorBoundingBox));
 		TestCase.assertTrue(wgs84TileCreator.hasTile(wgs84BoundingBox));
 
-		GeoPackageTile webMercatorTile = webMeractorTileCreator
+		GeoPackageTile webMercatorTile = webMercatorTileCreator
 				.getTile(webMercatorBoundingBox);
 		GeoPackageTile wgs84Tile = wgs84TileCreator.getTile(wgs84BoundingBox);
 
@@ -140,25 +141,25 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 				// Colors differ between phones and emulators, try to validate
 				// within a tolerance range the colors are as expected
 				TestCase.assertTrue(
-						"Web Meractor Red pixel " + webMercatorRed
+						"Web Mercator Red pixel " + webMercatorRed
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test red pixel "
 								+ webMercatorTestRed,
 						Math.abs(webMercatorRed - webMercatorTestRed) <= COLOR_TOLERANCE);
 				TestCase.assertTrue(
-						"Web Meractor Green pixel " + webMercatorGreen
+						"Web Mercator Green pixel " + webMercatorGreen
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test green pixel "
 								+ webMercatorTestGreen,
 						Math.abs(webMercatorGreen - webMercatorTestGreen) <= COLOR_TOLERANCE);
 				TestCase.assertTrue(
-						"Web Meractor Blue pixel " + webMercatorBlue
+						"Web Mercator Blue pixel " + webMercatorBlue
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test blue pixel "
 								+ webMercatorTestBlue,
 						Math.abs(webMercatorBlue - webMercatorTestBlue) <= COLOR_TOLERANCE);
 				TestCase.assertTrue(
-						"Web Meractor Alpha pixel " + webMercatorAlpha
+						"Web Mercator Alpha pixel " + webMercatorAlpha
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test alpha pixel "
 								+ webMercatorTestAlpha,
@@ -182,22 +183,22 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 
 				// Colors differ between phones and emulators, try to validate
 				// within a tolerance range the colors are as expected
-				TestCase.assertTrue("Web Meractor Red pixel " + wgs84Red
+				TestCase.assertTrue("Web Mercator Red pixel " + wgs84Red
 						+ " is not within the " + COLOR_TOLERANCE
 						+ " range of test red pixel " + wgs84TestRed,
 						Math.abs(wgs84Red - wgs84TestRed) <= COLOR_TOLERANCE);
 				TestCase.assertTrue(
-						"Web Meractor Green pixel " + wgs84Green
+						"Web Mercator Green pixel " + wgs84Green
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test green pixel "
 								+ wgs84TestGreen,
 						Math.abs(wgs84Green - wgs84TestGreen) <= COLOR_TOLERANCE);
-				TestCase.assertTrue("Web Meractor Blue pixel " + wgs84Blue
+				TestCase.assertTrue("Web Mercator Blue pixel " + wgs84Blue
 						+ " is not within the " + COLOR_TOLERANCE
 						+ " range of test blue pixel " + wgs84TestBlue,
 						Math.abs(wgs84Blue - wgs84TestBlue) <= COLOR_TOLERANCE);
 				TestCase.assertTrue(
-						"Web Meractor Alpha pixel " + wgs84Alpha
+						"Web Mercator Alpha pixel " + wgs84Alpha
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test alpha pixel "
 								+ wgs84TestAlpha,
@@ -307,22 +308,22 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 
 				// Colors differ between phones and emulators, try to validate
 				// within a tolerance range the colors are as expected
-				TestCase.assertTrue("Web Meractor Red pixel " + wgs84Red
+				TestCase.assertTrue("Web Mercator Red pixel " + wgs84Red
 						+ " is not within the " + COLOR_TOLERANCE
 						+ " range of test red pixel " + wgs84TestRed,
 						Math.abs(wgs84Red - wgs84TestRed) <= COLOR_TOLERANCE);
 				TestCase.assertTrue(
-						"Web Meractor Green pixel " + wgs84Green
+						"Web Mercator Green pixel " + wgs84Green
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test green pixel "
 								+ wgs84TestGreen,
 						Math.abs(wgs84Green - wgs84TestGreen) <= COLOR_TOLERANCE);
-				TestCase.assertTrue("Web Meractor Blue pixel " + wgs84Blue
+				TestCase.assertTrue("Web Mercator Blue pixel " + wgs84Blue
 						+ " is not within the " + COLOR_TOLERANCE
 						+ " range of test blue pixel " + wgs84TestBlue,
 						Math.abs(wgs84Blue - wgs84TestBlue) <= COLOR_TOLERANCE);
 				TestCase.assertTrue(
-						"Web Meractor Alpha pixel " + wgs84Alpha
+						"Web Mercator Alpha pixel " + wgs84Alpha
 								+ " is not within the " + COLOR_TOLERANCE
 								+ " range of test alpha pixel "
 								+ wgs84TestAlpha,
@@ -360,5 +361,61 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 		}
 
 	}
+	
+	/**
+	 * Test tile image projections
+	 */
+	@Test
+	public void testTileImageProjections(){
+		
+		TileDao tileDao = geoPackage.getTileDao(TestConstants.TILES2_DB_TABLE_NAME);
+		BoundingBox boundingBox = geoPackage.getBoundingBox(TestConstants.TILES2_DB_TABLE_NAME);
+		
+		Projection wgs84Projection = geoPackage.getProjection(TestConstants.TILES2_DB_TABLE_NAME);
+		Projection webMercatorProjection  = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+		ProjectionTransform toWebMercator = wgs84Projection.getTransformation(webMercatorProjection);
+		ProjectionTransform toWGS84 = toWebMercator.getInverseTransformation();
+		
+		BoundingBox webMercatorBoundingBox = boundingBox.transform(toWebMercator);
+		
+		//TileCreator webMercatorTileCreator
+		
+		// TODO
+	}
 
+	/**
+	 * Create tiles
+	 * 
+	 * @param webMercatorCreator
+	 * @param webMercator
+	 * @param wgs84Creator
+	 * @param wgs84
+	 * @throws IOException
+	 */
+	private void createTiles(TileCreator webMercatorCreator, BoundingBox webMercator, TileCreator wgs84Creator, BoundingBox wgs84) throws IOException {
+		
+		Projection wgs84Projection = geoPackage.getProjection(TestConstants.TILES2_DB_TABLE_NAME);
+		Projection webMercatorProjection  = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+		ProjectionTransform toWebMercator = wgs84Projection.getTransformation(webMercatorProjection);
+		ProjectionTransform toWGS84 = toWebMercator.getInverseTransformation();
+		
+		BoundingBox wgs84WebMercator = webMercator.transform(toWGS84);
+		double pixelXSize = (wgs84WebMercator.getMaxLongitude() - wgs84WebMercator.getMinLongitude()) / (1.0 * wgs84Creator.getWidth().doubleValue());
+		double pixelYSize = (wgs84WebMercator.getMaxLatitude() - wgs84WebMercator.getMinLatitude()) / (1.0 * wgs84Creator.getHeight().doubleValue());
+
+		GeoPackageTile tile = webMercatorCreator.getTile(webMercator);
+		GeoPackageTile wgs84WebMercatorTile = wgs84Creator.getTile(wgs84WebMercator);
+		GeoPackageTile wgs84Tile = wgs84Creator.getTile(wgs84);
+		
+		BufferedImage image = ImageUtils.getImage(tile.getData());
+		BufferedImage wgs84WebMercatorImage = ImageUtils.getImage(wgs84WebMercatorTile.getData());
+		BufferedImage wgs84Image = ImageUtils.getImage(wgs84Tile.getData());
+
+		TestCase.assertEquals(image.getWidth(), wgs84WebMercatorImage.getWidth());
+		TestCase.assertEquals(image.getHeight(), wgs84WebMercatorImage.getHeight());
+		TestCase.assertEquals(image.getWidth(), wgs84Image.getWidth());
+		TestCase.assertEquals(image.getHeight(), wgs84Image.getHeight());
+		
+	}
+	
 }
