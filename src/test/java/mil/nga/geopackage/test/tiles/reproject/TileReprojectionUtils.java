@@ -79,7 +79,39 @@ public class TileReprojectionUtils {
 	 *            GeoPackage
 	 */
 	public static void testReprojectReplace(GeoPackage geoPackage) {
-		// TODO
+
+		for (String table : randomTileTables(geoPackage)) {
+
+			Projection projection = geoPackage.getProjection(table);
+			Projection reprojectProjection = alternateProjection(projection);
+
+			BoundingBox boundingBox = geoPackage
+					.getBoundingBox(reprojectProjection, table);
+
+			TileDao tileDao = geoPackage.getTileDao(table);
+			Set<Long> zoomLevels = new HashSet<>(tileDao.getZoomLevels());
+			int count = tileDao.count();
+			Map<Long, Integer> counts = zoomCounts(tileDao);
+
+			int tiles = TileReprojection.reproject(geoPackage, table,
+					reprojectProjection);
+
+			assertEquals(count > 0, tiles > 0);
+
+			assertTrue(reprojectProjection
+					.equals(geoPackage.getProjection(table)));
+
+			TileDao reprojectTileDao = geoPackage.getTileDao(table);
+			checkZoomCounts(count, counts, reprojectTileDao, tiles);
+
+			Set<Long> reprojectZoomLevels = reprojectTileDao.getZoomLevels();
+			zoomLevels.removeAll(reprojectZoomLevels);
+			assertEquals(0, zoomLevels.size());
+
+			compareBoundingBox(boundingBox,
+					geoPackage.getContentsBoundingBox(table), .0000001);
+		}
+
 	}
 
 	/**
@@ -89,7 +121,41 @@ public class TileReprojectionUtils {
 	 *            GeoPackage
 	 */
 	public static void testReprojectZoomLevels(GeoPackage geoPackage) {
-		// TODO
+
+		for (String table : randomTileTables(geoPackage)) {
+
+			String reprojectTable = table + "_reproject";
+			Projection projection = geoPackage.getProjection(table);
+			Projection reprojectProjection = alternateProjection(projection);
+
+			TileDao tileDao = geoPackage.getTileDao(table);
+			Map<Long, Integer> counts = zoomCounts(tileDao);
+
+			TileReprojection tileReprojection = TileReprojection.create(
+					geoPackage, table, reprojectTable, reprojectProjection);
+
+			for (long zoom : counts.keySet()) {
+
+				int tiles = tileReprojection.reproject(zoom);
+				assertEquals(counts.get(zoom) > 0, tiles > 0);
+			}
+
+			assertTrue(projection.equals(geoPackage.getProjection(table)));
+			assertTrue(reprojectProjection
+					.equals(geoPackage.getProjection(reprojectTable)));
+
+			Set<Long> zoomLevels = new HashSet<>(tileDao.getZoomLevels());
+			TileDao reprojectTileDao = geoPackage.getTileDao(reprojectTable);
+			Set<Long> reprojectZoomLevels = reprojectTileDao.getZoomLevels();
+			zoomLevels.removeAll(reprojectZoomLevels);
+			assertEquals(0, zoomLevels.size());
+
+			compareBoundingBox(
+					geoPackage.getBoundingBox(reprojectProjection, table),
+					geoPackage.getContentsBoundingBox(reprojectTable),
+					.0000001);
+		}
+
 	}
 
 	/**
