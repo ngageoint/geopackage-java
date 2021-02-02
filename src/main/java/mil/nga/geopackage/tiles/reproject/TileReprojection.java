@@ -1,5 +1,6 @@
 package mil.nga.geopackage.tiles.reproject;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -25,6 +26,455 @@ import mil.nga.sf.proj.Projection;
  * @since 4.0.1
  */
 public class TileReprojection extends TileReprojectionCore {
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table, replacing the
+	 * existing tiles
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param projection
+	 *            desired projection
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			Projection projection) {
+		return create(geoPackage, table, table, projection);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table
+	 * within the GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param projection
+	 *            desired projection
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			String reprojectTable, Projection projection) {
+		return create(geoPackage, table, geoPackage, reprojectTable,
+				projection);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table in
+	 * a specified GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param projection
+	 *            desired projection
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			GeoPackage reprojectGeoPackage, String reprojectTable,
+			Projection projection) {
+		return create(geoPackage.getTileDao(table), reprojectGeoPackage,
+				reprojectTable, projection);
+	}
+
+	/**
+	 * Create a Reprojection from a tile table to a new tile table in a
+	 * specified GeoPackage
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param geoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param projection
+	 *            desired projection
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(TileDao tileDao,
+			GeoPackage geoPackage, String reprojectTable,
+			Projection projection) {
+		return new TileReprojection(tileDao, geoPackage, reprojectTable,
+				projection);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			TileDao reprojectTileDao) {
+		return create(geoPackage.getTileDao(table), reprojectTileDao);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(TileDao tileDao,
+			TileDao reprojectTileDao) {
+		return new TileReprojection(tileDao, reprojectTileDao);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			GeoPackage reprojectGeoPackage, TileDao reprojectTileDao) {
+		return create(geoPackage.getTileDao(table), reprojectGeoPackage,
+				reprojectTileDao);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(TileDao tileDao,
+			GeoPackage reprojectGeoPackage, TileDao reprojectTileDao) {
+		return new TileReprojection(tileDao, reprojectGeoPackage,
+				reprojectTileDao);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table, replacing the
+	 * existing tiles
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			TileReprojectionOptimize optimize) {
+		return create(geoPackage, table, table, optimize);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table
+	 * within the GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			String reprojectTable, TileReprojectionOptimize optimize) {
+		return create(geoPackage, table, geoPackage, reprojectTable, optimize);
+	}
+
+	/**
+	 * Create a Reprojection from a GeoPackage tile table to a new tile table in
+	 * a specified GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(GeoPackage geoPackage, String table,
+			GeoPackage reprojectGeoPackage, String reprojectTable,
+			TileReprojectionOptimize optimize) {
+		return create(geoPackage.getTileDao(table), reprojectGeoPackage,
+				reprojectTable, optimize);
+	}
+
+	/**
+	 * Create a Reprojection from a tile table to a new tile table in a
+	 * specified GeoPackage
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return tile reprojection
+	 */
+	public static TileReprojection create(TileDao tileDao,
+			GeoPackage reprojectGeoPackage, String reprojectTable,
+			TileReprojectionOptimize optimize) {
+		TileReprojection tileReprojection = new TileReprojection(tileDao,
+				reprojectGeoPackage, reprojectTable, optimize.getProjection());
+		tileReprojection.setOptimize(optimize);
+		return tileReprojection;
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table, replacing the existing tiles
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param projection
+	 *            desired projection
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			Projection projection) {
+		return create(geoPackage, table, projection).reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table within the
+	 * GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param projection
+	 *            desired projection
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			String reprojectTable, Projection projection) {
+		return create(geoPackage, table, reprojectTable, projection)
+				.reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table in a specified
+	 * GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param projection
+	 *            desired projection
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			GeoPackage reprojectGeoPackage, String reprojectTable,
+			Projection projection) {
+		return create(geoPackage, table, reprojectGeoPackage, reprojectTable,
+				projection).reproject();
+	}
+
+	/**
+	 * Reproject a tile table to a new tile table in a specified GeoPackage
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param projection
+	 *            desired projection
+	 * @return created tiles
+	 */
+	public static int reproject(TileDao tileDao, GeoPackage reprojectGeoPackage,
+			String reprojectTable, Projection projection) {
+		return create(tileDao, reprojectGeoPackage, reprojectTable, projection)
+				.reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			TileDao reprojectTileDao) {
+		return create(geoPackage, table, reprojectTileDao).reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return created tiles
+	 */
+	public static int reproject(TileDao tileDao, TileDao reprojectTileDao) {
+		return create(tileDao, reprojectTileDao).reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			GeoPackage reprojectGeoPackage, TileDao reprojectTileDao) {
+		return create(geoPackage, table, reprojectGeoPackage, reprojectTileDao)
+				.reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTileDao
+	 *            reprojection tile DAO
+	 * @return created tiles
+	 */
+	public static int reproject(TileDao tileDao, GeoPackage reprojectGeoPackage,
+			TileDao reprojectTileDao) {
+		return create(tileDao, reprojectGeoPackage, reprojectTileDao)
+				.reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table, replacing the existing tiles
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			TileReprojectionOptimize optimize) {
+		return create(geoPackage, table, optimize).reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table within the
+	 * GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			String reprojectTable, TileReprojectionOptimize optimize) {
+		return create(geoPackage, table, reprojectTable, optimize).reproject();
+	}
+
+	/**
+	 * Reproject a GeoPackage tile table to a new tile table in a specified
+	 * GeoPackage
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param table
+	 *            tile table
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return created tiles
+	 */
+	public static int reproject(GeoPackage geoPackage, String table,
+			GeoPackage reprojectGeoPackage, String reprojectTable,
+			TileReprojectionOptimize optimize) {
+		return create(geoPackage, table, reprojectGeoPackage, reprojectTable,
+				optimize).reproject();
+	}
+
+	/**
+	 * Reproject a tile table to a new tile table in a specified GeoPackage
+	 *
+	 * @param tileDao
+	 *            tile DAO
+	 * @param reprojectGeoPackage
+	 *            GeoPackage for reprojected tile table
+	 * @param reprojectTable
+	 *            new reprojected tile table
+	 * @param optimize
+	 *            desired optimization
+	 * @return created tiles
+	 */
+	public static int reproject(TileDao tileDao, GeoPackage reprojectGeoPackage,
+			String reprojectTable, TileReprojectionOptimize optimize) {
+		return create(tileDao, reprojectGeoPackage, reprojectTable, optimize)
+				.reproject();
+	}
 
 	/**
 	 * Constructor, reproject a tile table to a new tile table in a specified
@@ -259,7 +709,17 @@ public class TileReprojection extends TileReprojectionCore {
 						row.setZoomLevel(toZoom);
 					}
 
-					row.setTileData(tile.getData());
+					try {
+						row.setTileData(tile.getImage(),
+								ImageUtils.IMAGE_FORMAT_PNG);
+					} catch (IOException e) {
+						throw new GeoPackageException(
+								"Failed to set tile data from image. GeoPackage: "
+										+ reprojectTileDao.getDatabase()
+										+ ", Tile Table: "
+										+ reprojectTileDao.getTableName(),
+								e);
+					}
 
 					reprojectTileDao.create(row);
 					tiles++;
