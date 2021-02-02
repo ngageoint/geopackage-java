@@ -1,15 +1,19 @@
 package mil.nga.geopackage.test.tiles.reproject;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.reproject.TileReprojection;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
@@ -29,7 +33,43 @@ public class TileReprojectionUtils {
 	 *            GeoPackage
 	 */
 	public static void testReproject(GeoPackage geoPackage) {
-		// TODO
+
+		for (String table : randomTileTables(geoPackage)) {
+
+			String reprojectTable = table + "_reproject";
+			Projection projection = geoPackage.getProjection(table);
+			Projection reprojectProjection = alternateProjection(projection);
+
+			TileDao tileDao = geoPackage.getTileDao(table);
+			int count = tileDao.count();
+			Map<Long, Integer> counts = zoomCounts(tileDao);
+
+			int tiles = TileReprojection.reproject(geoPackage, table,
+					reprojectTable, reprojectProjection);
+
+			assertEquals(count > 0, tiles > 0);
+
+			assertTrue(projection.equals(geoPackage.getProjection(table)));
+			assertTrue(reprojectProjection
+					.equals(geoPackage.getProjection(reprojectTable)));
+
+			tileDao = geoPackage.getTileDao(table);
+			compareZoomCounts(count, counts, tileDao);
+
+			TileDao reprojectTileDao = geoPackage.getTileDao(reprojectTable);
+			checkZoomCounts(count, counts, reprojectTileDao, tiles);
+
+			Set<Long> zoomLevels = new HashSet<>(tileDao.getZoomLevels());
+			Set<Long> reprojectZoomLevels = reprojectTileDao.getZoomLevels();
+			zoomLevels.removeAll(reprojectZoomLevels);
+			assertEquals(0, zoomLevels.size());
+
+			compareBoundingBox(
+					geoPackage.getBoundingBox(reprojectProjection, table),
+					geoPackage.getContentsBoundingBox(reprojectTable),
+					.0000001);
+		}
+
 	}
 
 	/**
@@ -223,7 +263,7 @@ public class TileReprojectionUtils {
 
 	private static void checkZoomCounts(int count, Map<Long, Integer> counts,
 			TileDao tileDao, int tiles) {
-		assertEquals(count > 0, tileDao.count());
+		assertEquals(count > 0, tileDao.count() > 0);
 		assertEquals(tiles, tileDao.count());
 		Map<Long, Integer> countsAfter = zoomCounts(tileDao);
 		assertEquals(counts.size(), countsAfter.size());
