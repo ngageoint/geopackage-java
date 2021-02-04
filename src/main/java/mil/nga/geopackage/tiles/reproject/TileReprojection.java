@@ -702,7 +702,8 @@ public class TileReprojection extends TileReprojectionCore {
 					TileRow row = reprojectTileDao.queryForTile(tileColumn,
 							tileRow, toZoom);
 
-					if (row == null) {
+					boolean insert = row == null;
+					if (insert) {
 						row = reprojectTileDao.newRow();
 						row.setTileColumn(tileColumn);
 						row.setTileRow(tileRow);
@@ -721,7 +722,11 @@ public class TileReprojection extends TileReprojectionCore {
 								e);
 					}
 
-					reprojectTileDao.create(row);
+					if (insert) {
+						reprojectTileDao.insert(row);
+					} else {
+						reprojectTileDao.update(row);
+					}
 					tiles++;
 
 					if (progress != null) {

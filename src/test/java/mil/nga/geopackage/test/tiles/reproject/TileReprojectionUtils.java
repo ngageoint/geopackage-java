@@ -2,7 +2,10 @@ package mil.nga.geopackage.test.tiles.reproject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +18,8 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.reproject.TileReprojection;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileResultSet;
+import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
@@ -163,9 +168,87 @@ public class TileReprojectionUtils {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
+	 * @throws IOException
 	 */
-	public static void testReprojectZoomOverwrite(GeoPackage geoPackage) {
-		// TODO
+	public static void testReprojectZoomOverwrite(GeoPackage geoPackage)
+			throws IOException {
+
+		for (String table : randomTileTables(geoPackage)) {
+
+			String reprojectTable = table + "_reproject";
+			Projection projection = geoPackage.getProjection(table);
+			Projection reprojectProjection = alternateProjection(projection);
+
+			TileDao tileDao = geoPackage.getTileDao(table);
+			Map<Long, Integer> counts = zoomCounts(tileDao);
+
+			long zoom = (new ArrayList<>(counts.keySet()))
+					.get((int) (Math.random() * counts.size()));
+			TileMatrix tileMatrix = tileDao.getTileMatrix(zoom);
+
+			TileReprojection tileReprojection = TileReprojection.create(
+					geoPackage, table, reprojectTable, reprojectProjection);
+
+			int tiles = tileReprojection.reproject(zoom);
+			assertEquals(counts.get(zoom) > 0, tiles > 0);
+
+			tileReprojection = TileReprojection.create(geoPackage, table,
+					reprojectTable, reprojectProjection);
+
+			int tiles2 = tileReprojection.reproject(zoom);
+			assertEquals(tiles, tiles2);
+
+			tileReprojection = TileReprojection.create(geoPackage, table,
+					reprojectTable, reprojectProjection);
+			tileReprojection.setTileWidth(tileMatrix.getTileWidth() * 2);
+			tileReprojection.setTileHeight(tileMatrix.getTileHeight() * 2);
+
+			try {
+				tileReprojection.reproject(zoom);
+				fail("Reprojection of existing zoom level with new geographic properties did not fail");
+			} catch (Exception e) {
+				// expected
+			}
+
+			tileReprojection.setOverwrite(true);
+			int tiles3 = tileReprojection.reproject(zoom);
+			assertEquals(tiles, tiles3);
+
+			Set<Long> zoomLevels = new HashSet<>(tileDao.getZoomLevels());
+			TileDao reprojectTileDao = geoPackage.getTileDao(reprojectTable);
+			Set<Long> reprojectZoomLevels = reprojectTileDao.getZoomLevels();
+			assertTrue(zoomLevels.contains(zoom));
+			assertEquals(1, reprojectZoomLevels.size());
+			assertTrue(reprojectZoomLevels.contains(zoom));
+
+			TileMatrix reprojectTileMatrix = reprojectTileDao
+					.getTileMatrix(zoom);
+			assertEquals(zoom, reprojectTileMatrix.getZoomLevel());
+			assertEquals(tileReprojection.getTileWidth().longValue(),
+					reprojectTileMatrix.getTileWidth());
+			assertEquals(tileReprojection.getTileHeight().longValue(),
+					reprojectTileMatrix.getTileHeight());
+			assertEquals(tileMatrix.getMatrixWidth(),
+					reprojectTileMatrix.getMatrixWidth());
+			assertEquals(tileMatrix.getMatrixHeight(),
+					reprojectTileMatrix.getMatrixHeight());
+
+			TileResultSet tileResults = reprojectTileDao.queryForAll();
+			assertTrue(tileResults.moveToNext());
+			TileRow tileRow = tileResults.getRow();
+			BufferedImage tileImage = tileRow.getTileDataImage();
+			assertEquals(tileReprojection.getTileWidth().intValue(),
+					tileImage.getWidth());
+			assertEquals(tileReprojection.getTileHeight().intValue(),
+					tileImage.getHeight());
+			tileResults.close();
+
+			compareBoundingBox(
+					geoPackage.getBoundingBox(reprojectProjection, table),
+					geoPackage.getContentsBoundingBox(reprojectTable),
+					.0000001);
+		}
+
 	}
 
 	/**
@@ -277,6 +360,7 @@ public class TileReprojectionUtils {
 	private static List<String> randomTileTables(GeoPackage geoPackage) {
 		List<String> tileTables = null;
 		List<String> allTileTables = geoPackage.getTileTables();
+		allTileTables.remove("webp_tiles");
 		int count = allTileTables.size();
 		if (count <= 2) {
 			tileTables = allTileTables;
@@ -284,7 +368,7 @@ public class TileReprojectionUtils {
 			int index1 = (int) (Math.random() * count);
 			int index2 = (int) (Math.random() * count);
 			if (index1 == index2) {
-				if (++index1 >= count) {
+				if (++index2 >= count) {
 					index2 = 0;
 				}
 			}

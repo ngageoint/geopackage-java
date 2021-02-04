@@ -1,5 +1,7 @@
 package mil.nga.geopackage.test.tiles.reproject;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
@@ -50,9 +52,12 @@ public class TileReprojectionCreateTest extends CreateGeoPackageTestCase {
 
 	/**
 	 * Test reproject of overwriting a zoom level
+	 * 
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testReprojectZoomOverwrite() {
+	public void testReprojectZoomOverwrite() throws IOException {
 
 		TileReprojectionUtils.testReprojectZoomOverwrite(geoPackage);
 
