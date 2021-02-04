@@ -1,6 +1,7 @@
 package mil.nga.geopackage.test.tiles.reproject;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import org.junit.Test;
 
@@ -65,9 +66,12 @@ public class TileReprojectionImportTest extends ImportGeoPackageTestCase {
 
 	/**
 	 * Test reproject of overwriting a table
+	 * 
+	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
-	public void testReprojectOverwrite() {
+	public void testReprojectOverwrite() throws SQLException {
 
 		TileReprojectionUtils.testReprojectOverwrite(geoPackage);
 
