@@ -89,9 +89,12 @@ public class TileReprojectionCreateTest extends CreateGeoPackageTestCase {
 
 	/**
 	 * Test reproject with zoom level matrix and tile length configurations
+	 * 
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testReprojectMatrixAndTileLengths() {
+	public void testReprojectMatrixAndTileLengths() throws IOException {
 
 		TileReprojectionUtils.testReprojectMatrixAndTileLengths(geoPackage);
 
