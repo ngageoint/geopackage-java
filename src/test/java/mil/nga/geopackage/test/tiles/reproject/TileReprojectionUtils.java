@@ -1,6 +1,7 @@
 package mil.nga.geopackage.test.tiles.reproject;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -21,14 +22,17 @@ import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.reproject.PlatteCarreOptimize;
 import mil.nga.geopackage.tiles.reproject.TileReprojection;
 import mil.nga.geopackage.tiles.reproject.TileReprojectionOptimize;
+import mil.nga.geopackage.tiles.reproject.WebMercatorOptimize;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
 import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * Tile Reprojection Utility test methods
@@ -515,8 +519,8 @@ public class TileReprojectionUtils {
 				TileGrid tileGrid = tileDao.queryForTileGrid(zoom);
 				TileGrid reprojectTileGrid = reprojectTileDao
 						.queryForTileGrid(zoom);
-				assertTrue(tileGrid.getMaxX() < reprojectTileGrid.getMaxX());
-				assertTrue(tileGrid.getMaxY() < reprojectTileGrid.getMaxY());
+				assertTrue(tileGrid.getMaxX() <= reprojectTileGrid.getMaxX());
+				assertTrue(tileGrid.getMaxY() <= reprojectTileGrid.getMaxY());
 			}
 
 			compareBoundingBox(
@@ -537,7 +541,234 @@ public class TileReprojectionUtils {
 	 */
 	public static void testReprojectOptimize(GeoPackage geoPackage,
 			boolean world) {
-		// TODO
+
+		for (String table : randomTileTables(geoPackage)) {
+
+			String reprojectTable = table + "_reproject";
+			Projection projection = geoPackage.getProjection(table);
+			Projection reprojectProjection = alternateProjection(projection);
+
+			TileDao tileDao = geoPackage.getTileDao(table);
+			int count = tileDao.count();
+			Map<Long, Integer> counts = zoomCounts(tileDao);
+
+			TileReprojection tileReprojection = TileReprojection.create(
+					geoPackage, table, reprojectTable, reprojectProjection);
+
+			TileReprojectionOptimize optimize = null;
+			boolean webMercator = reprojectProjection.equals(
+					ProjectionConstants.AUTHORITY_EPSG,
+					ProjectionConstants.EPSG_WEB_MERCATOR);
+			if (webMercator) {
+				if (world) {
+					optimize = WebMercatorOptimize.createWorld();
+				} else {
+					optimize = WebMercatorOptimize.create();
+				}
+			} else {
+				if (world) {
+					optimize = PlatteCarreOptimize.createWorld();
+				} else {
+					optimize = PlatteCarreOptimize.create();
+				}
+			}
+			tileReprojection.setOptimize(optimize);
+
+			int tiles = tileReprojection.reproject();
+
+			assertEquals(count > 0, tiles > 0);
+
+			assertTrue(projection.equals(geoPackage.getProjection(table)));
+			assertTrue(reprojectProjection
+					.equals(geoPackage.getProjection(reprojectTable)));
+
+			tileDao = geoPackage.getTileDao(table);
+			compareZoomCounts(count, counts, tileDao);
+
+			TileDao reprojectTileDao = geoPackage.getTileDao(reprojectTable);
+
+			assertEquals(count > 0, reprojectTileDao.count() > 0);
+			assertEquals(tiles, reprojectTileDao.count());
+			Map<Long, Integer> countsAfter = zoomCounts(reprojectTileDao);
+			assertEquals(counts.size(), countsAfter.size());
+			assertEquals(tileDao.getZoomLevels().size(),
+					reprojectTileDao.getZoomLevels().size());
+			for (int i = 0; i < tileDao.getZoomLevels().size(); i++) {
+				long zoomLevel = new ArrayList<>(tileDao.getZoomLevels())
+						.get(i);
+				long toZoomLevel = new ArrayList<>(
+						reprojectTileDao.getZoomLevels()).get(i);
+				assertEquals(counts.get(zoomLevel) > 0,
+						countsAfter.get(toZoomLevel) > 0);
+			}
+
+			for (long zoom : reprojectTileDao.getZoomLevels()) {
+				TileMatrix tileMatrix = reprojectTileDao.getTileMatrix(zoom);
+				BoundingBox boundingBox = reprojectTileDao.getBoundingBox();
+				TileGrid zoomTileGrid = reprojectTileDao.getTileGrid(zoom);
+				TileGrid tileGrid = reprojectTileDao.queryForTileGrid(zoom);
+				BoundingBox tilesBoundingBox = TileBoundingBoxUtils
+						.getBoundingBox(boundingBox, tileMatrix, tileGrid);
+				assertTrue(tileGrid.getMinX() >= zoomTileGrid.getMinX());
+				assertTrue(tileGrid.getMaxX() <= zoomTileGrid.getMaxX());
+				assertTrue(tileGrid.getMinY() >= zoomTileGrid.getMinY());
+				assertTrue(tileGrid.getMaxY() <= zoomTileGrid.getMaxY());
+				TileResultSet tileResults = reprojectTileDao.queryForTile(zoom);
+				int tileIndex = (int) (Math.random() * tileResults.getCount());
+				for (int i = 0; i <= tileIndex; i++) {
+					assertTrue(tileResults.moveToNext());
+				}
+				TileRow tile = tileResults.getRow();
+				long tileColumn = tile.getTileColumn();
+				long tileRow = tile.getTileRow();
+				BoundingBox tileBoundingBox = TileBoundingBoxUtils
+						.getBoundingBox(boundingBox, tileMatrix, tileColumn,
+								tileRow);
+				tileResults.close();
+
+				BoundingBox optimizeBoundingBox = tileBoundingBox;
+				TileGrid optimizeTileGrid = null;
+				TileGrid localTileGrid = null;
+				projection = reprojectTileDao.getProjection();
+
+				if (webMercator) {
+					ProjectionTransform transform = projection
+							.getTransformation(
+									ProjectionConstants.EPSG_WEB_MERCATOR);
+					if (!transform.isSameProjection()) {
+						optimizeBoundingBox = optimizeBoundingBox
+								.transform(transform);
+					}
+					double midLongitude = optimizeBoundingBox.getMinLongitude()
+							+ (optimizeBoundingBox.getLongitudeRange() / 2.0);
+					double midLatitude = optimizeBoundingBox.getMinLatitude()
+							+ (optimizeBoundingBox.getLatitudeRange() / 2.0);
+					BoundingBox optimizeBoundingBoxPoint = new BoundingBox(
+							midLongitude, midLatitude, midLongitude,
+							midLatitude);
+					optimizeTileGrid = TileBoundingBoxUtils
+							.getTileGrid(optimizeBoundingBoxPoint, zoom);
+					localTileGrid = TileBoundingBoxUtils.getTileGrid(
+							boundingBox, tileMatrix.getMatrixWidth(),
+							tileMatrix.getMatrixHeight(),
+							optimizeBoundingBoxPoint);
+					BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
+							.getWebMercatorBoundingBox(optimizeTileGrid, zoom);
+					compareBoundingBox(optimizeBoundingBox,
+							webMercatorBoundingBox, tileMatrix);
+					optimizeBoundingBox = webMercatorBoundingBox;
+					if (world) {
+						TileGrid worldTileGrid = TileBoundingBoxUtils
+								.getTileGrid(boundingBox, zoom);
+						assertEquals(zoomTileGrid.getMinX(),
+								worldTileGrid.getMinX());
+						assertEquals(zoomTileGrid.getMaxX(),
+								worldTileGrid.getMaxX());
+						assertEquals(zoomTileGrid.getMinY(),
+								worldTileGrid.getMinY());
+						assertEquals(zoomTileGrid.getMaxY(),
+								worldTileGrid.getMaxY());
+						TileGrid worldTilesTileGrid = TileBoundingBoxUtils
+								.getTileGrid(tilesBoundingBox, zoom);
+						assertTrue(tileGrid.getMinX() == worldTilesTileGrid
+								.getMinX()
+								|| tileGrid.getMinX() - 1 == worldTilesTileGrid
+										.getMinX());
+						assertTrue(tileGrid.getMaxX() == worldTilesTileGrid
+								.getMaxX()
+								|| tileGrid.getMaxX() + 1 == worldTilesTileGrid
+										.getMaxX());
+						assertTrue(tileGrid.getMinY() == worldTilesTileGrid
+								.getMinY()
+								|| tileGrid.getMinY() - 1 == worldTilesTileGrid
+										.getMinY());
+						assertTrue(tileGrid.getMaxY() == worldTilesTileGrid
+								.getMaxY()
+								|| tileGrid.getMaxY() + 1 == worldTilesTileGrid
+										.getMaxY());
+					}
+					if (!transform.isSameProjection()) {
+						optimizeBoundingBox = optimizeBoundingBox
+								.transform(transform);
+					}
+				} else {
+					ProjectionTransform transform = projection
+							.getTransformation(
+									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+					if (!transform.isSameProjection()) {
+						optimizeBoundingBox = optimizeBoundingBox
+								.transform(transform);
+					}
+					double midLongitude = optimizeBoundingBox.getMinLongitude()
+							+ (optimizeBoundingBox.getLongitudeRange() / 2.0);
+					double midLatitude = optimizeBoundingBox.getMinLatitude()
+							+ (optimizeBoundingBox.getLatitudeRange() / 2.0);
+					BoundingBox optimizeBoundingBoxPoint = new BoundingBox(
+							midLongitude, midLatitude, midLongitude,
+							midLatitude);
+					optimizeTileGrid = TileBoundingBoxUtils
+							.getTileGridWGS84(optimizeBoundingBoxPoint, zoom);
+					localTileGrid = TileBoundingBoxUtils.getTileGrid(
+							boundingBox, tileMatrix.getMatrixWidth(),
+							tileMatrix.getMatrixHeight(),
+							optimizeBoundingBoxPoint);
+					BoundingBox wgs84BoundingBox = TileBoundingBoxUtils
+							.getWGS84BoundingBox(optimizeTileGrid, zoom);
+					compareBoundingBox(optimizeBoundingBox, wgs84BoundingBox,
+							tileMatrix);
+					optimizeBoundingBox = wgs84BoundingBox;
+					if (world) {
+						TileGrid worldTileGrid = TileBoundingBoxUtils
+								.getTileGridWGS84(boundingBox, zoom);
+						assertEquals(zoomTileGrid.getMinX(),
+								worldTileGrid.getMinX());
+						assertEquals(zoomTileGrid.getMaxX(),
+								worldTileGrid.getMaxX());
+						assertEquals(zoomTileGrid.getMinY(),
+								worldTileGrid.getMinY());
+						assertEquals(zoomTileGrid.getMaxY(),
+								worldTileGrid.getMaxY());
+						TileGrid worldTilesTileGrid = TileBoundingBoxUtils
+								.getTileGridWGS84(tilesBoundingBox, zoom);
+						assertTrue(tileGrid.getMinX() == worldTilesTileGrid
+								.getMinX()
+								|| tileGrid.getMinX() - 1 == worldTilesTileGrid
+										.getMinX());
+						assertTrue(tileGrid.getMaxX() == worldTilesTileGrid
+								.getMaxX()
+								|| tileGrid.getMaxX() + 1 == worldTilesTileGrid
+										.getMaxX());
+						assertTrue(tileGrid.getMinY() == worldTilesTileGrid
+								.getMinY()
+								|| tileGrid.getMinY() - 1 == worldTilesTileGrid
+										.getMinY());
+						assertTrue(tileGrid.getMaxY() == worldTilesTileGrid
+								.getMaxY()
+								|| tileGrid.getMaxY() + 1 == worldTilesTileGrid
+										.getMaxY());
+					}
+					if (!transform.isSameProjection()) {
+						optimizeBoundingBox = optimizeBoundingBox
+								.transform(transform);
+					}
+				}
+
+				assertNotNull(optimizeTileGrid);
+				assertEquals(1, optimizeTileGrid.getWidth());
+				assertEquals(1, optimizeTileGrid.getHeight());
+				assertNotNull(localTileGrid);
+				assertEquals(tileColumn, localTileGrid.getMinX());
+				assertEquals(tileRow, localTileGrid.getMinY());
+				compareBoundingBox(tileBoundingBox, optimizeBoundingBox,
+						tileMatrix);
+			}
+
+			compareBoundingBox(
+					geoPackage.getBoundingBox(reprojectProjection, table),
+					geoPackage.getContentsBoundingBox(reprojectTable),
+					.0000001);
+		}
+
 	}
 
 	/**
@@ -568,9 +799,8 @@ public class TileReprojectionUtils {
 					.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR)
 					.equals(geoPackage.getProjection(reprojectTable)));
 			TileDao reprojectTileDao = geoPackage.getTileDao(reprojectTable);
-			for (long zoomLevel : reprojectTileDao.getZoomLevels()) {
-				TileMatrix tileMatrix = reprojectTileDao
-						.getTileMatrix(zoomLevel);
+			for (long zoom : reprojectTileDao.getZoomLevels()) {
+				TileMatrix tileMatrix = reprojectTileDao.getTileMatrix(zoom);
 				BoundingBox boundingBox = reprojectTileDao.getBoundingBox();
 				BoundingBox tileBoundingBox = TileBoundingBoxUtils
 						.getBoundingBox(boundingBox, tileMatrix, 0, 0);
@@ -581,16 +811,15 @@ public class TileReprojectionUtils {
 				BoundingBox boundingBoxPoint = new BoundingBox(midLongitude,
 						midLatitude, midLongitude, midLatitude);
 				TileGrid tileGrid = TileBoundingBoxUtils
-						.getTileGrid(boundingBoxPoint, zoomLevel);
+						.getTileGrid(boundingBoxPoint, zoom);
 				BoundingBox tileGridBoundingBox = TileBoundingBoxUtils
-						.getWebMercatorBoundingBox(tileGrid, zoomLevel);
+						.getWebMercatorBoundingBox(tileGrid, zoom);
 				compareBoundingBox(tileBoundingBox, tileGridBoundingBox,
 						tileMatrix);
 				if (world) {
-					TileGrid zoomTileGrid = reprojectTileDao
-							.getTileGrid(zoomLevel);
+					TileGrid zoomTileGrid = reprojectTileDao.getTileGrid(zoom);
 					TileGrid worldTileGrid = TileBoundingBoxUtils
-							.getTileGrid(boundingBox, zoomLevel);
+							.getTileGrid(boundingBox, zoom);
 					assertEquals(zoomTileGrid.getMinX(),
 							worldTileGrid.getMinX());
 					assertEquals(zoomTileGrid.getMaxX(),
@@ -602,7 +831,7 @@ public class TileReprojectionUtils {
 					BoundingBox tilesBoundingBox = TileBoundingBoxUtils
 							.getBoundingBox(boundingBox, tileMatrix, tileGrid);
 					TileGrid worldTilesTileGrid = TileBoundingBoxUtils
-							.getTileGrid(tilesBoundingBox, zoomLevel);
+							.getTileGrid(tilesBoundingBox, zoom);
 					assertTrue(tileGrid.getMinX() == worldTilesTileGrid
 							.getMinX()
 							|| tileGrid.getMinX() - 1 == worldTilesTileGrid
@@ -654,9 +883,8 @@ public class TileReprojectionUtils {
 							ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
 					.equals(geoPackage.getProjection(reprojectTable)));
 			TileDao reprojectTileDao = geoPackage.getTileDao(reprojectTable);
-			for (long zoomLevel : reprojectTileDao.getZoomLevels()) {
-				TileMatrix tileMatrix = reprojectTileDao
-						.getTileMatrix(zoomLevel);
+			for (long zoom : reprojectTileDao.getZoomLevels()) {
+				TileMatrix tileMatrix = reprojectTileDao.getTileMatrix(zoom);
 				BoundingBox boundingBox = reprojectTileDao.getBoundingBox();
 				BoundingBox tileBoundingBox = TileBoundingBoxUtils
 						.getBoundingBox(boundingBox, tileMatrix, 0, 0);
@@ -667,16 +895,15 @@ public class TileReprojectionUtils {
 				BoundingBox boundingBoxPoint = new BoundingBox(midLongitude,
 						midLatitude, midLongitude, midLatitude);
 				TileGrid tileGrid = TileBoundingBoxUtils
-						.getTileGridWGS84(boundingBoxPoint, zoomLevel);
+						.getTileGridWGS84(boundingBoxPoint, zoom);
 				BoundingBox tileGridBoundingBox = TileBoundingBoxUtils
-						.getWGS84BoundingBox(tileGrid, zoomLevel);
+						.getWGS84BoundingBox(tileGrid, zoom);
 				compareBoundingBox(tileBoundingBox, tileGridBoundingBox,
 						tileMatrix);
 				if (world) {
-					TileGrid zoomTileGrid = reprojectTileDao
-							.getTileGrid(zoomLevel);
+					TileGrid zoomTileGrid = reprojectTileDao.getTileGrid(zoom);
 					TileGrid worldTileGrid = TileBoundingBoxUtils
-							.getTileGridWGS84(boundingBox, zoomLevel);
+							.getTileGridWGS84(boundingBox, zoom);
 					assertEquals(zoomTileGrid.getMinX(),
 							worldTileGrid.getMinX());
 					assertEquals(zoomTileGrid.getMaxX(),
@@ -688,7 +915,7 @@ public class TileReprojectionUtils {
 					BoundingBox tilesBoundingBox = TileBoundingBoxUtils
 							.getBoundingBox(boundingBox, tileMatrix, tileGrid);
 					TileGrid worldTilesTileGrid = TileBoundingBoxUtils
-							.getTileGridWGS84(tilesBoundingBox, zoomLevel);
+							.getTileGridWGS84(tilesBoundingBox, zoom);
 					assertTrue(tileGrid.getMinX() == worldTilesTileGrid
 							.getMinX()
 							|| tileGrid.getMinX() - 1 == worldTilesTileGrid
@@ -802,9 +1029,9 @@ public class TileReprojectionUtils {
 
 	private static Map<Long, Integer> zoomCounts(TileDao tileDao) {
 		Map<Long, Integer> counts = new HashMap<>();
-		for (long zoomLevel : tileDao.getZoomLevels()) {
-			int zoomCount = tileDao.count(zoomLevel);
-			counts.put(zoomLevel, zoomCount);
+		for (long zoom : tileDao.getZoomLevels()) {
+			int zoomCount = tileDao.count(zoom);
+			counts.put(zoom, zoomCount);
 		}
 		return counts;
 	}
@@ -814,8 +1041,8 @@ public class TileReprojectionUtils {
 		assertEquals(count, tileDao.count());
 		Map<Long, Integer> countsAfter = zoomCounts(tileDao);
 		assertEquals(counts.size(), countsAfter.size());
-		for (long zoomLevel : tileDao.getZoomLevels()) {
-			assertEquals(counts.get(zoomLevel), countsAfter.get(zoomLevel));
+		for (long zoom : tileDao.getZoomLevels()) {
+			assertEquals(counts.get(zoom), countsAfter.get(zoom));
 		}
 	}
 
@@ -825,9 +1052,8 @@ public class TileReprojectionUtils {
 		assertEquals(tiles, tileDao.count());
 		Map<Long, Integer> countsAfter = zoomCounts(tileDao);
 		assertEquals(counts.size(), countsAfter.size());
-		for (long zoomLevel : tileDao.getZoomLevels()) {
-			assertEquals(counts.get(zoomLevel) > 0,
-					countsAfter.get(zoomLevel) > 0);
+		for (long zoom : tileDao.getZoomLevels()) {
+			assertEquals(counts.get(zoom) > 0, countsAfter.get(zoom) > 0);
 		}
 	}
 
