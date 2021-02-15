@@ -112,6 +112,8 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.geopackage.tiles.reproject.TileReprojection;
+import mil.nga.geopackage.tiles.reproject.TileReprojectionOptimize;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
@@ -880,6 +882,17 @@ public class GeoPackageExample {
 		BoundingBox ngaBoundingBox = new BoundingBox(-8593967.964158937,
 				4685284.085768163, -8592744.971706374, 4687730.070673289);
 		createTiles(geoPackage, "nga", ngaBoundingBox, 15, 16, "png");
+
+		TileReprojection.reproject(geoPackage, "bit_systems",
+				"bit_systems_wgs84", ProjectionFactory.getProjection(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
+		TileReprojection.reproject(geoPackage, "nga", "nga_pc",
+				TileReprojectionOptimize.platteCarre());
+		TileReprojection.reproject(geoPackage, "bit_systems",
+				"bit_systems_world",
+				TileReprojectionOptimize.webMercatorWorld());
+		TileReprojection.reproject(geoPackage, "nga", "nga_pc_world",
+				TileReprojectionOptimize.platteCarreWorld());
 
 	}
 
