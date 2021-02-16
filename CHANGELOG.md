@@ -8,7 +8,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * ormlite-jdbc version 5.3
 * sqlite-jdbc version 3.34.0
+* Tile table reprojections
 * Omit null values in inserts
+* Tile DAO map zoom levels
 
 ## [4.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/4.0.0) (07-14-2020)
 
