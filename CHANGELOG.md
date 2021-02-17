@@ -6,6 +6,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 4.0.1
 
+* geopackage-core version 4.0.1
 * ormlite-jdbc version 5.3
 * sqlite-jdbc version 3.34.0
 * Tile table reprojections
