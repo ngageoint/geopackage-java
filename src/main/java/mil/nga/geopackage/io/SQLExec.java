@@ -2429,33 +2429,7 @@ public class SQLExec {
 	 * @return projection or null
 	 */
 	private static Projection getProjection(String argument) {
-
-		Projection projection = null;
-
-		String authority = null;
-		String code = null;
-
-		String[] projectionParts = argument.split(":");
-
-		switch (projectionParts.length) {
-		case 1:
-			authority = ProjectionConstants.AUTHORITY_EPSG;
-			code = projectionParts[0];
-			break;
-		case 2:
-			authority = projectionParts[0];
-			code = projectionParts[1];
-			break;
-		default:
-			System.out.println("Error: Invalid projection argument '" + argument
-					+ "', expected 'authority:code' or 'epsg_code'");
-		}
-
-		if (authority != null) {
-			projection = ProjectionFactory.getProjection(authority, code);
-		}
-
-		return projection;
+		return ProjectionFactory.getProjection(argument);
 	}
 
 	/**
