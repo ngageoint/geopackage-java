@@ -205,6 +205,18 @@ Example:
 
     java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.OAPIFeatureGen -limit 1000 -bbox 20.0,60.0,22.0,62.0 -time 20190519T140000/20190619T140000 -totalLimit 10000 -transactionLimit 100 /path/geopackage.gpkg myfeaturetable http://url collectionId
 
+#### Tile Reprojections ####
+
+Reprojects GeoPackage tiles to a new projection or projection optimization (Web Mercator, Platte Carre). Reprojected tiles can be saved replacing the current tiles or as a new set of tiles in the same, new, or existing GeoPackage.
+
+To run against the jar:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReproject [-proj projection] [-optimize optimization] [-width tile_width] [-height tile_height] [-zoom zoom_levels] [-logCount count] [-logTime time] geopackage_file tile_table [[reprojection_geopackage_file] reprojection_tile_table]
+
+Example:
+
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.TileReproject -proj epsg:3857 -width 256 -height 256 -zoom 12-16 /path/geopackage.gpkg mytiletable /path/geopackage2.gpkg newtiletable
+
 ### Dependencies ###
 
 #### Remote ####
