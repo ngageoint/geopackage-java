@@ -222,22 +222,8 @@ public class TileReproject {
 				case ARGUMENT_OPTIMIZE:
 					if (i + 1 < args.length) {
 						String optimizeArg = args[++i];
-						switch (optimizeArg) {
-						case ARGUMENT_OPTIMIZE_WEB_MERCATOR:
-							optimize = TileReprojectionOptimize.webMercator();
-							break;
-						case ARGUMENT_OPTIMIZE_PLATTE_CARRE:
-							optimize = TileReprojectionOptimize.platteCarre();
-							break;
-						case ARGUMENT_OPTIMIZE_WEB_MERCATOR_WORLD:
-							optimize = TileReprojectionOptimize
-									.webMercatorWorld();
-							break;
-						case ARGUMENT_OPTIMIZE_PLATTE_CARRE_WORLD:
-							optimize = TileReprojectionOptimize
-									.platteCarreWorld();
-							break;
-						default:
+						optimize = parseOptimize(optimizeArg);
+						if (optimize == null) {
 							valid = false;
 							System.out.println("Error: Optimize argument '"
 									+ arg
@@ -274,30 +260,16 @@ public class TileReproject {
 				case ARGUMENT_ZOOM_LEVELS:
 					if (i + 1 < args.length) {
 						zoomLevels = args[++i];
-						zooms = new ArrayList<>();
-						if (zoomLevels.contains(",")) {
-							String[] zoomParts = zoomLevels.split(",");
-							for (String zoom : zoomParts) {
-								zooms.add(Long.valueOf(zoom));
-							}
-						} else if (zoomLevels.contains("-")) {
-							String[] zoomParts = zoomLevels.split("-");
-							if (zoomParts.length != 2) {
-								valid = false;
-							} else {
-								long minZoom = Long.valueOf(zoomParts[0]);
-								long maxZoom = Long.valueOf(zoomParts[1]);
-								for (long zoom = minZoom; zoom <= maxZoom; zoom++) {
-									zooms.add(zoom);
-								}
-							}
-						} else {
-							zooms.add(Long.valueOf(zoomLevels));
+						zooms = parseZoomLevels(zoomLevels);
+						if (zooms == null) {
+							valid = false;
+							System.out.println("Error: Zoom Levels argument '"
+									+ arg
+									+ "' must be followed by a valid single zoom or zoom range. Invalid: "
+									+ zoomLevels);
 						}
 					} else {
 						valid = false;
-					}
-					if (!valid) {
 						System.out.println("Error: Zoom Levels argument '" + arg
 								+ "' must be followed by a single zoom or zoom range");
 					}
@@ -456,6 +428,64 @@ public class TileReproject {
 		}
 
 		finish(count);
+	}
+
+	/**
+	 * Parse the reprojection optimize argument
+	 * 
+	 * @param optimizeArg
+	 *            optimize argument
+	 * @return optimize or null
+	 */
+	public static TileReprojectionOptimize parseOptimize(String optimizeArg) {
+
+		TileReprojectionOptimize optimize = null;
+
+		switch (optimizeArg.toLowerCase()) {
+		case ARGUMENT_OPTIMIZE_WEB_MERCATOR:
+			optimize = TileReprojectionOptimize.webMercator();
+			break;
+		case ARGUMENT_OPTIMIZE_PLATTE_CARRE:
+			optimize = TileReprojectionOptimize.platteCarre();
+			break;
+		case ARGUMENT_OPTIMIZE_WEB_MERCATOR_WORLD:
+			optimize = TileReprojectionOptimize.webMercatorWorld();
+			break;
+		case ARGUMENT_OPTIMIZE_PLATTE_CARRE_WORLD:
+			optimize = TileReprojectionOptimize.platteCarreWorld();
+			break;
+		}
+
+		return optimize;
+	}
+
+	/**
+	 * Parse the zoom levels argument
+	 * 
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @return zoom levels or null
+	 */
+	public static List<Long> parseZoomLevels(String zoomLevels) {
+		List<Long> zooms = new ArrayList<>();
+		if (zoomLevels.contains(",")) {
+			String[] zoomParts = zoomLevels.split(",");
+			for (String zoom : zoomParts) {
+				zooms.add(Long.valueOf(zoom));
+			}
+		} else if (zoomLevels.contains("-")) {
+			String[] zoomParts = zoomLevels.split("-");
+			if (zoomParts.length == 2) {
+				long minZoom = Long.valueOf(zoomParts[0]);
+				long maxZoom = Long.valueOf(zoomParts[1]);
+				for (long zoom = minZoom; zoom <= maxZoom; zoom++) {
+					zooms.add(zoom);
+				}
+			}
+		} else {
+			zooms.add(Long.valueOf(zoomLevels));
+		}
+		return zooms.isEmpty() ? null : zooms;
 	}
 
 	/**

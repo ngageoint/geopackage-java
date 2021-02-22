@@ -42,6 +42,8 @@ import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.reproject.TileReprojection;
+import mil.nga.geopackage.tiles.reproject.TileReprojectionOptimize;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.validate.GeoPackageValidate;
 import mil.nga.sf.Geometry;
@@ -179,6 +181,11 @@ public class SQLExec {
 	public static final String COMMAND_TABLE_INFO = "info";
 
 	/**
+	 * Count command
+	 */
+	public static final String COMMAND_COUNT = "count";
+
+	/**
 	 * VACUUM command
 	 */
 	public static final String COMMAND_VACUUM = "vacuum";
@@ -227,6 +234,11 @@ public class SQLExec {
 	 * GeoPackage geometry command
 	 */
 	public static final String COMMAND_GEOMETRY = "geometry";
+
+	/**
+	 * GeoPackage reproject command
+	 */
+	public static final String COMMAND_REPROJECT = "reproject";
 
 	/**
 	 * Blob display value
@@ -282,6 +294,11 @@ public class SQLExec {
 	 * Bounds projection argument
 	 */
 	public static final String ARGUMENT_PROJECTION = "p";
+
+	/**
+	 * Zoom levels argument
+	 */
+	public static final String ARGUMENT_ZOOM_LEVELS = "z";
 
 	/**
 	 * Bounds manual argument
@@ -524,7 +541,9 @@ public class SQLExec {
 									.substring(COMMAND_TABLES.length(),
 											sqlLine.length())
 									.trim();
-							String sql = buildSqlMasterQuery(false,
+							String sql = buildSqlMasterQuery(
+									new SQLiteMasterColumn[] {
+											SQLiteMasterColumn.NAME },
 									SQLiteMasterType.TABLE, name);
 							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, maxColumnWidth,
@@ -536,7 +555,10 @@ public class SQLExec {
 									.substring(COMMAND_INDEXES.length(),
 											sqlLine.length())
 									.trim();
-							String sql = buildSqlMasterQuery(true,
+							String sql = buildSqlMasterQuery(
+									new SQLiteMasterColumn[] {
+											SQLiteMasterColumn.NAME,
+											SQLiteMasterColumn.TBL_NAME },
 									SQLiteMasterType.INDEX, name);
 							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, maxColumnWidth,
@@ -548,7 +570,9 @@ public class SQLExec {
 									.substring(COMMAND_VIEWS.length(),
 											sqlLine.length())
 									.trim();
-							String sql = buildSqlMasterQuery(false,
+							String sql = buildSqlMasterQuery(
+									new SQLiteMasterColumn[] {
+											SQLiteMasterColumn.NAME },
 									SQLiteMasterType.VIEW, name);
 							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, maxColumnWidth,
@@ -560,7 +584,10 @@ public class SQLExec {
 									.substring(COMMAND_TRIGGERS.length(),
 											sqlLine.length())
 									.trim();
-							String sql = buildSqlMasterQuery(true,
+							String sql = buildSqlMasterQuery(
+									new SQLiteMasterColumn[] {
+											SQLiteMasterColumn.NAME,
+											SQLiteMasterColumn.TBL_NAME },
 									SQLiteMasterType.TRIGGER, name);
 							executeSQL(database, sqlBuilder, sql,
 									COMMAND_ALL_ROWS, maxColumnWidth,
@@ -650,15 +677,33 @@ public class SQLExec {
 											sqlLine.length())
 									.trim();
 							if (!tableName.isEmpty()) {
-								executeSQL(database, sqlBuilder,
-										"PRAGMA table_info(\"" + tableName
-												+ "\");",
-										COMMAND_ALL_ROWS, maxColumnWidth,
-										maxLinesPerRow, history);
+								tableInfo(database, sqlBuilder, maxColumnWidth,
+										maxLinesPerRow, history, tableName,
+										true);
 							} else {
 								printInfo(database, maxRows, maxColumnWidth,
 										maxLinesPerRow);
 								resetCommandPrompt(sqlBuilder);
+							}
+
+						} else if (sqlLineLower.startsWith(COMMAND_COUNT)) {
+
+							String tableName = sqlLine
+									.substring(COMMAND_COUNT.length(),
+											sqlLine.length())
+									.trim();
+							if (!tableName.isEmpty()) {
+								executeSQL(database, sqlBuilder,
+										"SELECT COUNT(*) FROM \"" + tableName
+												+ "\";",
+										COMMAND_ALL_ROWS, maxColumnWidth,
+										maxLinesPerRow, history);
+							} else {
+								String sql = buildSqlMasterCountQuery(
+										SQLiteMasterType.TABLE, tableName);
+								executeSQL(database, sqlBuilder, sql,
+										COMMAND_ALL_ROWS, maxColumnWidth,
+										maxLinesPerRow, history);
 							}
 
 						} else if (sqlLine
@@ -733,73 +778,10 @@ public class SQLExec {
 
 								if (!tableName.isEmpty()) {
 
-									executeSQL(database, sqlBuilder,
-											"SELECT * FROM gpkg_contents WHERE LOWER(table_name) = '"
-													+ tableName.toLowerCase()
-													+ "';",
-											COMMAND_ALL_ROWS, maxColumnWidth,
-											maxLinesPerRow, history, false);
+									geoPackageTableInfo(database, sqlBuilder,
+											maxColumnWidth, maxLinesPerRow,
+											history, tableName);
 
-									String tableType = database
-											.getTableType(tableName);
-									if (tableType != null) {
-										switch (tableType) {
-										case CoverageData.GRIDDED_COVERAGE:
-											executeSQL(database, sqlBuilder,
-													"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
-															+ tableName + "';",
-													COMMAND_ALL_ROWS,
-													maxColumnWidth,
-													maxLinesPerRow, history,
-													false);
-											executeSQL(database, sqlBuilder,
-													"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
-															+ tableName + "';",
-													COMMAND_ALL_ROWS,
-													maxColumnWidth,
-													maxLinesPerRow, history,
-													false);
-											break;
-										}
-									}
-
-									ContentsDataType dataType = database
-											.getTableDataType(tableName);
-									if (dataType != null) {
-										switch (dataType) {
-										case ATTRIBUTES:
-
-											break;
-										case FEATURES:
-											executeSQL(database, sqlBuilder,
-													"SELECT * FROM gpkg_geometry_columns WHERE table_name = '"
-															+ tableName + "';",
-													COMMAND_ALL_ROWS,
-													maxColumnWidth,
-													maxLinesPerRow, history,
-													false);
-											break;
-										case TILES:
-											executeSQL(database, sqlBuilder,
-													"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"
-															+ tableName + "';",
-													COMMAND_ALL_ROWS,
-													maxColumnWidth,
-													maxLinesPerRow, history,
-													false);
-											tileMatrix(database, sqlBuilder,
-													maxColumnWidth,
-													maxLinesPerRow, history,
-													tableName);
-											break;
-										}
-									}
-
-									executeSQL(database, sqlBuilder,
-											"PRAGMA table_info(\"" + tableName
-													+ "\");",
-											COMMAND_ALL_ROWS, maxColumnWidth,
-											maxLinesPerRow, history, false);
 								}
 
 								resetCommandPrompt(sqlBuilder);
@@ -854,10 +836,18 @@ public class SQLExec {
 							} else if (sqlLineLower
 									.startsWith(COMMAND_GEOMETRY)) {
 
-								geometries(database, sqlBuilder, maxRows,
-										history,
+								geometries(database, sqlBuilder, history,
 										sqlLine.substring(
 												COMMAND_GEOMETRY.length(),
+												sqlLine.length()));
+
+							} else if (sqlLineLower
+									.startsWith(COMMAND_REPROJECT)) {
+
+								reproject(database, sqlBuilder, maxColumnWidth,
+										maxLinesPerRow, history,
+										sqlLine.substring(
+												COMMAND_REPROJECT.length(),
 												sqlLine.length()));
 
 							} else {
@@ -934,6 +924,42 @@ public class SQLExec {
 	/**
 	 * Build a SQLite Master table query
 	 * 
+	 * @param columns
+	 *            query columns
+	 * @param type
+	 *            SQLite Master type
+	 * @param name
+	 *            name LIKE value
+	 * @return SQL
+	 */
+	private static String buildSqlMasterQuery(SQLiteMasterColumn[] columns,
+			SQLiteMasterType type, String name) {
+		List<String> columnsList = new ArrayList<>();
+		for (SQLiteMasterColumn column : columns) {
+			columnsList.add(column.name().toLowerCase());
+		}
+		return buildSqlMasterQuery(columnsList, type, name);
+	}
+
+	/**
+	 * Build a SQLite Master table count query
+	 * 
+	 * @param type
+	 *            SQLite Master type
+	 * @param name
+	 *            name LIKE value
+	 * @return SQL
+	 */
+	private static String buildSqlMasterCountQuery(SQLiteMasterType type,
+			String name) {
+		List<String> columnsList = new ArrayList<>();
+		columnsList.add("COUNT(*)");
+		return buildSqlMasterQuery(columnsList, type, name);
+	}
+
+	/**
+	 * Build a SQLite Master table query
+	 * 
 	 * @param tableName
 	 *            true to include table name
 	 * @param type
@@ -942,14 +968,15 @@ public class SQLExec {
 	 *            name LIKE value
 	 * @return SQL
 	 */
-	private static String buildSqlMasterQuery(boolean tableName,
+	private static String buildSqlMasterQuery(List<String> columns,
 			SQLiteMasterType type, String name) {
 
 		StringBuilder sql = new StringBuilder("SELECT ");
-		sql.append(SQLiteMasterColumn.NAME.name().toLowerCase());
-		if (tableName) {
-			sql.append(", ");
-			sql.append(SQLiteMasterColumn.TBL_NAME.name().toLowerCase());
+		for (int i = 0; i < columns.size(); i++) {
+			if (i > 0) {
+				sql.append(", ");
+			}
+			sql.append(columns.get(i));
 		}
 		sql.append(" FROM ");
 		sql.append(SQLiteMaster.TABLE_NAME);
@@ -1046,6 +1073,8 @@ public class SQLExec {
 				+ (isGeoPackage ? "GeoPackage" : "Database") + " information");
 		System.out.println("\t" + COMMAND_HELP
 				+ "              - print this help information");
+		System.out.println(
+				"\t" + COMMAND_COUNT + "             - count database tables");
 		System.out.println("\t" + COMMAND_TABLES
 				+ " [name]     - list database tables (all or LIKE table name)");
 		System.out.println("\t" + COMMAND_INDEXES
@@ -1088,7 +1117,9 @@ public class SQLExec {
 		System.out.println(
 				"\t                                       (column_name)/(column_name2)");
 		System.out.println("\t" + COMMAND_TABLE_INFO
-				+ " <name>       - PRAGMA table_info(<name>);");
+				+ " <name>       - PRAGMA table_info(<name>); SELECT COUNT(*) FROM <name>;");
+		System.out.println("\t" + COMMAND_COUNT
+				+ " <name>      - SELECT COUNT(*) FROM <name>;");
 		System.out.println("\t" + COMMAND_SQLITE_MASTER
 				+ "     - SELECT * FROM " + COMMAND_SQLITE_MASTER + ";");
 		System.out.println("\t<name>            - SELECT * FROM <name>;");
@@ -1160,6 +1191,26 @@ public class SQLExec {
 					"\t                     id             - single feature table row id to update or -1 to insert a new row");
 			System.out.println(
 					"\t                     wkt            - Well-Known Text");
+			System.out.println("\t" + COMMAND_REPROJECT
+					+ " <name> <projection|optimization> [-z zoom_levels] [reproject_name]");
+			System.out.println(
+					"\t                  - Reproject tile table tiles to a different projection or optimization");
+			System.out.println(
+					"\t                     projection     - Projection as 'authority:code' or 'epsg_code'");
+			System.out.println(
+					"\t                     optimization   - wm, pc, wmw, or pcw");
+			System.out.println(
+					"\t                        wm             - Web Mercator optimization, minimally tile bounded");
+			System.out.println(
+					"\t                        pc             - Platte Carre (WGS84) optimization, minimally tile bounded");
+			System.out.println(
+					"\t                        wmw            - Web Mercator optimization, world bounded with XYZ tile coordinates");
+			System.out.println(
+					"\t                        pcw            - Platte Carre (WGS84) optimization, world bounded with XYZ tile coordinates");
+			System.out.println(
+					"\t                     zoom_levels    - Zoom level(s) specified as 'z', 'zmin-zmax', or 'z1,z2,...', (default is all levels)");
+			System.out.println(
+					"\t                     reproject_name - Reprojection table name (default is <name>)");
 		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
@@ -2049,6 +2100,121 @@ public class SQLExec {
 	}
 
 	/**
+	 * GeoPackage Table Information
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            sql builder
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @param history
+	 *            history
+	 * @param tableName
+	 *            table name
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void geoPackageTableInfo(GeoPackage database,
+			StringBuilder sqlBuilder, Integer maxColumnWidth,
+			Integer maxLinesPerRow, List<String> history, String tableName)
+			throws SQLException {
+
+		executeSQL(database, sqlBuilder,
+				"SELECT * FROM gpkg_contents WHERE LOWER(table_name) = '"
+						+ tableName.toLowerCase() + "';",
+				COMMAND_ALL_ROWS, maxColumnWidth, maxLinesPerRow, history,
+				false);
+
+		String tableType = database.getTableType(tableName);
+		if (tableType != null) {
+			switch (tableType) {
+			case CoverageData.GRIDDED_COVERAGE:
+				executeSQL(database, sqlBuilder,
+						"SELECT * FROM gpkg_2d_gridded_coverage_ancillary WHERE tile_matrix_set_name = '"
+								+ tableName + "';",
+						COMMAND_ALL_ROWS, maxColumnWidth, maxLinesPerRow,
+						history, false);
+				executeSQL(database, sqlBuilder,
+						"SELECT * FROM gpkg_2d_gridded_tile_ancillary WHERE tpudt_name = '"
+								+ tableName + "';",
+						COMMAND_ALL_ROWS, maxColumnWidth, maxLinesPerRow,
+						history, false);
+				break;
+			}
+		}
+
+		ContentsDataType dataType = database.getTableDataType(tableName);
+		if (dataType != null) {
+			switch (dataType) {
+			case ATTRIBUTES:
+
+				break;
+			case FEATURES:
+				executeSQL(database, sqlBuilder,
+						"SELECT * FROM gpkg_geometry_columns WHERE table_name = '"
+								+ tableName + "';",
+						COMMAND_ALL_ROWS, maxColumnWidth, maxLinesPerRow,
+						history, false);
+				break;
+			case TILES:
+				executeSQL(database, sqlBuilder,
+						"SELECT * FROM gpkg_tile_matrix_set WHERE table_name = '"
+								+ tableName + "';",
+						COMMAND_ALL_ROWS, maxColumnWidth, maxLinesPerRow,
+						history, false);
+				tileMatrix(database, sqlBuilder, maxColumnWidth, maxLinesPerRow,
+						history, tableName);
+				break;
+			}
+		}
+
+		tableInfo(database, sqlBuilder, maxColumnWidth, maxLinesPerRow, history,
+				tableName, false);
+	}
+
+	/**
+	 * Table Information
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            sql builder
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @param history
+	 *            history
+	 * @param tableName
+	 *            table name
+	 * @param resetCommandPrompt
+	 *            reset command prompt
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void tableInfo(GeoPackage database, StringBuilder sqlBuilder,
+			Integer maxColumnWidth, Integer maxLinesPerRow,
+			List<String> history, String tableName, boolean resetCommandPrompt)
+			throws SQLException {
+
+		System.out.println();
+		System.out.print("Table Info: " + tableName);
+		executeSQL(database, sqlBuilder,
+				"PRAGMA table_info(\"" + tableName + "\");", COMMAND_ALL_ROWS,
+				maxColumnWidth, maxLinesPerRow, history, false);
+
+		System.out.println();
+		System.out.print("Table: " + tableName);
+		executeSQL(database, sqlBuilder,
+				"SELECT COUNT(*) FROM \"" + tableName + "\";", COMMAND_ALL_ROWS,
+				maxColumnWidth, maxLinesPerRow, history, resetCommandPrompt);
+
+	}
+
+	/**
 	 * Print tile matrix info for a single table
 	 * 
 	 * @param database
@@ -2103,8 +2269,6 @@ public class SQLExec {
 	 *            database
 	 * @param sqlBuilder
 	 *            SQL builder
-	 * @param maxRows
-	 *            max rows
 	 * @param history
 	 *            history
 	 * @param args
@@ -2115,8 +2279,8 @@ public class SQLExec {
 	 *             upon error
 	 */
 	private static void geometries(GeoPackage database,
-			StringBuilder sqlBuilder, Integer maxRows, List<String> history,
-			String args) throws SQLException, IOException {
+			StringBuilder sqlBuilder, List<String> history, String args)
+			throws SQLException, IOException {
 
 		String[] parts = args.trim().split("\\s+");
 
@@ -2316,6 +2480,142 @@ public class SQLExec {
 				executeSQL(database, sqlBuilder, sql.toString(), projection,
 						COMMAND_ALL_ROWS, 0, 0, history, false, false);
 			}
+		}
+
+		resetCommandPrompt(sqlBuilder);
+	}
+
+	/**
+	 * Print or update geometries
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param maxColumnWidth
+	 *            max column width
+	 * @param maxLinesPerRow
+	 *            max lines per row
+	 * @param history
+	 *            history
+	 * @param args
+	 *            write blob arguments
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void reproject(GeoPackage database, StringBuilder sqlBuilder,
+			Integer maxColumnWidth, Integer maxLinesPerRow,
+			List<String> history, String args)
+			throws SQLException, IOException {
+
+		String[] parts = args.trim().split("\\s+");
+
+		boolean valid = true;
+		String tableName = null;
+		Projection projection = null;
+		TileReprojectionOptimize optimize = null;
+		String reprojectTable = null;
+		List<Long> zooms = null;
+
+		for (int i = 0; valid && i < parts.length; i++) {
+
+			String arg = parts[i];
+
+			if (arg.startsWith(ARGUMENT_PREFIX)) {
+
+				String argument = arg.substring(ARGUMENT_PREFIX.length());
+
+				switch (argument) {
+
+				case ARGUMENT_ZOOM_LEVELS:
+					if (i + 1 < parts.length) {
+						String zoomLevelsArugment = parts[++i];
+						zooms = TileReproject
+								.parseZoomLevels(zoomLevelsArugment);
+						if (zooms == null) {
+							valid = false;
+							System.out.println("Error: Zoom Levels argument '"
+									+ arg
+									+ "' must be followed by a valid single zoom or zoom range. Invalid: "
+									+ zoomLevelsArugment);
+						}
+					} else {
+						valid = false;
+						System.out.println("Error: Zoom Levels argument '" + arg
+								+ "' must be followed by a single zoom or zoom range");
+					}
+					break;
+
+				default:
+					valid = false;
+					System.out.println("Error: Unsupported arg: '" + arg + "'");
+				}
+
+			} else {
+				if (tableName == null) {
+					tableName = arg;
+					if (!database.isTileTable(tableName)) {
+						valid = false;
+						if (tableName.isEmpty()) {
+							System.out.println("Error: Tile table required");
+						} else {
+							System.out.println("Error: '" + tableName
+									+ "' is not a tile table");
+						}
+					}
+				} else if (projection == null) {
+					optimize = TileReproject.parseOptimize(arg);
+					if (optimize != null) {
+						projection = optimize.getProjection();
+					} else {
+						projection = getProjection(arg);
+					}
+				} else if (reprojectTable == null) {
+					reprojectTable = arg;
+					if (database.isTable(reprojectTable)
+							&& !database.isTileTable(reprojectTable)) {
+						valid = false;
+						System.out.println("Error: '" + reprojectTable
+								+ "' is not a tile table");
+					}
+				} else {
+					valid = false;
+					System.out.println("Error: Unexpected additional argument '"
+							+ arg + "' for multiple id query");
+				}
+			}
+		}
+
+		if (valid && projection == null) {
+			valid = false;
+			System.out.println(
+					"Error: Tile table and projection / optimization required");
+		}
+
+		if (valid) {
+			if (reprojectTable == null) {
+				reprojectTable = tableName;
+			}
+			TileReprojection tileReprojection = TileReprojection
+					.create(database, tableName, reprojectTable, projection);
+			tileReprojection.setOverwrite(true);
+			if (optimize != null) {
+				tileReprojection.setOptimize(optimize);
+			}
+
+			int count = 0;
+			if (zooms != null) {
+				count = tileReprojection.reproject(zooms);
+			} else {
+				count = tileReprojection.reproject();
+			}
+
+			System.out.println();
+			System.out.println("Tiles Reprojected: " + count);
+			geoPackageTableInfo(database, sqlBuilder, maxColumnWidth,
+					maxLinesPerRow, history, reprojectTable);
 		}
 
 		resetCommandPrompt(sqlBuilder);
