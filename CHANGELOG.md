@@ -9,9 +9,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-core version 4.0.1
 * ormlite-jdbc version 5.3
 * sqlite-jdbc version 3.34.0
-* Tile table reprojections
+* Tile table reprojections, including standalone utility
 * Omit null values in inserts
 * Tile DAO map zoom levels
+* SQL Exec enhancements, including reprojections and count shortcuts
 
 ## [4.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/4.0.0) (07-14-2020)
 
