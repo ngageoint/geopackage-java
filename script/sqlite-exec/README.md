@@ -89,6 +89,7 @@ Commands:
 
 	info              - GeoPackage information
 	help              - print this help information
+	count             - count database tables
 	tables [name]     - list database tables (all or LIKE table name)
 	indexes [name]    - list database indexes (all or LIKE index name)
 	views [name]      - list database views (all or LIKE view name)
@@ -108,7 +109,8 @@ Commands:
 	                     pattern        - file directory and/or name pattern consisting of column names in parentheses
 	                                       (column_name)-(column_name2)
 	                                       (column_name)/(column_name2)
-	info <name>       - PRAGMA table_info(<name>);
+	info <name>       - PRAGMA table_info(<name>); SELECT COUNT(*) FROM <name>;
+	count <name>      - SELECT COUNT(*) FROM <name>;
 	sqlite_master     - SELECT * FROM sqlite_master;
 	<name>            - SELECT * FROM <name>;
 	vacuum            - VACUUM [INTO 'filename'];
@@ -142,6 +144,16 @@ Commands:
 	                     projection     - Well-Known Text projection as 'authority:code' or 'epsg_code'
 	                     id             - single feature table row id to update or -1 to insert a new row
 	                     wkt            - Well-Known Text
+	reproject <name> <projection|optimization> [-z zoom_levels] [reproject_name]
+	                  - Reproject tile table tiles to a different projection or optimization
+	                     projection     - Projection as 'authority:code' or 'epsg_code'
+	                     optimization   - wm, pc, wmw, or pcw
+	                        wm             - Web Mercator optimization, minimally tile bounded
+	                        pc             - Platte Carre (WGS84) optimization, minimally tile bounded
+	                        wmw            - Web Mercator optimization, world bounded with XYZ tile coordinates
+	                        pcw            - Platte Carre (WGS84) optimization, world bounded with XYZ tile coordinates
+	                     zoom_levels    - Zoom level(s) specified as 'z', 'zmin-zmax', or 'z1,z2,...', (default is all levels)
+	                     reproject_name - Reprojection table name (default is <name>)
 
 Special Supported Cases:
 

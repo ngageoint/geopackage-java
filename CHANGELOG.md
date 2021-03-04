@@ -4,9 +4,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 4.0.1
+## [5.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/5.0.0) (TBD)
 
-* geopackage-core version 4.0.1
+* geopackage-core version 5.0.0
 * ormlite-jdbc version 5.3
 * sqlite-jdbc version 3.34.0
 * Tile table reprojections, including standalone utility

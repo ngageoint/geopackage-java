@@ -105,7 +105,7 @@ public class SQLExecResult {
 	 *            column index
 	 * @param column
 	 *            column name
-	 * @since 4.0.1
+	 * @since 5.0.0
 	 */
 	public void addColumn(int index, String column) {
 		columns.add(index, column);
@@ -235,7 +235,7 @@ public class SQLExecResult {
 	 *            column index
 	 * @param width
 	 *            column width
-	 * @since 4.0.1
+	 * @since 5.0.0
 	 */
 	public void addColumnWidth(int index, int width) {
 		if (maxColumnWidth != null) {
@@ -331,7 +331,7 @@ public class SQLExecResult {
 	 *            row index
 	 * @param value
 	 *            value
-	 * @since 4.0.1
+	 * @since 5.0.0
 	 */
 	public void addRowValue(int index, String value) {
 		rows.get(index).add(value);
@@ -346,7 +346,7 @@ public class SQLExecResult {
 	 *            column index
 	 * @param value
 	 *            value
-	 * @since 4.0.1
+	 * @since 5.0.0
 	 */
 	public void addRowValue(int index, int columnIndex, String value) {
 		rows.get(index).add(columnIndex, value);

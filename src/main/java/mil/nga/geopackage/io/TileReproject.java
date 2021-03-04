@@ -24,7 +24,7 @@ import mil.nga.sf.proj.ProjectionFactory;
  * mil.nga.geopackage.io.TileReproject +usage_arguments
  * 
  * @author osbornb
- * @since 4.0.1
+ * @since 5.0.0
  */
 public class TileReproject {
 

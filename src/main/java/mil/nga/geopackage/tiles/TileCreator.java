@@ -148,7 +148,7 @@ public class TileCreator {
 	 *            request height
 	 * @param imageFormat
 	 *            image format
-	 * @since 4.0.1
+	 * @since 5.0.0
 	 */
 	public TileCreator(TileDao tileDao, Integer width, Integer height,
 			String imageFormat) {
@@ -354,7 +354,7 @@ public class TileCreator {
 	 *            zoom level
 	 *
 	 * @return tile
-	 * @since 4.0.1
+	 * @since 5.0.0
 	 */
 	public GeoPackageTile getTile(BoundingBox requestBoundingBox,
 			long zoomLevel) {
