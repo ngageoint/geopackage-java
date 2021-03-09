@@ -152,16 +152,16 @@
 				<version>3.2.0</version>
 				<configuration>
 					<links>
-						<link>http://ngageoint.github.io/geopackage-core-java/docs/api/</link>
-						<link>http://ngageoint.github.io/simple-features-java/docs/api/</link>
-						<link>http://ngageoint.github.io/simple-features-wkb-java/docs/api/</link>
-						<link>http://ngageoint.github.io/simple-features-wkt-java/docs/api/</link>
-						<link>http://ngageoint.github.io/simple-features-proj-java/docs/api/</link>
-						<link>http://ngageoint.github.io/simple-features-geojson-java/docs/api/</link>
-						<link>http://ngageoint.github.io/ogc-api-features-json-java/docs/api/</link>
-						<link>http://ngageoint.github.io/tiff-java/docs/api/</link>
-						<link>http://ormlite.com/javadoc/ormlite-core/</link>
-						<link>http://ormlite.com/javadoc/ormlite-jdbc/</link>
+						<link>https://ngageoint.github.io/geopackage-core-java/docs/api/</link>
+						<link>https://ngageoint.github.io/simple-features-java/docs/api/</link>
+						<link>https://ngageoint.github.io/simple-features-wkb-java/docs/api/</link>
+						<link>https://ngageoint.github.io/simple-features-wkt-java/docs/api/</link>
+						<link>https://ngageoint.github.io/simple-features-proj-java/docs/api/</link>
+						<link>https://ngageoint.github.io/simple-features-geojson-java/docs/api/</link>
+						<link>https://ngageoint.github.io/ogc-api-features-json-java/docs/api/</link>
+						<link>https://ngageoint.github.io/tiff-java/docs/api/</link>
+						<link>https://ormlite.com/javadoc/ormlite-core/</link>
+						<link>https://ormlite.com/javadoc/ormlite-jdbc/</link>
 					</links>
 				</configuration>
 				<executions>
