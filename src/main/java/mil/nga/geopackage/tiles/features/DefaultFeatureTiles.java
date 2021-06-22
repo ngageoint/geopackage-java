@@ -42,7 +42,7 @@ import mil.nga.sf.Polygon;
 import mil.nga.sf.PolyhedralSurface;
 import mil.nga.sf.TIN;
 import mil.nga.sf.Triangle;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Default Feature Tiles implementation using Java AWT to draw
@@ -269,7 +269,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 				tileHeight);
 
 		// Feature projection to web mercator projection
-		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		GeometryTransform webMercatorTransform = getWebMercatorTransform();
 		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
 		boolean drawn = false;
@@ -309,7 +309,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		FeatureTileGraphics graphics = new FeatureTileGraphics(tileWidth,
 				tileHeight);
 
-		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		GeometryTransform webMercatorTransform = getWebMercatorTransform();
 		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
 		boolean drawn = false;
@@ -343,7 +343,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		FeatureTileGraphics graphics = new FeatureTileGraphics(tileWidth,
 				tileHeight);
 
-		ProjectionTransform webMercatorTransform = getWebMercatorTransform();
+		GeometryTransform webMercatorTransform = getWebMercatorTransform();
 		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
 		boolean drawn = false;
@@ -375,7 +375,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param expandedBoundingBox
 	 *            expanded bounding box
 	 * @param transform
-	 *            projection transform
+	 *            geometry transform
 	 * @param graphics
 	 *            graphics to draw on
 	 * @param row
@@ -383,7 +383,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @return true if at least one feature was drawn
 	 */
 	private boolean drawFeature(int zoom, BoundingBox boundingBox,
-			BoundingBox expandedBoundingBox, ProjectionTransform transform,
+			BoundingBox expandedBoundingBox, GeometryTransform transform,
 			FeatureTileGraphics graphics, FeatureRow row) {
 
 		boolean drawn = false;
@@ -461,7 +461,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param boundingBox
 	 *            bounding box
 	 * @param transform
-	 *            projection transform
+	 *            geometry transform
 	 * @param graphics
 	 *            feature tile graphics
 	 * @param featureRow
@@ -471,7 +471,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @return true if drawn
 	 */
 	private boolean drawGeometry(double simplifyTolerance,
-			BoundingBox boundingBox, ProjectionTransform transform,
+			BoundingBox boundingBox, GeometryTransform transform,
 			FeatureTileGraphics graphics, FeatureRow featureRow,
 			Geometry geometry) {
 
@@ -573,7 +573,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param boundingBox
 	 *            bounding box
 	 * @param transform
-	 *            projection transform
+	 *            geometry transform
 	 * @param graphics
 	 *            feature tile graphics
 	 * @param lineString
@@ -583,7 +583,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @return true if drawn
 	 */
 	private boolean drawLineString(double simplifyTolerance,
-			BoundingBox boundingBox, ProjectionTransform transform,
+			BoundingBox boundingBox, GeometryTransform transform,
 			FeatureTileGraphics graphics, LineString lineString,
 			FeatureStyle featureStyle) {
 		Path2D path = getPath(simplifyTolerance, boundingBox, transform,
@@ -599,7 +599,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param boundingBox
 	 *            bounding box
 	 * @param transform
-	 *            projection transform
+	 *            geometry transform
 	 * @param graphics
 	 *            feature tile graphics
 	 * @param polygon
@@ -609,7 +609,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @return true if drawn
 	 */
 	private boolean drawPolygon(double simplifyTolerance,
-			BoundingBox boundingBox, ProjectionTransform transform,
+			BoundingBox boundingBox, GeometryTransform transform,
 			FeatureTileGraphics graphics, Polygon polygon,
 			FeatureStyle featureStyle) {
 		Area polygonArea = getArea(simplifyTolerance, boundingBox, transform,
@@ -627,7 +627,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param lineString
 	 */
 	private Path2D getPath(double simplifyTolerance, BoundingBox boundingBox,
-			ProjectionTransform transform, LineString lineString) {
+			GeometryTransform transform, LineString lineString) {
 
 		Path2D path = null;
 
@@ -695,7 +695,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param lineString
 	 */
 	private Area getArea(double simplifyTolerance, BoundingBox boundingBox,
-			ProjectionTransform transform, Polygon polygon) {
+			GeometryTransform transform, Polygon polygon) {
 
 		Area area = null;
 
@@ -759,7 +759,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @param boundingBox
 	 *            bounding box
 	 * @param transform
-	 *            projection transform
+	 *            geometry transform
 	 * @param graphics
 	 *            feature tile graphics
 	 * @param point
@@ -769,7 +769,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 * @return true if drawn
 	 */
 	private boolean drawPoint(BoundingBox boundingBox,
-			ProjectionTransform transform, FeatureTileGraphics graphics,
+			GeometryTransform transform, FeatureTileGraphics graphics,
 			Point point, FeatureStyle featureStyle) {
 
 		boolean drawn = false;

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>mil.nga.geopackage</groupId>
 	<artifactId>geopackage</artifactId>
-	<version>5.0.1</version>
+	<version>6.0.0</version>
 	<packaging>jar</packaging>
 	<name>GeoPackage</name>
 	<url>https://github.com/ngageoint/geopackage-java</url>
@@ -46,17 +46,17 @@
 		<dependency>
 			<groupId>mil.nga.geopackage</groupId>
 			<artifactId>geopackage-core</artifactId>
-			<version>5.0.0</version>
+			<version>6.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>mil.nga</groupId>
 			<artifactId>tiff</artifactId>
-			<version>2.0.2</version>
+			<version>2.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.j256.ormlite</groupId>
 			<artifactId>ormlite-jdbc</artifactId>
-			<version>5.3</version>
+			<version>5.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.xerial</groupId>
@@ -93,7 +93,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-shade-plugin</artifactId>
-						<version>3.2.3</version>
+						<version>3.2.4</version>
 						<executions>
 							<execution>
 								<phase>package</phase>
@@ -149,10 +149,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
+				<version>3.3.0</version>
 				<configuration>
 					<links>
 						<link>https://ngageoint.github.io/geopackage-core-java/docs/api/</link>
+						<link>http://ngageoint.github.io/projections-java/docs/api/</link>
+						<link>http://ngageoint.github.io/coordinate-reference-systems-java/docs/api/</link>
 						<link>https://ngageoint.github.io/simple-features-java/docs/api/</link>
 						<link>https://ngageoint.github.io/simple-features-wkb-java/docs/api/</link>
 						<link>https://ngageoint.github.io/simple-features-wkt-java/docs/api/</link>
@@ -179,7 +181,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.6</version>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>

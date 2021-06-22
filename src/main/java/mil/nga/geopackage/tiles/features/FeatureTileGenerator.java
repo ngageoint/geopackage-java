@@ -6,9 +6,9 @@ import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.TileGrid;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Creates a set of tiles within a GeoPackage by generating tiles from features
@@ -79,8 +79,9 @@ public class FeatureTileGenerator extends TileGenerator {
 			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
 			int minZoom, int maxZoom, BoundingBox boundingBox,
 			Projection projection) {
-		super(geoPackage, tableName, minZoom, maxZoom, getBoundingBox(
-				featureGeoPackage, featureTiles, boundingBox, projection),
+		super(geoPackage, tableName, minZoom, maxZoom,
+				getBoundingBox(featureGeoPackage, featureTiles, boundingBox,
+						projection),
 				projection);
 		this.featureTiles = featureTiles;
 	}
@@ -179,19 +180,19 @@ public class FeatureTileGenerator extends TileGenerator {
 	@Override
 	public BoundingBox getBoundingBox(int zoom) {
 
-		ProjectionTransform projectionToWebMercator = projection
-				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
+		GeometryTransform projectionToWebMercator = GeometryTransform
+				.create(projection, ProjectionConstants.EPSG_WEB_MERCATOR);
 		BoundingBox webMercatorBoundingBox = boundingBox
 				.transform(projectionToWebMercator);
 
-		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-				webMercatorBoundingBox, zoom);
+		TileGrid tileGrid = TileBoundingBoxUtils
+				.getTileGrid(webMercatorBoundingBox, zoom);
 		BoundingBox tileBoundingBox = TileBoundingBoxUtils
 				.getWebMercatorBoundingBox(tileGrid.getMinX(),
 						tileGrid.getMinY(), zoom);
 
-		BoundingBox expandedBoundingBox = featureTiles.expandBoundingBox(
-				webMercatorBoundingBox, tileBoundingBox);
+		BoundingBox expandedBoundingBox = featureTiles
+				.expandBoundingBox(webMercatorBoundingBox, tileBoundingBox);
 
 		BoundingBox zoomBoundingBox = expandedBoundingBox
 				.transform(projectionToWebMercator.getInverseTransformation());

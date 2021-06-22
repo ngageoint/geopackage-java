@@ -14,11 +14,11 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.GeometryEnvelope;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * RTree Extension Utility test methods
@@ -123,8 +123,8 @@ public class RTreeIndexExtensionUtils {
 			TestCase.assertEquals(envelopeCount, bboxCount);
 
 			Projection projection = featureDao.getProjection();
-			if (!projection.getAuthority().equals(
-					ProjectionConstants.AUTHORITY_NONE)) {
+			if (!projection.getAuthority()
+					.equals(ProjectionConstants.AUTHORITY_NONE)) {
 				Projection queryProjection = null;
 				if (projection.equals(ProjectionConstants.AUTHORITY_EPSG,
 						ProjectionConstants.EPSG_WEB_MERCATOR)) {
@@ -136,8 +136,8 @@ public class RTreeIndexExtensionUtils {
 							ProjectionConstants.AUTHORITY_EPSG,
 							ProjectionConstants.EPSG_WEB_MERCATOR);
 				}
-				ProjectionTransform transform = projection
-						.getTransformation(queryProjection);
+				GeometryTransform transform = GeometryTransform
+						.create(projection, queryProjection);
 
 				BoundingBox projectedBoundingBox = boundingBox
 						.transform(transform);

@@ -25,10 +25,10 @@ import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTilePointIcon;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Feature Tile Generator main method for command line feature to tile
@@ -941,8 +941,8 @@ public class FeatureTileGen {
 			}
 
 			// Transform to a Web Mercator bounding box
-			ProjectionTransform transform = projection
-					.getTransformation(webMercatorProjection);
+			GeometryTransform transform = GeometryTransform.create(projection,
+					webMercatorProjection);
 			webMercatorBoundingBox = boundingBox.transform(transform);
 
 		} else {

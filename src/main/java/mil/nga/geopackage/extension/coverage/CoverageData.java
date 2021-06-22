@@ -20,8 +20,8 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Tiled Gridded Coverage Data, abstract Common Encoding, Extension
@@ -292,11 +292,11 @@ public abstract class CoverageData<TImage extends CoverageDataImage>
 		CoverageDataResults coverageDataResults = null;
 
 		// Transform to the projection of the coverage data tiles
-		ProjectionTransform transformRequestToCoverage = null;
+		GeometryTransform transformRequestToCoverage = null;
 		BoundingBox requestProjectedBoundingBox = request.getBoundingBox();
 		if (!sameProjection) {
-			transformRequestToCoverage = requestProjection
-					.getTransformation(coverageProjection);
+			transformRequestToCoverage = GeometryTransform
+					.create(requestProjection, coverageProjection);
 			requestProjectedBoundingBox = requestProjectedBoundingBox
 					.transform(transformRequestToCoverage);
 		}
@@ -389,11 +389,11 @@ public abstract class CoverageData<TImage extends CoverageDataImage>
 		CoverageDataResults coverageDataResults = null;
 
 		// Transform to the projection of the coverage data tiles
-		ProjectionTransform transformRequestToCoverage = null;
+		GeometryTransform transformRequestToCoverage = null;
 		BoundingBox requestProjectedBoundingBox = request.getBoundingBox();
 		if (!sameProjection) {
-			transformRequestToCoverage = requestProjection
-					.getTransformation(coverageProjection);
+			transformRequestToCoverage = GeometryTransform
+					.create(requestProjection, coverageProjection);
 			requestProjectedBoundingBox = requestProjectedBoundingBox
 					.transform(transformRequestToCoverage);
 		}

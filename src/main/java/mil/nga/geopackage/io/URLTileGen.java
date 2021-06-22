@@ -14,10 +14,10 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * URL Tile Generator main method for command line tile generation
@@ -410,8 +410,8 @@ public class URLTileGen {
 
 		// Transform to the URL projection bounding box
 		Projection urlProjection = ProjectionFactory.getProjection(urlEpsg);
-		ProjectionTransform transform = bboxProjection
-				.getTransformation(urlProjection);
+		GeometryTransform transform = GeometryTransform.create(bboxProjection,
+				urlProjection);
 		BoundingBox urlBoundingBox = boundingBox.transform(transform);
 
 		UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,

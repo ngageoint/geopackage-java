@@ -22,10 +22,10 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Coverage Data test utils
@@ -66,8 +66,8 @@ public class CoverageDataTestUtils {
 		}
 		Projection requestProjection = ProjectionFactory
 				.getProjection(requestEpsg);
-		ProjectionTransform coverageToRequest = projection
-				.getTransformation(requestProjection);
+		GeometryTransform coverageToRequest = GeometryTransform
+				.create(projection, requestProjection);
 		BoundingBox projectedBoundingBox = boundingBox
 				.transform(coverageToRequest);
 
@@ -82,8 +82,8 @@ public class CoverageDataTestUtils {
 				+ projectedBoundingBox.getMinLongitude() + (.05 * lonDistance);
 
 		// Test getting the coverage data value of a single coordinate
-		CoverageData<?> coverageData2 = CoverageData.getCoverageData(
-				geoPackage, coverageData.getTileDao(), requestProjection);
+		CoverageData<?> coverageData2 = CoverageData.getCoverageData(geoPackage,
+				coverageData.getTileDao(), requestProjection);
 		coverageData2.setAlgorithm(algorithm);
 		Double value = coverageData2.getValue(latitude, longitude);
 		if (!allowNulls) {
@@ -91,18 +91,16 @@ public class CoverageDataTestUtils {
 		}
 
 		// Build a random bounding box
-		double minLatitude = (projectedBoundingBox.getMaxLatitude() - projectedBoundingBox
-				.getMinLatitude())
-				* Math.random()
+		double minLatitude = (projectedBoundingBox.getMaxLatitude()
+				- projectedBoundingBox.getMinLatitude()) * Math.random()
 				+ projectedBoundingBox.getMinLatitude();
-		double minLongitude = (projectedBoundingBox.getMaxLongitude() - projectedBoundingBox
-				.getMinLongitude())
-				* Math.random()
+		double minLongitude = (projectedBoundingBox.getMaxLongitude()
+				- projectedBoundingBox.getMinLongitude()) * Math.random()
 				+ projectedBoundingBox.getMinLongitude();
-		double maxLatitude = (projectedBoundingBox.getMaxLatitude() - minLatitude)
-				* Math.random() + minLatitude;
-		double maxLongitude = (projectedBoundingBox.getMaxLongitude() - minLongitude)
-				* Math.random() + minLongitude;
+		double maxLatitude = (projectedBoundingBox.getMaxLatitude()
+				- minLatitude) * Math.random() + minLatitude;
+		double maxLongitude = (projectedBoundingBox.getMaxLongitude()
+				- minLongitude) * Math.random() + minLongitude;
 
 		BoundingBox requestBoundingBox = new BoundingBox(minLongitude,
 				minLatitude, maxLongitude, maxLatitude);
@@ -197,8 +195,8 @@ public class CoverageDataTestUtils {
 			TileMatrixSet tileMatrixSet = dao.queryForId(coverageTable);
 
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-			CoverageData<?> coverageData = CoverageData.getCoverageData(
-					geoPackage, tileDao);
+			CoverageData<?> coverageData = CoverageData
+					.getCoverageData(geoPackage, tileDao);
 			coverageData.setAlgorithm(algorithm);
 
 			int specifiedWidth = (int) (Math.random() * 100.0) + 1;
@@ -209,13 +207,11 @@ public class CoverageDataTestUtils {
 			BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
 
 			// Build a random bounding box
-			double minLatitude = (boundingBox.getMaxLatitude() - boundingBox
-					.getMinLatitude())
-					* Math.random()
+			double minLatitude = (boundingBox.getMaxLatitude()
+					- boundingBox.getMinLatitude()) * Math.random()
 					+ boundingBox.getMinLatitude();
-			double minLongitude = (boundingBox.getMaxLongitude() - boundingBox
-					.getMinLongitude())
-					* Math.random()
+			double minLongitude = (boundingBox.getMaxLongitude()
+					- boundingBox.getMinLongitude()) * Math.random()
 					+ boundingBox.getMinLongitude();
 			double maxLatitude = (boundingBox.getMaxLatitude() - minLatitude)
 					* Math.random() + minLatitude;
@@ -232,7 +228,8 @@ public class CoverageDataTestUtils {
 			TestCase.assertNotNull(values.getValues());
 			TestCase.assertEquals(values.getValues()[0].length,
 					values.getWidth());
-			TestCase.assertEquals(values.getValues().length, values.getHeight());
+			TestCase.assertEquals(values.getValues().length,
+					values.getHeight());
 			TestCase.assertNotNull(values.getTileMatrix());
 			TestCase.assertTrue(values.getZoomLevel() >= 0);
 			TestCase.assertTrue(values.getValues().length > 0);
@@ -312,8 +309,8 @@ public class CoverageDataTestUtils {
 					.getProjection(epsg);
 
 			// Test getting the coverage data value of a single coordinate
-			CoverageData<?> coverageData = CoverageData.getCoverageData(
-					geoPackage, tileDao, requestProjection);
+			CoverageData<?> coverageData = CoverageData
+					.getCoverageData(geoPackage, tileDao, requestProjection);
 			coverageData.setAlgorithm(algorithm);
 			value = coverageData.getValue(latitude, longitude);
 		}
@@ -340,8 +337,8 @@ public class CoverageDataTestUtils {
 	 * @throws Exception
 	 */
 	public static CoverageDataResults getValues(GeoPackage geoPackage,
-			CoverageDataAlgorithm algorithm, BoundingBox boundingBox,
-			int width, int height, long epsg) throws Exception {
+			CoverageDataAlgorithm algorithm, BoundingBox boundingBox, int width,
+			int height, long epsg) throws Exception {
 
 		CoverageDataResults values = null;
 
@@ -357,8 +354,8 @@ public class CoverageDataTestUtils {
 					.getProjection(epsg);
 
 			// Test getting the coverage data value of a single coordinate
-			CoverageData<?> coverageData = CoverageData.getCoverageData(
-					geoPackage, tileDao, requestProjection);
+			CoverageData<?> coverageData = CoverageData
+					.getCoverageData(geoPackage, tileDao, requestProjection);
 			coverageData.setAlgorithm(algorithm);
 			coverageData.setWidth(width);
 			coverageData.setHeight(height);
@@ -394,22 +391,22 @@ public class CoverageDataTestUtils {
 					.queryForId(coverageTable);
 
 			TileDao tileDao = geoPackage.getTileDao(tileMatrixSet);
-			CoverageData<?> coverageData = CoverageData.getCoverageData(
-					geoPackage, tileDao);
+			CoverageData<?> coverageData = CoverageData
+					.getCoverageData(geoPackage, tileDao);
 			GriddedCoverage griddedCoverage = coverageData.getGriddedCoverage();
 			GriddedCoverageEncodingType encoding = griddedCoverage
 					.getGridCellEncodingType();
 
-			TileResultSet tileResultSet = tileDao.queryForTile(tileDao
-					.getMaxZoom());
+			TileResultSet tileResultSet = tileDao
+					.queryForTile(tileDao.getMaxZoom());
 			TestCase.assertNotNull(tileResultSet);
 			try {
 				TestCase.assertTrue(tileResultSet.getCount() > 0);
 				while (tileResultSet.moveToNext()) {
 					TileRow tileRow = tileResultSet.getRow();
 
-					TileMatrix tileMatrix = tileDao.getTileMatrix(tileRow
-							.getZoomLevel());
+					TileMatrix tileMatrix = tileDao
+							.getTileMatrix(tileRow.getZoomLevel());
 					TestCase.assertNotNull(tileMatrix);
 
 					GriddedTile griddedTile = coverageData
@@ -430,15 +427,15 @@ public class CoverageDataTestUtils {
 					int heightChunk = Math.max(tileHeight / 10, 1);
 					int widthChunk = Math.max(tileWidth / 10, 1);
 
-					for (int y = 0; y < tileHeight; y = Math.min(y
-							+ heightChunk, y == tileHeight - 1 ? tileHeight
-							: tileHeight - 1)) {
-						for (int x = 0; x < tileWidth; x = Math.min(x
-								+ widthChunk, x == tileWidth - 1 ? tileWidth
-								: tileWidth - 1)) {
+					for (int y = 0; y < tileHeight; y = Math.min(
+							y + heightChunk, y == tileHeight - 1 ? tileHeight
+									: tileHeight - 1)) {
+						for (int x = 0; x < tileWidth; x = Math.min(
+								x + widthChunk, x == tileWidth - 1 ? tileWidth
+										: tileWidth - 1)) {
 
-							Double pixelValue = coverageData.getValue(
-									griddedTile, tileData, x, y);
+							Double pixelValue = coverageData
+									.getValue(griddedTile, tileData, x, y);
 							double pixelLongitude = boundingBox
 									.getMinLongitude()
 									+ (x * tileMatrix.getPixelXSize());
@@ -447,8 +444,10 @@ public class CoverageDataTestUtils {
 							switch (encoding) {
 							case CENTER:
 							case AREA:
-								pixelLongitude += (tileMatrix.getPixelXSize() / 2.0);
-								pixelLatitude -= (tileMatrix.getPixelYSize() / 2.0);
+								pixelLongitude += (tileMatrix.getPixelXSize()
+										/ 2.0);
+								pixelLatitude -= (tileMatrix.getPixelYSize()
+										/ 2.0);
 								break;
 							case CORNER:
 								pixelLatitude -= tileMatrix.getPixelYSize();
@@ -459,8 +458,8 @@ public class CoverageDataTestUtils {
 
 							if (!allowNulls || pixelValue != null) {
 								TestCase.assertEquals("x: " + x + ", y: " + y
-										+ ", encoding: " + encoding,
-										pixelValue, value);
+										+ ", encoding: " + encoding, pixelValue,
+										value);
 							}
 						}
 					}

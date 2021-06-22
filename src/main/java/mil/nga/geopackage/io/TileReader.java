@@ -36,7 +36,7 @@ import mil.nga.geopackage.tiles.user.TileColumn;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
-import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionConstants;
 
 /**
  * Read tiles from a file system directory into a GeoPackage file

@@ -7,9 +7,9 @@ import java.util.Map;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.proj.Projection;
 import mil.nga.sf.GeometryEnvelope;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Performs manual brute force queries against feature rows. See
@@ -594,8 +594,8 @@ public class ManualFeatureQuery {
 	public BoundingBox getBoundingBox(Projection projection) {
 		BoundingBox boundingBox = getBoundingBox();
 		if (boundingBox != null && projection != null) {
-			ProjectionTransform projectionTransform = featureDao.getProjection()
-					.getTransformation(projection);
+			GeometryTransform projectionTransform = GeometryTransform
+					.create(featureDao.getProjection(), projection);
 			boundingBox = boundingBox.transform(projectionTransform);
 		}
 		return boundingBox;

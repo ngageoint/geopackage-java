@@ -6,6 +6,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
 
+import org.junit.Assume;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -19,12 +21,11 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.Point;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-
-import org.junit.Assume;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * URL Tile Generator utils
@@ -36,7 +37,8 @@ public class UrlTileGeneratorUtils {
 	private static final String TABLE_NAME = "generate_test";
 
 	private static final String BASE_URL = "http://osm.gs.mil";
-	private static final String URL = BASE_URL + "/tiles/default/{z}/{x}/{y}.png";
+	private static final String URL = BASE_URL
+			+ "/tiles/default/{z}/{x}/{y}.png";
 
 	// private static final String BASE_URL = "http://a.tile.openstreetmap.org";
 	// private static final String URL = BASE_URL + "/{z}/{x}/{y}.png";
@@ -55,8 +57,7 @@ public class UrlTileGeneratorUtils {
 		} catch (Exception e) {
 		}
 
-		Assume.assumeTrue(
-				"Failed to connect to the test url, URL: " + BASE_URL,
+		Assume.assumeTrue("Failed to connect to the test url, URL: " + BASE_URL,
 				validConnection);
 	}
 
@@ -179,10 +180,11 @@ public class UrlTileGeneratorUtils {
 			int maxZoom = minZoom + ((int) (Math.random() * 3.0));
 			Point point1 = TestUtils.createPoint(false, false);
 			Point point2 = TestUtils.createPoint(false, false);
-			BoundingBox boundingBox = new BoundingBox(Math.min(point1.getX(),
-					point2.getX()), Math.min(point1.getY(), point2.getY()),
-					Math.max(point1.getX(), point2.getX()), Math.max(
-							point1.getY(), point2.getY()));
+			BoundingBox boundingBox = new BoundingBox(
+					Math.min(point1.getX(), point2.getX()),
+					Math.min(point1.getY(), point2.getY()),
+					Math.max(point1.getX(), point2.getX()),
+					Math.max(point1.getY(), point2.getY()));
 			UrlTileGenerator tileGenerator = new UrlTileGenerator(geoPackage,
 					TABLE_NAME + i, URL, minZoom, maxZoom, boundingBox,
 					getProjection());
@@ -219,9 +221,9 @@ public class UrlTileGeneratorUtils {
 	private static BoundingBox getBoundingBox(BoundingBox boundingBox) {
 		boundingBox = TileBoundingBoxUtils
 				.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
-		boundingBox = boundingBox.transform(ProjectionFactory.getProjection(
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR));
+		boundingBox = boundingBox.transform(GeometryTransform.create(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
+				ProjectionConstants.EPSG_WEB_MERCATOR));
 		return boundingBox;
 	}
 
@@ -263,8 +265,8 @@ public class UrlTileGeneratorUtils {
 		BoundingBox tileMatrixSetBoundingBox = tileDao.getBoundingBox();
 
 		for (int zoom = minZoom; zoom <= maxZoom; zoom++) {
-			TileGrid expectedTileGrid = TileBoundingBoxUtils.getTileGrid(
-					webMercatorBoundingBox, zoom);
+			TileGrid expectedTileGrid = TileBoundingBoxUtils
+					.getTileGrid(webMercatorBoundingBox, zoom);
 			BoundingBox expectedBoundingBox = TileBoundingBoxUtils
 					.getWebMercatorBoundingBox(expectedTileGrid, zoom);
 			BoundingBox zoomBoundingBox = tileDao.getBoundingBox(zoom);
@@ -276,7 +278,8 @@ public class UrlTileGeneratorUtils {
 					zoomBoundingBox.getMinLatitude(), .000001);
 			TestCase.assertEquals(expectedBoundingBox.getMaxLatitude(),
 					zoomBoundingBox.getMaxLatitude(), .000001);
-			long expectedZoomTiles = expectedTiles(webMercatorBoundingBox, zoom);
+			long expectedZoomTiles = expectedTiles(webMercatorBoundingBox,
+					zoom);
 			TestCase.assertEquals(expectedZoomTiles, tileDao.count(zoom));
 
 			TileMatrix tileMatrix = tileDao.getTileMatrix(zoom);
@@ -286,11 +289,11 @@ public class UrlTileGeneratorUtils {
 					tileMatrix.getMatrixHeight(), zoomBoundingBox);
 
 			TestCase.assertTrue(tileGrid.getMinX() >= 0);
-			TestCase.assertTrue(tileGrid.getMaxX() < tileMatrix
-					.getMatrixWidth());
+			TestCase.assertTrue(
+					tileGrid.getMaxX() < tileMatrix.getMatrixWidth());
 			TestCase.assertTrue(tileGrid.getMinY() >= 0);
-			TestCase.assertTrue(tileGrid.getMaxY() < tileMatrix
-					.getMatrixHeight());
+			TestCase.assertTrue(
+					tileGrid.getMaxY() < tileMatrix.getMatrixHeight());
 
 			TileResultSet resultSet = tileDao.queryForTile(zoom);
 			TestCase.assertEquals(expectedZoomTiles, resultSet.getCount());
@@ -338,8 +341,8 @@ public class UrlTileGeneratorUtils {
 	 */
 	private static long expectedTiles(BoundingBox webMercatorBoundingBox,
 			int zoom) {
-		TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-				webMercatorBoundingBox, zoom);
+		TileGrid tileGrid = TileBoundingBoxUtils
+				.getTileGrid(webMercatorBoundingBox, zoom);
 		return tileGrid.count();
 	}
 

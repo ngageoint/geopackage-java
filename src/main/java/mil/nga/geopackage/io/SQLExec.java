@@ -46,12 +46,12 @@ import mil.nga.geopackage.tiles.reproject.TileReprojection;
 import mil.nga.geopackage.tiles.reproject.TileReprojectionOptimize;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.validate.GeoPackageValidate;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 /**
@@ -1683,7 +1683,7 @@ public class SQLExec {
 
 					boolean isGeoPackage = isGeoPackage(database);
 					Map<String, GeometryColumns> tableGeometryColumns = new HashMap<>();
-					Map<Integer, ProjectionTransform> geometryColumns = new HashMap<>();
+					Map<Integer, GeometryTransform> geometryColumns = new HashMap<>();
 
 					for (int col = 1; col <= numColumns; col++) {
 						String tableName = metadata.getTableName(col);
@@ -1711,10 +1711,11 @@ public class SQLExec {
 							if (geometryColumn != null
 									&& geometryColumn.getColumnName()
 											.equalsIgnoreCase(columnName)) {
-								ProjectionTransform transform = null;
+								GeometryTransform transform = null;
 								if (projection != null) {
-									transform = geometryColumn.getProjection()
-											.getTransformation(projection);
+									transform = GeometryTransform.create(
+											geometryColumn.getProjection(),
+											projection);
 								}
 								geometryColumns.put(col, transform);
 							}
@@ -1736,7 +1737,7 @@ public class SQLExec {
 								case Types.BLOB:
 									stringValue = BLOB_DISPLAY_VALUE;
 									if (geometryColumns.containsKey(col)) {
-										ProjectionTransform transform = geometryColumns
+										GeometryTransform transform = geometryColumns
 												.get(col);
 										byte[] bytes = (byte[]) value;
 										try {
@@ -2393,8 +2394,8 @@ public class SQLExec {
 								wkt);
 
 				if (projection != null) {
-					ProjectionTransform transform = projection
-							.getTransformation(featureDao.getProjection());
+					GeometryTransform transform = GeometryTransform
+							.create(projection, featureDao.getProjection());
 					if (!transform.isSameProjection()) {
 						geometryData = geometryData.transform(transform);
 					}
@@ -2461,9 +2462,9 @@ public class SQLExec {
 						geometryData = featureRow.getGeometry();
 
 						if (projection != null) {
-							ProjectionTransform transform = featureDao
-									.getProjection()
-									.getTransformation(projection);
+							GeometryTransform transform = GeometryTransform
+									.create(featureDao.getProjection(),
+											projection);
 							if (!transform.isSameProjection()) {
 								geometryData = geometryData
 										.transform(transform);

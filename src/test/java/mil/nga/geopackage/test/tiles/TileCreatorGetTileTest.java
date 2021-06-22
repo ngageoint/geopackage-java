@@ -4,20 +4,20 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.test.LoadGeoPackageTestCase;
+import mil.nga.geopackage.test.TestConstants;
 import mil.nga.geopackage.tiles.GeoPackageTile;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileCreator;
 import mil.nga.geopackage.tiles.user.TileDao;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-
-import org.junit.Test;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 
 /**
  * Test Tile Creator from a GeoPackage with tiles
@@ -46,8 +46,7 @@ public class TileCreatorGetTileTest extends LoadGeoPackageTestCase {
 				.getTileDao(TestConstants.TILES_DB_TABLE_NAME);
 		TestCase.assertEquals(tileDao.getProjection().getAuthority(),
 				ProjectionConstants.AUTHORITY_EPSG);
-		TestCase.assertEquals(
-				Long.parseLong(tileDao.getProjection().getCode()),
+		TestCase.assertEquals(Long.parseLong(tileDao.getProjection().getCode()),
 				ProjectionConstants.EPSG_WEB_MERCATOR);
 
 		tileDao.adjustTileMatrixLengths();
@@ -57,8 +56,8 @@ public class TileCreatorGetTileTest extends LoadGeoPackageTestCase {
 
 		int width = 256;
 		int height = 140;
-		TileCreator tileCreator = new TileCreator(tileDao, width, height,
-				wgs84, "png");
+		TileCreator tileCreator = new TileCreator(tileDao, width, height, wgs84,
+				"png");
 
 		BoundingBox boundingBox = new BoundingBox();
 		boundingBox = TileBoundingBoxUtils
@@ -113,8 +112,7 @@ public class TileCreatorGetTileTest extends LoadGeoPackageTestCase {
 				.getTileDao(TestConstants.TILES_DB_TABLE_NAME);
 		TestCase.assertEquals(tileDao.getProjection().getAuthority(),
 				ProjectionConstants.AUTHORITY_EPSG);
-		TestCase.assertEquals(
-				Long.parseLong(tileDao.getProjection().getCode()),
+		TestCase.assertEquals(Long.parseLong(tileDao.getProjection().getCode()),
 				ProjectionConstants.EPSG_WEB_MERCATOR);
 
 		tileDao.adjustTileMatrixLengths();
@@ -171,7 +169,8 @@ public class TileCreatorGetTileTest extends LoadGeoPackageTestCase {
 
 		try {
 			tileCreator.getTile(boundingBox);
-			TestCase.fail("A raw image request without exact image bounds passed");
+			TestCase.fail(
+					"A raw image request without exact image bounds passed");
 		} catch (Exception e) {
 			// expected
 		}

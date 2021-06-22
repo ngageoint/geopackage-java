@@ -17,7 +17,7 @@ import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.io.TileFormatType;
 import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;
-import mil.nga.sf.proj.Projection;
+import mil.nga.proj.Projection;
 
 /**
  * Creates a set of tiles within a GeoPackage by downloading the tiles from a

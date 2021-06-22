@@ -17,8 +17,9 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Tile Creator, creates a tile from a tile matrix to the desired projection
@@ -306,8 +307,8 @@ public class TileCreator {
 		boolean hasTile = false;
 
 		// Transform to the projection of the tiles
-		ProjectionTransform transformRequestToTiles = requestProjection
-				.getTransformation(tilesProjection);
+		GeometryTransform transformRequestToTiles = GeometryTransform
+				.create(requestProjection, tilesProjection);
 		BoundingBox tilesBoundingBox = requestBoundingBox
 				.transform(transformRequestToTiles);
 
@@ -384,8 +385,8 @@ public class TileCreator {
 		GeoPackageTile tile = null;
 
 		// Transform to the projection of the tiles
-		ProjectionTransform transformRequestToTiles = requestProjection
-				.getTransformation(tilesProjection);
+		GeometryTransform transformRequestToTiles = GeometryTransform
+				.create(requestProjection, tilesProjection);
 		BoundingBox tilesBoundingBox = requestBoundingBox
 				.transform(transformRequestToTiles);
 

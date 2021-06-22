@@ -25,10 +25,10 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Writes the tiles from a GeoPackage tile table to a file system directory
@@ -502,8 +502,8 @@ public class TileWriter {
 		// Get the transformation to web mercator
 		Projection webMercator = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-		ProjectionTransform projectionToWebMercator = projection
-				.getTransformation(webMercator);
+		GeometryTransform projectionToWebMercator = GeometryTransform
+				.create(projection, webMercator);
 
 		// Get the bounding box of actual tiles
 		BoundingBox zoomBoundingBox = tileDao.getBoundingBox();
@@ -646,7 +646,7 @@ public class TileWriter {
 	 * @return length
 	 */
 	private static double getLength(BoundingBox boundingBox,
-			ProjectionTransform toWebMercatorTransform) {
+			GeometryTransform toWebMercatorTransform) {
 		BoundingBox transformedBoundingBox = boundingBox
 				.transform(toWebMercatorTransform);
 		return getLength(transformedBoundingBox);

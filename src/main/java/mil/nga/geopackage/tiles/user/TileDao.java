@@ -19,9 +19,9 @@ import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.user.UserDao;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Tile DAO for reading tile user tables
@@ -184,8 +184,8 @@ public class TileDao
 	public BoundingBox getBoundingBox(long zoomLevel, Projection projection) {
 		BoundingBox boundingBox = getBoundingBox(zoomLevel);
 		if (boundingBox != null) {
-			ProjectionTransform transform = this.projection
-					.getTransformation(projection);
+			GeometryTransform transform = GeometryTransform
+					.create(this.projection, projection);
 			boundingBox = boundingBox.transform(transform);
 		}
 		return boundingBox;
@@ -683,7 +683,7 @@ public class TileDao
 		// Convert the bounding box to wgs84
 		BoundingBox boundingBox = tileMatrixSet.getBoundingBox();
 		BoundingBox wgs84BoundingBox = boundingBox
-				.transform(projection.getTransformation(
+				.transform(GeometryTransform.create(projection,
 						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
 
 		boolean xyzTiles = false;

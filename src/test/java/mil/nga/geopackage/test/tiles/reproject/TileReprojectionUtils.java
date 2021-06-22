@@ -29,10 +29,10 @@ import mil.nga.geopackage.tiles.reproject.WebMercatorOptimize;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Tile Reprojection Utility test methods
@@ -632,9 +632,8 @@ public class TileReprojectionUtils {
 				projection = reprojectTileDao.getProjection();
 
 				if (webMercator) {
-					ProjectionTransform transform = projection
-							.getTransformation(
-									ProjectionConstants.EPSG_WEB_MERCATOR);
+					GeometryTransform transform = GeometryTransform.create(
+							projection, ProjectionConstants.EPSG_WEB_MERCATOR);
 					if (!transform.isSameProjection()) {
 						optimizeBoundingBox = optimizeBoundingBox
 								.transform(transform);
@@ -692,9 +691,9 @@ public class TileReprojectionUtils {
 								.transform(transform);
 					}
 				} else {
-					ProjectionTransform transform = projection
-							.getTransformation(
-									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+					GeometryTransform transform = GeometryTransform.create(
+							projection,
+							ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 					if (!transform.isSameProjection()) {
 						optimizeBoundingBox = optimizeBoundingBox
 								.transform(transform);

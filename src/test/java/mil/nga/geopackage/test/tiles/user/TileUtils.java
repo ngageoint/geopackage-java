@@ -43,8 +43,8 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.user.ColumnValue;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Tiles Utility test methods
@@ -1006,16 +1006,15 @@ public class TileUtils {
 					BoundingBox setProjectionBoundingBox = tileMatrixSet
 							.getBoundingBox();
 					BoundingBox setWebMercatorBoundingBox = setProjectionBoundingBox
-							.transform(tileMatrixSet.getProjection()
-									.getTransformation(
-											ProjectionConstants.EPSG_WEB_MERCATOR));
+							.transform(GeometryTransform.create(
+									tileMatrixSet.getProjection(),
+									ProjectionConstants.EPSG_WEB_MERCATOR));
 					BoundingBox boundingBox = new BoundingBox(-180.0, -90.0,
 							180.0, 90.0);
 					BoundingBox webMercatorBoundingBox = boundingBox
-							.transform(ProjectionFactory.getProjection(
-									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-									.getTransformation(
-											ProjectionConstants.EPSG_WEB_MERCATOR));
+							.transform(GeometryTransform.create(
+									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
+									ProjectionConstants.EPSG_WEB_MERCATOR));
 
 					TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
 							setWebMercatorBoundingBox,
@@ -1042,10 +1041,9 @@ public class TileUtils {
 					boundingBox = new BoundingBox(minLon, minLat, maxLon,
 							maxLat);
 					webMercatorBoundingBox = boundingBox
-							.transform(ProjectionFactory.getProjection(
-									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-									.getTransformation(
-											ProjectionConstants.EPSG_WEB_MERCATOR));
+							.transform(GeometryTransform.create(
+									ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
+									ProjectionConstants.EPSG_WEB_MERCATOR));
 					tileGrid = TileBoundingBoxUtils.getTileGrid(
 							setWebMercatorBoundingBox,
 							tileMatrix.getMatrixWidth(),

@@ -4,6 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import org.junit.Test;
+
+import com.j256.ormlite.dao.CloseableIterator;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
@@ -16,12 +20,8 @@ import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-
-import org.junit.Test;
-
-import com.j256.ormlite.dao.CloseableIterator;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 
 /**
  * Test GeoPackage Feature Tile Generator
@@ -77,8 +77,8 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 	 * @throws java.sql.SQLException
 	 */
 	@Test
-	public void testTileGeneratorWithMaxFeatures() throws IOException,
-			SQLException {
+	public void testTileGeneratorWithMaxFeatures()
+			throws IOException, SQLException {
 		testTileGenerator(false, false, true);
 	}
 
@@ -89,8 +89,8 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 	 * @throws java.sql.SQLException
 	 */
 	@Test
-	public void testTileGeneratorWithIndexAndIcon() throws IOException,
-			SQLException {
+	public void testTileGeneratorWithIndexAndIcon()
+			throws IOException, SQLException {
 		testTileGenerator(true, true, false);
 	}
 
@@ -126,8 +126,8 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 
 		int num = FeatureTileUtils.insertFeatures(geoPackage, featureDao);
 
-		FeatureTiles featureTiles = FeatureTileUtils.createFeatureTiles(
-				geoPackage, featureDao, useIcon);
+		FeatureTiles featureTiles = FeatureTileUtils
+				.createFeatureTiles(geoPackage, featureDao, useIcon);
 
 		if (index) {
 			FeatureTableIndex featureIndex = new FeatureTableIndex(geoPackage,
@@ -167,11 +167,13 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 
 			for (int z = minZoom; z <= maxZoom; z++) {
 
-				TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
-						tileGenerator.getBoundingBox(z), z);
+				TileGrid tileGrid = TileBoundingBoxUtils
+						.getTileGrid(tileGenerator.getBoundingBox(z), z);
 
-				for (long x = tileGrid.getMinX(); x <= tileGrid.getMaxX(); x++) {
-					for (long y = tileGrid.getMinY(); y <= tileGrid.getMaxY(); y++) {
+				for (long x = tileGrid.getMinX(); x <= tileGrid
+						.getMaxX(); x++) {
+					for (long y = tileGrid.getMinY(); y <= tileGrid
+							.getMaxY(); y++) {
 						if (featureTiles.queryIndexedFeaturesCount((int) x,
 								(int) y, z) > 0) {
 

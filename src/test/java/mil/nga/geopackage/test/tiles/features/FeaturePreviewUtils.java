@@ -16,7 +16,7 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.tiles.TileUtils;
 import mil.nga.geopackage.tiles.features.FeaturePreview;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
-import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionConstants;
 
 /**
  * Test feature preview

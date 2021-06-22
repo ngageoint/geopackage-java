@@ -14,9 +14,9 @@ import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
 import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.proj.Projection;
 import mil.nga.sf.GeometryEnvelope;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * RTree Index Table DAO for reading geometry index ranges
@@ -736,8 +736,8 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	public BoundingBox getBoundingBox(Projection projection) {
 		BoundingBox boundingBox = getBoundingBox();
 		if (boundingBox != null && projection != null) {
-			ProjectionTransform projectionTransform = featureDao.getProjection()
-					.getTransformation(projection);
+			GeometryTransform projectionTransform = GeometryTransform
+					.create(featureDao.getProjection(), projection);
 			boundingBox = boundingBox.transform(projectionTransform);
 		}
 		return boundingBox;

@@ -36,12 +36,12 @@ import mil.nga.geopackage.property.JavaPropertyConstants;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileUtils;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.Point;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 import mil.nga.sf.util.GeometryUtils;
 
 /**
@@ -1146,8 +1146,8 @@ public abstract class FeatureTiles {
 
 		BoundingBox expandedBoundingBox = boundingBox;
 
-		ProjectionTransform toWebMercator = projection
-				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
+		GeometryTransform toWebMercator = GeometryTransform.create(projection,
+				ProjectionConstants.EPSG_WEB_MERCATOR);
 		if (!toWebMercator.isSameProjection()) {
 			expandedBoundingBox = expandedBoundingBox.transform(toWebMercator);
 		}
@@ -1155,7 +1155,7 @@ public abstract class FeatureTiles {
 		expandedBoundingBox = expandBoundingBox(expandedBoundingBox);
 
 		if (!toWebMercator.isSameProjection()) {
-			ProjectionTransform fromWebMercator = toWebMercator
+			GeometryTransform fromWebMercator = toWebMercator
 					.getInverseTransformation();
 			expandedBoundingBox = expandedBoundingBox
 					.transform(fromWebMercator);
@@ -1302,14 +1302,14 @@ public abstract class FeatureTiles {
 	}
 
 	/**
-	 * Create a projection transformation from the feature dao projection to Web
+	 * Create a geometry transformation from the feature dao projection to Web
 	 * Mercator
 	 *
 	 * @return transform
 	 */
-	protected ProjectionTransform getWebMercatorTransform() {
-		return this.featureDao.getProjection()
-				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
+	protected GeometryTransform getWebMercatorTransform() {
+		return GeometryTransform.create(this.featureDao.getProjection(),
+				ProjectionConstants.EPSG_WEB_MERCATOR);
 	}
 
 	/**
@@ -1331,8 +1331,8 @@ public abstract class FeatureTiles {
 
 			// Reproject to web mercator if not in meters
 			if (projection != null && !projection.isUnit(Units.METRES)) {
-				ProjectionTransform toWebMercator = projection
-						.getTransformation(WEB_MERCATOR_PROJECTION);
+				GeometryTransform toWebMercator = GeometryTransform
+						.create(projection, WEB_MERCATOR_PROJECTION);
 				points = toWebMercator.transform(points);
 			}
 
@@ -1342,8 +1342,8 @@ public abstract class FeatureTiles {
 
 			// Reproject back to the original projection
 			if (projection != null && !projection.isUnit(Units.METRES)) {
-				ProjectionTransform fromWebMercator = WEB_MERCATOR_PROJECTION
-						.getTransformation(projection);
+				GeometryTransform fromWebMercator = GeometryTransform
+						.create(WEB_MERCATOR_PROJECTION, projection);
 				simplifiedPoints = fromWebMercator.transform(simplifiedPoints);
 			}
 		} else {

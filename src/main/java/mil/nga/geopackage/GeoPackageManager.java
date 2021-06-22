@@ -6,7 +6,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.logger.LocalLog;
+import com.j256.ormlite.logger.Level;
+import com.j256.ormlite.logger.LocalLogBackend;
+import com.j256.ormlite.logger.LogBackendType;
+import com.j256.ormlite.logger.LoggerFactory;
 import com.j256.ormlite.support.ConnectionSource;
 
 import mil.nga.geopackage.db.GeoPackageConnection;
@@ -22,8 +25,10 @@ import mil.nga.geopackage.validate.GeoPackageValidate;
 public class GeoPackageManager {
 
 	static {
-		// Change the ORMLite log level
-		System.setProperty(LocalLog.LOCAL_LOG_LEVEL_PROPERTY, "INFO");
+		// Change the ORMLite log backend
+		System.setProperty(LocalLogBackend.LOCAL_LOG_LEVEL_PROPERTY,
+				Level.ERROR.name());
+		LoggerFactory.setLogBackendType(LogBackendType.JAVA_UTIL);
 	}
 
 	/**

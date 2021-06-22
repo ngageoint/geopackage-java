@@ -121,6 +121,9 @@ import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.geopackage.user.ContentValues;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.CircularString;
 import mil.nga.sf.CompoundCurve;
 import mil.nga.sf.CurvePolygon;
@@ -132,10 +135,7 @@ import mil.nga.sf.MultiLineString;
 import mil.nga.sf.MultiPolygon;
 import mil.nga.sf.Point;
 import mil.nga.sf.Polygon;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.sf.proj.GeometryTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 import mil.nga.sf.wkb.GeometryCodes;
 
@@ -1102,8 +1102,8 @@ public class GeoPackageExample {
 
 			Projection requestProjection = ProjectionFactory
 					.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-			ProjectionTransform transform = projection
-					.getTransformation(requestProjection);
+			GeometryTransform transform = GeometryTransform.create(projection,
+					requestProjection);
 			BoundingBox requestBoundingBox = boundingBox.transform(transform);
 
 			int zoomLevel = TileBoundingBoxUtils
@@ -1474,8 +1474,8 @@ public class GeoPackageExample {
 		SpatialReferenceSystem tileMatrixSetSrs = srsDao
 				.getOrCreateFromEpsg(tileMatrixSetEpsg);
 
-		ProjectionTransform transform = tileMatrixSetSrs.getProjection()
-				.getTransformation(contentsSrs.getProjection());
+		GeometryTransform transform = GeometryTransform.create(
+				tileMatrixSetSrs.getProjection(), contentsSrs.getProjection());
 		BoundingBox contentsBoundingBox = bbox;
 		if (!transform.isSameProjection()) {
 			contentsBoundingBox = bbox.transform(transform);
@@ -1573,8 +1573,8 @@ public class GeoPackageExample {
 		SpatialReferenceSystem tileMatrixSetSrs = srsDao
 				.getOrCreateFromEpsg(tileMatrixSetEpsg);
 
-		ProjectionTransform transform = tileMatrixSetSrs.getProjection()
-				.getTransformation(contentsSrs.getProjection());
+		GeometryTransform transform = GeometryTransform.create(
+				tileMatrixSetSrs.getProjection(), contentsSrs.getProjection());
 		BoundingBox contentsBoundingBox = bbox;
 		if (!transform.isSameProjection()) {
 			contentsBoundingBox = bbox.transform(transform);

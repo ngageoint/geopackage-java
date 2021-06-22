@@ -10,8 +10,8 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.tiles.reproject.TileReprojection;
 import mil.nga.geopackage.tiles.reproject.TileReprojectionOptimize;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionFactory;
 
 /**
  * Tile Reproject main method for command line tile reprojections

@@ -20,10 +20,10 @@ import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileCreator;
 import mil.nga.geopackage.tiles.user.TileDao;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Test Tile Creator image accuracy from a GeoPackage with tiles
@@ -72,7 +72,7 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 		BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
 				.getWebMercatorBoundingBox(0, 4, 4);
 		BoundingBox wgs84BoundingBox = webMercatorBoundingBox
-				.transform(webMercator.getTransformation(wgs84));
+				.transform(GeometryTransform.create(webMercator, wgs84));
 
 		TestCase.assertTrue(
 				webMercatorTileCreator.hasTile(webMercatorBoundingBox));
@@ -379,9 +379,9 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 				.getProjection(TestConstants.TILES2_DB_TABLE_NAME);
 		Projection webMercator = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-		ProjectionTransform toWebMercator = wgs84
-				.getTransformation(webMercator);
-		ProjectionTransform toWGS84 = toWebMercator.getInverseTransformation();
+		GeometryTransform toWebMercator = GeometryTransform.create(wgs84,
+				webMercator);
+		GeometryTransform toWGS84 = toWebMercator.getInverseTransformation();
 
 		BoundingBox webMercatorBoundingBox = boundingBox
 				.transform(toWebMercator);
@@ -472,9 +472,9 @@ public class TileCreatorImageTest extends LoadGeoPackageTestCase {
 				.getProjection(TestConstants.TILES2_DB_TABLE_NAME);
 		Projection webMercatorProjection = ProjectionFactory
 				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
-		ProjectionTransform toWebMercator = wgs84Projection
-				.getTransformation(webMercatorProjection);
-		ProjectionTransform toWGS84 = toWebMercator.getInverseTransformation();
+		GeometryTransform toWebMercator = GeometryTransform
+				.create(wgs84Projection, webMercatorProjection);
+		GeometryTransform toWGS84 = toWebMercator.getInverseTransformation();
 
 		BoundingBox wgs84WebMercator = webMercator.transform(toWGS84);
 		double pixelXSize = (wgs84WebMercator.getMaxLongitude()

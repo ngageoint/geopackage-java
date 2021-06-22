@@ -4,9 +4,12 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 5.0.1 (TBD)
+## 6.0.0 (TBD)
 
-* TBD
+* geopackage-core version 6.0.0
+* ormlite-jdbc version 5.5
+* tiff version 2.0.3
+* maven plugin version updates
 
 ## [5.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/5.0.0) (03-09-2021)
 

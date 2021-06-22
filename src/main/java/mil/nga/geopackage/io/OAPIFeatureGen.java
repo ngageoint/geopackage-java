@@ -10,8 +10,8 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.features.OAPIFeatureGenerator;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionFactory;
 
 /**
  * OGC API Feature Generator main method for command line feature generation

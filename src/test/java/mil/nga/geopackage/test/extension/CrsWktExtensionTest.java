@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
 import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.ExtensionScopeType;
 import mil.nga.geopackage.extension.Extensions;
@@ -14,9 +16,7 @@ import mil.nga.geopackage.property.PropertyConstants;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
-import mil.nga.sf.proj.ProjectionConstants;
-
-import org.junit.Test;
+import mil.nga.proj.ProjectionConstants;
 
 /**
  * Geometry Extensions Tests
@@ -38,8 +38,8 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 		assertFalse(wktExtension.has());
 
 		// Test querying and setting the definitions before the column exists
-		SpatialReferenceSystem wgs84Srs = srsDao
-				.queryForId((long) ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		SpatialReferenceSystem wgs84Srs = srsDao.queryForId(
+				(long) ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		assertNotNull(wgs84Srs);
 		assertNull(wgs84Srs.getDefinition_12_063());
 		srsDao.setDefinition_12_063(wgs84Srs);
@@ -87,8 +87,8 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 		assertEquals(extension.getDefinition(), CrsWktExtension.DEFINITION);
 
 		// Test querying and setting the definitions after the column exists
-		wgs84Srs = srsDao
-				.queryForId((long) ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		wgs84Srs = srsDao.queryForId(
+				(long) ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		assertNotNull(wgs84Srs);
 		assertNotNull(wgs84Srs.getDefinition_12_063());
 		assertEquals(wgs84Srs.getDefinition_12_063(),
@@ -119,8 +119,8 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 		assertEquals(newSrs.getDefinition_12_063(), "");
 
 		// Test the get or create auto set
-		wgs84Srs = srsDao
-				.getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+		wgs84Srs = srsDao.getOrCreateFromEpsg(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		assertNotNull(wgs84Srs);
 		assertNotNull(wgs84Srs.getDefinition_12_063());
 		assertEquals(wgs84Srs.getDefinition_12_063(),

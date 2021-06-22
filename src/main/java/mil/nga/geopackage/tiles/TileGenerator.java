@@ -33,10 +33,9 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Creates a set of tiles within a GeoPackage
@@ -369,9 +368,9 @@ public abstract class TileGenerator {
 			int count = 0;
 
 			boolean degrees = projection.isUnit(Units.DEGREES);
-			ProjectionTransform transformToWebMercator = null;
+			GeometryTransform transformToWebMercator = null;
 			if (!degrees) {
-				transformToWebMercator = projection.getTransformation(
+				transformToWebMercator = GeometryTransform.create(projection,
 						ProjectionConstants.EPSG_WEB_MERCATOR);
 			}
 
@@ -554,9 +553,9 @@ public abstract class TileGenerator {
 				ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
 				ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
 				ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
-		ProjectionTransform wgs84ToWebMercatorTransform = ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-				.getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
+		GeometryTransform wgs84ToWebMercatorTransform = GeometryTransform
+				.create(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
+						ProjectionConstants.EPSG_WEB_MERCATOR);
 		tileGridBoundingBox = standardWgs84Box
 				.transform(wgs84ToWebMercatorTransform);
 	}
@@ -635,8 +634,8 @@ public abstract class TileGenerator {
 		// Combine the existing content and request bounding boxes
 		BoundingBox previousContentsBoundingBox = contents.getBoundingBox();
 		if (previousContentsBoundingBox != null) {
-			ProjectionTransform transformProjectionToContents = projection
-					.getTransformation(contents.getProjection());
+			GeometryTransform transformProjectionToContents = GeometryTransform
+					.create(projection, contents.getProjection());
 			BoundingBox contentsBoundingBox = boundingBox;
 			if (!transformProjectionToContents.isSameProjection()) {
 				contentsBoundingBox = contentsBoundingBox
@@ -661,8 +660,8 @@ public abstract class TileGenerator {
 					.getBoundingBox();
 
 			// Adjust the bounds to include the request and existing bounds
-			ProjectionTransform transformProjectionToTileMatrixSet = projection
-					.getTransformation(tileMatrixProjection);
+			GeometryTransform transformProjectionToTileMatrixSet = GeometryTransform
+					.create(projection, tileMatrixProjection);
 			boolean sameProjection = transformProjectionToTileMatrixSet
 					.isSameProjection();
 			BoundingBox updateBoundingBox = tileBounds.get(minZoom);
