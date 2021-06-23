@@ -8,7 +8,6 @@ import org.sqlite.Function;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.db.GeoPackageConnection;
-import mil.nga.geopackage.extension.rtree.RTreeIndexCoreExtension;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.user.custom.UserCustomDao;
@@ -84,7 +83,7 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 */
 	@Override
 	public void createMinXFunction() {
-		createFunction(MIN_X_FUNCTION, new GeometryFunction() {
+		createFunction(new GeometryFunction(MIN_X_FUNCTION) {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
 				Object value = null;
@@ -102,7 +101,7 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 */
 	@Override
 	public void createMaxXFunction() {
-		createFunction(MAX_X_FUNCTION, new GeometryFunction() {
+		createFunction(new GeometryFunction(MAX_X_FUNCTION) {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
 				Object value = null;
@@ -120,7 +119,7 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 */
 	@Override
 	public void createMinYFunction() {
-		createFunction(MIN_Y_FUNCTION, new GeometryFunction() {
+		createFunction(new GeometryFunction(MIN_Y_FUNCTION) {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
 				Object value = null;
@@ -138,7 +137,7 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 */
 	@Override
 	public void createMaxYFunction() {
-		createFunction(MAX_Y_FUNCTION, new GeometryFunction() {
+		createFunction(new GeometryFunction(MAX_Y_FUNCTION) {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
 				Object value = null;
@@ -156,11 +155,18 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 */
 	@Override
 	public void createIsEmptyFunction() {
-		createFunction(IS_EMPTY_FUNCTION, new GeometryFunction() {
+		createFunction(new GeometryFunction(IS_EMPTY_FUNCTION) {
 			@Override
 			public Object execute(GeoPackageGeometryData data) {
-				return data == null || data.isEmpty()
-						|| data.getGeometry() == null;
+				Object value = null;
+				if (data != null) {
+					if (data.isEmpty() || data.getGeometry() == null) {
+						value = 1;
+					} else {
+						value = 0;
+					}
+				}
+				return value;
 			}
 		});
 	}
@@ -173,12 +179,13 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	 * @param function
 	 *            geometry function
 	 */
-	private void createFunction(String name, GeometryFunction function) {
+	private void createFunction(GeometryFunction function) {
 		try {
 			Function.create(getGeoPackage().getConnection().getConnection(),
-					name, function);
+					function.getName(), function);
 		} catch (SQLException e) {
-			log.log(Level.SEVERE, "Failed to create function: " + name, e);
+			log.log(Level.SEVERE,
+					"Failed to create function: " + function.getName(), e);
 		}
 	}
 

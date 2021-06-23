@@ -15,6 +15,32 @@ import mil.nga.geopackage.geom.GeoPackageGeometryData;
 public abstract class GeometryFunction extends Function {
 
 	/**
+	 * Function name
+	 */
+	private String name;
+
+	/**
+	 * Constructor
+	 *
+	 * @param name
+	 *            function name
+	 * @since 6.0.0
+	 */
+	public GeometryFunction(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Get the function name
+	 *
+	 * @return name
+	 * @since 6.0.0
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
 	 * Execute the function
 	 * 
 	 * @param geometryData
@@ -47,8 +73,8 @@ public abstract class GeometryFunction extends Function {
 			result();
 		} else if (response instanceof Double) {
 			result((Double) response);
-		} else if (response instanceof Boolean) {
-			result(Boolean.compare((Boolean) response, false));
+		} else if (response instanceof Integer) {
+			result((Integer) response);
 		} else {
 			throw new SQLException("Unexpected response value: " + response
 					+ ", of type: " + response.getClass().getSimpleName());
