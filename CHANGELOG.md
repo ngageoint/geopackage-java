@@ -7,7 +7,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 6.0.0 (TBD)
 
 * geopackage-core version 6.0.0
-* ormlite-jdbc version 5.5
+* ormlite-jdbc version 5.6
 * tiff version 2.0.3
 * maven plugin version updates
 
