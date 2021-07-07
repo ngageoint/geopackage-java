@@ -83,6 +83,27 @@ try {
 	tileResultSet.close();
 }
 
+// Retrieve Tiles by XYZ
+GeoPackageTileRetriever retriever = new GeoPackageTileRetriever(tileDao,
+		ImageUtils.IMAGE_FORMAT_PNG);
+GeoPackageTile geoPackageTile = retriever.getTile(2, 2, 2);
+if (geoPackageTile != null) {
+	BufferedImage tileImage = geoPackageTile.getImage();
+	// ...
+}
+
+// Retrieve Tiles by Bounding Box
+TileCreator tileCreator = new TileCreator(tileDao,
+		ProjectionFactory.getProjection(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM),
+		ImageUtils.IMAGE_FORMAT_PNG);
+GeoPackageTile geoPackageTile2 = tileCreator
+		.getTile(new BoundingBox(-90.0, 0.0, 0.0, 66.513260));
+if (geoPackageTile2 != null) {
+	BufferedImage tileImage = geoPackageTile2.getImage();
+	// ...
+}
+
 // Index Features
 FeatureTableIndex indexer = new FeatureTableIndex(geoPackage,
 		featureDao);

@@ -1,10 +1,12 @@
 package mil.nga.geopackage.test;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.contents.ContentsDao;
@@ -22,11 +24,17 @@ import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.tiles.GeoPackageTile;
+import mil.nga.geopackage.tiles.GeoPackageTileRetriever;
+import mil.nga.geopackage.tiles.ImageUtils;
+import mil.nga.geopackage.tiles.TileCreator;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.Geometry;
 
 /**
@@ -123,6 +131,27 @@ public class ReadmeTest extends CreateGeoPackageTestCase {
 			}
 		} finally {
 			tileResultSet.close();
+		}
+
+		// Retrieve Tiles by XYZ
+		GeoPackageTileRetriever retriever = new GeoPackageTileRetriever(tileDao,
+				ImageUtils.IMAGE_FORMAT_PNG);
+		GeoPackageTile geoPackageTile = retriever.getTile(2, 2, 2);
+		if (geoPackageTile != null) {
+			BufferedImage tileImage = geoPackageTile.getImage();
+			// ...
+		}
+
+		// Retrieve Tiles by Bounding Box
+		TileCreator tileCreator = new TileCreator(tileDao,
+				ProjectionFactory.getProjection(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM),
+				ImageUtils.IMAGE_FORMAT_PNG);
+		GeoPackageTile geoPackageTile2 = tileCreator
+				.getTile(new BoundingBox(-90.0, 0.0, 0.0, 66.513260));
+		if (geoPackageTile2 != null) {
+			BufferedImage tileImage = geoPackageTile2.getImage();
+			// ...
 		}
 
 		// Index Features
