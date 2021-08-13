@@ -28,7 +28,9 @@ public class GeoPackageManager {
 		// Change the ORMLite log backend
 		System.setProperty(LocalLogBackend.LOCAL_LOG_LEVEL_PROPERTY,
 				Level.ERROR.name());
-		LoggerFactory.setLogBackendType(LogBackendType.JAVA_UTIL);
+		if (LogBackendType.JAVA_UTIL.isAvailable()) {
+			LoggerFactory.setLogBackendType(LogBackendType.JAVA_UTIL);
+		}
 	}
 
 	/**
