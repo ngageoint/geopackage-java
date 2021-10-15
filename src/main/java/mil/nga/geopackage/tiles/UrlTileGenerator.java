@@ -10,6 +10,8 @@ import java.net.URLDecoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.locationtech.proj4j.units.Units;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
@@ -258,8 +260,15 @@ public class UrlTileGenerator extends TileGenerator {
 	 */
 	private String replaceBoundingBox(String url, int z, long x, long y) {
 
-		BoundingBox boundingBox = TileBoundingBoxUtils
-				.getProjectedBoundingBox(projection, x, y, z);
+		BoundingBox boundingBox = null;
+
+		if (projection.isUnit(Units.DEGREES)) {
+			boundingBox = TileBoundingBoxUtils
+					.getProjectedBoundingBoxFromWGS84(projection, x, y, z);
+		} else {
+			boundingBox = TileBoundingBoxUtils
+					.getProjectedBoundingBox(projection, x, y, z);
+		}
 
 		url = replaceBoundingBox(url, boundingBox);
 
