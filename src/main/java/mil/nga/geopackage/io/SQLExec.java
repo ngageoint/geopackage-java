@@ -21,10 +21,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mil.nga.crs.util.proj.ProjParser;
+import mil.nga.crs.wkt.WKTUtils;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
+import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDataType;
 import mil.nga.geopackage.db.CoreSQLUtils;
 import mil.nga.geopackage.db.SQLUtils;
@@ -2129,6 +2132,8 @@ public class SQLExec {
 				COMMAND_ALL_ROWS, maxColumnWidth, maxLinesPerRow, history,
 				false);
 
+		projectionInfo(database, tableName);
+
 		String tableType = database.getTableType(tableName);
 		if (tableType != null) {
 			switch (tableType) {
@@ -2174,6 +2179,48 @@ public class SQLExec {
 
 		tableInfo(database, sqlBuilder, maxColumnWidth, maxLinesPerRow, history,
 				tableName, false);
+	}
+
+	/**
+	 * Projection Information
+	 * 
+	 * @param database
+	 *            database
+	 * @param tableName
+	 *            table name
+	 */
+	private static void projectionInfo(GeoPackage database, String tableName) {
+
+		Contents contents = database.getTableContents(tableName);
+		if (contents != null) {
+
+			SpatialReferenceSystem srs = contents.getSrs();
+			if (srs != null) {
+
+				Projection projection = srs.getProjection();
+				System.out.println();
+				System.out.println("Authority: " + projection.getAuthority());
+				System.out.println("Code: " + projection.getCode());
+				String definition = projection.getDefinition();
+				if (definition != null) {
+					try {
+						String prettyDefinition = WKTUtils.pretty(definition);
+						System.out.println();
+						System.out.println(prettyDefinition);
+					} catch (IOException e) {
+					}
+					try {
+						System.out.println();
+						System.out.println(
+								"PROJ: " + ProjParser.paramsText(definition));
+					} catch (IOException e) {
+					}
+				}
+
+			}
+
+		}
+
 	}
 
 	/**
