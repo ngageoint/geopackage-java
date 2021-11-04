@@ -4,12 +4,13 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.0.1 (TBD)
+## [6.1.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.0) (11-04-2021)
 
-* geopackage-core version 6.0.1
+* geopackage-core version 6.1.0
 * tiff version 2.0.5
 * sqlite-jdbc version 3.36.0.3
 * UrlTileGenerator URL bounds generation fix for degree projections (WGS84 WMS)
+* SQLExec inclusion of projection info in GeoPackage table info
 
 ## [6.0.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.0.0) (07-06-2021)
 
