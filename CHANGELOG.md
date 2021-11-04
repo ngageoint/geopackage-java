@@ -4,6 +4,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## 6.1.1 (TBD)
+
+* TBD
+
 ## [6.1.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.0) (11-04-2021)
 
 * geopackage-core version 6.1.0
