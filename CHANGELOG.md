@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 6.1.1 (TBD)
 
-* TBD
+* Java 11
+* geopackage-core version 6.1.1
+* ormlite-jdbc version 5.7
+* Tile Generator PNG quality compression support through Java 11
 
 ## [6.1.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.0) (11-04-2021)
 

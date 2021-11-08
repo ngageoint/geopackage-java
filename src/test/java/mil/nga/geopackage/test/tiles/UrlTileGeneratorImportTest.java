@@ -3,9 +3,9 @@ package mil.nga.geopackage.test.tiles;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import mil.nga.geopackage.test.ImportGeoPackageTestCase;
-
 import org.junit.Test;
+
+import mil.nga.geopackage.test.ImportGeoPackageTestCase;
 
 /**
  * Test URL Tile Generator from an imported database
@@ -43,8 +43,8 @@ public class UrlTileGeneratorImportTest extends ImportGeoPackageTestCase {
 	}
 
 	@Test
-	public void testGenerateTilesCompressQuality() throws SQLException,
-			IOException {
+	public void testGenerateTilesCompressQuality()
+			throws SQLException, IOException {
 
 		UrlTileGeneratorUtils.testGenerateTilesCompressQuality(geoPackage);
 
@@ -65,8 +65,7 @@ public class UrlTileGeneratorImportTest extends ImportGeoPackageTestCase {
 	}
 
 	@Test
-	public void testGenerateTilesXYZBounded() throws SQLException,
-			IOException {
+	public void testGenerateTilesXYZBounded() throws SQLException, IOException {
 
 		UrlTileGeneratorUtils.testGenerateTilesXYZBounded(geoPackage);
 
@@ -80,11 +79,10 @@ public class UrlTileGeneratorImportTest extends ImportGeoPackageTestCase {
 	}
 
 	@Test
-	public void testGenerateTilesUnsupportedCompressQuality()
+	public void testGenerateTilesCompressQualityPng()
 			throws SQLException, IOException {
 
-		UrlTileGeneratorUtils
-				.testGenerateTilesUnsupportedCompressQuality(geoPackage);
+		UrlTileGeneratorUtils.testGenerateTilesCompressQualityPng(geoPackage);
 
 	}
 
