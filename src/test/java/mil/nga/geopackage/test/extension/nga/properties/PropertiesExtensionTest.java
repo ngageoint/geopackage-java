@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.nga.properties.PropertiesExtension;
 import mil.nga.geopackage.extension.nga.properties.PropertyNames;
 import mil.nga.geopackage.test.CreateGeoPackageTestCase;
-
-import org.junit.Test;
 
 /**
  * Properties Extension Tests
@@ -28,7 +28,8 @@ public class PropertiesExtensionTest extends CreateGeoPackageTestCase {
 
 		PropertiesExtension extension = new PropertiesExtension(geoPackage);
 		TestCase.assertFalse(extension.has());
-		TestCase.assertFalse(geoPackage.isTable(PropertiesExtension.TABLE_NAME));
+		TestCase.assertFalse(
+				geoPackage.isTable(PropertiesExtension.TABLE_NAME));
 
 		final String name = "My GeoPackage";
 
@@ -66,8 +67,8 @@ public class PropertiesExtensionTest extends CreateGeoPackageTestCase {
 		TestCase.assertEquals(1, extension.numProperties());
 		TestCase.assertEquals(1, extension.getProperties().size());
 		TestCase.assertEquals(1, extension.numValues());
-		TestCase.assertEquals(1, extension.getValues(PropertyNames.TITLE)
-				.size());
+		TestCase.assertEquals(1,
+				extension.getValues(PropertyNames.TITLE).size());
 		TestCase.assertTrue(extension.hasSingleValue(PropertyNames.TITLE));
 		TestCase.assertTrue(extension.hasValues(PropertyNames.TITLE));
 		TestCase.assertEquals(1, extension.numValues(PropertyNames.TITLE));
@@ -123,7 +124,8 @@ public class PropertiesExtensionTest extends CreateGeoPackageTestCase {
 
 		extension.removeExtension();
 		TestCase.assertFalse(extension.has());
-		TestCase.assertFalse(geoPackage.isTable(PropertiesExtension.TABLE_NAME));
+		TestCase.assertFalse(
+				geoPackage.isTable(PropertiesExtension.TABLE_NAME));
 
 	}
 
@@ -163,7 +165,11 @@ public class PropertiesExtensionTest extends CreateGeoPackageTestCase {
 		TestCase.assertEquals(22, extension.numProperties());
 		TestCase.assertEquals(count, extension.numValues());
 
-		TestCase.assertEquals(count, extension.deleteAll());
+		int deleted = 0;
+		for (String property : extension.getProperties()) {
+			deleted += extension.deleteProperty(property);
+		}
+		TestCase.assertEquals(count, deleted);
 
 		TestCase.assertEquals(0, extension.numProperties());
 		TestCase.assertEquals(0, extension.numValues());
@@ -172,7 +178,8 @@ public class PropertiesExtensionTest extends CreateGeoPackageTestCase {
 		TestCase.assertFalse(extension.has());
 	}
 
-	private int testPropertyName(PropertiesExtension extension, String property) {
+	private int testPropertyName(PropertiesExtension extension,
+			String property) {
 
 		TestCase.assertFalse(extension.hasProperty(property));
 
