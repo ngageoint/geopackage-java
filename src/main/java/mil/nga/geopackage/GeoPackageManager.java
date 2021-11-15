@@ -102,6 +102,36 @@ public class GeoPackageManager {
 	}
 
 	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param directory
+	 *            base directory
+	 * @param name
+	 *            GeoPackage file name
+	 * @return created file
+	 * @since 6.1.2
+	 */
+	public static File create(File directory, String name) {
+		return create(directory, name, true);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param directory
+	 *            base directory
+	 * @param name
+	 *            GeoPackage file name
+	 * @param validate
+	 *            validate the file extension
+	 * @return created file
+	 * @since 6.1.2
+	 */
+	public static File create(File directory, String name, boolean validate) {
+		return create(new File(directory, name), validate);
+	}
+
+	/**
 	 * Open a GeoPackage
 	 * 
 	 * @param file

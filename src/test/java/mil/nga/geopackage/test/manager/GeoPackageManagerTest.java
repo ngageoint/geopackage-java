@@ -162,6 +162,21 @@ public class GeoPackageManagerTest extends BaseTestCase {
 		} catch (Exception e) {
 			// Expected
 		}
+
+		dbFile.delete();
+
+		// Create
+		dbFile = GeoPackageManager.create(testFolder,
+				TestConstants.TEST_DB_FILE_NAME);
+		assertTrue("Database does not exist", dbFile.exists());
+
+		try {
+			GeoPackageManager.create(testFolder,
+					TestConstants.TEST_DB_FILE_NAME);
+			fail("Existing file did not fail");
+		} catch (Exception e) {
+			// Expected
+		}
 	}
 
 	/**
