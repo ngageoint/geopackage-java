@@ -68,8 +68,8 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	 *
 	 * @param name
 	 *            GeoPackage name
-	 * @param file
-	 *            GeoPackage file
+	 * @param path
+	 *            GeoPackage path
 	 * @param database
 	 *            connection
 	 */
