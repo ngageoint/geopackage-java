@@ -2,7 +2,7 @@ package mil.nga.geopackage.dgiwg;
 
 import java.io.File;
 
-import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 
 /**
@@ -21,7 +21,7 @@ public class DGIWGGeoPackageManager {
 	 *            file
 	 * @return created file
 	 */
-	public static File create(File file) {
+	public static DGIWGFile create(File file) {
 		return create(file, true);
 	}
 
@@ -34,11 +34,18 @@ public class DGIWGGeoPackageManager {
 	 *            validate the file extension
 	 * @return created file
 	 */
-	public static File create(File file, boolean validate) {
+	public static DGIWGFile create(File file, boolean validate) {
 
-		// TODO
+		file = GeoPackageManager.create(file, validate);
 
-		return GeoPackageManager.create(file, validate);
+		DGIWGFileName fileName = new DGIWGFileName(file);
+
+		if (validate && !fileName.isValid()) {
+			throw new GeoPackageException(
+					"Not a valid DGIWG file name: " + fileName);
+		}
+
+		return new DGIWGFile(file, fileName);
 	}
 
 	/**
@@ -50,7 +57,7 @@ public class DGIWGGeoPackageManager {
 	 *            GeoPackage file name
 	 * @return created file
 	 */
-	public static File create(File directory, String name) {
+	public static DGIWGFile create(File directory, String name) {
 		return create(directory, name, true);
 	}
 
@@ -65,7 +72,8 @@ public class DGIWGGeoPackageManager {
 	 *            validate the file extension
 	 * @return created file
 	 */
-	public static File create(File directory, String name, boolean validate) {
+	public static DGIWGFile create(File directory, String name,
+			boolean validate) {
 		return create(new File(directory, name), validate);
 	}
 
@@ -76,7 +84,7 @@ public class DGIWGGeoPackageManager {
 	 *            file
 	 * @return GeoPackage
 	 */
-	public static GeoPackage open(File file) {
+	public static DGIWGGeoPackage open(File file) {
 		return open(file, true);
 	}
 
@@ -89,7 +97,7 @@ public class DGIWGGeoPackageManager {
 	 *            validate the GeoPackage
 	 * @return GeoPackage
 	 */
-	public static GeoPackage open(File file, boolean validate) {
+	public static DGIWGGeoPackage open(File file, boolean validate) {
 		return open(file.getName(), file, validate);
 	}
 
@@ -102,7 +110,7 @@ public class DGIWGGeoPackageManager {
 	 *            GeoPackage file
 	 * @return GeoPackage
 	 */
-	public static GeoPackage open(String name, File file) {
+	public static DGIWGGeoPackage open(String name, File file) {
 		return open(name, file, true);
 	}
 
@@ -117,13 +125,17 @@ public class DGIWGGeoPackageManager {
 	 *            validate the GeoPackage
 	 * @return GeoPackage
 	 */
-	public static GeoPackage open(String name, File file, boolean validate) {
+	public static DGIWGGeoPackage open(String name, File file,
+			boolean validate) {
 
-		if (validate) {
-			// TODO
+		DGIWGFileName fileName = new DGIWGFileName(file);
+
+		if (validate && !fileName.isValid()) {
+			throw new GeoPackageException(
+					"Not a valid DGIWG file name: " + fileName);
 		}
 
-		DGIWGGeoPackage geoPackage = new DGIWGGeoPackage(
+		DGIWGGeoPackage geoPackage = new DGIWGGeoPackage(fileName,
 				GeoPackageManager.open(name, file, validate));
 
 		if (validate) {
