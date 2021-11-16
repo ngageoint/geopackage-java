@@ -2,10 +2,10 @@ package mil.nga.geopackage.tiles.features;
 
 import java.awt.image.BufferedImage;
 
+import com.j256.ormlite.dao.CloseableIterator;
+
 import mil.nga.geopackage.extension.nga.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureResultSet;
-
-import com.j256.ormlite.dao.CloseableIterator;
 
 /**
  * Interface defining custom feature tile drawing. The tile drawn will be used

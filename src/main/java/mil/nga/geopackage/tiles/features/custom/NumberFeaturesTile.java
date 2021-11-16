@@ -8,14 +8,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
+import com.j256.ormlite.dao.CloseableIterator;
+
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.extension.nga.index.GeometryIndex;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;
 import mil.nga.geopackage.tiles.features.CustomFeaturesTile;
-
-import com.j256.ormlite.dao.CloseableIterator;
 
 /**
  * Draws a tile indicating the number of features that exist within the tile,
