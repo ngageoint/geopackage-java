@@ -31,21 +31,12 @@ public class DGIWGGeoPackageManager {
 	 * @param file
 	 *            file
 	 * @param validate
-	 *            validate the file extension
+	 *            validate the file extension and name
 	 * @return created file
 	 */
 	public static DGIWGFile create(File file, boolean validate) {
-
-		file = GeoPackageManager.create(file, validate);
-
 		DGIWGFileName fileName = new DGIWGFileName(file);
-
-		if (validate && !fileName.isValid()) {
-			throw new GeoPackageException(
-					"Not a valid DGIWG file name: " + fileName);
-		}
-
-		return new DGIWGFile(file, fileName);
+		return createFile(file, fileName, validate);
 	}
 
 	/**
@@ -69,12 +60,119 @@ public class DGIWGGeoPackageManager {
 	 * @param name
 	 *            GeoPackage file name
 	 * @param validate
-	 *            validate the file extension
+	 *            validate the file extension and name
 	 * @return created file
 	 */
 	public static DGIWGFile create(File directory, String name,
 			boolean validate) {
 		return create(new File(directory, name), validate);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param directory
+	 *            base directory
+	 * @param fileName
+	 *            DGIWG file name
+	 * @return created file
+	 */
+	public static DGIWGFile create(File directory, DGIWGFileName fileName) {
+		return create(directory, fileName, true);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param directory
+	 *            base directory
+	 * @param fileName
+	 *            DGIWG file name
+	 * @param validate
+	 *            validate the file extension and name
+	 * @return created file
+	 */
+	public static DGIWGFile create(File directory, DGIWGFileName fileName,
+			boolean validate) {
+		File file = new File(directory, fileName.toString());
+		return createFile(file, fileName, validate);
+	}
+
+	/**
+	 * Create the DGIWG GeoPackage file
+	 * 
+	 * @param file
+	 *            file
+	 * @param fileName
+	 *            file name
+	 * @param validate
+	 *            validate the file extension and name
+	 * @return
+	 */
+	private static DGIWGFile createFile(File file, DGIWGFileName fileName,
+			boolean validate) {
+
+		if (validate && !fileName.isValid()) {
+			throw new GeoPackageException(
+					"Not a valid DGIWG file name: " + fileName);
+		}
+
+		file = GeoPackageManager.create(file, validate);
+
+		return new DGIWGFile(file, fileName);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param file
+	 *            DGIWG file
+	 * @return GeoPackage
+	 */
+	public static DGIWGGeoPackage open(DGIWGFile file) {
+		return open(file, true);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param file
+	 *            DGIWG file
+	 * @param validate
+	 *            validate the GeoPackage
+	 * @return GeoPackage
+	 */
+	public static DGIWGGeoPackage open(DGIWGFile file, boolean validate) {
+		return open(file.getFile(), validate);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage name
+	 * @param file
+	 *            DGIWG file
+	 * @return GeoPackage
+	 */
+	public static DGIWGGeoPackage open(String name, DGIWGFile file) {
+		return open(name, file, true);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage name
+	 * @param file
+	 *            DGIWG file
+	 * @param validate
+	 *            validate the GeoPackage
+	 * @return GeoPackage
+	 */
+	public static DGIWGGeoPackage open(String name, DGIWGFile file,
+			boolean validate) {
+		return open(name, file.getFile(), validate);
 	}
 
 	/**

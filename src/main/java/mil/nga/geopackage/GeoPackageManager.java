@@ -234,6 +234,23 @@ public class GeoPackageManager {
 	}
 
 	/**
+	 * Add a GeoPackage file extension to the file if it does not already
+	 * contain a file extension
+	 * 
+	 * @param file
+	 *            file
+	 * @return original file or file with extension
+	 * @since 6.1.2
+	 */
+	public static String addExtension(String file) {
+		if (!GeoPackageIOUtils.hasFileExtension(file)) {
+			file = GeoPackageIOUtils.addFileExtension(file,
+					GeoPackageConstants.EXTENSION);
+		}
+		return file;
+	}
+
+	/**
 	 * Check if the file exists in either its' current form or with a GeoPackage
 	 * file extension, and return the existing file
 	 * 
