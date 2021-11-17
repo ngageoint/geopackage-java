@@ -45,7 +45,7 @@ public class DGIWGGeoPackageManagerTest extends BaseTestCase {
 				GeoPackageManager.addExtension(FILE_NAME));
 
 		// Create
-		DGIWGFile file = DGIWGGeoPackageManager.create(dbFile);
+		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile);
 		assertEquals(dbFile, file.getFile());
 		assertEquals(FILE_NAME, file.getFileName().toString());
 		assertTrue("Database does not exist", dbFile.exists());
@@ -69,12 +69,12 @@ public class DGIWGGeoPackageManagerTest extends BaseTestCase {
 
 		File testFolder = folder.newFolder();
 
-		DGIWGFileName fileName = new DGIWGFileName(FILE_NAME);
+		GeoPackageFileName fileName = new GeoPackageFileName(FILE_NAME);
 		File dbFile = new File(testFolder,
 				GeoPackageManager.addExtension(fileName.toString()));
 
 		// Create
-		DGIWGFile file = DGIWGGeoPackageManager.create(testFolder, fileName);
+		GeoPackageFile file = DGIWGGeoPackageManager.create(testFolder, fileName);
 		assertEquals(dbFile, file.getFile());
 		assertEquals(FILE_NAME, file.getFileName().toString());
 		assertTrue("Database does not exist", dbFile.exists());

@@ -18,7 +18,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	/**
 	 * DGIWG File Name
 	 */
-	private DGIWGFileName fileName;
+	private GeoPackageFileName fileName;
 
 	/**
 	 * Constructor
@@ -29,7 +29,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	public DGIWGGeoPackage(GeoPackage geoPackage) {
 		super(geoPackage.getName(), geoPackage.getPath(),
 				geoPackage.getConnection());
-		this.fileName = new DGIWGFileName(geoPackage.getPath());
+		this.fileName = new GeoPackageFileName(geoPackage.getPath());
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 * @param geoPackage
 	 *            GeoPackage
 	 */
-	public DGIWGGeoPackage(DGIWGFileName fileName, GeoPackage geoPackage) {
+	public DGIWGGeoPackage(GeoPackageFileName fileName, GeoPackage geoPackage) {
 		super(geoPackage.getName(), geoPackage.getPath(),
 				geoPackage.getConnection());
 		this.fileName = fileName;
@@ -59,7 +59,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	protected DGIWGGeoPackage(String name, File file,
 			GeoPackageConnection database) {
 		super(name, file, database);
-		this.fileName = new DGIWGFileName(file);
+		this.fileName = new GeoPackageFileName(file);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 * 
 	 * @return DGIWG file name
 	 */
-	public DGIWGFileName getFileName() {
+	public GeoPackageFileName getFileName() {
 		return fileName;
 	}
 
