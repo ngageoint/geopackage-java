@@ -389,7 +389,7 @@ public class URLTileGen {
 
 		// Default the EPSG
 		if (epsg == null) {
-			epsg = new Long(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+			epsg = Long.valueOf(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}
 
 		// Set the projection and default bounding box as needed

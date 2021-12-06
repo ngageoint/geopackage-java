@@ -920,7 +920,7 @@ public class FeatureTileGen {
 
 		// Default the EPSG
 		if (epsg == null) {
-			epsg = new Long(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+			epsg = Long.valueOf(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}
 
 		BoundingBox webMercatorBoundingBox = null;
