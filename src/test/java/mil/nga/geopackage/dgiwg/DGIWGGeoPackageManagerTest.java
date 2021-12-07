@@ -22,7 +22,7 @@ public class DGIWGGeoPackageManagerTest extends BaseTestCase {
 	/**
 	 * Test file name
 	 */
-	private static final String FILE_NAME = "AGC_BUCK_Ft-Bliss_14-20_v1-0_29AUG2016";
+	public static final String FILE_NAME = "AGC_BUCK_Ft-Bliss_14-20_v1-0_29AUG2016";
 
 	/**
 	 * Constructor
@@ -74,7 +74,8 @@ public class DGIWGGeoPackageManagerTest extends BaseTestCase {
 				GeoPackageManager.addExtension(fileName.toString()));
 
 		// Create
-		GeoPackageFile file = DGIWGGeoPackageManager.create(testFolder, fileName);
+		GeoPackageFile file = DGIWGGeoPackageManager.create(testFolder,
+				fileName);
 		assertEquals(dbFile, file.getFile());
 		assertEquals(FILE_NAME, file.getFileName().toString());
 		assertTrue("Database does not exist", dbFile.exists());

@@ -1,19 +1,14 @@
 package mil.nga.geopackage.dgiwg;
 
 import java.io.File;
-import java.sql.SQLException;
+import java.util.Collection;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageImpl;
-import mil.nga.geopackage.contents.Contents;
-import mil.nga.geopackage.contents.ContentsDataType;
 import mil.nga.geopackage.db.GeoPackageConnection;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
-import mil.nga.geopackage.tiles.user.TileTable;
 
 /**
  * DGIWG (Defence Geospatial Information Working Group) GeoPackage
@@ -87,9 +82,10 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            table name
 	 * @param crs
 	 *            coordinate reference system
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, CoordinateReferenceSystem crs) {
+	public TileMatrixSet createTiles(String table,
+			CoordinateReferenceSystem crs) {
 		return createTiles(table, table, table, crs);
 	}
 
@@ -104,12 +100,11 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            contents description
 	 * @param crs
 	 *            coordinate reference system
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, String identifier,
+	public TileMatrixSet createTiles(String table, String identifier,
 			String description, CoordinateReferenceSystem crs) {
-		return createTiles(table, identifier, description, crs.getBounds(),
-				crs);
+		return createTiles(table, identifier, description, null, crs);
 	}
 
 	/**
@@ -125,13 +120,14 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            informative contents bounds
 	 * @param crs
 	 *            coordinate reference system
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, String identifier,
+	public TileMatrixSet createTiles(String table, String identifier,
 			String description, BoundingBox informativeBounds,
 			CoordinateReferenceSystem crs) {
+		SpatialReferenceSystem srs = crs.createSpatialReferenceSystem();
 		return createTiles(table, identifier, description, informativeBounds,
-				crs.createSpatialReferenceSystem(), crs.getBounds());
+				srs, crs.getBounds(srs));
 	}
 
 	/**
@@ -143,10 +139,10 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            coordinate reference system
 	 * @param extentBounds
 	 *            crs extent bounds
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, CoordinateReferenceSystem crs,
-			BoundingBox extentBounds) {
+	public TileMatrixSet createTiles(String table,
+			CoordinateReferenceSystem crs, BoundingBox extentBounds) {
 		return createTiles(table, table, table, crs, extentBounds);
 	}
 
@@ -163,12 +159,12 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            coordinate reference system
 	 * @param extentBounds
 	 *            crs extent bounds
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, String identifier,
+	public TileMatrixSet createTiles(String table, String identifier,
 			String description, CoordinateReferenceSystem crs,
 			BoundingBox extentBounds) {
-		return createTiles(table, identifier, description, extentBounds, crs,
+		return createTiles(table, identifier, description, null, crs,
 				extentBounds);
 	}
 
@@ -187,9 +183,9 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            coordinate reference system
 	 * @param extentBounds
 	 *            crs extent bounds
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, String identifier,
+	public TileMatrixSet createTiles(String table, String identifier,
 			String description, BoundingBox informativeBounds,
 			CoordinateReferenceSystem crs, BoundingBox extentBounds) {
 		return createTiles(table, identifier, description, informativeBounds,
@@ -205,9 +201,9 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            spatial reference system
 	 * @param extentBounds
 	 *            crs extent bounds
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, SpatialReferenceSystem srs,
+	public TileMatrixSet createTiles(String table, SpatialReferenceSystem srs,
 			BoundingBox extentBounds) {
 		return createTiles(table, table, table, srs, extentBounds);
 	}
@@ -225,12 +221,12 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            spatial reference system
 	 * @param extentBounds
 	 *            crs extent bounds
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, String identifier,
+	public TileMatrixSet createTiles(String table, String identifier,
 			String description, SpatialReferenceSystem srs,
 			BoundingBox extentBounds) {
-		return createTiles(table, identifier, description, extentBounds, srs,
+		return createTiles(table, identifier, description, null, srs,
 				extentBounds);
 	}
 
@@ -249,62 +245,156 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 *            spatial reference system
 	 * @param extentBounds
 	 *            crs extent bounds
-	 * @return created tile table
+	 * @return created tile matrix set
 	 */
-	public TileTable createTiles(String table, String identifier,
+	public TileMatrixSet createTiles(String table, String identifier,
 			String description, BoundingBox informativeBounds,
 			SpatialReferenceSystem srs, BoundingBox extentBounds) {
+		return DGIWGGeoPackageUtils.createTiles(this, table, identifier,
+				description, informativeBounds, srs, extentBounds);
+	}
 
-		createTileMatrixSetTable();
-		createTileMatrixTable();
+	/**
+	 * Create a tile matrix for a zoom level
+	 * 
+	 * @param tileMatrixSet
+	 *            tile matrix set
+	 * @param minZoom
+	 *            min zoom level
+	 * @param maxZoom
+	 *            max zoom level
+	 * @param matrixWidth
+	 *            matrix width
+	 * @param matrixHeight
+	 *            matrix height
+	 */
+	public void createTileMatrices(TileMatrixSet tileMatrixSet, long minZoom,
+			long maxZoom, long matrixWidth, long matrixHeight) {
+		createTileMatrices(tileMatrixSet.getTableName(),
+				tileMatrixSet.getBoundingBox(), minZoom, maxZoom, matrixWidth,
+				matrixHeight);
+	}
 
-		SpatialReferenceSystemDao srsDao = getSpatialReferenceSystemDao();
-		try {
-			srs = srsDao.createIfNotExists(srs);
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to create Spatial Reference System: "
-							+ srs.getSrsName(),
-					e);
-		}
+	/**
+	 * Create a tile matrix for a zoom level
+	 * 
+	 * @param table
+	 *            table name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param minZoom
+	 *            min zoom level
+	 * @param maxZoom
+	 *            max zoom level
+	 * @param matrixWidth
+	 *            matrix width
+	 * @param matrixHeight
+	 *            matrix height
+	 */
+	public void createTileMatrices(String table, BoundingBox boundingBox,
+			long minZoom, long maxZoom, long matrixWidth, long matrixHeight) {
+		DGIWGGeoPackageUtils.createTileMatrices(this, table, boundingBox,
+				minZoom, maxZoom, matrixWidth, matrixHeight);
+	}
 
-		Contents contents = new Contents();
-		contents.setTableName(table);
-		contents.setDataType(ContentsDataType.TILES);
-		contents.setIdentifier(identifier);
-		contents.setDescription(description);
-		contents.setMinX(informativeBounds.getMinLongitude());
-		contents.setMinY(informativeBounds.getMinLatitude());
-		contents.setMaxX(informativeBounds.getMaxLongitude());
-		contents.setMaxY(informativeBounds.getMaxLatitude());
-		contents.setSrs(srs);
+	/**
+	 * Create a tile matrix for a zoom level
+	 * 
+	 * @param tileMatrixSet
+	 *            tile matrix set
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param matrixWidth
+	 *            matrix width
+	 * @param matrixHeight
+	 *            matrix height
+	 */
+	public void createTileMatrices(TileMatrixSet tileMatrixSet,
+			Collection<Long> zoomLevels, long matrixWidth, long matrixHeight) {
+		createTileMatrices(tileMatrixSet.getTableName(),
+				tileMatrixSet.getBoundingBox(), zoomLevels, matrixWidth,
+				matrixHeight);
+	}
 
-		TileTable tileTable = new TileTable(table);
-		createTileTable(tileTable);
+	/**
+	 * Create a tile matrix for a zoom level
+	 * 
+	 * @param table
+	 *            table name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param matrixWidth
+	 *            matrix width
+	 * @param matrixHeight
+	 *            matrix height
+	 */
+	public void createTileMatrices(String table, BoundingBox boundingBox,
+			Collection<Long> zoomLevels, long matrixWidth, long matrixHeight) {
+		DGIWGGeoPackageUtils.createTileMatrices(this, table, boundingBox,
+				zoomLevels, matrixWidth, matrixHeight);
+	}
 
-		try {
-			getContentsDao().create(contents);
-		} catch (SQLException e) {
-			throw new GeoPackageException(
-					"Failed to create Contents: " + contents.getTableName(), e);
-		}
+	/**
+	 * Create a tile matrix for a zoom level
+	 * 
+	 * @param tileMatrixSet
+	 *            tile matrix set
+	 * @param zoom
+	 *            zoom level
+	 * @param matrixWidth
+	 *            matrix width
+	 * @param matrixHeight
+	 *            matrix height
+	 */
+	public void createTileMatrices(TileMatrixSet tileMatrixSet, long zoom,
+			long matrixWidth, long matrixHeight) {
+		createTileMatrices(tileMatrixSet.getTableName(),
+				tileMatrixSet.getBoundingBox(), zoom, matrixWidth,
+				matrixHeight);
+	}
 
-		TileMatrixSet tileMatrixSet = new TileMatrixSet();
-		tileMatrixSet.setContents(contents);
-		tileMatrixSet.setSrs(contents.getSrs());
-		tileMatrixSet.setMinX(extentBounds.getMinLongitude());
-		tileMatrixSet.setMinY(extentBounds.getMinLatitude());
-		tileMatrixSet.setMaxX(extentBounds.getMaxLongitude());
-		tileMatrixSet.setMaxY(extentBounds.getMaxLatitude());
+	/**
+	 * Create a tile matrix for a zoom level
+	 * 
+	 * @param table
+	 *            table name
+	 * @param boundingBox
+	 *            bounding box
+	 * @param zoom
+	 *            zoom level
+	 * @param matrixWidth
+	 *            matrix width
+	 * @param matrixHeight
+	 *            matrix height
+	 */
+	public void createTileMatrices(String table, BoundingBox boundingBox,
+			long zoom, long matrixWidth, long matrixHeight) {
+		DGIWGGeoPackageUtils.createTileMatrices(this, table, boundingBox, zoom,
+				matrixWidth, matrixHeight);
+	}
 
-		try {
-			getTileMatrixSetDao().create(tileMatrixSet);
-		} catch (SQLException e) {
-			throw new GeoPackageException("Failed to create Tile Matrix Set: "
-					+ tileMatrixSet.getTableName(), e);
-		}
-
-		return tileTable;
+	/**
+	 * Create a tile matrix for a zoom level
+	 * 
+	 * @param table
+	 *            table name
+	 * @param zoom
+	 *            zoom level
+	 * @param matrixWidth
+	 *            matrix width
+	 * @param matrixHeight
+	 *            matrix height
+	 * @param pixelXSize
+	 *            pixel x size
+	 * @param pixelYSize
+	 *            pixel y size
+	 */
+	public void createTileMatrix(String table, long zoom, long matrixWidth,
+			long matrixHeight, double pixelXSize, double pixelYSize) {
+		DGIWGGeoPackageUtils.createTileMatrix(this, table, zoom, matrixWidth,
+				matrixHeight, pixelXSize, pixelYSize);
 	}
 
 }
