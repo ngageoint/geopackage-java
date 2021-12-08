@@ -76,6 +76,22 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	}
 
 	/**
+	 * Is the GeoPackage valid according to the DGIWG GeoPackage Profile
+	 * 
+	 * @return true if valid
+	 */
+	public boolean isValid() {
+		return DGIWGValidate.isValid(this);
+	}
+
+	/**
+	 * Validate the GeoPackage against the DGIWG GeoPackage Profile
+	 */
+	public void validate() {
+		DGIWGValidate.validate(this);
+	}
+
+	/**
 	 * Create tiles table
 	 * 
 	 * @param table
