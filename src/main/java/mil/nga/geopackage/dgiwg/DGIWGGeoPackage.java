@@ -25,6 +25,11 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	private GeoPackageFileName fileName;
 
 	/**
+	 * Validate errors when validated
+	 */
+	private DGIWGValidationErrors errors;
+
+	/**
 	 * Constructor
 	 * 
 	 * @param geoPackage
@@ -81,14 +86,26 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 * @return true if valid
 	 */
 	public boolean isValid() {
-		return DGIWGValidate.isValid(this);
+		return validate().isValid();
 	}
 
 	/**
 	 * Validate the GeoPackage against the DGIWG GeoPackage Profile
+	 * 
+	 * @return validation errors
 	 */
-	public void validate() {
-		DGIWGValidate.validate(this);
+	public DGIWGValidationErrors validate() {
+		errors = DGIWGValidate.validate(this);
+		return errors;
+	}
+
+	/**
+	 * Get the most recent {@link #validate()} results
+	 * 
+	 * @return validation errors, null if not yet validated
+	 */
+	public DGIWGValidationErrors getErrors() {
+		return errors;
 	}
 
 	/**

@@ -92,7 +92,11 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 			TestCase.assertEquals(tileBounds, tileDao.getBoundingBox(zoom));
 		}
 
-		geoPackage.validate();
+		DGIWGValidationErrors errors = geoPackage.validate();
+		if (errors.hasErrors()) {
+			System.out.println(errors);
+		}
+		TestCase.assertTrue(geoPackage.isValid());
 
 		geoPackage.close();
 

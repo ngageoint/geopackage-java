@@ -221,7 +221,7 @@ public class DGIWGGeoPackageManager {
 	 * @param file
 	 *            GeoPackage file
 	 * @param validate
-	 *            validate the GeoPackage
+	 *            validate the GeoPackage, storing any errors
 	 * @return GeoPackage
 	 */
 	public static DGIWGGeoPackage open(String name, File file,
@@ -260,9 +260,10 @@ public class DGIWGGeoPackageManager {
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
+	 * @return validation errors
 	 */
-	public static void validate(DGIWGGeoPackage geoPackage) {
-		geoPackage.validate();
+	public static DGIWGValidationErrors validate(DGIWGGeoPackage geoPackage) {
+		return geoPackage.validate();
 	}
 
 }
