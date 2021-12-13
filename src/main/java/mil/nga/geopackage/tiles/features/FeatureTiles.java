@@ -14,13 +14,9 @@ import java.util.logging.Logger;
 
 import org.locationtech.proj4j.units.Units;
 
-import com.j256.ormlite.dao.CloseableIterator;
-
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
-import mil.nga.geopackage.extension.nga.index.GeometryIndex;
 import mil.nga.geopackage.extension.nga.style.FeatureStyle;
 import mil.nga.geopackage.extension.nga.style.FeatureTableStyles;
 import mil.nga.geopackage.extension.nga.style.IconCache;
@@ -28,6 +24,8 @@ import mil.nga.geopackage.extension.nga.style.IconDao;
 import mil.nga.geopackage.extension.nga.style.IconRow;
 import mil.nga.geopackage.extension.nga.style.StyleDao;
 import mil.nga.geopackage.extension.nga.style.StyleRow;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -83,7 +81,7 @@ public abstract class FeatureTiles {
 	/**
 	 * When not null, features are retrieved using a feature index
 	 */
-	protected FeatureTableIndex featureIndex;
+	protected FeatureIndexManager indexManager;
 
 	/**
 	 * Feature Style extension
@@ -352,10 +350,10 @@ public abstract class FeatureTiles {
 
 		if (geoPackage != null) {
 
-			featureIndex = new FeatureTableIndex(geoPackage, featureDao);
-			if (!featureIndex.isIndexed()) {
-				featureIndex.close();
-				featureIndex = null;
+			indexManager = new FeatureIndexManager(geoPackage, featureDao);
+			if (!indexManager.isIndexed()) {
+				indexManager.close();
+				indexManager = null;
 			}
 
 			featureTableStyles = new FeatureTableStyles(geoPackage,
@@ -367,6 +365,17 @@ public abstract class FeatureTiles {
 		}
 
 		calculateDrawOverlap();
+	}
+
+	/**
+	 * Close the feature tiles connection
+	 *
+	 * @since 6.1.2
+	 */
+	public void close() {
+		if (indexManager != null) {
+			indexManager.close();
+		}
 	}
 
 	/**
@@ -530,26 +539,28 @@ public abstract class FeatureTiles {
 	 * @return true if an index query
 	 */
 	public boolean isIndexQuery() {
-		return featureIndex != null && featureIndex.isIndexed();
+		return indexManager != null && indexManager.isIndexed();
 	}
 
 	/**
-	 * Get the feature index
+	 * Get the index manager
 	 *
-	 * @return feature index or null
+	 * @return index manager or null
+	 * @since 6.1.2
 	 */
-	public FeatureTableIndex getFeatureIndex() {
-		return featureIndex;
+	public FeatureIndexManager getIndexManager() {
+		return indexManager;
 	}
 
 	/**
-	 * Set the feature index
+	 * Set the index
 	 *
-	 * @param featureIndex
-	 *            feature index
+	 * @param indexManager
+	 *            index manager
+	 * @since 6.1.2
 	 */
-	public void setFeatureIndex(FeatureTableIndex featureIndex) {
-		this.featureIndex = featureIndex;
+	public void setIndexManager(FeatureIndexManager indexManager) {
+		this.indexManager = indexManager;
 	}
 
 	/**
@@ -1009,7 +1020,7 @@ public abstract class FeatureTiles {
 		if (tileCount > 0) {
 
 			// Query for geometries matching the bounds in the index
-			CloseableIterator<GeometryIndex> results = queryIndexedFeatures(
+			FeatureIndexResults results = queryIndexedFeatures(
 					webMercatorBoundingBox);
 
 			try {
@@ -1027,14 +1038,7 @@ public abstract class FeatureTiles {
 							tileCount, results);
 				}
 			} finally {
-				try {
-					results.close();
-				} catch (IOException e) {
-					LOGGER.log(Level.WARNING,
-							"Failed to close result set for query on x: " + x
-									+ ", y: " + y + ", zoom: " + zoom,
-							e);
-				}
+				results.close();
 			}
 		}
 
@@ -1078,8 +1082,8 @@ public abstract class FeatureTiles {
 		BoundingBox expandedQueryBoundingBox = expandBoundingBox(
 				webMercatorBoundingBox);
 
-		// Query for the count of geometries matching the bounds in the index
-		long count = featureIndex.count(expandedQueryBoundingBox,
+		// Count for geometries matching the bounds in the index
+		long count = indexManager.count(expandedQueryBoundingBox,
 				WEB_MERCATOR_PROJECTION);
 
 		return count;
@@ -1095,10 +1099,9 @@ public abstract class FeatureTiles {
 	 * @param zoom
 	 *            zoom level
 	 * @return feature count
-	 * @since 3.2.0
+	 * @since 6.1.2
 	 */
-	public CloseableIterator<GeometryIndex> queryIndexedFeatures(int x, int y,
-			int zoom) {
+	public FeatureIndexResults queryIndexedFeatures(int x, int y, int zoom) {
 
 		// Get the web mercator bounding box
 		BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
@@ -1114,8 +1117,9 @@ public abstract class FeatureTiles {
 	 * @param webMercatorBoundingBox
 	 *            web mercator bounding box
 	 * @return geometry index results
+	 * @since 6.1.2
 	 */
-	public CloseableIterator<GeometryIndex> queryIndexedFeatures(
+	public FeatureIndexResults queryIndexedFeatures(
 			BoundingBox webMercatorBoundingBox) {
 
 		// Create an expanded bounding box to handle features outside the tile
@@ -1124,7 +1128,7 @@ public abstract class FeatureTiles {
 				webMercatorBoundingBox);
 
 		// Query for geometries matching the bounds in the index
-		CloseableIterator<GeometryIndex> results = featureIndex
+		FeatureIndexResults results = indexManager
 				.query(expandedQueryBoundingBox, WEB_MERCATOR_PROJECTION);
 
 		return results;
@@ -1625,13 +1629,12 @@ public abstract class FeatureTiles {
 	 * @param webMercatorBoundingBox
 	 *            web mercator bounding box
 	 * @param results
-	 *            results
+	 *            feature index results
 	 * @return image
-	 * @since 2.0.0
+	 * @since 6.1.2
 	 */
 	public abstract BufferedImage drawTile(int zoom,
-			BoundingBox webMercatorBoundingBox,
-			CloseableIterator<GeometryIndex> results);
+			BoundingBox webMercatorBoundingBox, FeatureIndexResults results);
 
 	/**
 	 * Draw a tile image from feature geometries in the provided cursor

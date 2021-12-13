@@ -7,7 +7,8 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 import mil.nga.geopackage.CreateGeoPackageTestCase;
-import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 
@@ -58,21 +59,27 @@ public class FeatureTilesTest extends CreateGeoPackageTestCase {
 
 		int num = FeatureTileUtils.insertFeatures(geoPackage, featureDao);
 
-		FeatureTiles featureTiles = FeatureTileUtils.createFeatureTiles(
-				geoPackage, featureDao, useIcon);
+		FeatureTiles featureTiles = FeatureTileUtils
+				.createFeatureTiles(geoPackage, featureDao, useIcon);
 
-		FeatureTableIndex featureIndex = new FeatureTableIndex(geoPackage,
-				featureDao);
-		int indexed = featureIndex.index();
-		TestCase.assertEquals(num, indexed);
+		try {
 
-		featureTiles.setFeatureIndex(featureIndex);
+			FeatureIndexManager indexManager = new FeatureIndexManager(
+					geoPackage, featureDao);
+			featureTiles.setIndexManager(indexManager);
 
-		createTiles(featureTiles, 0, 3);
+			indexManager.setIndexLocation(FeatureIndexType.GEOPACKAGE);
+			int indexed = indexManager.index();
+			TestCase.assertEquals(num, indexed);
 
+			createTiles(featureTiles, 0, 3);
+		} finally {
+			featureTiles.close();
+		}
 	}
 
-	private void createTiles(FeatureTiles featureTiles, int minZoom, int maxZoom) {
+	private void createTiles(FeatureTiles featureTiles, int minZoom,
+			int maxZoom) {
 		for (int i = minZoom; i <= maxZoom; i++) {
 			createTiles(featureTiles, i);
 		}

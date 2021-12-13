@@ -35,19 +35,19 @@ GeoPackage geoPackage = GeoPackageManager.open(existingGeoPackage);
 
 // GeoPackage Table DAOs
 SpatialReferenceSystemDao srsDao = geoPackage
-		.getSpatialReferenceSystemDao();
+    .getSpatialReferenceSystemDao();
 ContentsDao contentsDao = geoPackage.getContentsDao();
 GeometryColumnsDao geomColumnsDao = geoPackage.getGeometryColumnsDao();
 TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
 TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
 SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
-DataColumnsDao dao = schemaExtension.getDataColumnsDao();
+DataColumnsDao dataColumnsDao = schemaExtension.getDataColumnsDao();
 DataColumnConstraintsDao dataColumnConstraintsDao = schemaExtension
-		.getDataColumnConstraintsDao();
+    .getDataColumnConstraintsDao();
 MetadataExtension metadataExtension = new MetadataExtension(geoPackage);
 MetadataDao metadataDao = metadataExtension.getMetadataDao();
 MetadataReferenceDao metadataReferenceDao = metadataExtension
-		.getMetadataReferenceDao();
+    .getMetadataReferenceDao();
 ExtensionsDao extensionsDao = geoPackage.getExtensionsDao();
 
 // Feature and tile tables
@@ -55,59 +55,96 @@ List<String> features = geoPackage.getFeatureTables();
 List<String> tiles = geoPackage.getTileTables();
 
 // Query Features
-FeatureDao featureDao = geoPackage.getFeatureDao(features.get(0));
+String featureTable = features.get(0);
+FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 FeatureResultSet featureResultSet = featureDao.queryForAll();
 try {
-	while (featureResultSet.moveToNext()) {
-		FeatureRow featureRow = featureResultSet.getRow();
-		GeoPackageGeometryData geometryData = featureRow.getGeometry();
-		if (geometryData != null && !geometryData.isEmpty()) {
-			Geometry geometry = geometryData.getGeometry();
-			// ...
-		}
-	}
+  while (featureResultSet.moveToNext()) {
+    FeatureRow featureRow = featureResultSet.getRow();
+    GeoPackageGeometryData geometryData = featureRow.getGeometry();
+    if (geometryData != null && !geometryData.isEmpty()) {
+      Geometry geometry = geometryData.getGeometry();
+      // ...
+    }
+  }
 } finally {
-	featureResultSet.close();
+  featureResultSet.close();
 }
 
 // Query Tiles
-TileDao tileDao = geoPackage.getTileDao(tiles.get(0));
+String tileTable = tiles.get(0);
+TileDao tileDao = geoPackage.getTileDao(tileTable);
 TileResultSet tileResultSet = tileDao.queryForAll();
 try {
-	while (tileResultSet.moveToNext()) {
-		TileRow tileRow = tileResultSet.getRow();
-		byte[] tileBytes = tileRow.getTileData();
-		// ...
-	}
+  while (tileResultSet.moveToNext()) {
+    TileRow tileRow = tileResultSet.getRow();
+    byte[] tileBytes = tileRow.getTileData();
+    BufferedImage tileImage = tileRow.getTileDataImage();
+    // ...
+  }
 } finally {
-	tileResultSet.close();
+  tileResultSet.close();
 }
 
 // Retrieve Tiles by XYZ
 GeoPackageTileRetriever retriever = new GeoPackageTileRetriever(tileDao,
-		ImageUtils.IMAGE_FORMAT_PNG);
+    ImageUtils.IMAGE_FORMAT_PNG);
 GeoPackageTile geoPackageTile = retriever.getTile(2, 2, 2);
 if (geoPackageTile != null) {
-	BufferedImage tileImage = geoPackageTile.getImage();
-	// ...
+  byte[] tileBytes = geoPackageTile.getData();
+  BufferedImage tileImage = geoPackageTile.getImage();
+  // ...
 }
 
 // Retrieve Tiles by Bounding Box
 TileCreator tileCreator = new TileCreator(tileDao,
-		ProjectionFactory.getProjection(
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM),
-		ImageUtils.IMAGE_FORMAT_PNG);
+    ProjectionFactory.getProjection(
+        ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM),
+    ImageUtils.IMAGE_FORMAT_PNG);
 GeoPackageTile geoPackageTile2 = tileCreator
-		.getTile(new BoundingBox(-90.0, 0.0, 0.0, 66.513260));
+    .getTile(new BoundingBox(-90.0, 0.0, 0.0, 66.513260));
 if (geoPackageTile2 != null) {
-	BufferedImage tileImage = geoPackageTile2.getImage();
-	// ...
+  byte[] tileBytes = geoPackageTile2.getData();
+  BufferedImage tileImage = geoPackageTile2.getImage();
+  // ...
 }
 
 // Index Features
-FeatureTableIndex indexer = new FeatureTableIndex(geoPackage,
-		featureDao);
+FeatureIndexManager indexer = new FeatureIndexManager(geoPackage,
+    featureDao);
+indexer.setIndexLocation(FeatureIndexType.GEOPACKAGE);
 int indexedCount = indexer.index();
+
+// Draw tiles from features
+FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
+// Set max features to draw per tile
+featureTiles.setMaxFeaturesPerTile(1000);
+// Custom feature tile implementation
+NumberFeaturesTile numberFeaturesTile = new NumberFeaturesTile();
+// Draw feature count tiles when max features passed
+featureTiles.setMaxFeaturesTileDraw(numberFeaturesTile);
+// Set index manager to query feature indices
+featureTiles.setIndexManager(indexer);
+BufferedImage tile = featureTiles.drawTile(2, 2, 2);
+
+BoundingBox boundingBox = BoundingBox.worldWebMercator();
+Projection projection = ProjectionFactory
+    .getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+
+// URL Tile Generator (generate tiles from a URL)
+TileGenerator urlTileGenerator = new UrlTileGenerator(geoPackage,
+    "url_tile_table", "http://url/{z}/{x}/{y}.png", 0, 0,
+    boundingBox, projection);
+int urlTileCount = urlTileGenerator.generateTiles();
+
+// Feature Tile Generator (generate tiles from features)
+TileGenerator featureTileGenerator = new FeatureTileGenerator(
+    geoPackage, "tiles_" + featureTable, featureTiles, 1, 2,
+    boundingBox, projection);
+int featureTileCount = featureTileGenerator.generateTiles();
+
+// Close feature tiles (and indexer)
+featureTiles.close();
 
 // Close database when done
 geoPackage.close();

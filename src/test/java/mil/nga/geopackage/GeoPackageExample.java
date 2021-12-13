@@ -85,6 +85,8 @@ import mil.nga.geopackage.extension.schema.constraints.DataColumnConstraints;
 import mil.nga.geopackage.extension.schema.constraints.DataColumnConstraintsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
@@ -1076,9 +1078,11 @@ public class GeoPackageExample {
 		for (String featureTable : featureTables) {
 
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
-			FeatureTableIndex featureTableIndex = new FeatureTableIndex(
-					geoPackage, featureDao);
-			featureTableIndex.index();
+			FeatureIndexManager indexer = new FeatureIndexManager(geoPackage,
+					featureDao);
+			indexer.setIndexLocation(FeatureIndexType.GEOPACKAGE);
+			indexer.index();
+			indexer.close();
 		}
 
 	}

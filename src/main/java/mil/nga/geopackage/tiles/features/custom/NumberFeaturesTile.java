@@ -8,10 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-import com.j256.ormlite.dao.CloseableIterator;
-
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.nga.index.GeometryIndex;
+import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;
@@ -104,8 +102,8 @@ public class NumberFeaturesTile implements CustomFeaturesTile {
 				JavaPropertyConstants.NUMBER_FEATURES_TILE_COLOR);
 
 		// Set the default circle paint values
-		if (GeoPackageJavaProperties
-				.getBooleanProperty(JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_DRAW)) {
+		if (GeoPackageJavaProperties.getBooleanProperty(
+				JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_DRAW)) {
 			circleStrokeWidth = GeoPackageJavaProperties.getFloatProperty(
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_DRAW,
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_STROKE_WIDTH);
@@ -115,16 +113,16 @@ public class NumberFeaturesTile implements CustomFeaturesTile {
 		}
 
 		// Set the default circle fill paint values
-		if (GeoPackageJavaProperties
-				.getBooleanProperty(JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_FILL)) {
+		if (GeoPackageJavaProperties.getBooleanProperty(
+				JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_FILL)) {
 			circleFillColor = GeoPackageJavaProperties.getColorProperty(
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_FILL,
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_COLOR);
 		}
 
 		// Set the default tile border paint values
-		if (GeoPackageJavaProperties
-				.getBooleanProperty(JavaPropertyConstants.NUMBER_FEATURES_TILE_BORDER)) {
+		if (GeoPackageJavaProperties.getBooleanProperty(
+				JavaPropertyConstants.NUMBER_FEATURES_TILE_BORDER)) {
 			tileBorderStrokeWidth = GeoPackageJavaProperties.getFloatProperty(
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_BORDER,
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_STROKE_WIDTH);
@@ -134,18 +132,17 @@ public class NumberFeaturesTile implements CustomFeaturesTile {
 		}
 
 		// Set the default tile fill paint values
-		if (GeoPackageJavaProperties
-				.getBooleanProperty(JavaPropertyConstants.NUMBER_FEATURES_TILE_FILL)) {
+		if (GeoPackageJavaProperties.getBooleanProperty(
+				JavaPropertyConstants.NUMBER_FEATURES_TILE_FILL)) {
 			tileFillColor = GeoPackageJavaProperties.getColorProperty(
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_FILL,
 					JavaPropertyConstants.NUMBER_FEATURES_TILE_COLOR);
 		}
 
 		// Set the default circle padding percentage
-		circlePaddingPercentage = GeoPackageJavaProperties
-				.getFloatProperty(
-						JavaPropertyConstants.NUMBER_FEATURES_TILE,
-						JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_PADDING_PERCENTAGE);
+		circlePaddingPercentage = GeoPackageJavaProperties.getFloatProperty(
+				JavaPropertyConstants.NUMBER_FEATURES_TILE,
+				JavaPropertyConstants.NUMBER_FEATURES_TILE_CIRCLE_PADDING_PERCENTAGE);
 
 		// Set the default draw unindexed tiles value
 		drawUnindexedTiles = GeoPackageJavaProperties.getBooleanProperty(
@@ -354,8 +351,7 @@ public class NumberFeaturesTile implements CustomFeaturesTile {
 	 */
 	@Override
 	public BufferedImage drawTile(int tileWidth, int tileHeight,
-			long tileFeatureCount,
-			CloseableIterator<GeometryIndex> geometryIndexResults) {
+			long tileFeatureCount, FeatureIndexResults geometryIndexResults) {
 
 		String featureText = String.valueOf(tileFeatureCount);
 		BufferedImage image = drawTile(tileWidth, tileHeight, featureText);

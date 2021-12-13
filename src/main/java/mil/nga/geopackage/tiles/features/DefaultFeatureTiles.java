@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,15 +12,13 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.j256.ormlite.dao.CloseableIterator;
-
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.extension.nga.index.GeometryIndex;
 import mil.nga.geopackage.extension.nga.style.FeatureStyle;
 import mil.nga.geopackage.extension.nga.style.IconRow;
 import mil.nga.geopackage.extension.nga.style.StyleRow;
+import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -263,7 +260,7 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 */
 	@Override
 	public BufferedImage drawTile(int zoom, BoundingBox boundingBox,
-			CloseableIterator<GeometryIndex> results) {
+			FeatureIndexResults results) {
 
 		FeatureTileGraphics graphics = new FeatureTileGraphics(tileWidth,
 				tileHeight);
@@ -273,20 +270,13 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		BoundingBox expandedBoundingBox = expandBoundingBox(boundingBox);
 
 		boolean drawn = false;
-		while (results.hasNext()) {
-			GeometryIndex geometryIndex = results.next();
-			FeatureRow featureRow = getFeatureIndex()
-					.getFeatureRow(geometryIndex);
+		for (FeatureRow featureRow : results) {
 			if (drawFeature(zoom, boundingBox, expandedBoundingBox,
 					webMercatorTransform, graphics, featureRow)) {
 				drawn = true;
 			}
 		}
-		try {
-			results.close();
-		} catch (IOException e) {
-			log.log(Level.WARNING, "Failed to close geometry index results", e);
-		}
+		results.close();
 
 		BufferedImage image = null;
 		if (drawn) {

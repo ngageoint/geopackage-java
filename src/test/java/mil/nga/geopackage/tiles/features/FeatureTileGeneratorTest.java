@@ -6,13 +6,12 @@ import java.sql.SQLException;
 
 import org.junit.Test;
 
-import com.j256.ormlite.dao.CloseableIterator;
-
 import junit.framework.TestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.CreateGeoPackageTestCase;
-import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
-import mil.nga.geopackage.extension.nga.index.GeometryIndex;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexResults;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
@@ -128,11 +127,12 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 				.createFeatureTiles(geoPackage, featureDao, useIcon);
 
 		if (index) {
-			FeatureTableIndex featureIndex = new FeatureTableIndex(geoPackage,
-					featureDao);
-			int indexed = featureIndex.index();
+			FeatureIndexManager indexManager = new FeatureIndexManager(
+					geoPackage, featureDao);
+			featureTiles.setIndexManager(indexManager);
+			indexManager.setIndexLocation(FeatureIndexType.GEOPACKAGE);
+			int indexed = indexManager.index();
 			TestCase.assertEquals(num, indexed);
-			featureTiles.setFeatureIndex(featureIndex);
 		}
 
 		if (maxFeatures) {
@@ -156,11 +156,12 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 		if (!maxFeatures || index) {
 
 			if (!index) {
-				FeatureTableIndex featureIndex = new FeatureTableIndex(
+				FeatureIndexManager indexManager = new FeatureIndexManager(
 						geoPackage, featureDao);
-				int indexed = featureIndex.index();
+				featureTiles.setIndexManager(indexManager);
+				indexManager.setIndexLocation(FeatureIndexType.GEOPACKAGE);
+				int indexed = indexManager.index();
 				TestCase.assertEquals(num, indexed);
-				featureTiles.setFeatureIndex(featureIndex);
 			}
 
 			for (int z = minZoom; z <= maxZoom; z++) {
@@ -177,7 +178,7 @@ public class FeatureTileGeneratorTest extends CreateGeoPackageTestCase {
 
 							BoundingBox webMercatorBoundingBox = TileBoundingBoxUtils
 									.getWebMercatorBoundingBox(x, y, z);
-							CloseableIterator<GeometryIndex> results = featureTiles
+							FeatureIndexResults results = featureTiles
 									.queryIndexedFeatures((int) x, (int) y, z);
 							BufferedImage image = featureTiles.drawTile(z,
 									webMercatorBoundingBox, results);

@@ -2,9 +2,7 @@ package mil.nga.geopackage.tiles.features;
 
 import java.awt.image.BufferedImage;
 
-import com.j256.ormlite.dao.CloseableIterator;
-
-import mil.nga.geopackage.extension.nga.index.GeometryIndex;
+import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 
 /**
@@ -25,13 +23,13 @@ public interface CustomFeaturesTile {
 	 *            tile height to draw
 	 * @param tileFeatureCount
 	 *            count of features in the requested tile
-	 * @param geometryIndexResults
-	 *            results as geometry index results
+	 * @param featureIndexResults
+	 *            feature index results
 	 * @return custom image, or null
+	 * @since 6.1.2
 	 */
 	public BufferedImage drawTile(int tileWidth, int tileHeight,
-			long tileFeatureCount,
-			CloseableIterator<GeometryIndex> geometryIndexResults);
+			long tileFeatureCount, FeatureIndexResults featureIndexResults);
 
 	/**
 	 * Draw a custom tile when the number of features within the tile is

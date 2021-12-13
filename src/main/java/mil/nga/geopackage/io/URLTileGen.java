@@ -397,7 +397,7 @@ public class URLTileGen {
 		if (boundingBox != null) {
 			bboxProjection = ProjectionFactory.getProjection(epsg);
 		} else {
-			boundingBox = new BoundingBox();
+			boundingBox = BoundingBox.worldWGS84();
 			bboxProjection = ProjectionFactory.getProjection(
 					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		}

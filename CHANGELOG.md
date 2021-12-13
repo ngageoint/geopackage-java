@@ -6,7 +6,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 6.1.2 (TBD)
 
-* TBD
+* FeatureTiles FeatureIndexManager and FeatureIndexResults support
+* Bounding Box world bounds shortcuts for WGS84 and Web Mercator
 
 ## [6.1.1](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.1) (11-10-2021)
 

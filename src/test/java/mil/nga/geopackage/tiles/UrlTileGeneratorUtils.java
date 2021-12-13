@@ -208,7 +208,7 @@ public class UrlTileGeneratorUtils {
 	}
 
 	private static BoundingBox getBoundingBox() {
-		BoundingBox boundingBox = new BoundingBox();
+		BoundingBox boundingBox = BoundingBox.worldWGS84();
 		boundingBox = getBoundingBox(boundingBox);
 		return boundingBox;
 	}
