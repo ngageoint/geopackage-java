@@ -6,6 +6,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 6.1.2 (TBD)
 
+* UrlTileGenerator HTTP Method and Header field values support
 * FeatureTiles FeatureIndexManager and FeatureIndexResults support
 * Bounding Box world bounds shortcuts for WGS84 and Web Mercator
 
