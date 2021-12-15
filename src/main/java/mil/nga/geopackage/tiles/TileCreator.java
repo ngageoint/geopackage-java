@@ -549,14 +549,19 @@ public class TileCreator {
 	 * Draw the tile from the tile results
 	 *
 	 * @param tileMatrix
+	 *            tile matrix
 	 * @param tileResults
-	 * @param requestProjectedBoundingBox
+	 *            tile results
+	 * @param requestBoundingBox
+	 *            projected request bounding box
 	 * @param tileWidth
+	 *            tile width
 	 * @param tileHeight
-	 * @return tile bitmap
+	 *            tile height
+	 * @return GeoPackage Tile
 	 */
 	private GeoPackageTile drawTile(TileMatrix tileMatrix,
-			TileResultSet tileResults, BoundingBox requestProjectedBoundingBox,
+			TileResultSet tileResults, BoundingBox requestBoundingBox,
 			int tileWidth, int tileHeight) {
 
 		// Draw the resulting bitmap with the matching tiles
@@ -581,8 +586,7 @@ public class TileCreator {
 
 			// Get the bounding box where the requested image and
 			// tile overlap
-			BoundingBox overlap = requestProjectedBoundingBox
-					.overlap(tileBoundingBox);
+			BoundingBox overlap = requestBoundingBox.overlap(tileBoundingBox);
 
 			// If the tile overlaps with the requested box
 			if (overlap != null) {
@@ -595,8 +599,7 @@ public class TileCreator {
 				// Get the rectangle of where to draw the tile in
 				// the resulting image
 				ImageRectangle dest = TileBoundingBoxJavaUtils.getRectangle(
-						tileWidth, tileHeight, requestProjectedBoundingBox,
-						overlap);
+						tileWidth, tileHeight, requestBoundingBox, overlap);
 
 				if (src.isValid() && dest.isValid()) {
 
