@@ -8,6 +8,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * UrlTileGenerator HTTP Method and Header field values support
 * FeatureTiles FeatureIndexManager and FeatureIndexResults support
+* TileCreator improved tile sizes when tile width and/or height are not specified
 * Bounding Box world bounds shortcuts for WGS84 and Web Mercator
 
 ## [6.1.1](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.1) (11-10-2021)
