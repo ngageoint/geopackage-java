@@ -127,9 +127,9 @@ featureTiles.setMaxFeaturesTileDraw(numberFeaturesTile);
 featureTiles.setIndexManager(indexer);
 BufferedImage tile = featureTiles.drawTile(2, 2, 2);
 
-BoundingBox boundingBox = BoundingBox.worldWebMercator();
+BoundingBox boundingBox = new BoundingBox();
 Projection projection = ProjectionFactory
-    .getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+    .getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
 // URL Tile Generator (generate tiles from a URL)
 TileGenerator urlTileGenerator = new UrlTileGenerator(geoPackage,
