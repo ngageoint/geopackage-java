@@ -5,6 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.j256.ormlite.stmt.PreparedQuery;
+import com.j256.ormlite.stmt.QueryBuilder;
+
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesTable;
 import mil.nga.geopackage.attributes.AttributesTableReader;
@@ -21,6 +24,8 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.features.user.FeatureTableReader;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
+import mil.nga.geopackage.tiles.matrix.TileMatrixKey;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
@@ -211,21 +216,30 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 
 		// Get the Tile Matrix collection, order by zoom level ascending & pixel
 		// size descending per requirement 51
-		String tableName = tileMatrixSet.getTableName();
 		List<TileMatrix> tileMatrices;
 		try {
-			tileMatrices = getTileMatrixDao().queryForTableName(tableName);
+			TileMatrixDao tileMatrixDao = getTileMatrixDao();
+			QueryBuilder<TileMatrix, TileMatrixKey> qb = tileMatrixDao
+					.queryBuilder();
+			qb.where().eq(TileMatrix.COLUMN_TABLE_NAME,
+					tileMatrixSet.getTableName());
+			qb.orderBy(TileMatrix.COLUMN_ZOOM_LEVEL, true);
+			qb.orderBy(TileMatrix.COLUMN_PIXEL_X_SIZE, false);
+			qb.orderBy(TileMatrix.COLUMN_PIXEL_Y_SIZE, false);
+			PreparedQuery<TileMatrix> query = qb.prepare();
+			tileMatrices = tileMatrixDao.query(query);
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to retrieve " + TileDao.class.getSimpleName()
-							+ " for table name: " + tableName
+							+ " for table name: " + tileMatrixSet.getTableName()
 							+ ". Exception retrieving "
 							+ TileMatrix.class.getSimpleName() + " collection.",
 					e);
 		}
 
 		// Read the existing table and create the dao
-		TileTableReader tableReader = new TileTableReader(tableName);
+		TileTableReader tableReader = new TileTableReader(
+				tileMatrixSet.getTableName());
 		final TileTable tileTable = tableReader.readTable(database);
 		tileTable.setContents(tileMatrixSet.getContents());
 		TileDao dao = new TileDao(getName(), database, tileMatrixSet,
