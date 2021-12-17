@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.1.2 (TBD)
+## [6.1.2](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.2) (TBD)
 
 * UrlTileGenerator HTTP Method and Header field values support
 * FeatureTiles FeatureIndexManager and FeatureIndexResults support
