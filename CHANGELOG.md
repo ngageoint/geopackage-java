@@ -6,7 +6,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 6.1.3 (TBD)
 
-* TBD
+* ormlite-jdbc version 6.1
+* tiff version 3.0.0
+* Bounding Box world bounds shortcuts for WGS84 and Web Mercator
 
 ## [6.1.2](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.2) (12-17-2021)
 
