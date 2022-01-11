@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 6.1.3 (TBD)
 
-* TBD
+* geopackage-core version 6.1.2
+* ormlite-jdbc version 6.1
+* tiff version 3.0.0
+* TileCreator dynamic separated tile width and height determination adjustment
 
 ## [6.1.2](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.2) (12-17-2021)
 

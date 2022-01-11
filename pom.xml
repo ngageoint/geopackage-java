@@ -46,17 +46,17 @@
 		<dependency>
 			<groupId>mil.nga.geopackage</groupId>
 			<artifactId>geopackage-core</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>mil.nga</groupId>
 			<artifactId>tiff</artifactId>
-			<version>2.0.5</version>
+			<version>3.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.j256.ormlite</groupId>
 			<artifactId>ormlite-jdbc</artifactId>
-			<version>5.7</version>
+			<version>6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.xerial</groupId>
