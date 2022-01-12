@@ -35,7 +35,6 @@ import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.Point;
 import mil.nga.sf.proj.GeometryTransform;
-import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 /**
  * Feature Index Manager Utility test methods
@@ -469,7 +468,7 @@ public class FeatureIndexManagerUtils {
 			TestCase.assertTrue(lastIndexedAfter.after(lastIndexedBefore));
 
 			// Verify the index was updated for the feature row
-			envelope = GeometryEnvelopeBuilder.buildEnvelope(point);
+			envelope = point.getEnvelope();
 			resultCount = 0;
 			featureFound = false;
 			TestCase.assertTrue(featureIndexManager.count(envelope) >= 1);

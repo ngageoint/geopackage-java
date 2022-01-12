@@ -134,7 +134,6 @@ import mil.nga.sf.MultiPolygon;
 import mil.nga.sf.Point;
 import mil.nga.sf.Polygon;
 import mil.nga.sf.proj.GeometryTransform;
-import mil.nga.sf.util.GeometryEnvelopeBuilder;
 import mil.nga.sf.wkb.GeometryCodes;
 
 /**
@@ -770,9 +769,9 @@ public class GeoPackageExample {
 		GeometryEnvelope envelope = null;
 		for (Geometry geometry : geometries) {
 			if (envelope == null) {
-				envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
+				envelope = geometry.getEnvelope();
 			} else {
-				GeometryEnvelopeBuilder.buildEnvelope(geometry, envelope);
+				geometry.expandEnvelope(envelope);
 			}
 		}
 
