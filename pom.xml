@@ -47,6 +47,12 @@
 			<groupId>mil.nga.geopackage</groupId>
 			<artifactId>geopackage-core</artifactId>
 			<version>6.1.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.j256.ormlite</groupId>
+					<artifactId>ormlite-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>mil.nga</groupId>
