@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -250,14 +251,19 @@ public class FeatureTileGen {
 	private static String tileTable = null;
 
 	/**
-	 * Min Zoom
+	 * Zoom argument value
 	 */
-	private static Integer minZoom = null;
+	private static String zoomValue = null;
 
 	/**
 	 * Max Zoom
 	 */
 	private static Integer maxZoom = null;
+
+	/**
+	 * Zoom levels
+	 */
+	private static List<Long> zoomLevels = null;
 
 	/**
 	 * Max features per tile
@@ -695,16 +701,28 @@ public class FeatureTileGen {
 					tileGeoPackageFile = new File(arg);
 				} else if (tileTable == null) {
 					tileTable = arg;
-				} else if (minZoom == null) {
-					minZoom = Integer.valueOf(arg);
+				} else if (zoomValue == null) {
+					zoomValue = arg;
+					requiredArguments = true;
 				} else if (maxZoom == null) {
 					maxZoom = Integer.valueOf(arg);
-					requiredArguments = true;
 				} else {
 					valid = false;
 					System.out.println(
 							"Error: Unsupported extra argument: " + arg);
 				}
+			}
+		}
+
+		if (zoomValue != null) {
+			if (maxZoom != null) {
+				zoomValue += "-" + maxZoom;
+			}
+			zoomLevels = TileReproject.parseZoomLevels(zoomValue);
+			if (zoomLevels == null) {
+				System.out.println(
+						"Error: Invalid zoom level(s) or range: " + zoomValue);
+				valid = false;
 			}
 		}
 
@@ -953,8 +971,10 @@ public class FeatureTileGen {
 		// Create the tile generator
 		FeatureTileGenerator tileGenerator = new FeatureTileGenerator(
 				tileGeoPackage, tileTable, featureTiles, featureGeoPackage,
-				minZoom, maxZoom, webMercatorBoundingBox,
-				webMercatorProjection);
+				webMercatorBoundingBox, webMercatorProjection);
+		for (long zoomLevel : zoomLevels) {
+			tileGenerator.addZoomLevel((int) zoomLevel);
+		}
 
 		if (compressFormat != null) {
 			tileGenerator.setCompressFormat(compressFormat);
@@ -975,8 +995,7 @@ public class FeatureTileGen {
 		System.out.println("Feature Table: " + featureTable);
 		System.out.println("Tile GeoPackage: " + tileGeoPackage.getName());
 		System.out.println("Tile Table: " + tileTable);
-		System.out.println("Min Zoom: " + minZoom);
-		System.out.println("Max Zoom: " + maxZoom);
+		System.out.println("Zoom Levels: " + zoomLevels);
 		if (maxFeaturesPerTile != null) {
 			System.out.println("Max Features Per Tile: " + maxFeaturesPerTile);
 		}
@@ -1137,7 +1156,7 @@ public class FeatureTileGen {
 				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES + " true|false] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_LOG_COUNT + " count] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_LOG_TIME
-				+ " time] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom");
+				+ " time] feature_geopackage_file feature_table tile_geopackage_file tile_table zoom_levels");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -1296,11 +1315,9 @@ public class FeatureTileGen {
 		System.out.println(
 				"\t\ttile table name within the GeoPackage file to create or update");
 		System.out.println();
-		System.out.println("\tmin_zoom");
-		System.out.println("\t\tMinimum zoom level to request tiles for");
-		System.out.println();
-		System.out.println("\tmax_zoom");
-		System.out.println("\t\tMaximum zoom level to request tiles for");
+		System.out.println("\tzoom_levels");
+		System.out.println(
+				"\t\tZoom levels to request tiles for, specified as 'z', 'zmin-zmax', 'z1,z2,...', or 'zmin zmax'");
 		System.out.println();
 	}
 

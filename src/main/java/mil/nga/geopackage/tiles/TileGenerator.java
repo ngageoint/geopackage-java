@@ -3,11 +3,15 @@ package mil.nga.geopackage.tiles;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,14 +66,9 @@ public abstract class TileGenerator {
 	private final String tableName;
 
 	/**
-	 * Min zoom level
+	 * Zoom levels
 	 */
-	private final int minZoom;
-
-	/**
-	 * Max zoom level
-	 */
-	private final int maxZoom;
+	private SortedSet<Integer> zoomLevels = new TreeSet<>();
 
 	/**
 	 * Tiles projection
@@ -150,6 +149,49 @@ public abstract class TileGenerator {
 	 *            GeoPackage
 	 * @param tableName
 	 *            table name
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.1.3
+	 */
+	public TileGenerator(GeoPackage geoPackage, String tableName,
+			BoundingBox boundingBox, Projection projection) {
+		geoPackage.verifyWritable();
+		this.geoPackage = geoPackage;
+		this.tableName = tableName;
+		this.boundingBox = boundingBox;
+		this.projection = projection;
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.1.3
+	 */
+	public TileGenerator(GeoPackage geoPackage, String tableName, int zoomLevel,
+			BoundingBox boundingBox, Projection projection) {
+		this(geoPackage, tableName, boundingBox, projection);
+		addZoomLevel(zoomLevel);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
 	 * @param minZoom
 	 *            min zoom
 	 * @param maxZoom
@@ -162,15 +204,51 @@ public abstract class TileGenerator {
 	 */
 	public TileGenerator(GeoPackage geoPackage, String tableName, int minZoom,
 			int maxZoom, BoundingBox boundingBox, Projection projection) {
-		geoPackage.verifyWritable();
-		this.geoPackage = geoPackage;
-		this.tableName = tableName;
+		this(geoPackage, tableName, boundingBox, projection);
+		addZoomLevels(minZoom, maxZoom);
+	}
 
-		this.minZoom = minZoom;
-		this.maxZoom = maxZoom;
+	/**
+	 * Constructor
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.1.3
+	 */
+	public TileGenerator(GeoPackage geoPackage, String tableName,
+			Collection<Integer> zoomLevels, BoundingBox boundingBox,
+			Projection projection) {
+		this(geoPackage, tableName, boundingBox, projection);
+		addZoomLevels(zoomLevels);
+	}
 
-		this.boundingBox = boundingBox;
-		this.projection = projection;
+	/**
+	 * Constructor
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.1.3
+	 */
+	public TileGenerator(GeoPackage geoPackage, String tableName,
+			int[] zoomLevels, BoundingBox boundingBox, Projection projection) {
+		this(geoPackage, tableName, boundingBox, projection);
+		addZoomLevels(zoomLevels);
 	}
 
 	/**
@@ -197,7 +275,8 @@ public abstract class TileGenerator {
 	 * @return min zoom
 	 */
 	public int getMinZoom() {
-		return minZoom;
+		validateZoomLevels();
+		return zoomLevels.first();
 	}
 
 	/**
@@ -206,7 +285,75 @@ public abstract class TileGenerator {
 	 * @return max zoom
 	 */
 	public int getMaxZoom() {
-		return maxZoom;
+		validateZoomLevels();
+		return zoomLevels.last();
+	}
+
+	/**
+	 * Get the zoom levels (read only)
+	 * 
+	 * @return zoom levels
+	 */
+	public SortedSet<Integer> getZoomLevels() {
+		return Collections.unmodifiableSortedSet(zoomLevels);
+	}
+
+	/**
+	 * Add a zoom level
+	 * 
+	 * @param zoomLevel
+	 *            zoom level
+	 * @return true if zoom level added
+	 * @since 6.1.3
+	 */
+	public boolean addZoomLevel(int zoomLevel) {
+		return zoomLevels.add(zoomLevel);
+	}
+
+	/**
+	 * Add a range of zoom levels
+	 * 
+	 * @param minZoom
+	 *            min zoom level
+	 * @param maxZoom
+	 *            max zoom level
+	 * @return true if at least one zoom level added
+	 * @since 6.1.3
+	 */
+	public boolean addZoomLevels(int minZoom, int maxZoom) {
+		boolean added = false;
+		for (int zoomLevel = minZoom; zoomLevel <= maxZoom; zoomLevel++) {
+			added = addZoomLevel(zoomLevel) || added;
+		}
+		return added;
+	}
+
+	/**
+	 * Add zoom levels
+	 * 
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @return true if at least one zoom level added
+	 * @since 6.1.3
+	 */
+	public boolean addZoomLevels(Collection<Integer> zoomLevels) {
+		return this.zoomLevels.addAll(zoomLevels);
+	}
+
+	/**
+	 * Add zoom levels
+	 * 
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @return true if at least one zoom level added
+	 * @since 6.1.3
+	 */
+	public boolean addZoomLevels(int[] zoomLevels) {
+		boolean added = false;
+		for (int zoomLevel : zoomLevels) {
+			added = addZoomLevel(zoomLevel) || added;
+		}
+		return added;
 	}
 
 	/**
@@ -365,6 +512,9 @@ public abstract class TileGenerator {
 	 */
 	public int getTileCount() {
 		if (tileCount == null) {
+
+			validateZoomLevels();
+
 			int count = 0;
 
 			boolean degrees = projection.isUnit(Units.DEGREES);
@@ -374,7 +524,7 @@ public abstract class TileGenerator {
 						ProjectionConstants.EPSG_WEB_MERCATOR);
 			}
 
-			for (int zoom = minZoom; zoom <= maxZoom; zoom++) {
+			for (int zoom : zoomLevels) {
 
 				BoundingBox expandedBoundingBox = getBoundingBox(zoom);
 
@@ -410,6 +560,8 @@ public abstract class TileGenerator {
 	 */
 	public int generateTiles() throws SQLException, IOException {
 
+		validateZoomLevels();
+
 		int totalCount = getTileCount();
 
 		// Set the max progress count
@@ -425,6 +577,8 @@ public abstract class TileGenerator {
 		boolean update = false;
 
 		// Adjust the tile matrix set and bounds
+		int minZoom = getMinZoom();
+		int maxZoom = getMaxZoom();
 		BoundingBox minZoomBoundingBox = tileBounds.get(minZoom);
 		adjustBounds(minZoomBoundingBox, minZoom);
 
@@ -470,27 +624,31 @@ public abstract class TileGenerator {
 			for (int zoom = minZoom; zoom <= maxZoom
 					&& (progress == null || progress.isActive()); zoom++) {
 
-				TileGrid localTileGrid = null;
+				if (zoomLevels.contains(zoom)) {
 
-				// Determine the matrix width and height for XYZ format
-				if (xyzTiles) {
-					matrixWidth = TileBoundingBoxUtils.tilesPerSide(zoom);
-					matrixHeight = matrixWidth;
-				}
-				// Get the local tile grid for GeoPackage format of where the
-				// tiles belong
-				else {
-					BoundingBox zoomBoundingBox = tileBounds.get(zoom);
-					localTileGrid = TileBoundingBoxUtils.getTileGrid(
-							tileGridBoundingBox, matrixWidth, matrixHeight,
-							zoomBoundingBox);
-				}
+					TileGrid localTileGrid = null;
 
-				// Generate the tiles for the zoom level
-				TileGrid tileGrid = tileGrids.get(zoom);
-				count += generateTiles(tileMatrixDao, tileDao, contents, zoom,
-						tileGrid, localTileGrid, matrixWidth, matrixHeight,
-						update);
+					// Determine the matrix width and height for XYZ format
+					if (xyzTiles) {
+						matrixWidth = TileBoundingBoxUtils.tilesPerSide(zoom);
+						matrixHeight = matrixWidth;
+					}
+					// Get the local tile grid for GeoPackage format of where
+					// the tiles belong
+					else {
+						BoundingBox zoomBoundingBox = tileBounds.get(zoom);
+						localTileGrid = TileBoundingBoxUtils.getTileGrid(
+								tileGridBoundingBox, matrixWidth, matrixHeight,
+								zoomBoundingBox);
+					}
+
+					// Generate the tiles for the zoom level
+					TileGrid tileGrid = tileGrids.get(zoom);
+					count += generateTiles(tileMatrixDao, tileDao, contents,
+							zoom, tileGrid, localTileGrid, matrixWidth,
+							matrixHeight, update);
+
+				}
 
 				if (!xyzTiles) {
 					// Double the matrix width and height for the next level
@@ -522,6 +680,16 @@ public abstract class TileGenerator {
 		}
 
 		return count;
+	}
+
+	/**
+	 * Validate that at least one zoom level was specified
+	 */
+	private void validateZoomLevels() {
+		if (zoomLevels.isEmpty()) {
+			throw new GeoPackageException(
+					"At least one zoom level must be specified");
+		}
 	}
 
 	/**
@@ -664,6 +832,7 @@ public abstract class TileGenerator {
 					.create(projection, tileMatrixProjection);
 			boolean sameProjection = transformProjectionToTileMatrixSet
 					.isSameProjection();
+			int minZoom = getMinZoom();
 			BoundingBox updateBoundingBox = tileBounds.get(minZoom);
 			if (!sameProjection) {
 				updateBoundingBox = updateBoundingBox

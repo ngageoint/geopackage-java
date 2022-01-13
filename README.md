@@ -229,7 +229,7 @@ The URL tile generator creates a set of tiles within a GeoPackage by downloading
 
 To run against the jar:
 
-    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen [-f compress_format] [-q compress_quality] [-xyz] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-uepsg url_epsg] [-tms] [-replace] [-logCount count] [-logTime time] geopackage_file tile_table url min_zoom max_zoom
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.URLTileGen [-f compress_format] [-q compress_quality] [-xyz] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-uepsg url_epsg] [-tms] [-replace] [-logCount count] [-logTime time] geopackage_file tile_table url zoom_levels
 
 Examples:
 
@@ -245,7 +245,7 @@ The Feature tile generator creates a set of tiles within a GeoPackage by drawing
 
 To run against the jar:
 
-    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen [-m max_features_per_tile] [-f compress_format] [-q compress_quality] [-xyz] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-tileWidth width] [-tileHeight height] [-tileScale scale] [-pointRadius radius] [-pointColor color] [-pointIcon image_file] [-iconWidth width] [-iconHeight height] [-centerIcon] [-lineStrokeWidth stroke_width] [-lineColor color] [-polygonStrokeWidth stroke_width] [-polygonColor color] [-fillPolygon] [-polygonFillColor color] [-simplifyGeometries true|false] [-ignoreGeoPackageStyles true|false] [-logCount count] [-logTime time] feature_geopackage_file feature_table tile_geopackage_file tile_table min_zoom max_zoom
+    java -classpath geopackage-*standalone.jar mil.nga.geopackage.io.FeatureTileGen [-m max_features_per_tile] [-f compress_format] [-q compress_quality] [-xyz] [-bbox minLon,minLat,maxLon,maxLat] [-epsg epsg] [-tileWidth width] [-tileHeight height] [-tileScale scale] [-pointRadius radius] [-pointColor color] [-pointIcon image_file] [-iconWidth width] [-iconHeight height] [-centerIcon] [-lineStrokeWidth stroke_width] [-lineColor color] [-polygonStrokeWidth stroke_width] [-polygonColor color] [-fillPolygon] [-polygonFillColor color] [-simplifyGeometries true|false] [-ignoreGeoPackageStyles true|false] [-logCount count] [-logTime time] feature_geopackage_file feature_table tile_geopackage_file tile_table zoom_levels
 
 Example:
 
