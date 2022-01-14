@@ -293,6 +293,7 @@ public abstract class TileGenerator {
 	 * Get the zoom levels (read only)
 	 * 
 	 * @return zoom levels
+	 * @since 6.1.3
 	 */
 	public SortedSet<Integer> getZoomLevels() {
 		return Collections.unmodifiableSortedSet(zoomLevels);
