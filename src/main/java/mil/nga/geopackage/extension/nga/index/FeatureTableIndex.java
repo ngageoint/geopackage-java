@@ -105,6 +105,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("resource")
 	@Override
 	protected int indexTable(final TableIndex tableIndex) {
 

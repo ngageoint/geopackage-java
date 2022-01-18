@@ -1495,7 +1495,7 @@ public class GeoPackageExample {
 		griddedCoverage.setTileMatrixSet(tileMatrixSet);
 		griddedCoverage.setDataType(GriddedCoverageDataType.INTEGER);
 		griddedCoverage
-				.setDataNull(new Double(Short.MAX_VALUE - Short.MIN_VALUE));
+				.setDataNull(Double.valueOf(Short.MAX_VALUE - Short.MIN_VALUE));
 		griddedCoverage
 				.setGridCellEncodingType(GriddedCoverageEncodingType.CENTER);
 		griddedCoverageDao.create(griddedCoverage);

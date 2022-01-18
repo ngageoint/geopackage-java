@@ -222,7 +222,7 @@ public class StyleRow extends AttributesRow {
 		Double opacity = null;
 		if (color != null) {
 			hex = color.getColorHexShorthand();
-			opacity = new Double(color.getOpacity());
+			opacity = Double.valueOf(color.getOpacity());
 		}
 		setColor(hex);
 		setOpacity(opacity);
@@ -428,7 +428,7 @@ public class StyleRow extends AttributesRow {
 		Double opacity = null;
 		if (color != null) {
 			hex = color.getColorHexShorthand();
-			opacity = new Double(color.getOpacity());
+			opacity = Double.valueOf(color.getOpacity());
 		}
 		setFillColor(hex);
 		setFillOpacity(opacity);
