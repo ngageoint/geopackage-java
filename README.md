@@ -112,7 +112,7 @@ if (geoPackageTile2 != null) {
 // Index Features
 FeatureIndexManager indexer = new FeatureIndexManager(geoPackage,
     featureDao);
-indexer.setIndexLocation(FeatureIndexType.GEOPACKAGE);
+indexer.setIndexLocation(FeatureIndexType.RTREE);
 int indexedCount = indexer.index();
 
 // Draw tiles from features
