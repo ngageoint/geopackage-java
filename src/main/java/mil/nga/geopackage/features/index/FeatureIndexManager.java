@@ -736,6 +736,47 @@ public class FeatureIndexManager {
 	}
 
 	/**
+	 * Get a feature index location to iterate over indexed types
+	 *
+	 * @return feature index location
+	 * @since 3.4.0
+	 */
+	public FeatureIndexLocation getLocation() {
+		return new FeatureIndexLocation(this);
+	}
+
+	/**
+	 * Get the first ordered indexed type
+	 *
+	 * @return feature index type
+	 * @since 3.4.0
+	 */
+	public FeatureIndexType getIndexedType() {
+
+		FeatureIndexType indexType = FeatureIndexType.NONE;
+
+		// Check for an indexed type
+		for (FeatureIndexType type : indexLocationQueryOrder) {
+			if (isIndexed(type)) {
+				indexType = type;
+				break;
+			}
+		}
+
+		return indexType;
+	}
+
+	/**
+	 * Get the feature table id column name, the default column ordering
+	 * 
+	 * @return feature table id column name
+	 * @since 6.1.3
+	 */
+	public String getIdColumn() {
+		return featureDao.getTable().getPkColumn().getName();
+	}
+
+	/**
 	 * Query for all feature index results
 	 *
 	 * @return feature index results, close when done
@@ -3065,34 +3106,3305 @@ public class FeatureIndexManager {
 	}
 
 	/**
-	 * Get a feature index location to iterate over indexed types
+	 * Query for all feature index results ordered by id, starting at the offset
+	 * and returning no more than the limit
 	 *
-	 * @return feature index location
-	 * @since 3.4.0
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
 	 */
-	public FeatureIndexLocation getLocation() {
-		return new FeatureIndexLocation(this);
+	public FeatureIndexResults queryForChunk(int limit, long offset) {
+		return queryForChunk(getIdColumn(), limit, offset);
 	}
 
 	/**
-	 * Get the first ordered indexed type
+	 * Query for all feature index results, starting at the offset and returning
+	 * no more than the limit
 	 *
-	 * @return feature index type
-	 * @since 3.4.0
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
 	 */
-	public FeatureIndexType getIndexedType() {
+	public FeatureIndexResults queryForChunk(String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, orderBy, limit, offset);
+	}
 
-		FeatureIndexType indexType = FeatureIndexType.NONE;
+	/**
+	 * Query for all feature index results ordered by id, starting at the offset
+	 * and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, int limit,
+			long offset) {
+		return queryForChunk(distinct, getIdColumn(), limit, offset);
+	}
 
-		// Check for an indexed type
-		for (FeatureIndexType type : indexLocationQueryOrder) {
-			if (isIndexed(type)) {
-				indexType = type;
+	/**
+	 * Query for all feature index results, starting at the offset and returning
+	 * no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String orderBy,
+			int limit, long offset) {
+		return queryForChunk(distinct, featureDao.getColumnNames(), orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for all feature index results ordered by id, starting at the offset
+	 * and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns, int limit,
+			long offset) {
+		return queryForChunk(columns, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for all feature index results, starting at the offset and returning
+	 * no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns, String orderBy,
+			int limit, long offset) {
+		return queryForChunk(false, columns, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for all feature index results ordered by id, starting at the offset
+	 * and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			int limit, long offset) {
+		return queryForChunk(distinct, columns, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for all feature index results, starting at the offset and returning
+	 * no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			String orderBy, int limit, long offset) {
+		FeatureIndexResults results = null;
+		for (FeatureIndexType type : getLocation()) {
+			try {
+				switch (type) {
+				case GEOPACKAGE:
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeaturesForChunk(distinct, columns, orderBy,
+									limit, offset);
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
+					break;
+				case RTREE:
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryFeaturesForChunk(distinct, columns, orderBy,
+									limit, offset);
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
+					break;
+				default:
+					throw new GeoPackageException(
+							"Unsupported feature index type: " + type);
+				}
 				break;
+			} catch (Exception e) {
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to query from feature index: " + type, e);
+				} else {
+					throw e;
+				}
 			}
 		}
+		if (results == null) {
+			FeatureResultSet featureResultSet = manualFeatureQuery
+					.queryForChunk(distinct, columns, orderBy, limit, offset);
+			results = new FeatureIndexFeatureResults(featureResultSet);
+		}
+		return results;
+	}
 
-		return indexType;
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(Map<String, Object> fieldValues,
+			int limit, long offset) {
+		return queryForChunk(fieldValues, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, fieldValues, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(distinct, fieldValues, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return queryForChunk(distinct, where, whereArgs, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(columns, fieldValues, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, columns, fieldValues, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(distinct, columns, fieldValues, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return queryForChunk(distinct, columns, where, whereArgs, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(String where, int limit,
+			long offset) {
+		return queryForChunk(where, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String where, String orderBy,
+			int limit, long offset) {
+		return queryForChunk(false, where, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			String where, int limit, long offset) {
+		return queryForChunk(distinct, where, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String where,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, where, null, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
+			String where, int limit, long offset) {
+		return queryForChunk(columns, where, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns, String where,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, where, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			String[] columns, String where, int limit, long offset) {
+		return queryForChunk(distinct, columns, where, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			String where, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, where, null, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String where, String[] whereArgs,
+			int limit, long offset) {
+		return queryForChunk(where, whereArgs, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, where, whereArgs, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String where,
+			String[] whereArgs, int limit, long offset) {
+		return queryForChunk(distinct, where, whereArgs, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, featureDao.getColumnNames(), where,
+				whereArgs, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns, String where,
+			String[] whereArgs, int limit, long offset) {
+		return queryForChunk(columns, where, whereArgs, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, where, whereArgs, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			String where, String[] whereArgs, int limit, long offset) {
+		return queryForChunk(distinct, columns, where, whereArgs, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results, starting at the offset and returning no
+	 * more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 *
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			String where, String[] whereArgs, String orderBy, int limit,
+			long offset) {
+		FeatureIndexResults results = null;
+		for (FeatureIndexType type : getLocation()) {
+			try {
+				switch (type) {
+				case GEOPACKAGE:
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeaturesForChunk(distinct, columns, where,
+									whereArgs, orderBy, limit, offset);
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
+					break;
+				case RTREE:
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryFeaturesForChunk(distinct, columns, where,
+									whereArgs, orderBy, limit, offset);
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
+					break;
+				default:
+					throw new GeoPackageException(
+							"Unsupported feature index type: " + type);
+				}
+				break;
+			} catch (Exception e) {
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to query from feature index: " + type, e);
+				} else {
+					throw e;
+				}
+			}
+		}
+		if (results == null) {
+			FeatureResultSet featureResultSet = manualFeatureQuery
+					.query(distinct, columns, where, whereArgs);
+			results = new FeatureIndexFeatureResults(featureResultSet);
+		}
+		return results;
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox, int limit,
+			long offset) {
+		return queryForChunk(boundingBox, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, boundingBox, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox.buildEnvelope(), orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, int limit, long offset) {
+		return queryForChunk(columns, boundingBox, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, boundingBox, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox.buildEnvelope(),
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(boundingBox, fieldValues, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, boundingBox, fieldValues, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Map<String, Object> fieldValues, int limit,
+			long offset) {
+		return queryForChunk(distinct, boundingBox, fieldValues, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox.buildEnvelope(), fieldValues,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Map<String, Object> fieldValues, int limit,
+			long offset) {
+		return queryForChunk(columns, boundingBox, fieldValues, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, boundingBox, fieldValues, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Map<String, Object> fieldValues, int limit,
+			long offset) {
+		return queryForChunk(distinct, columns, boundingBox, fieldValues,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox.buildEnvelope(),
+				fieldValues, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(BoundingBox boundingBox,
+			String where, int limit, long offset) {
+		return queryForChunk(boundingBox, where, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			String where, String orderBy, int limit, long offset) {
+		return queryForChunk(false, boundingBox, where, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			BoundingBox boundingBox, String where, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox, where, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, String where, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(distinct, boundingBox, where, null, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
+			BoundingBox boundingBox, String where, int limit, long offset) {
+		return queryForChunk(columns, boundingBox, where, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, String where, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, columns, boundingBox, where, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			String[] columns, BoundingBox boundingBox, String where, int limit,
+			long offset) {
+		return queryForChunk(distinct, columns, boundingBox, where,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, String where, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(distinct, columns, boundingBox, where, null,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			String where, String[] whereArgs, int limit, long offset) {
+		return queryForChunk(boundingBox, where, whereArgs, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			String where, String[] whereArgs, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, boundingBox, where, whereArgs, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, String where, String[] whereArgs,
+			int limit, long offset) {
+		return queryForChunk(distinct, boundingBox, where, whereArgs,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox.buildEnvelope(), where,
+				whereArgs, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, String where, String[] whereArgs,
+			int limit, long offset) {
+		return queryForChunk(columns, boundingBox, where, whereArgs,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, boundingBox, where, whereArgs,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box,
+	 * projected correctly, starting at the offset and returning no more than
+	 * the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, String where, String[] whereArgs,
+			int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox, where, whereArgs,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box, projected
+	 * correctly, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox.buildEnvelope(),
+				where, whereArgs, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
+			int limit, long offset) {
+		return queryForChunk(envelope, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, envelope, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			GeometryEnvelope envelope, int limit, long offset) {
+		return queryForChunk(distinct, envelope, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			GeometryEnvelope envelope, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, envelope, null, null, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			GeometryEnvelope envelope, int limit, long offset) {
+		return queryForChunk(columns, envelope, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			GeometryEnvelope envelope, String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, envelope, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, int limit, long offset) {
+		return queryForChunk(distinct, columns, envelope, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, envelope, null, null, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(envelope, fieldValues, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, envelope, fieldValues, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues,
+			int limit, long offset) {
+		return queryForChunk(distinct, envelope, fieldValues, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return queryForChunk(distinct, envelope, where, whereArgs, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues,
+			int limit, long offset) {
+		return queryForChunk(columns, envelope, fieldValues, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, envelope, fieldValues, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues,
+			int limit, long offset) {
+		return queryForChunk(distinct, columns, envelope, fieldValues,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return queryForChunk(distinct, columns, envelope, where, whereArgs,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(GeometryEnvelope envelope,
+			String where, int limit, long offset) {
+		return queryForChunk(envelope, where, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
+			String where, String orderBy, int limit, long offset) {
+		return queryForChunk(false, envelope, where, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			GeometryEnvelope envelope, String where, int limit, long offset) {
+		return queryForChunk(distinct, envelope, where, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			GeometryEnvelope envelope, String where, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(distinct, envelope, where, null, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
+			GeometryEnvelope envelope, String where, int limit, long offset) {
+		return queryForChunk(columns, envelope, where, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			GeometryEnvelope envelope, String where, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, columns, envelope, where, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			String[] columns, GeometryEnvelope envelope, String where,
+			int limit, long offset) {
+		return queryForChunk(distinct, columns, envelope, where, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, String where, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(distinct, columns, envelope, where, null, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
+			String where, String[] whereArgs, int limit, long offset) {
+		return queryForChunk(envelope, where, whereArgs, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
+			String where, String[] whereArgs, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, envelope, where, whereArgs, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			GeometryEnvelope envelope, String where, String[] whereArgs,
+			int limit, long offset) {
+		return queryForChunk(distinct, envelope, where, whereArgs,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			GeometryEnvelope envelope, String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, featureDao.getColumnNames(), envelope,
+				where, whereArgs, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			GeometryEnvelope envelope, String where, String[] whereArgs,
+			int limit, long offset) {
+		return queryForChunk(columns, envelope, where, whereArgs, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			GeometryEnvelope envelope, String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, envelope, where, whereArgs,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the Geometry
+	 * Envelope, starting at the offset and returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, String where, String[] whereArgs,
+			int limit, long offset) {
+		return queryForChunk(distinct, columns, envelope, where, whereArgs,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the Geometry Envelope, starting at
+	 * the offset and returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			GeometryEnvelope envelope, String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		FeatureIndexResults results = null;
+		for (FeatureIndexType type : getLocation()) {
+			try {
+				switch (type) {
+				case GEOPACKAGE:
+					FeatureResultSet geoPackageResultSet = featureTableIndex
+							.queryFeaturesForChunk(distinct, columns, envelope,
+									where, whereArgs, orderBy, limit, offset);
+					results = new FeatureIndexFeatureResults(
+							geoPackageResultSet);
+					break;
+				case RTREE:
+					FeatureResultSet rTreeResultSet = rTreeIndexTableDao
+							.queryFeaturesForChunk(distinct, columns, envelope,
+									where, whereArgs, orderBy, limit, offset);
+					results = new FeatureIndexFeatureResults(rTreeResultSet);
+					break;
+				default:
+					throw new GeoPackageException(
+							"Unsupported feature index type: " + type);
+				}
+				break;
+			} catch (Exception e) {
+				if (continueOnError) {
+					LOGGER.log(Level.SEVERE,
+							"Failed to query from feature index: " + type, e);
+				} else {
+					throw e;
+				}
+			}
+		}
+		if (results == null) {
+			results = manualFeatureQuery.queryForChunk(distinct, columns,
+					envelope, where, whereArgs, orderBy, limit, offset);
+		}
+		return results;
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Projection projection, int limit, long offset) {
+		return queryForChunk(boundingBox, projection, getIdColumn(), limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Projection projection, String orderBy, int limit, long offset) {
+		return queryForChunk(false, boundingBox, projection, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Projection projection, int limit,
+			long offset) {
+		return queryForChunk(distinct, boundingBox, projection, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Projection projection, String orderBy,
+			int limit, long offset) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return queryForChunk(distinct, featureBoundingBox, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Projection projection, int limit,
+			long offset) {
+		return queryForChunk(columns, boundingBox, projection, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Projection projection, String orderBy,
+			int limit, long offset) {
+		return queryForChunk(false, columns, boundingBox, projection, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection, int limit,
+			long offset) {
+		return queryForChunk(distinct, columns, boundingBox, projection,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection, String orderBy,
+			int limit, long offset) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return queryForChunk(distinct, columns, featureBoundingBox, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Projection projection, Map<String, Object> fieldValues, int limit,
+			long offset) {
+		return queryForChunk(boundingBox, projection, fieldValues,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Projection projection, Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, boundingBox, projection, fieldValues,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox, projection, fieldValues,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return queryForChunk(distinct, featureBoundingBox, fieldValues, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(columns, boundingBox, projection, fieldValues,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, columns, boundingBox, projection,
+				fieldValues, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox, projection,
+				fieldValues, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return queryForChunk(distinct, columns, featureBoundingBox, fieldValues,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(BoundingBox boundingBox,
+			Projection projection, String where, int limit, long offset) {
+		return queryForChunk(boundingBox, projection, where, getIdColumn(),
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Projection projection, String where, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, boundingBox, projection, where, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			BoundingBox boundingBox, Projection projection, String where,
+			int limit, long offset) {
+		return queryForChunk(distinct, boundingBox, projection, where,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Projection projection, String where,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox, projection, where, null,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			int limit, long offset) {
+		return queryForChunk(columns, boundingBox, projection, where,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, boundingBox, projection, where,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
+			String[] columns, BoundingBox boundingBox, Projection projection,
+			String where, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox, projection, where,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox, projection, where,
+				null, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Projection projection, String where, String[] whereArgs, int limit,
+			long offset) {
+		return queryForChunk(boundingBox, projection, where, whereArgs,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
+			Projection projection, String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, boundingBox, projection, where, whereArgs,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs, int limit, long offset) {
+		return queryForChunk(distinct, boundingBox, projection, where,
+				whereArgs, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return queryForChunk(distinct, featureBoundingBox, where, whereArgs,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs, int limit, long offset) {
+		return queryForChunk(columns, boundingBox, projection, where, whereArgs,
+				getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return queryForChunk(false, columns, boundingBox, projection, where,
+				whereArgs, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for feature index results ordered by id within the bounding box in
+	 * the provided projection, starting at the offset and returning no more
+	 * than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs, int limit, long offset) {
+		return queryForChunk(distinct, columns, boundingBox, projection, where,
+				whereArgs, getIdColumn(), limit, offset);
+	}
+
+	/**
+	 * Query for feature index results within the bounding box in the provided
+	 * projection, starting at the offset and returning no more than the limit
+	 *
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param boundingBox
+	 *            bounding box
+	 * @param projection
+	 *            projection
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature index results, close when done
+	 * @since 6.1.3
+	 */
+	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
+			BoundingBox boundingBox, Projection projection, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		BoundingBox featureBoundingBox = featureDao
+				.projectBoundingBox(boundingBox, projection);
+		return queryForChunk(distinct, columns, featureBoundingBox, where,
+				whereArgs, orderBy, limit, offset);
 	}
 
 	/**

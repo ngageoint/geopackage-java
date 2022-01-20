@@ -143,6 +143,30 @@ public class ManualFeatureQuery {
 	}
 
 	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(distinct, columns, orderBy, limit,
+				offset);
+	}
+
+	/**
 	 * Get the count of features
 	 *
 	 * @return count
@@ -478,6 +502,35 @@ public class ManualFeatureQuery {
 	public FeatureResultSet query(boolean distinct, String[] columns,
 			String where, String[] whereArgs) {
 		return featureDao.query(distinct, columns, where, whereArgs);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			String where, String[] whereArgs, String orderBy, int limit,
+			long offset) {
+		return featureDao.queryForChunk(distinct, columns, where, whereArgs,
+				orderBy, limit, offset);
 	}
 
 	/**
@@ -1662,6 +1715,37 @@ public class ManualFeatureQuery {
 	}
 
 	/**
+	 * Manually query for rows within the geometry envelope, starting at the
+	 * offset and returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return results
+	 * @since 6.1.3
+	 */
+	public ManualFeatureQueryResults queryForChunk(boolean distinct,
+			String[] columns, GeometryEnvelope envelope, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, envelope.getMinX(),
+				envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY(),
+				where, whereArgs, orderBy, limit, offset);
+	}
+
+	/**
 	 * Manually count the rows within the geometry envelope
 	 * 
 	 * @param envelope
@@ -2160,6 +2244,98 @@ public class ManualFeatureQuery {
 			}
 
 			offset += chunkLimit;
+		}
+
+		ManualFeatureQueryResults results = new ManualFeatureQueryResults(
+				featureDao, columns, featureIds);
+
+		return results;
+	}
+
+	/**
+	 * Manually query for rows within the bounds, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param minX
+	 *            min x
+	 * @param minY
+	 *            min y
+	 * @param maxX
+	 *            max x
+	 * @param maxY
+	 *            max y
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where args
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return results
+	 * @since 6.1.3
+	 */
+	public ManualFeatureQueryResults queryForChunk(boolean distinct,
+			String[] columns, double minX, double minY, double maxX,
+			double maxY, String where, String[] whereArgs, String orderBy,
+			int limit, long offset) {
+
+		int index = 0;
+		List<Long> featureIds = new ArrayList<>();
+
+		long localOffset = 0;
+		boolean hasResults = true;
+
+		minX -= tolerance;
+		maxX += tolerance;
+		minY -= tolerance;
+		maxY += tolerance;
+
+		String[] queryColumns = featureDao.getIdAndGeometryColumnNames();
+
+		while (hasResults) {
+
+			hasResults = false;
+
+			FeatureResultSet resultSet = featureDao.queryForChunk(distinct,
+					queryColumns, where, whereArgs, chunkLimit, localOffset);
+			try {
+				while (resultSet.moveToNext()) {
+					hasResults = true;
+
+					FeatureRow featureRow = resultSet.getRow();
+					GeometryEnvelope envelope = featureRow
+							.getGeometryEnvelope();
+					if (envelope != null) {
+
+						double minXMax = Math.max(minX, envelope.getMinX());
+						double maxXMin = Math.min(maxX, envelope.getMaxX());
+						double minYMax = Math.max(minY, envelope.getMinY());
+						double maxYMin = Math.min(maxY, envelope.getMaxY());
+
+						if (minXMax <= maxXMin && minYMax <= maxYMin) {
+							if (offset <= index) {
+								featureIds.add(featureRow.getId());
+								if (featureIds.size() >= limit) {
+									break;
+								}
+							}
+							index++;
+						}
+
+					}
+				}
+			} finally {
+				resultSet.close();
+			}
+
+			localOffset += chunkLimit;
 		}
 
 		ManualFeatureQueryResults results = new ManualFeatureQueryResults(

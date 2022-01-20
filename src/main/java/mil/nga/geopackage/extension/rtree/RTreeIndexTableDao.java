@@ -317,6 +317,31 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
+	 * Query for all features, starting at the offset and returning no more than
+	 * the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryFeaturesForChunk(boolean distinct,
+			String[] columns, String orderBy, int limit, long offset) {
+		validateRTree();
+		return featureDao.queryInForChunk(distinct, columns, queryIdsSQL(),
+				orderBy, limit, offset);
+	}
+
+	/**
 	 * Count features
 	 * 
 	 * @return count
@@ -654,6 +679,36 @@ public class RTreeIndexTableDao extends UserCustomDao {
 		validateRTree();
 		return featureDao.queryIn(distinct, columns, queryIdsSQL(), where,
 				whereArgs);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryFeaturesForChunk(boolean distinct,
+			String[] columns, String where, String[] whereArgs, String orderBy,
+			int limit, long offset) {
+		validateRTree();
+		return featureDao.queryInForChunk(distinct, columns, queryIdsSQL(),
+				where, whereArgs, orderBy, limit, offset);
 	}
 
 	/**
@@ -2539,6 +2594,37 @@ public class RTreeIndexTableDao extends UserCustomDao {
 	}
 
 	/**
+	 * Query for features within the geometry envelope, starting at the offset
+	 * and returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryFeaturesForChunk(boolean distinct,
+			String[] columns, GeometryEnvelope envelope, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return queryFeaturesForChunk(distinct, columns, envelope.getMinX(),
+				envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY(),
+				where, whereArgs, orderBy, limit, offset);
+	}
+
+	/**
 	 * Count the features within the geometry envelope
 	 * 
 	 * @param envelope
@@ -3360,6 +3446,47 @@ public class RTreeIndexTableDao extends UserCustomDao {
 		String[] whereBoundsArgs = buildWhereArgs(minX, minY, maxX, maxY);
 		return featureDao.queryIn(distinct, columns, queryIdsSQL(whereBounds),
 				whereBoundsArgs, where, whereArgs);
+	}
+
+	/**
+	 * Query for features within the bounds, starting at the offset and
+	 * returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param minX
+	 *            min x
+	 * @param minY
+	 *            min y
+	 * @param maxX
+	 *            max x
+	 * @param maxY
+	 *            max y
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryFeaturesForChunk(boolean distinct,
+			String[] columns, double minX, double minY, double maxX,
+			double maxY, String where, String[] whereArgs, String orderBy,
+			int limit, long offset) {
+		validateRTree();
+		String whereBounds = buildWhere(minX, minY, maxX, maxY);
+		String[] whereBoundsArgs = buildWhereArgs(minX, minY, maxX, maxY);
+		return featureDao.queryInForChunk(distinct, columns,
+				queryIdsSQL(whereBounds), whereBoundsArgs, where, whereArgs,
+				orderBy, limit, offset);
 	}
 
 	/**

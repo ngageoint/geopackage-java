@@ -289,6 +289,30 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
+	 * Query for all Features, starting at the offset and returning no more than
+	 * the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryFeaturesForChunk(boolean distinct,
+			String[] columns, String orderBy, int limit, long offset) {
+		return featureDao.queryInForChunk(distinct, columns, queryIdsSQL(),
+				orderBy, limit, offset);
+	}
+
+	/**
 	 * Count features
 	 * 
 	 * @return count
@@ -612,6 +636,35 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 			String where, String[] whereArgs) {
 		return featureDao.queryIn(distinct, columns, queryIdsSQL(), where,
 				whereArgs);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryFeaturesForChunk(boolean distinct,
+			String[] columns, String where, String[] whereArgs, String orderBy,
+			int limit, long offset) {
+		return featureDao.queryInForChunk(distinct, columns, queryIdsSQL(),
+				where, whereArgs, orderBy, limit, offset);
 	}
 
 	/**
@@ -2130,6 +2183,37 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 			GeometryEnvelope envelope, String where, String[] whereArgs) {
 		return featureDao.queryIn(distinct, columns, queryIdsSQL(envelope),
 				where, whereArgs);
+	}
+
+	/**
+	 * Query for Features within the Geometry Envelope, starting at the offset
+	 * and returning no more than the limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryFeaturesForChunk(boolean distinct,
+			String[] columns, GeometryEnvelope envelope, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return featureDao.queryInForChunk(distinct, columns,
+				queryIdsSQL(envelope), where, whereArgs, orderBy, limit,
+				offset);
 	}
 
 	/**

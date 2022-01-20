@@ -143,9 +143,9 @@ public class SQLUtils {
 				int commaIndex = upperCaseSQL.indexOf(",");
 				if (commaIndex < 0 || commaIndex >= fromIndex) {
 
-					sqlCommands.add("SELECT COUNT("
+					sqlCommands.add(adjustCount("SELECT COUNT("
 							+ sql.substring(afterSelectIndex, fromIndex) + ") "
-							+ sql.substring(fromIndex));
+							+ sql.substring(fromIndex)));
 
 					StringBuilder isNull = new StringBuilder(
 							"SELECT COUNT(*) > 0 ");
@@ -172,13 +172,15 @@ public class SQLUtils {
 						isNull.append(columnIsNull);
 					}
 
-					sqlCommands.add(isNull.toString());
+					sqlCommands.add(adjustCount(isNull.toString()));
 
 				}
 
 			} else if (fromIndex != -1) {
-				sqlCommands.add("SELECT COUNT(*) " + sql.substring(fromIndex));
+				sqlCommands.add(adjustCount(
+						"SELECT COUNT(*) " + sql.substring(fromIndex)));
 			}
+
 		}
 
 		int count = -1;
@@ -207,6 +209,25 @@ public class SQLUtils {
 		}
 
 		return count;
+	}
+
+	/**
+	 * Adjust the count statement as needed
+	 * 
+	 * @param sql
+	 *            sql statement
+	 * @return adjusted or original statement
+	 */
+	private static String adjustCount(String sql) {
+		String upperCase = sql.toUpperCase();
+		int limitIndex = upperCase.indexOf(" LIMIT ");
+		if (limitIndex >= 0) {
+			int lastParenthesis = sql.lastIndexOf(limitIndex);
+			if (lastParenthesis == -1 || limitIndex > lastParenthesis) {
+				sql = sql.substring(0, limitIndex);
+			}
+		}
+		return sql;
 	}
 
 	/**
