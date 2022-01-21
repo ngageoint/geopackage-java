@@ -149,7 +149,7 @@ public class FeatureDao extends
 	 * @since 3.5.0
 	 */
 	public FeatureColumn getIdColumn() {
-		return getTable().getPkColumn();
+		return getPkColumn();
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class FeatureDao extends
 	 * @since 3.5.0
 	 */
 	public String getIdColumnName() {
-		return getTable().getPkColumnName();
+		return getPkColumnName();
 	}
 
 	/**

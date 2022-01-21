@@ -773,7 +773,7 @@ public class FeatureIndexManager {
 	 * @since 6.1.3
 	 */
 	public String getIdColumn() {
-		return featureDao.getTable().getPkColumn().getName();
+		return featureDao.getPkColumnName();
 	}
 
 	/**

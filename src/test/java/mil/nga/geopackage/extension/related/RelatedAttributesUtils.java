@@ -43,23 +43,24 @@ public class RelatedAttributesUtils {
 		}
 		final String baseTableName = attributesTables
 				.get((int) (Math.random() * attributesTables.size()));
-		final String relatedTableName = attributesTables.get((int) (Math
-				.random() * attributesTables.size()));
+		final String relatedTableName = attributesTables
+				.get((int) (Math.random() * attributesTables.size()));
 
 		// Create and validate a mapping table
 		List<UserCustomColumn> additionalMappingColumns = RelatedTablesUtils
 				.createAdditionalUserColumns();
 		final String mappingTableName = "attributes_attributes";
-		UserMappingTable userMappingTable = UserMappingTable.create(
-				mappingTableName, additionalMappingColumns);
+		UserMappingTable userMappingTable = UserMappingTable
+				.create(mappingTableName, additionalMappingColumns);
 		TestCase.assertFalse(rte.has(userMappingTable.getTableName()));
-		TestCase.assertEquals(UserMappingTable.numRequiredColumns()
-				+ additionalMappingColumns.size(), userMappingTable
-				.getColumns().size());
+		TestCase.assertEquals(
+				UserMappingTable.numRequiredColumns()
+						+ additionalMappingColumns.size(),
+				userMappingTable.getColumns().size());
 		UserCustomColumn baseIdColumn = userMappingTable.getBaseIdColumn();
 		TestCase.assertNotNull(baseIdColumn);
-		TestCase.assertTrue(baseIdColumn
-				.isNamed(UserMappingTable.COLUMN_BASE_ID));
+		TestCase.assertTrue(
+				baseIdColumn.isNamed(UserMappingTable.COLUMN_BASE_ID));
 		TestCase.assertEquals(GeoPackageDataType.INTEGER,
 				baseIdColumn.getDataType());
 		TestCase.assertTrue(baseIdColumn.isNotNull());
@@ -67,8 +68,8 @@ public class RelatedAttributesUtils {
 		UserCustomColumn relatedIdColumn = userMappingTable
 				.getRelatedIdColumn();
 		TestCase.assertNotNull(relatedIdColumn);
-		TestCase.assertTrue(relatedIdColumn
-				.isNamed(UserMappingTable.COLUMN_RELATED_ID));
+		TestCase.assertTrue(
+				relatedIdColumn.isNamed(UserMappingTable.COLUMN_RELATED_ID));
 		TestCase.assertEquals(GeoPackageDataType.INTEGER,
 				relatedIdColumn.getDataType());
 		TestCase.assertTrue(relatedIdColumn.isNotNull());
@@ -113,12 +114,12 @@ public class RelatedAttributesUtils {
 		UserMappingRow userMappingRow = null;
 		for (int i = 0; i < 10; i++) {
 			userMappingRow = dao.newRow();
-			userMappingRow
-					.setBaseId(attributeIds.get((int) (Math.random() * attributesCount)));
-			userMappingRow
-					.setRelatedId(attributeIds2.get((int) (Math.random() * attributesCount2)));
-			RelatedTablesUtils.populateUserRow(userMappingTable,
-					userMappingRow, UserMappingTable.requiredColumns());
+			userMappingRow.setBaseId(
+					attributeIds.get((int) (Math.random() * attributesCount)));
+			userMappingRow.setRelatedId(attributeIds2
+					.get((int) (Math.random() * attributesCount2)));
+			RelatedTablesUtils.populateUserRow(userMappingTable, userMappingRow,
+					UserMappingTable.requiredColumns());
 			TestCase.assertTrue(dao.create(userMappingRow) > 0);
 		}
 		TestCase.assertEquals(10, dao.count());
@@ -135,7 +136,8 @@ public class RelatedAttributesUtils {
 			UserMappingRow resultRow = dao.getRow(resultSet);
 			TestCase.assertFalse(resultRow.hasId());
 			TestCase.assertTrue(attributeIds.contains(resultRow.getBaseId()));
-			TestCase.assertTrue(attributeIds2.contains(resultRow.getRelatedId()));
+			TestCase.assertTrue(
+					attributeIds2.contains(resultRow.getRelatedId()));
 			RelatedTablesUtils.validateUserRow(mappingColumns, resultRow);
 			RelatedTablesUtils.validateDublinCoreColumns(resultRow);
 
@@ -164,12 +166,12 @@ public class RelatedAttributesUtils {
 			TestCase.assertTrue(attributesRelation.getId() >= 0);
 			TestCase.assertEquals(attributesDao.getTableName(),
 					attributesRelation.getBaseTableName());
-			TestCase.assertEquals(attributesDao.getTable().getPkColumn()
-					.getName(), attributesRelation.getBasePrimaryColumn());
+			TestCase.assertEquals(attributesDao.getPkColumnName(),
+					attributesRelation.getBasePrimaryColumn());
 			TestCase.assertEquals(attributesDao2.getTableName(),
 					attributesRelation.getRelatedTableName());
-			TestCase.assertEquals(attributesDao2.getTable().getPkColumn()
-					.getName(), attributesRelation.getRelatedPrimaryColumn());
+			TestCase.assertEquals(attributesDao2.getPkColumnName(),
+					attributesRelation.getRelatedPrimaryColumn());
 			TestCase.assertEquals(RelationType.ATTRIBUTES.getName(),
 					attributesRelation.getRelationName());
 			TestCase.assertEquals(mappingTableName,
@@ -181,10 +183,10 @@ public class RelatedAttributesUtils {
 			UserCustomResultSet mappingResultSet = userMappingDao.queryForAll();
 			while (mappingResultSet.moveToNext()) {
 				userMappingRow = userMappingDao.getRow(mappingResultSet);
-				TestCase.assertTrue(attributeIds.contains(userMappingRow
-						.getBaseId()));
-				TestCase.assertTrue(attributeIds2.contains(userMappingRow
-						.getRelatedId()));
+				TestCase.assertTrue(
+						attributeIds.contains(userMappingRow.getBaseId()));
+				TestCase.assertTrue(
+						attributeIds2.contains(userMappingRow.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
 				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
@@ -210,12 +212,12 @@ public class RelatedAttributesUtils {
 			TestCase.assertTrue(relation.getId() >= 0);
 			TestCase.assertEquals(attributesDao.getTableName(),
 					relation.getBaseTableName());
-			TestCase.assertEquals(attributesDao.getTable().getPkColumn()
-					.getName(), relation.getBasePrimaryColumn());
+			TestCase.assertEquals(attributesDao.getPkColumnName(),
+					relation.getBasePrimaryColumn());
 			TestCase.assertEquals(attributesDao2.getTableName(),
 					relation.getRelatedTableName());
-			TestCase.assertEquals(attributesDao2.getTable().getPkColumn()
-					.getName(), relation.getRelatedPrimaryColumn());
+			TestCase.assertEquals(attributesDao2.getPkColumnName(),
+					relation.getRelatedPrimaryColumn());
 			TestCase.assertEquals(RelationType.ATTRIBUTES.getName(),
 					relation.getRelationName());
 			TestCase.assertEquals(mappingTableName,
@@ -227,10 +229,10 @@ public class RelatedAttributesUtils {
 			UserCustomResultSet mappingResultSet = userMappingDao.queryForAll();
 			while (mappingResultSet.moveToNext()) {
 				userMappingRow = userMappingDao.getRow(mappingResultSet);
-				TestCase.assertTrue(attributeIds.contains(userMappingRow
-						.getBaseId()));
-				TestCase.assertTrue(attributeIds2.contains(userMappingRow
-						.getRelatedId()));
+				TestCase.assertTrue(
+						attributeIds.contains(userMappingRow.getBaseId()));
+				TestCase.assertTrue(
+						attributeIds2.contains(userMappingRow.getRelatedId()));
 				RelatedTablesUtils.validateUserRow(mappingColumns,
 						userMappingRow);
 				RelatedTablesUtils.validateDublinCoreColumns(userMappingRow);
@@ -238,8 +240,8 @@ public class RelatedAttributesUtils {
 			mappingResultSet.close();
 
 			// Get and test the attributes DAO
-			attributesDao = geoPackage.getAttributesDao(attributesDao
-					.getTableName());
+			attributesDao = geoPackage
+					.getAttributesDao(attributesDao.getTableName());
 			TestCase.assertNotNull(attributesDao);
 			AttributesTable attributesTable = attributesDao.getTable();
 			TestCase.assertNotNull(attributesTable);
@@ -267,10 +269,10 @@ public class RelatedAttributesUtils {
 
 					TestCase.assertTrue(attributesRow.hasId());
 					TestCase.assertTrue(attributesRow.getId() >= 0);
-					TestCase.assertTrue(attributeIds.contains(attributesRow
-							.getId()));
-					TestCase.assertTrue(mappedIds.contains(attributesRow
-							.getId()));
+					TestCase.assertTrue(
+							attributeIds.contains(attributesRow.getId()));
+					TestCase.assertTrue(
+							mappedIds.contains(attributesRow.getId()));
 				}
 
 				totalMapped += mappedIds.size();

@@ -55,14 +55,14 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 
 			// 9. get mappings by base ID
 			Map<Long, List<Long>> baseIdMappings = new HashMap<>();
-			FeatureDao baseDao = geoPackage.getFeatureDao(extendedRelation
-					.getBaseTableName());
-			FeatureColumn pkColumn = baseDao.getTable().getPkColumn();
+			FeatureDao baseDao = geoPackage
+					.getFeatureDao(extendedRelation.getBaseTableName());
+			FeatureColumn pkColumn = baseDao.getPkColumn();
 			FeatureResultSet frs = baseDao.queryForAll();
 			while (frs.moveToNext()) {
 				long baseId = frs.getLong(pkColumn.getIndex());
-				List<Long> relatedIds = rte.getMappingsForBase(
-						extendedRelation, baseId);
+				List<Long> relatedIds = rte.getMappingsForBase(extendedRelation,
+						baseId);
 				TestCase.assertFalse(relatedIds.isEmpty());
 				baseIdMappings.put(baseId, relatedIds);
 			}
@@ -72,19 +72,20 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 			Map<Long, List<Long>> relatedIdMappings = new HashMap<>();
 			AttributesDao relatedDao = geoPackage
 					.getAttributesDao(extendedRelation.getRelatedTableName());
-			AttributesColumn pkColumn2 = relatedDao.getTable().getPkColumn();
+			AttributesColumn pkColumn2 = relatedDao.getPkColumn();
 			AttributesResultSet ars = relatedDao.queryForAll();
 			while (ars.moveToNext()) {
 				long relatedId = ars.getLong(pkColumn2.getIndex());
-				List<Long> baseIds = rte.getMappingsForRelated(
-						extendedRelation, relatedId);
+				List<Long> baseIds = rte.getMappingsForRelated(extendedRelation,
+						relatedId);
 				TestCase.assertFalse(baseIds.isEmpty());
 				relatedIdMappings.put(relatedId, baseIds);
 			}
 			ars.close();
 
 			// Verify the related ids map back to the base ids
-			for (Entry<Long, List<Long>> baseIdMap : baseIdMappings.entrySet()) {
+			for (Entry<Long, List<Long>> baseIdMap : baseIdMappings
+					.entrySet()) {
 				for (Long relatedId : baseIdMap.getValue()) {
 					TestCase.assertTrue(relatedIdMappings.get(relatedId)
 							.contains(baseIdMap.getKey()));
@@ -95,8 +96,8 @@ public class RelatedTablesReadTest extends LoadGeoPackageTestCase {
 			for (Entry<Long, List<Long>> relatedIdMap : relatedIdMappings
 					.entrySet()) {
 				for (Long baseId : relatedIdMap.getValue()) {
-					TestCase.assertTrue(baseIdMappings.get(baseId).contains(
-							relatedIdMap.getKey()));
+					TestCase.assertTrue(baseIdMappings.get(baseId)
+							.contains(relatedIdMap.getKey()));
 				}
 			}
 
