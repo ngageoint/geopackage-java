@@ -21,6 +21,7 @@ import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeaturePaginatedResults;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
@@ -1068,6 +1069,463 @@ public class FeatureIndexManagerUtils {
 					featureIndexResults.close();
 					resultCount += lastCount;
 					offset += chunkLimit;
+				}
+				TestCase.assertEquals(count, resultCount);
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
+
+			}
+
+			featureIndexManager.close();
+		}
+
+		// Delete the extensions
+		boolean everyOther = false;
+		for (String featureTable : featureTables) {
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+			FeatureIndexManager featureIndexManager = new FeatureIndexManager(
+					geoPackage, featureDao);
+			featureIndexManager.setIndexLocation(type);
+			TestCase.assertTrue(featureIndexManager.isIndexed());
+
+			// Test deleting a single geometry index
+			if (everyOther) {
+				FeatureResultSet featureResultSet = featureDao.query();
+				while (featureResultSet.moveToNext()) {
+					FeatureRow featureRow = featureResultSet.getRow();
+					if (featureRow.getGeometryEnvelope() != null) {
+						featureResultSet.close();
+						TestCase.assertTrue(
+								featureIndexManager.deleteIndex(featureRow));
+						break;
+					}
+				}
+				featureResultSet.close();
+			}
+
+			featureIndexManager.deleteIndex();
+
+			TestCase.assertFalse(featureIndexManager.isIndexed());
+			everyOther = !everyOther;
+
+			featureIndexManager.close();
+		}
+
+	}
+
+	/**
+	 * Test index pagination
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
+	public static void testIndexPagination(GeoPackage geoPackage)
+			throws SQLException {
+		testIndexPagination(geoPackage, FeatureIndexType.GEOPACKAGE, false);
+		testIndexPagination(geoPackage, FeatureIndexType.RTREE, true);
+	}
+
+	private static void testIndexPagination(GeoPackage geoPackage,
+			FeatureIndexType type, boolean includeEmpty) throws SQLException {
+
+		// Test indexing each feature table
+		List<String> featureTables = geoPackage.getFeatureTables();
+		for (String featureTable : featureTables) {
+
+			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+			FeatureIndexManager featureIndexManager = new FeatureIndexManager(
+					geoPackage, featureDao);
+			featureIndexManager.setContinueOnError(false);
+			featureIndexManager.setIndexLocation(type);
+			featureIndexManager.deleteAllIndexes();
+
+			// Determine how many features have geometry envelopes or geometries
+			int expectedCount = 0;
+			FeatureRow testFeatureRow = null;
+			FeatureResultSet featureResultSet = featureDao.query();
+			while (featureResultSet.moveToNext()) {
+				FeatureRow featureRow = featureResultSet.getRow();
+				if (featureRow.getGeometryEnvelope() != null) {
+					expectedCount++;
+					// Randomly choose a feature row with Geometry for testing
+					// queries later
+					if (testFeatureRow == null) {
+						testFeatureRow = featureRow;
+					} else if (Math
+							.random() < (1.0 / featureResultSet.getCount())) {
+						testFeatureRow = featureRow;
+					}
+				} else if (includeEmpty) {
+					expectedCount++;
+				}
+			}
+			featureResultSet.close();
+
+			TestCase.assertFalse(featureIndexManager.isIndexed());
+
+			// Test indexing
+			int indexCount = featureIndexManager.index();
+			TestCase.assertEquals(expectedCount, indexCount);
+
+			TestCase.assertTrue(featureIndexManager.isIndexed());
+			TestCase.assertEquals(expectedCount, featureIndexManager.count());
+
+			// Query for all indexed geometries
+			int resultCount = 0;
+			int chunkLimit = 3;
+			FeaturePaginatedResults paginatedResults = featureIndexManager
+					.paginate(featureIndexManager.queryForChunk(chunkLimit, 0));
+			for (FeatureRow featureRow : paginatedResults) {
+				validateFeatureRow(featureIndexManager, featureRow, null,
+						includeEmpty);
+				resultCount++;
+			}
+			TestCase.assertEquals(expectedCount, resultCount);
+
+			// Query for all indexed geometries with columns
+			resultCount = 0;
+			chunkLimit = 5;
+			paginatedResults = featureIndexManager.paginate(featureIndexManager
+					.queryForChunk(featureDao.getIdAndGeometryColumnNames(),
+							chunkLimit, 0));
+			for (FeatureRow featureRow : paginatedResults) {
+				validateFeatureRow(featureIndexManager, featureRow, null,
+						includeEmpty);
+				resultCount++;
+			}
+			TestCase.assertEquals(expectedCount, resultCount);
+
+			// Test the query by envelope
+			GeometryEnvelope envelope = testFeatureRow.getGeometryEnvelope();
+			final double difference = .000001;
+			envelope.setMinX(envelope.getMinX() - difference);
+			envelope.setMaxX(envelope.getMaxX() + difference);
+			envelope.setMinY(envelope.getMinY() - difference);
+			envelope.setMaxY(envelope.getMaxY() + difference);
+			if (envelope.hasZ()) {
+				envelope.setMinZ(envelope.getMinZ() - difference);
+				envelope.setMaxZ(envelope.getMaxZ() + difference);
+			}
+			if (envelope.hasM()) {
+				envelope.setMinM(envelope.getMinM() - difference);
+				envelope.setMaxM(envelope.getMaxM() + difference);
+			}
+			boolean featureFound = false;
+			TestCase.assertTrue(featureIndexManager.count(envelope) >= 1);
+			resultCount = 0;
+			chunkLimit = 2;
+			paginatedResults = featureIndexManager.paginate(
+					featureIndexManager.queryForChunk(envelope, chunkLimit, 0));
+			for (FeatureRow featureRow : paginatedResults) {
+				validateFeatureRow(featureIndexManager, featureRow, envelope,
+						includeEmpty);
+				if (featureRow.getId() == testFeatureRow.getId()) {
+					featureFound = true;
+				}
+				resultCount++;
+			}
+			TestCase.assertTrue(featureFound);
+			TestCase.assertTrue(resultCount >= 1);
+			featureFound = false;
+			resultCount = 0;
+			chunkLimit = 4;
+			paginatedResults = featureIndexManager.paginate(featureIndexManager
+					.queryForChunk(featureDao.getIdAndGeometryColumnNames(),
+							envelope, chunkLimit, 0));
+			for (FeatureRow featureRow : paginatedResults) {
+				validateFeatureRow(featureIndexManager, featureRow, envelope,
+						includeEmpty);
+				if (featureRow.getId() == testFeatureRow.getId()) {
+					featureFound = true;
+				}
+				resultCount++;
+			}
+			TestCase.assertTrue(featureFound);
+			TestCase.assertTrue(resultCount >= 1);
+
+			// Test the query by envelope with id iteration
+			featureFound = false;
+			resultCount = 0;
+			chunkLimit = 1;
+			TestCase.assertTrue(featureIndexManager.count(envelope) >= 1);
+			paginatedResults = featureIndexManager.paginate(
+					featureIndexManager.queryForChunk(envelope, chunkLimit, 0));
+			for (FeatureRow featureRow : paginatedResults) {
+				validateFeatureRow(featureIndexManager, featureRow, envelope,
+						includeEmpty);
+				if (featureRow.getId() == testFeatureRow.getId()) {
+					featureFound = true;
+				}
+				resultCount++;
+			}
+			TestCase.assertTrue(featureFound);
+			TestCase.assertTrue(resultCount >= 1);
+
+			// Pick a projection different from the feature dao and project the
+			// bounding box
+			BoundingBox boundingBox = new BoundingBox(envelope.getMinX() - 1,
+					envelope.getMinY() - 1, envelope.getMaxX() + 1,
+					envelope.getMaxY() + 1);
+			Projection projection = null;
+			if (!featureDao.getProjection().equals(
+					ProjectionConstants.AUTHORITY_EPSG,
+					ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
+				projection = ProjectionFactory.getProjection(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+			} else {
+				projection = ProjectionFactory
+						.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+			}
+			GeometryTransform transform = GeometryTransform
+					.create(featureDao.getProjection(), projection);
+			BoundingBox transformedBoundingBox = boundingBox
+					.transform(transform);
+
+			// Test the query by projected bounding box
+			featureFound = false;
+			resultCount = 0;
+			chunkLimit = 10;
+			TestCase.assertTrue(featureIndexManager
+					.count(transformedBoundingBox, projection) >= 1);
+			paginatedResults = featureIndexManager.paginate(
+					featureIndexManager.queryForChunk(transformedBoundingBox,
+							projection, chunkLimit, 0));
+			for (FeatureRow featureRow : paginatedResults) {
+				validateFeatureRow(featureIndexManager, featureRow,
+						boundingBox.buildEnvelope(), includeEmpty);
+				if (featureRow.getId() == testFeatureRow.getId()) {
+					featureFound = true;
+				}
+				resultCount++;
+			}
+			TestCase.assertTrue(featureFound);
+			TestCase.assertTrue(resultCount >= 1);
+			featureFound = false;
+			resultCount = 0;
+			chunkLimit = 100;
+			paginatedResults = featureIndexManager.paginate(featureIndexManager
+					.queryForChunk(featureDao.getIdAndGeometryColumnNames(),
+							transformedBoundingBox, projection, chunkLimit, 0));
+			for (FeatureRow featureRow : paginatedResults) {
+				validateFeatureRow(featureIndexManager, featureRow,
+						boundingBox.buildEnvelope(), includeEmpty);
+				if (featureRow.getId() == testFeatureRow.getId()) {
+					featureFound = true;
+				}
+				resultCount++;
+			}
+			TestCase.assertTrue(featureFound);
+			TestCase.assertTrue(resultCount >= 1);
+
+			// Test query by criteria
+			FeatureTable table = featureDao.getTable();
+			List<FeatureColumn> columns = table.getColumns();
+
+			Map<String, Number> numbers = new HashMap<>();
+			Map<String, String> strings = new HashMap<>();
+
+			for (FeatureColumn column : columns) {
+				if (column.isPrimaryKey() || column.isGeometry()) {
+					continue;
+				}
+				GeoPackageDataType dataType = column.getDataType();
+				switch (dataType) {
+				case DOUBLE:
+				case FLOAT:
+				case INT:
+				case INTEGER:
+				case TINYINT:
+				case SMALLINT:
+				case MEDIUMINT:
+				case REAL:
+					numbers.put(column.getName(), null);
+					break;
+				case TEXT:
+					strings.put(column.getName(), null);
+					break;
+				default:
+
+				}
+			}
+
+			for (String number : numbers.keySet()) {
+				Object value = testFeatureRow.getValue(number);
+				numbers.put(number, (Number) value);
+			}
+
+			for (String string : strings.keySet()) {
+				String value = testFeatureRow.getValueString(string);
+				strings.put(string, value);
+			}
+
+			for (Entry<String, Number> number : numbers.entrySet()) {
+
+				String column = number.getKey();
+				double value = number.getValue().doubleValue();
+
+				String where = column + " >= ? AND " + column + " <= ?";
+				String[] whereArgs = new String[] {
+						String.valueOf(value - 0.001),
+						String.valueOf(value + 0.001) };
+
+				long count = featureIndexManager.count(where, whereArgs);
+				TestCase.assertTrue(count >= 1);
+				resultCount = 0;
+				chunkLimit = 5;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(where,
+								whereArgs, chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+					resultCount++;
+				}
+				TestCase.assertEquals(count, resultCount);
+				resultCount = 0;
+				chunkLimit = 25;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(
+								new String[] { column }, where, whereArgs,
+								chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+					resultCount++;
+				}
+				TestCase.assertEquals(count, resultCount);
+
+				count = featureIndexManager.count(transformedBoundingBox,
+						projection, where, whereArgs);
+				TestCase.assertTrue(count >= 1);
+				featureFound = false;
+				resultCount = 0;
+				chunkLimit = 1;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(
+								transformedBoundingBox, projection, where,
+								whereArgs, chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
+				}
+				TestCase.assertEquals(count, resultCount);
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
+
+				featureFound = false;
+				resultCount = 0;
+				chunkLimit = 3;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(
+								new String[] {
+										featureDao.getGeometryColumnName(),
+										column, featureDao.getIdColumnName() },
+								transformedBoundingBox, projection, where,
+								whereArgs, chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							((Number) featureRow.getValue(column))
+									.doubleValue());
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
+				}
+				TestCase.assertEquals(count, resultCount);
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
+			}
+
+			for (Entry<String, String> string : strings.entrySet()) {
+
+				String column = string.getKey();
+				String value = string.getValue();
+
+				Map<String, Object> fieldValues = new HashMap<>();
+				fieldValues.put(column, value);
+
+				long count = featureIndexManager.count(fieldValues);
+				TestCase.assertTrue(count >= 1);
+				resultCount = 0;
+				chunkLimit = 4;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(fieldValues,
+								chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+					resultCount++;
+				}
+				TestCase.assertEquals(count, resultCount);
+				resultCount = 0;
+				chunkLimit = 6;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(
+								new String[] { column }, fieldValues,
+								chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+					resultCount++;
+				}
+				TestCase.assertEquals(count, resultCount);
+
+				count = featureIndexManager.count(transformedBoundingBox,
+						projection, fieldValues);
+				TestCase.assertTrue(count >= 1);
+				featureFound = false;
+				resultCount = 0;
+				chunkLimit = 2;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(
+								transformedBoundingBox, projection, fieldValues,
+								chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
+				}
+				TestCase.assertEquals(count, resultCount);
+				TestCase.assertTrue(featureFound);
+				TestCase.assertTrue(resultCount >= 1);
+
+				featureFound = false;
+				resultCount = 0;
+				chunkLimit = 2;
+				paginatedResults = featureIndexManager
+						.paginate(featureIndexManager.queryForChunk(
+								new String[] { column,
+										featureDao.getIdColumnName(),
+										featureDao.getGeometryColumnName() },
+								transformedBoundingBox, projection, fieldValues,
+								chunkLimit, 0));
+				for (FeatureRow featureRow : paginatedResults) {
+					TestCase.assertEquals(value,
+							featureRow.getValueString(column));
+					validateFeatureRow(featureIndexManager, featureRow,
+							boundingBox.buildEnvelope(), includeEmpty);
+					if (featureRow.getId() == testFeatureRow.getId()) {
+						featureFound = true;
+					}
+					resultCount++;
 				}
 				TestCase.assertEquals(count, resultCount);
 				TestCase.assertTrue(featureFound);

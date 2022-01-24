@@ -55,6 +55,19 @@ public class FeatureIndexManagerCreateTest extends CreateGeoPackageTestCase {
 	}
 
 	/**
+	 * Test index pagination
+	 *
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testIndexPagination() throws SQLException {
+
+		FeatureIndexManagerUtils.testIndexPagination(geoPackage);
+
+	}
+
+	/**
 	 * Test large index
 	 *
 	 * @throws SQLException

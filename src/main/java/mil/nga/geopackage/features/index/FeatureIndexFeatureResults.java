@@ -34,24 +34,17 @@ public class FeatureIndexFeatureResults implements FeatureIndexResults {
 	 */
 	@Override
 	public Iterator<FeatureRow> iterator() {
-		return new Iterator<FeatureRow>() {
+		return resultSet.iterator();
+	}
 
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public boolean hasNext() {
-				return resultSet.moveToNext();
-			}
-
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public FeatureRow next() {
-				return resultSet.getRow();
-			}
-		};
+	/**
+	 * Get the result set
+	 * 
+	 * @return feature result set
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet getResultSet() {
+		return resultSet;
 	}
 
 	/**

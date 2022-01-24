@@ -19,6 +19,7 @@ import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.rtree.RTreeIndexTableDao;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeaturePaginatedResults;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.ManualFeatureQuery;
@@ -3103,6 +3104,69 @@ public class FeatureIndexManager {
 		BoundingBox featureBoundingBox = featureDao
 				.projectBoundingBox(boundingBox, projection);
 		return count(distinct, column, featureBoundingBox, where, whereArgs);
+	}
+
+	/**
+	 * Determine if the results are paginated
+	 * 
+	 * @param results
+	 *            query results
+	 * @return true if paginated
+	 * @since 6.1.3
+	 */
+	public static boolean isPaginated(FeatureIndexResults results) {
+		boolean paginated = false;
+		if (results instanceof FeatureIndexFeatureResults) {
+			paginated = isPaginated((FeatureIndexFeatureResults) results);
+		}
+		return paginated;
+	}
+
+	/**
+	 * Determine if the results are paginated
+	 * 
+	 * @param results
+	 *            query results
+	 * @return true if paginated
+	 * @since 6.1.3
+	 */
+	public static boolean isPaginated(FeatureIndexFeatureResults results) {
+		return FeaturePaginatedResults.isPaginated(results.getResultSet());
+	}
+
+	/**
+	 * Paginate the results
+	 * 
+	 * @param results
+	 *            feature index results
+	 * @return feature paginated results
+	 * @since 6.1.3
+	 */
+	public FeaturePaginatedResults paginate(FeatureIndexResults results) {
+		return paginate(getFeatureDao(), results);
+	}
+
+	/**
+	 * Paginate the results
+	 * 
+	 * @param featureDao
+	 *            feature dao
+	 * @param results
+	 *            feature index results
+	 * @return feature paginated results
+	 * @since 6.1.3
+	 */
+	public static FeaturePaginatedResults paginate(FeatureDao featureDao,
+			FeatureIndexResults results) {
+		if (!(results instanceof FeatureIndexFeatureResults)) {
+			throw new GeoPackageException(
+					"Results do not contain a feature result set. Expected: "
+							+ FeatureIndexFeatureResults.class.getSimpleName()
+							+ ", Received: "
+							+ results.getClass().getSimpleName());
+		}
+		return FeaturePaginatedResults.create(featureDao,
+				((FeatureIndexFeatureResults) results).getResultSet());
 	}
 
 	/**

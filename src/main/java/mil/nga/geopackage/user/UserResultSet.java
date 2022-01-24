@@ -3,6 +3,7 @@ package mil.nga.geopackage.user;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.db.ResultSetResult;
@@ -323,21 +324,42 @@ public abstract class UserResultSet<TColumn extends UserColumn, TTable extends U
 	}
 
 	/**
-	 * Get the SQL statement (if available)
-	 * 
-	 * @return SQL statement
-	 * @since 4.0.0
+	 * {@inheritDoc}
 	 */
+	@Override
+	public Iterator<TRow> iterator() {
+		return new Iterator<TRow>() {
+
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public boolean hasNext() {
+				return moveToNext();
+			}
+
+			/**
+			 * {@inheritDoc}
+			 */
+			@Override
+			public TRow next() {
+				return getRow();
+			}
+		};
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getSql() {
 		return sql;
 	}
 
 	/**
-	 * Get the SQL selection arguments (if available)
-	 * 
-	 * @return selection arguments
-	 * @since 4.0.0
+	 * {@inheritDoc}
 	 */
+	@Override
 	public String[] getSelectionArgs() {
 		return selectionArgs;
 	}

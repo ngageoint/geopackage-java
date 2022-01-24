@@ -59,8 +59,7 @@ String featureTable = features.get(0);
 FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 FeatureResultSet featureResultSet = featureDao.queryForAll();
 try {
-  while (featureResultSet.moveToNext()) {
-    FeatureRow featureRow = featureResultSet.getRow();
+  for (FeatureRow featureRow : featureResultSet) {
     GeoPackageGeometryData geometryData = featureRow.getGeometry();
     if (geometryData != null && !geometryData.isEmpty()) {
       Geometry geometry = geometryData.getGeometry();
@@ -76,8 +75,7 @@ String tileTable = tiles.get(0);
 TileDao tileDao = geoPackage.getTileDao(tileTable);
 TileResultSet tileResultSet = tileDao.queryForAll();
 try {
-  while (tileResultSet.moveToNext()) {
-    TileRow tileRow = tileResultSet.getRow();
+  for (TileRow tileRow : tileResultSet) {
     byte[] tileBytes = tileRow.getTileData();
     BufferedImage tileImage = tileRow.getTileDataImage();
     // ...

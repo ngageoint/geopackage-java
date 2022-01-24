@@ -108,6 +108,17 @@ public abstract class UserConnection<TColumn extends UserColumn, TTable extends 
 
 		return createResult(resultSet, sql, selectionArgs);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TResult rawQuery(String sql, String[] columns, String[] selectionArgs) {
+
+		ResultSet resultSet = SQLUtils.query(connection, sql, selectionArgs);
+
+		return createResult(columns, resultSet, sql, selectionArgs);
+	}
 
 	/**
 	 * {@inheritDoc}
