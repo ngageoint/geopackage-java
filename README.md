@@ -107,11 +107,28 @@ if (geoPackageTile2 != null) {
   // ...
 }
 
+BoundingBox boundingBox = BoundingBox.worldWebMercator();
+Projection projection = ProjectionFactory
+    .getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+
 // Index Features
 FeatureIndexManager indexer = new FeatureIndexManager(geoPackage,
     featureDao);
 indexer.setIndexLocation(FeatureIndexType.RTREE);
 int indexedCount = indexer.index();
+
+// Query Indexed Features in paginated chunks
+FeatureIndexResults indexResults = indexer.queryForChunk(boundingBox,
+		projection, 50);
+FeaturePaginatedResults paginatedResults = indexer
+		.paginate(indexResults);
+for (FeatureRow featureRow : paginatedResults) {
+	GeoPackageGeometryData geometryData = featureRow.getGeometry();
+	if (geometryData != null && !geometryData.isEmpty()) {
+		Geometry geometry = geometryData.getGeometry();
+		// ...
+	}
+}
 
 // Draw tiles from features
 FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
@@ -124,10 +141,6 @@ featureTiles.setMaxFeaturesTileDraw(numberFeaturesTile);
 // Set index manager to query feature indices
 featureTiles.setIndexManager(indexer);
 BufferedImage tile = featureTiles.drawTile(2, 2, 2);
-
-BoundingBox boundingBox = BoundingBox.worldWebMercator();
-Projection projection = ProjectionFactory
-    .getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
 
 // URL Tile Generator (generate tiles from a URL)
 TileGenerator urlTileGenerator = new UrlTileGenerator(geoPackage,

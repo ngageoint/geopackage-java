@@ -1176,7 +1176,7 @@ public class FeatureIndexManagerUtils {
 			int resultCount = 0;
 			int chunkLimit = 3;
 			FeaturePaginatedResults paginatedResults = featureIndexManager
-					.paginate(featureIndexManager.queryForChunk(chunkLimit, 0));
+					.paginate(featureIndexManager.queryForChunk(chunkLimit));
 			for (FeatureRow featureRow : paginatedResults) {
 				validateFeatureRow(featureIndexManager, featureRow, null,
 						includeEmpty);
@@ -1189,7 +1189,7 @@ public class FeatureIndexManagerUtils {
 			chunkLimit = 5;
 			paginatedResults = featureIndexManager.paginate(featureIndexManager
 					.queryForChunk(featureDao.getIdAndGeometryColumnNames(),
-							chunkLimit, 0));
+							chunkLimit));
 			for (FeatureRow featureRow : paginatedResults) {
 				validateFeatureRow(featureIndexManager, featureRow, null,
 						includeEmpty);
@@ -1217,7 +1217,7 @@ public class FeatureIndexManagerUtils {
 			resultCount = 0;
 			chunkLimit = 2;
 			paginatedResults = featureIndexManager.paginate(
-					featureIndexManager.queryForChunk(envelope, chunkLimit, 0));
+					featureIndexManager.queryForChunk(envelope, chunkLimit));
 			for (FeatureRow featureRow : paginatedResults) {
 				validateFeatureRow(featureIndexManager, featureRow, envelope,
 						includeEmpty);
@@ -1233,7 +1233,7 @@ public class FeatureIndexManagerUtils {
 			chunkLimit = 4;
 			paginatedResults = featureIndexManager.paginate(featureIndexManager
 					.queryForChunk(featureDao.getIdAndGeometryColumnNames(),
-							envelope, chunkLimit, 0));
+							envelope, chunkLimit));
 			for (FeatureRow featureRow : paginatedResults) {
 				validateFeatureRow(featureIndexManager, featureRow, envelope,
 						includeEmpty);
@@ -1251,7 +1251,7 @@ public class FeatureIndexManagerUtils {
 			chunkLimit = 1;
 			TestCase.assertTrue(featureIndexManager.count(envelope) >= 1);
 			paginatedResults = featureIndexManager.paginate(
-					featureIndexManager.queryForChunk(envelope, chunkLimit, 0));
+					featureIndexManager.queryForChunk(envelope, chunkLimit));
 			for (FeatureRow featureRow : paginatedResults) {
 				validateFeatureRow(featureIndexManager, featureRow, envelope,
 						includeEmpty);
@@ -1291,7 +1291,7 @@ public class FeatureIndexManagerUtils {
 					.count(transformedBoundingBox, projection) >= 1);
 			paginatedResults = featureIndexManager.paginate(
 					featureIndexManager.queryForChunk(transformedBoundingBox,
-							projection, chunkLimit, 0));
+							projection, chunkLimit));
 			for (FeatureRow featureRow : paginatedResults) {
 				validateFeatureRow(featureIndexManager, featureRow,
 						boundingBox.buildEnvelope(), includeEmpty);
@@ -1307,7 +1307,7 @@ public class FeatureIndexManagerUtils {
 			chunkLimit = 100;
 			paginatedResults = featureIndexManager.paginate(featureIndexManager
 					.queryForChunk(featureDao.getIdAndGeometryColumnNames(),
-							transformedBoundingBox, projection, chunkLimit, 0));
+							transformedBoundingBox, projection, chunkLimit));
 			for (FeatureRow featureRow : paginatedResults) {
 				validateFeatureRow(featureIndexManager, featureRow,
 						boundingBox.buildEnvelope(), includeEmpty);
@@ -1376,7 +1376,7 @@ public class FeatureIndexManagerUtils {
 				chunkLimit = 5;
 				paginatedResults = featureIndexManager
 						.paginate(featureIndexManager.queryForChunk(where,
-								whereArgs, chunkLimit, 0));
+								whereArgs, chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							((Number) featureRow.getValue(column))
@@ -1389,7 +1389,7 @@ public class FeatureIndexManagerUtils {
 				paginatedResults = featureIndexManager
 						.paginate(featureIndexManager.queryForChunk(
 								new String[] { column }, where, whereArgs,
-								chunkLimit, 0));
+								chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							((Number) featureRow.getValue(column))
@@ -1407,7 +1407,7 @@ public class FeatureIndexManagerUtils {
 				paginatedResults = featureIndexManager
 						.paginate(featureIndexManager.queryForChunk(
 								transformedBoundingBox, projection, where,
-								whereArgs, chunkLimit, 0));
+								whereArgs, chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							((Number) featureRow.getValue(column))
@@ -1432,7 +1432,7 @@ public class FeatureIndexManagerUtils {
 										featureDao.getGeometryColumnName(),
 										column, featureDao.getIdColumnName() },
 								transformedBoundingBox, projection, where,
-								whereArgs, chunkLimit, 0));
+								whereArgs, chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							((Number) featureRow.getValue(column))
@@ -1463,7 +1463,7 @@ public class FeatureIndexManagerUtils {
 				chunkLimit = 4;
 				paginatedResults = featureIndexManager
 						.paginate(featureIndexManager.queryForChunk(fieldValues,
-								chunkLimit, 0));
+								chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							featureRow.getValueString(column));
@@ -1475,7 +1475,7 @@ public class FeatureIndexManagerUtils {
 				paginatedResults = featureIndexManager
 						.paginate(featureIndexManager.queryForChunk(
 								new String[] { column }, fieldValues,
-								chunkLimit, 0));
+								chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							featureRow.getValueString(column));
@@ -1492,7 +1492,7 @@ public class FeatureIndexManagerUtils {
 				paginatedResults = featureIndexManager
 						.paginate(featureIndexManager.queryForChunk(
 								transformedBoundingBox, projection, fieldValues,
-								chunkLimit, 0));
+								chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							featureRow.getValueString(column));
@@ -1516,7 +1516,7 @@ public class FeatureIndexManagerUtils {
 										featureDao.getIdColumnName(),
 										featureDao.getGeometryColumnName() },
 								transformedBoundingBox, projection, fieldValues,
-								chunkLimit, 0));
+								chunkLimit));
 				for (FeatureRow featureRow : paginatedResults) {
 					TestCase.assertEquals(value,
 							featureRow.getValueString(column));
