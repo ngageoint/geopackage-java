@@ -143,30 +143,6 @@ public class ManualFeatureQuery {
 	}
 
 	/**
-	 * Query for features, starting at the offset and returning no more than the
-	 * limit
-	 * 
-	 * @param distinct
-	 *            distinct rows
-	 * @param columns
-	 *            columns
-	 * @param orderBy
-	 *            order by
-	 * @param limit
-	 *            chunk limit
-	 * @param offset
-	 *            chunk query offset
-	 * 
-	 * @return feature results
-	 * @since 6.1.3
-	 */
-	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
-			String orderBy, int limit, long offset) {
-		return featureDao.queryForChunk(distinct, columns, orderBy, limit,
-				offset);
-	}
-
-	/**
 	 * Get the count of features
 	 *
 	 * @return count
@@ -502,35 +478,6 @@ public class ManualFeatureQuery {
 	public FeatureResultSet query(boolean distinct, String[] columns,
 			String where, String[] whereArgs) {
 		return featureDao.query(distinct, columns, where, whereArgs);
-	}
-
-	/**
-	 * Query for features, starting at the offset and returning no more than the
-	 * limit
-	 * 
-	 * @param distinct
-	 *            distinct rows
-	 * @param columns
-	 *            columns
-	 * @param where
-	 *            where clause
-	 * @param whereArgs
-	 *            where arguments
-	 * @param orderBy
-	 *            order by
-	 * @param limit
-	 *            chunk limit
-	 * @param offset
-	 *            chunk query offset
-	 * 
-	 * @return feature results
-	 * @since 6.1.3
-	 */
-	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
-			String where, String[] whereArgs, String orderBy, int limit,
-			long offset) {
-		return featureDao.queryForChunk(distinct, columns, where, whereArgs,
-				orderBy, limit, offset);
 	}
 
 	/**
@@ -1715,37 +1662,6 @@ public class ManualFeatureQuery {
 	}
 
 	/**
-	 * Manually query for rows within the geometry envelope, starting at the
-	 * offset and returning no more than the limit
-	 * 
-	 * @param distinct
-	 *            distinct rows
-	 * @param columns
-	 *            columns
-	 * @param envelope
-	 *            geometry envelope
-	 * @param where
-	 *            where clause
-	 * @param whereArgs
-	 *            where arguments
-	 * @param orderBy
-	 *            order by
-	 * @param limit
-	 *            chunk limit
-	 * @param offset
-	 *            chunk query offset
-	 * @return results
-	 * @since 6.1.3
-	 */
-	public ManualFeatureQueryResults queryForChunk(boolean distinct,
-			String[] columns, GeometryEnvelope envelope, String where,
-			String[] whereArgs, String orderBy, int limit, long offset) {
-		return queryForChunk(distinct, columns, envelope.getMinX(),
-				envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY(),
-				where, whereArgs, orderBy, limit, offset);
-	}
-
-	/**
 	 * Manually count the rows within the geometry envelope
 	 * 
 	 * @param envelope
@@ -2253,8 +2169,1374 @@ public class ManualFeatureQuery {
 	}
 
 	/**
+	 * Manually count the rows within the bounds
+	 * 
+	 * @param minX
+	 *            min x
+	 * @param minY
+	 *            min y
+	 * @param maxX
+	 *            max x
+	 * @param maxY
+	 *            max y
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where args
+	 * @return count
+	 * @since 3.4.0
+	 */
+	public long count(double minX, double minY, double maxX, double maxY,
+			String where, String[] whereArgs) {
+		return query(minX, minY, maxX, maxY, where, whereArgs).count();
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param limit
+	 *            chunk limit
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(int limit) {
+		return featureDao.queryForChunk(limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(int limit, long offset) {
+		return featureDao.queryForChunk(limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String orderBy, int limit) {
+		return featureDao.queryForChunk(orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String orderBy, int limit,
+			long offset) {
+		return featureDao.queryForChunk(orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param limit
+	 *            chunk limit
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, int limit) {
+		return featureDao.queryForChunk(distinct, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, int limit,
+			long offset) {
+		return featureDao.queryForChunk(distinct, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String orderBy,
+			int limit) {
+		return featureDao.queryForChunk(distinct, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String orderBy,
+			int limit, long offset) {
+		return featureDao.queryForChunk(distinct, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, int limit) {
+		return featureDao.queryForChunk(columns, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, int limit,
+			long offset) {
+		return featureDao.queryForChunk(columns, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String orderBy,
+			int limit) {
+		return featureDao.queryForChunk(columns, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String orderBy,
+			int limit, long offset) {
+		return featureDao.queryForChunk(columns, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			int limit) {
+		return featureDao.queryForChunk(distinct, columns, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			int limit, long offset) {
+		return featureDao.queryForChunk(distinct, columns, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			String orderBy, int limit) {
+		return featureDao.queryForChunk(distinct, columns, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(distinct, columns, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
+			int limit) {
+		return queryForChunk(false, fieldValues, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
+			int limit, long offset) {
+		return queryForChunk(false, fieldValues, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
+			String orderBy, int limit) {
+		return queryForChunk(false, fieldValues, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
+			String orderBy, int limit, long offset) {
+		return queryForChunk(false, fieldValues, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct,
+			Map<String, Object> fieldValues, int limit) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, where, whereArgs, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, where, whereArgs, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct,
+			Map<String, Object> fieldValues, String orderBy, int limit) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, where, whereArgs, orderBy,
+				limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, where, whereArgs, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns,
+			Map<String, Object> fieldValues, int limit) {
+		return queryForChunk(false, columns, fieldValues, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		return queryForChunk(false, columns, fieldValues, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns,
+			Map<String, Object> fieldValues, String orderBy, int limit) {
+		return queryForChunk(false, columns, fieldValues, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		return queryForChunk(false, columns, fieldValues, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			Map<String, Object> fieldValues, int limit) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, columns, where, whereArgs,
+				limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			Map<String, Object> fieldValues, int limit, long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, columns, where, whereArgs,
+				limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			Map<String, Object> fieldValues, String orderBy, int limit) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, columns, where, whereArgs,
+				orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param fieldValues
+	 *            field values
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			Map<String, Object> fieldValues, String orderBy, int limit,
+			long offset) {
+		String where = featureDao.buildWhere(fieldValues.entrySet());
+		String[] whereArgs = featureDao.buildWhereArgs(fieldValues.values());
+		return featureDao.queryForChunk(distinct, columns, where, whereArgs,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(String where, int limit) {
+		return featureDao.queryForChunk(where, new String[] {}, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(String where, int limit,
+			long offset) {
+		return featureDao.queryForChunk(where, new String[] {}, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String where, String orderBy,
+			int limit) {
+		return featureDao.queryForChunk(where, new String[] {}, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String where, String orderBy,
+			int limit, long offset) {
+		return featureDao.queryForChunk(where, new String[] {}, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(boolean distinct, String where,
+			int limit) {
+		return featureDao.queryForChunk(distinct, where, new String[] {},
+				limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(boolean distinct, String where,
+			int limit, long offset) {
+		return featureDao.queryForChunk(distinct, where, new String[] {}, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String where,
+			String orderBy, int limit) {
+		return featureDao.queryForChunk(distinct, where, new String[] {},
+				orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String where,
+			String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(distinct, where, new String[] {},
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(String[] columns, String where,
+			int limit) {
+		return featureDao.queryForChunk(columns, where, new String[] {}, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(String[] columns, String where,
+			int limit, long offset) {
+		return featureDao.queryForChunk(columns, where, new String[] {}, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String where,
+			String orderBy, int limit) {
+		return featureDao.queryForChunk(columns, where, new String[] {},
+				orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String where,
+			String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(columns, where, new String[] {},
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(boolean distinct,
+			String[] columns, String where, int limit) {
+		return featureDao.queryForChunk(distinct, columns, where,
+				new String[] {}, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunkWhere(boolean distinct,
+			String[] columns, String where, int limit, long offset) {
+		return featureDao.queryForChunk(distinct, columns, where,
+				new String[] {}, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			String where, String orderBy, int limit) {
+		return featureDao.queryForChunk(distinct, columns, where,
+				new String[] {}, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			String where, String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(distinct, columns, where,
+				new String[] {}, orderBy, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
+			int limit) {
+		return featureDao.queryForChunk(where, whereArgs, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
+			int limit, long offset) {
+		return featureDao.queryForChunk(where, whereArgs, limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
+			String orderBy, int limit) {
+		return featureDao.queryForChunk(where, whereArgs, orderBy, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
+			String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(where, whereArgs, orderBy, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String where,
+			String[] whereArgs, int limit) {
+		return featureDao.queryForChunk(distinct, where, whereArgs, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String where,
+			String[] whereArgs, int limit, long offset) {
+		return featureDao.queryForChunk(distinct, where, whereArgs, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String where,
+			String[] whereArgs, String orderBy, int limit) {
+		return featureDao.queryForChunk(distinct, where, whereArgs, orderBy,
+				limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(distinct, where, whereArgs, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String where,
+			String[] whereArgs, int limit) {
+		return featureDao.queryForChunk(columns, where, whereArgs, limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String where,
+			String[] whereArgs, int limit, long offset) {
+		return featureDao.queryForChunk(columns, where, whereArgs, limit,
+				offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String where,
+			String[] whereArgs, String orderBy, int limit) {
+		return featureDao.queryForChunk(columns, where, whereArgs, orderBy,
+				limit);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(String[] columns, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return featureDao.queryForChunk(columns, where, whereArgs, orderBy,
+				limit, offset);
+	}
+
+	/**
+	 * Query for features, starting at the offset and returning no more than the
+	 * limit
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * 
+	 * @return feature results
+	 * @since 6.1.3
+	 */
+	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
+			String where, String[] whereArgs, String orderBy, int limit,
+			long offset) {
+		return featureDao.queryForChunk(distinct, columns, where, whereArgs,
+				orderBy, limit, offset);
+	}
+
+	/**
+	 * Manually query for rows within the geometry envelope, starting at the
+	 * offset and returning no more than the limit
+	 * 
+	 * WARNING: This method must iterate from the 0 offset each time, is
+	 * extremely inefficient, and not recommended for use
+	 * 
+	 * @param distinct
+	 *            distinct rows
+	 * @param columns
+	 *            columns
+	 * @param envelope
+	 *            geometry envelope
+	 * @param where
+	 *            where clause
+	 * @param whereArgs
+	 *            where arguments
+	 * @param orderBy
+	 *            order by
+	 * @param limit
+	 *            chunk limit
+	 * @param offset
+	 *            chunk query offset
+	 * @return results
+	 * @since 6.1.3
+	 */
+	public ManualFeatureQueryResults queryForChunk(boolean distinct,
+			String[] columns, GeometryEnvelope envelope, String where,
+			String[] whereArgs, String orderBy, int limit, long offset) {
+		return queryForChunk(distinct, columns, envelope.getMinX(),
+				envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY(),
+				where, whereArgs, orderBy, limit, offset);
+	}
+
+	/**
 	 * Manually query for rows within the bounds, starting at the offset and
 	 * returning no more than the limit
+	 * 
+	 * WARNING: This method must iterate from the 0 offset each time, is
+	 * extremely inefficient, and not recommended for use
 	 * 
 	 * @param distinct
 	 *            distinct rows
@@ -2342,29 +3624,6 @@ public class ManualFeatureQuery {
 				featureDao, columns, featureIds);
 
 		return results;
-	}
-
-	/**
-	 * Manually count the rows within the bounds
-	 * 
-	 * @param minX
-	 *            min x
-	 * @param minY
-	 *            min y
-	 * @param maxX
-	 *            max x
-	 * @param maxY
-	 *            max y
-	 * @param where
-	 *            where clause
-	 * @param whereArgs
-	 *            where args
-	 * @return count
-	 * @since 3.4.0
-	 */
-	public long count(double minX, double minY, double maxX, double maxY,
-			String where, String[] whereArgs) {
-		return query(minX, minY, maxX, maxY, where, whereArgs).count();
 	}
 
 }
