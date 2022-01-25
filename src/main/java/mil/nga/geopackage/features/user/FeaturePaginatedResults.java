@@ -61,4 +61,20 @@ public class FeaturePaginatedResults extends
 		super(dao, results);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FeatureDao getDao() {
+		return (FeatureDao) super.getDao();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FeatureResultSet getResults() {
+		return (FeatureResultSet) super.getResults();
+	}
+
 }

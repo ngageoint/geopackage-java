@@ -31,4 +31,20 @@ public abstract class UserPaginatedResults<TColumn extends UserColumn, TTable ex
 		super(dao, results);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserDao<TColumn, TTable, TRow, TResult> getDao() {
+		return (UserDao<TColumn, TTable, TRow, TResult>) super.getDao();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserResultSet<TColumn, TTable, TRow> getResults() {
+		return (UserResultSet<TColumn, TTable, TRow>) super.getResults();
+	}
+
 }

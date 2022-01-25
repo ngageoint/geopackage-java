@@ -62,4 +62,20 @@ public class AttributesPaginatedResults extends
 		super(dao, results);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AttributesDao getDao() {
+		return (AttributesDao) super.getDao();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AttributesResultSet getResults() {
+		return (AttributesResultSet) super.getResults();
+	}
+
 }

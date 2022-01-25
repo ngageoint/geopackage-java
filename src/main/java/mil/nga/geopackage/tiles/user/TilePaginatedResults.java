@@ -60,4 +60,20 @@ public class TilePaginatedResults extends
 		super(dao, results);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TileDao getDao() {
+		return (TileDao) super.getDao();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TileResultSet getResults() {
+		return (TileResultSet) super.getResults();
+	}
+
 }

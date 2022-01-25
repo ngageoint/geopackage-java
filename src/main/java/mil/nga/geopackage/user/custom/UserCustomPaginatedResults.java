@@ -62,4 +62,20 @@ public class UserCustomPaginatedResults extends
 		super(dao, results);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserCustomDao getDao() {
+		return (UserCustomDao) super.getDao();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserCustomResultSet getResults() {
+		return (UserCustomResultSet) super.getResults();
+	}
+
 }
