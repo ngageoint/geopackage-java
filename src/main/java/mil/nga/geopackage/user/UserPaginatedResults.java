@@ -22,9 +22,9 @@ public abstract class UserPaginatedResults<TColumn extends UserColumn, TTable ex
 	 * Constructor
 	 * 
 	 * @param dao
-	 *            feature dao
+	 *            user dao
 	 * @param results
-	 *            feature result set
+	 *            user result set
 	 */
 	protected UserPaginatedResults(UserDao<TColumn, TTable, TRow, TResult> dao,
 			UserResultSet<TColumn, TTable, TRow> results) {
