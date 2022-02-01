@@ -170,7 +170,7 @@ public class FeatureTableIndex extends FeatureTableCoreIndex {
 	}
 
 	/**
-	 * Index the feature rows in the cursor
+	 * Index the feature rows in the result set
 	 * 
 	 * @param tableIndex
 	 *            table index

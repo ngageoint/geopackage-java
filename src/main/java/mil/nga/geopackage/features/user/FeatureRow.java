@@ -12,7 +12,7 @@ import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
 
 /**
- * Feature Row containing the values from a single cursor row
+ * Feature Row containing the values from a single result set row
  * 
  * @author osbornb
  */

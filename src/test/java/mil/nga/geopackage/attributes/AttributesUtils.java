@@ -71,18 +71,18 @@ public class AttributesUtils {
 				String[] columns = attributesTable.getColumnNames();
 
 				// Query for all
-				AttributesResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				AttributesResultSet attributesResultSet = dao.queryForAll();
+				int count = attributesResultSet.getCount();
 				int manualCount = 0;
-				while (cursor.moveToNext()) {
+				while (attributesResultSet.moveToNext()) {
 
-					AttributesRow attributesRow = cursor.getRow();
+					AttributesRow attributesRow = attributesResultSet.getRow();
 					validateAttributesRow(columns, attributesRow);
 
 					manualCount++;
 				}
 				TestCase.assertEquals(count, manualCount);
-				cursor.close();
+				attributesResultSet.close();
 
 				// Manually query for all and compare
 				Connection connection = dao.getConnection();
@@ -91,30 +91,30 @@ public class AttributesUtils {
 						null);
 				ResultSet resultSet = SQLUtils.query(connection, sql, null);
 				int resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new AttributesResultSet(attributesTable, resultSet,
-						resultSetCount);
-				count = cursor.getCount();
+				attributesResultSet = new AttributesResultSet(attributesTable,
+						resultSet, resultSetCount);
+				count = attributesResultSet.getCount();
 				manualCount = 0;
-				while (cursor.moveToNext()) {
+				while (attributesResultSet.moveToNext()) {
 					manualCount++;
 				}
 				TestCase.assertEquals(count, manualCount);
 
 				TestCase.assertTrue("No attributes to test", count > 0);
 
-				cursor.close();
+				attributesResultSet.close();
 
 				resultSet = SQLUtils.query(connection, sql, null);
 				resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new AttributesResultSet(attributesTable, resultSet,
-						resultSetCount);
+				attributesResultSet = new AttributesResultSet(attributesTable,
+						resultSet, resultSetCount);
 
 				// Choose random attribute
 				int random = (int) (Math.random() * count);
-				cursor.moveToPosition(random);
-				AttributesRow attributesRow = cursor.getRow();
+				attributesResultSet.moveToPosition(random);
+				AttributesRow attributesRow = attributesResultSet.getRow();
 
-				cursor.close();
+				attributesResultSet.close();
 
 				// Query by id
 				AttributesRow queryAttributesRow = dao
@@ -159,12 +159,12 @@ public class AttributesUtils {
 					} else {
 						column1AttributesValue = new ColumnValue(column1Value);
 					}
-					cursor = dao.queryForEq(column1.getName(),
+					attributesResultSet = dao.queryForEq(column1.getName(),
 							column1AttributesValue);
-					TestCase.assertTrue(cursor.getCount() > 0);
+					TestCase.assertTrue(attributesResultSet.getCount() > 0);
 					boolean found = false;
-					while (cursor.moveToNext()) {
-						queryAttributesRow = cursor.getRow();
+					while (attributesResultSet.moveToNext()) {
+						queryAttributesRow = attributesResultSet.getRow();
 						TestCase.assertEquals(column1Value,
 								queryAttributesRow.getValue(column1.getName()));
 						if (!found) {
@@ -173,7 +173,7 @@ public class AttributesUtils {
 						}
 					}
 					TestCase.assertTrue(found);
-					cursor.close();
+					attributesResultSet.close();
 
 					// Query for field values
 					Map<String, ColumnValue> fieldValues = new HashMap<String, ColumnValue>();
@@ -202,11 +202,12 @@ public class AttributesUtils {
 						fieldValues.put(column2.getName(),
 								column2AttributesValue);
 					}
-					cursor = dao.queryForValueFieldValues(fieldValues);
-					TestCase.assertTrue(cursor.getCount() > 0);
+					attributesResultSet = dao
+							.queryForValueFieldValues(fieldValues);
+					TestCase.assertTrue(attributesResultSet.getCount() > 0);
 					found = false;
-					while (cursor.moveToNext()) {
-						queryAttributesRow = cursor.getRow();
+					while (attributesResultSet.moveToNext()) {
+						queryAttributesRow = attributesResultSet.getRow();
 						TestCase.assertEquals(column1Value,
 								queryAttributesRow.getValue(column1.getName()));
 						if (column2 != null) {
@@ -220,7 +221,7 @@ public class AttributesUtils {
 						}
 					}
 					TestCase.assertTrue(found);
-					cursor.close();
+					attributesResultSet.close();
 				}
 
 				MetadataReferenceDao referenceDao = MetadataExtension
@@ -273,45 +274,53 @@ public class AttributesUtils {
 					expectedResultSet.close();
 					TestCase.assertEquals(expectedDistinctManualResultSetCount,
 							expectedDistinctResultSetCount);
-					cursor = dao.query(true, new String[] { column });
-					TestCase.assertEquals(1, cursor.getColumnCount());
+					attributesResultSet = dao.query(true,
+							new String[] { column });
+					TestCase.assertEquals(1,
+							attributesResultSet.getColumnCount());
 					TestCase.assertEquals(expectedDistinctResultSetCount,
-							cursor.getCount());
-					TestCase.assertEquals(distinctCount, cursor.getCount());
-					cursor.close();
-					cursor = dao.query(new String[] { column });
-					TestCase.assertEquals(1, cursor.getColumnCount());
-					TestCase.assertEquals(count, cursor.getCount());
+							attributesResultSet.getCount());
+					TestCase.assertEquals(distinctCount,
+							attributesResultSet.getCount());
+					attributesResultSet.close();
+					attributesResultSet = dao.query(new String[] { column });
+					TestCase.assertEquals(1,
+							attributesResultSet.getColumnCount());
+					TestCase.assertEquals(count,
+							attributesResultSet.getCount());
 					Set<Object> distinctValues = new HashSet<>();
-					while (cursor.moveToNext()) {
-						Object value = cursor.getValue(column);
+					while (attributesResultSet.moveToNext()) {
+						Object value = attributesResultSet.getValue(column);
 						distinctValues.add(value);
 					}
-					cursor.close();
+					attributesResultSet.close();
 					TestCase.assertEquals(distinctCount, distinctValues.size());
 
 					if (previousColumn != null) {
 
-						cursor = dao.query(true,
+						attributesResultSet = dao.query(true,
 								new String[] { previousColumn, column });
-						TestCase.assertEquals(2, cursor.getColumnCount());
-						distinctCount = cursor.getCount();
+						TestCase.assertEquals(2,
+								attributesResultSet.getColumnCount());
+						distinctCount = attributesResultSet.getCount();
 						if (distinctCount < 0) {
 							distinctCount = 0;
-							while (cursor.moveToNext()) {
+							while (attributesResultSet.moveToNext()) {
 								distinctCount++;
 							}
 						}
-						cursor.close();
-						cursor = dao
+						attributesResultSet.close();
+						attributesResultSet = dao
 								.query(new String[] { previousColumn, column });
-						TestCase.assertEquals(2, cursor.getColumnCount());
-						TestCase.assertEquals(count, cursor.getCount());
+						TestCase.assertEquals(2,
+								attributesResultSet.getColumnCount());
+						TestCase.assertEquals(count,
+								attributesResultSet.getCount());
 						Map<Object, Set<Object>> distinctPairs = new HashMap<>();
-						while (cursor.moveToNext()) {
-							Object previousValue = cursor
+						while (attributesResultSet.moveToNext()) {
+							Object previousValue = attributesResultSet
 									.getValue(previousColumn);
-							Object value = cursor.getValue(column);
+							Object value = attributesResultSet.getValue(column);
 							distinctValues = distinctPairs.get(previousValue);
 							if (distinctValues == null) {
 								distinctValues = new HashSet<>();
@@ -320,7 +329,7 @@ public class AttributesUtils {
 							}
 							distinctValues.add(value);
 						}
-						cursor.close();
+						attributesResultSet.close();
 						int distinctPairsCount = 0;
 						for (Set<Object> values : distinctPairs.values()) {
 							distinctPairsCount += values.size();
@@ -570,14 +579,14 @@ public class AttributesUtils {
 		TestCase.assertNotNull(dao);
 
 		// Query for all
-		AttributesResultSet cursor = dao.queryForAll();
-		int count = cursor.getCount();
+		AttributesResultSet resultSet = dao.queryForAll();
+		int count = resultSet.getCount();
 		if (count > 0) {
 
 			// // Choose random attribute
 			// int random = (int) (Math.random() * count);
-			// cursor.moveToPosition(random);
-			cursor.moveToFirst();
+			// resultSet.moveToPosition(random);
+			resultSet.moveToFirst();
 
 			String updatedString = null;
 			String updatedLimitedString = null;
@@ -592,8 +601,8 @@ public class AttributesUtils {
 			byte[] updatedBytes = null;
 			byte[] updatedLimitedBytes = null;
 
-			AttributesRow originalRow = cursor.getRow();
-			AttributesRow attributesRow = cursor.getRow();
+			AttributesRow originalRow = resultSet.getRow();
+			AttributesRow attributesRow = resultSet.getRow();
 
 			try {
 				attributesRow.setValue(attributesRow.getPkColumnIndex(), 9);
@@ -787,7 +796,7 @@ public class AttributesUtils {
 				}
 			}
 
-			cursor.close();
+			resultSet.close();
 
 			TestCase.assertEquals(1, dao.update(attributesRow));
 
@@ -901,7 +910,7 @@ public class AttributesUtils {
 			}
 
 		}
-		cursor.close();
+		resultSet.close();
 
 	}
 
@@ -951,16 +960,16 @@ public class AttributesUtils {
 				AttributesDao dao = geoPackage.getAttributesDao(tableName);
 				TestCase.assertNotNull(dao);
 
-				AttributesResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				AttributesResultSet resultSet = dao.queryForAll();
+				int count = resultSet.getCount();
 				if (count > 0) {
 
 					// Choose random attribute
 					int random = (int) (Math.random() * count);
-					cursor.moveToPosition(random);
+					resultSet.moveToPosition(random);
 
-					AttributesRow attributesRow = cursor.getRow();
-					cursor.close();
+					AttributesRow attributesRow = resultSet.getRow();
+					resultSet.close();
 
 					// Create new row from existing
 					long id = attributesRow.getId();
@@ -975,9 +984,9 @@ public class AttributesUtils {
 					AttributesRow queryAttributesRow = dao
 							.queryForIdRow(newRowId);
 					TestCase.assertNotNull(queryAttributesRow);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 1, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 1, resultSet.getCount());
+					resultSet.close();
 
 					// Create new row with copied values from another
 					AttributesRow newRow = dao.newRow();
@@ -1005,9 +1014,9 @@ public class AttributesUtils {
 					AttributesRow queryAttributesRow2 = dao
 							.queryForIdRow(newRowId2);
 					TestCase.assertNotNull(queryAttributesRow2);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 2, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 2, resultSet.getCount());
+					resultSet.close();
 
 					// Test copied row
 					AttributesRow copyRow = queryAttributesRow2.copy();
@@ -1042,9 +1051,9 @@ public class AttributesUtils {
 					AttributesRow queryAttributesRow3 = dao
 							.queryForIdRow(newRowId3);
 					TestCase.assertNotNull(queryAttributesRow3);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 3, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 3, resultSet.getCount());
+					resultSet.close();
 
 					for (AttributesColumn column : dao.getTable()
 							.getColumns()) {
@@ -1075,7 +1084,7 @@ public class AttributesUtils {
 						}
 					}
 				}
-				cursor.close();
+				resultSet.close();
 			}
 		}
 
@@ -1100,16 +1109,16 @@ public class AttributesUtils {
 				AttributesDao dao = geoPackage.getAttributesDao(tableName);
 				TestCase.assertNotNull(dao);
 
-				AttributesResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				AttributesResultSet resultSet = dao.queryForAll();
+				int count = resultSet.getCount();
 				if (count > 0) {
 
 					// Choose random attribute
 					int random = (int) (Math.random() * count);
-					cursor.moveToPosition(random);
+					resultSet.moveToPosition(random);
 
-					AttributesRow attributesRow = cursor.getRow();
-					cursor.close();
+					AttributesRow attributesRow = resultSet.getRow();
+					resultSet.close();
 
 					// Delete row
 					TestCase.assertEquals(1, dao.delete(attributesRow));
@@ -1118,11 +1127,11 @@ public class AttributesUtils {
 					AttributesRow queryAttributesRow = dao
 							.queryForIdRow(attributesRow.getId());
 					TestCase.assertNull(queryAttributesRow);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count - 1, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count - 1, resultSet.getCount());
+					resultSet.close();
 				}
-				cursor.close();
+				resultSet.close();
 			}
 		}
 	}

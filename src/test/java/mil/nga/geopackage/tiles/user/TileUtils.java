@@ -104,17 +104,17 @@ public class TileUtils {
 						columns[tileDataIndex]);
 
 				// Query for all
-				TileResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				TileResultSet tileResultSet = dao.queryForAll();
+				int count = tileResultSet.getCount();
 				int manualCount = 0;
-				for(TileRow tileRow: cursor) {
+				for (TileRow tileRow : tileResultSet) {
 
 					validateTileRow(dao, columns, tileRow);
 
 					manualCount++;
 				}
 				TestCase.assertEquals(count, manualCount);
-				cursor.close();
+				tileResultSet.close();
 
 				// Manually query for all and compare
 				Connection connection = dao.getConnection();
@@ -123,30 +123,30 @@ public class TileUtils {
 						null);
 				ResultSet resultSet = SQLUtils.query(connection, sql, null);
 				int resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new TileResultSet(tileTable, resultSet,
+				tileResultSet = new TileResultSet(tileTable, resultSet,
 						resultSetCount);
-				count = cursor.getCount();
+				count = tileResultSet.getCount();
 				manualCount = 0;
-				while (cursor.moveToNext()) {
+				while (tileResultSet.moveToNext()) {
 					manualCount++;
 				}
 				TestCase.assertEquals(count, manualCount);
 
 				TestCase.assertTrue("No tiles to test", count > 0);
 
-				cursor.close();
+				tileResultSet.close();
 
 				resultSet = SQLUtils.query(connection, sql, null);
 				resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new TileResultSet(tileTable, resultSet,
+				tileResultSet = new TileResultSet(tileTable, resultSet,
 						resultSetCount);
 
 				// Choose random tile
 				int random = (int) (Math.random() * count);
-				cursor.moveToPosition(random);
-				TileRow tileRow = cursor.getRow();
+				tileResultSet.moveToPosition(random);
+				TileRow tileRow = tileResultSet.getRow();
 
-				cursor.close();
+				tileResultSet.close();
 
 				// Query by id
 				TileRow queryTileRow = dao.queryForIdRow(tileRow.getId());
@@ -182,12 +182,12 @@ public class TileUtils {
 					} else {
 						column1TileValue = new ColumnValue(column1Value);
 					}
-					cursor = dao.queryForEq(column1.getName(),
+					tileResultSet = dao.queryForEq(column1.getName(),
 							column1TileValue);
-					TestCase.assertTrue(cursor.getCount() > 0);
+					TestCase.assertTrue(tileResultSet.getCount() > 0);
 					boolean found = false;
-					while (cursor.moveToNext()) {
-						queryTileRow = cursor.getRow();
+					while (tileResultSet.moveToNext()) {
+						queryTileRow = tileResultSet.getRow();
 						TestCase.assertEquals(column1Value,
 								queryTileRow.getValue(column1.getName()));
 						if (!found) {
@@ -195,7 +195,7 @@ public class TileUtils {
 						}
 					}
 					TestCase.assertTrue(found);
-					cursor.close();
+					tileResultSet.close();
 
 					// Query for field values
 					Map<String, ColumnValue> fieldValues = new HashMap<String, ColumnValue>();
@@ -216,11 +216,11 @@ public class TileUtils {
 						}
 						fieldValues.put(column2.getName(), column2TileValue);
 					}
-					cursor = dao.queryForValueFieldValues(fieldValues);
-					TestCase.assertTrue(cursor.getCount() > 0);
+					tileResultSet = dao.queryForValueFieldValues(fieldValues);
+					TestCase.assertTrue(tileResultSet.getCount() > 0);
 					found = false;
-					while (cursor.moveToNext()) {
-						queryTileRow = cursor.getRow();
+					while (tileResultSet.moveToNext()) {
+						queryTileRow = tileResultSet.getRow();
 						TestCase.assertEquals(column1Value,
 								queryTileRow.getValue(column1.getName()));
 						if (column2 != null) {
@@ -232,7 +232,7 @@ public class TileUtils {
 						}
 					}
 					TestCase.assertTrue(found);
-					cursor.close();
+					tileResultSet.close();
 				}
 
 				String previousColumn = null;
@@ -260,21 +260,22 @@ public class TileUtils {
 					expectedResultSet.close();
 					TestCase.assertEquals(expectedDistinctManualResultSetCount,
 							expectedDistinctResultSetCount);
-					cursor = dao.query(true, new String[] { column });
-					TestCase.assertEquals(1, cursor.getColumnCount());
+					tileResultSet = dao.query(true, new String[] { column });
+					TestCase.assertEquals(1, tileResultSet.getColumnCount());
 					TestCase.assertEquals(expectedDistinctResultSetCount,
-							cursor.getCount());
-					TestCase.assertEquals(distinctCount, cursor.getCount());
-					cursor.close();
-					cursor = dao.query(new String[] { column });
-					TestCase.assertEquals(1, cursor.getColumnCount());
-					TestCase.assertEquals(count, cursor.getCount());
+							tileResultSet.getCount());
+					TestCase.assertEquals(distinctCount,
+							tileResultSet.getCount());
+					tileResultSet.close();
+					tileResultSet = dao.query(new String[] { column });
+					TestCase.assertEquals(1, tileResultSet.getColumnCount());
+					TestCase.assertEquals(count, tileResultSet.getCount());
 					Set<Object> distinctValues = new HashSet<>();
-					while (cursor.moveToNext()) {
-						Object value = cursor.getValue(column);
+					while (tileResultSet.moveToNext()) {
+						Object value = tileResultSet.getValue(column);
 						distinctValues.add(value);
 					}
-					cursor.close();
+					tileResultSet.close();
 					if (!column
 							.equals(tileTable.getTileDataColumn().getName())) {
 						TestCase.assertEquals(distinctCount,
@@ -283,26 +284,28 @@ public class TileUtils {
 
 					if (previousColumn != null) {
 
-						cursor = dao.query(true,
+						tileResultSet = dao.query(true,
 								new String[] { previousColumn, column });
-						TestCase.assertEquals(2, cursor.getColumnCount());
-						distinctCount = cursor.getCount();
+						TestCase.assertEquals(2,
+								tileResultSet.getColumnCount());
+						distinctCount = tileResultSet.getCount();
 						if (distinctCount < 0) {
 							distinctCount = 0;
-							while (cursor.moveToNext()) {
+							while (tileResultSet.moveToNext()) {
 								distinctCount++;
 							}
 						}
-						cursor.close();
-						cursor = dao
+						tileResultSet.close();
+						tileResultSet = dao
 								.query(new String[] { previousColumn, column });
-						TestCase.assertEquals(2, cursor.getColumnCount());
-						TestCase.assertEquals(count, cursor.getCount());
+						TestCase.assertEquals(2,
+								tileResultSet.getColumnCount());
+						TestCase.assertEquals(count, tileResultSet.getCount());
 						Map<Object, Set<Object>> distinctPairs = new HashMap<>();
-						while (cursor.moveToNext()) {
-							Object previousValue = cursor
+						while (tileResultSet.moveToNext()) {
+							Object previousValue = tileResultSet
 									.getValue(previousColumn);
-							Object value = cursor.getValue(column);
+							Object value = tileResultSet.getValue(column);
 							distinctValues = distinctPairs.get(previousValue);
 							if (distinctValues == null) {
 								distinctValues = new HashSet<>();
@@ -311,7 +314,7 @@ public class TileUtils {
 							}
 							distinctValues.add(value);
 						}
-						cursor.close();
+						tileResultSet.close();
 						int distinctPairsCount = 0;
 						for (Set<Object> values : distinctPairs.values()) {
 							distinctPairsCount += values.size();
@@ -429,13 +432,13 @@ public class TileUtils {
 
 		TestCase.assertNotNull(dao);
 
-		TileResultSet cursor = dao.queryForAll();
-		int count = cursor.getCount();
+		TileResultSet resultSet = dao.queryForAll();
+		int count = resultSet.getCount();
 		if (count > 0) {
 
 			// Choose random tile
 			int random = (int) (Math.random() * count);
-			cursor.moveToPosition(random);
+			resultSet.moveToPosition(random);
 
 			String updatedString = null;
 			String updatedLimitedString = null;
@@ -449,8 +452,8 @@ public class TileUtils {
 			byte[] updatedBytes = null;
 			byte[] updatedLimitedBytes = null;
 
-			TileRow originalRow = cursor.getRow();
-			TileRow tileRow = cursor.getRow();
+			TileRow originalRow = resultSet.getRow();
+			TileRow tileRow = resultSet.getRow();
 
 			try {
 				tileRow.setValue(tileRow.getPkColumnIndex(), 9);
@@ -601,7 +604,7 @@ public class TileUtils {
 				}
 			}
 
-			cursor.close();
+			resultSet.close();
 			TestCase.assertEquals(1, dao.update(tileRow));
 
 			long id = tileRow.getId();
@@ -687,7 +690,7 @@ public class TileUtils {
 			}
 
 		}
-		cursor.close();
+		resultSet.close();
 
 	}
 
@@ -730,16 +733,16 @@ public class TileUtils {
 				TileDao dao = geoPackage.getTileDao(tileMatrixSet);
 				TestCase.assertNotNull(dao);
 
-				TileResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				TileResultSet resultSet = dao.queryForAll();
+				int count = resultSet.getCount();
 				if (count > 0) {
 
 					// Choose random tile
 					int random = (int) (Math.random() * count);
-					cursor.moveToPosition(random);
+					resultSet.moveToPosition(random);
 
-					TileRow tileRow = cursor.getRow();
-					cursor.close();
+					TileRow tileRow = resultSet.getRow();
+					resultSet.close();
 
 					// Find the largest zoom level
 					TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
@@ -764,9 +767,9 @@ public class TileUtils {
 					TestCase.assertNotNull(tileRow);
 					TileRow queryTileRow = dao.queryForIdRow(newRowId);
 					TestCase.assertNotNull(queryTileRow);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 1, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 1, resultSet.getCount());
+					resultSet.close();
 
 					// Create new row with copied values from another
 					TileRow newRow = dao.newRow();
@@ -793,9 +796,9 @@ public class TileUtils {
 					// Verify new was created
 					TileRow queryTileRow2 = dao.queryForIdRow(newRowId2);
 					TestCase.assertNotNull(queryTileRow2);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 2, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 2, resultSet.getCount());
+					resultSet.close();
 
 					// Test copied row
 					TileRow copyRow = queryTileRow2.copy();
@@ -824,9 +827,9 @@ public class TileUtils {
 					// Verify new was created
 					TileRow queryTileRow3 = dao.queryForIdRow(newRowId3);
 					TestCase.assertNotNull(queryTileRow3);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 3, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 3, resultSet.getCount());
+					resultSet.close();
 
 					for (TileColumn column : dao.getTable().getColumns()) {
 						if (column.isPrimaryKey()) {
@@ -850,7 +853,7 @@ public class TileUtils {
 					}
 
 				}
-				cursor.close();
+				resultSet.close();
 			}
 		}
 
@@ -876,16 +879,16 @@ public class TileUtils {
 				TileDao dao = geoPackage.getTileDao(tileMatrixSet);
 				TestCase.assertNotNull(dao);
 
-				TileResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				TileResultSet resultSet = dao.queryForAll();
+				int count = resultSet.getCount();
 				if (count > 0) {
 
 					// Choose random tile
 					int random = (int) (Math.random() * count);
-					cursor.moveToPosition(random);
+					resultSet.moveToPosition(random);
 
-					TileRow tileRow = cursor.getRow();
-					cursor.close();
+					TileRow tileRow = resultSet.getRow();
+					resultSet.close();
 
 					// Delete row
 					TestCase.assertEquals(1, dao.delete(tileRow));
@@ -893,11 +896,11 @@ public class TileUtils {
 					// Verify deleted
 					TileRow queryTileRow = dao.queryForIdRow(tileRow.getId());
 					TestCase.assertNull(queryTileRow);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count - 1, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count - 1, resultSet.getCount());
+					resultSet.close();
 				}
-				cursor.close();
+				resultSet.close();
 			}
 
 		}
@@ -1016,17 +1019,20 @@ public class TileUtils {
 							tileMatrix.getMatrixHeight(),
 							webMercatorBoundingBox);
 
-					TileResultSet cursor = dao.queryByTileGrid(tileGrid,
+					TileResultSet resultSet = dao.queryByTileGrid(tileGrid,
 							zoomLevel);
-					int cursorCount = cursor != null ? cursor.getCount() : 0;
-					TileResultSet expectedCursor = dao.queryForTile(zoomLevel);
+					int resultSetCount = resultSet != null
+							? resultSet.getCount()
+							: 0;
+					TileResultSet expectedResultSet = dao
+							.queryForTile(zoomLevel);
 
-					TestCase.assertEquals(expectedCursor.getCount(),
-							cursorCount);
-					if (cursor != null) {
-						cursor.close();
+					TestCase.assertEquals(expectedResultSet.getCount(),
+							resultSetCount);
+					if (resultSet != null) {
+						resultSet.close();
 					}
-					expectedCursor.close();
+					expectedResultSet.close();
 
 					double maxLon = (360.0 * Math.random()) - 180.0;
 					double minLon = ((maxLon + 180.0) * Math.random()) - 180.0;
@@ -1043,8 +1049,9 @@ public class TileUtils {
 							tileMatrix.getMatrixWidth(),
 							tileMatrix.getMatrixHeight(),
 							webMercatorBoundingBox);
-					cursor = dao.queryByTileGrid(tileGrid, zoomLevel);
-					cursorCount = cursor != null ? cursor.getCount() : 0;
+					resultSet = dao.queryByTileGrid(tileGrid, zoomLevel);
+					resultSetCount = resultSet != null ? resultSet.getCount()
+							: 0;
 
 					if (tileGrid != null) {
 						int count = 0;
@@ -1060,12 +1067,12 @@ public class TileUtils {
 								}
 							}
 						}
-						TestCase.assertEquals(count, cursorCount);
+						TestCase.assertEquals(count, resultSetCount);
 					} else {
-						TestCase.assertEquals(0, cursorCount);
+						TestCase.assertEquals(0, resultSetCount);
 					}
-					if (cursor != null) {
-						cursor.close();
+					if (resultSet != null) {
+						resultSet.close();
 					}
 
 				}

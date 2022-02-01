@@ -103,13 +103,13 @@ public class FeatureUtils {
 						columns[geomIndex]);
 
 				// Query for all
-				FeatureResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				FeatureResultSet featureResultSet = dao.queryForAll();
+				int count = featureResultSet.getCount();
 				int manualCount = 0;
-				while (cursor.moveToNext()) {
-					GeoPackageGeometryData geoPackageGeometryData = cursor
+				while (featureResultSet.moveToNext()) {
+					GeoPackageGeometryData geoPackageGeometryData = featureResultSet
 							.getGeometry();
-					if (cursor.getBlob(
+					if (featureResultSet.getBlob(
 							featureTable.getGeometryColumnIndex()) != null) {
 						TestCase.assertNotNull(geoPackageGeometryData);
 						Geometry geometry = geoPackageGeometryData
@@ -142,13 +142,13 @@ public class FeatureUtils {
 						validateGeometry(geometryType, geometryFromBytes2);
 					}
 
-					FeatureRow featureRow = cursor.getRow();
+					FeatureRow featureRow = featureResultSet.getRow();
 					validateFeatureRow(columns, featureRow);
 
 					manualCount++;
 				}
 				TestCase.assertEquals(count, manualCount);
-				cursor.close();
+				featureResultSet.close();
 
 				// Manually query for all and compare
 				Connection connection = dao.getConnection();
@@ -157,13 +157,14 @@ public class FeatureUtils {
 						null);
 				ResultSet resultSet = SQLUtils.query(connection, sql, null);
 				int resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new FeatureResultSet(featureTable, resultSet,
+				featureResultSet = new FeatureResultSet(featureTable, resultSet,
 						resultSetCount);
-				count = cursor.getCount();
+				count = featureResultSet.getCount();
 				manualCount = 0;
-				while (cursor.moveToNext()) {
-					GeoPackageGeometryData geometry = cursor.getGeometry();
-					if (cursor.getBlob(
+				while (featureResultSet.moveToNext()) {
+					GeoPackageGeometryData geometry = featureResultSet
+							.getGeometry();
+					if (featureResultSet.getBlob(
 							featureTable.getGeometryColumnIndex()) != null) {
 						TestCase.assertNotNull(geometry);
 					}
@@ -173,19 +174,19 @@ public class FeatureUtils {
 
 				TestCase.assertTrue("No features to test", count > 0);
 
-				cursor.close();
+				featureResultSet.close();
 
 				resultSet = SQLUtils.query(connection, sql, null);
 				resultSetCount = SQLUtils.count(connection, sql, null);
-				cursor = new FeatureResultSet(featureTable, resultSet,
+				featureResultSet = new FeatureResultSet(featureTable, resultSet,
 						resultSetCount);
 
 				// Choose random feature
 				int random = (int) (Math.random() * count);
-				cursor.moveToPosition(random);
-				FeatureRow featureRow = cursor.getRow();
+				featureResultSet.moveToPosition(random);
+				FeatureRow featureRow = featureResultSet.getRow();
 
-				cursor.close();
+				featureResultSet.close();
 
 				// Query by id
 				FeatureRow queryFeatureRow = dao
@@ -225,12 +226,12 @@ public class FeatureUtils {
 					} else {
 						column1FeatureValue = new ColumnValue(column1Value);
 					}
-					cursor = dao.queryForEq(column1.getName(),
+					featureResultSet = dao.queryForEq(column1.getName(),
 							column1FeatureValue);
-					TestCase.assertTrue(cursor.getCount() > 0);
+					TestCase.assertTrue(featureResultSet.getCount() > 0);
 					boolean found = false;
-					while (cursor.moveToNext()) {
-						queryFeatureRow = cursor.getRow();
+					while (featureResultSet.moveToNext()) {
+						queryFeatureRow = featureResultSet.getRow();
 						TestCase.assertEquals(column1Value,
 								queryFeatureRow.getValue(column1.getName()));
 						if (!found) {
@@ -239,7 +240,7 @@ public class FeatureUtils {
 						}
 					}
 					TestCase.assertTrue(found);
-					cursor.close();
+					featureResultSet.close();
 
 					// Query for field values
 					Map<String, ColumnValue> fieldValues = new HashMap<String, ColumnValue>();
@@ -260,11 +261,12 @@ public class FeatureUtils {
 						}
 						fieldValues.put(column2.getName(), column2FeatureValue);
 					}
-					cursor = dao.queryForValueFieldValues(fieldValues);
-					TestCase.assertTrue(cursor.getCount() > 0);
+					featureResultSet = dao
+							.queryForValueFieldValues(fieldValues);
+					TestCase.assertTrue(featureResultSet.getCount() > 0);
 					found = false;
-					while (cursor.moveToNext()) {
-						queryFeatureRow = cursor.getRow();
+					while (featureResultSet.moveToNext()) {
+						queryFeatureRow = featureResultSet.getRow();
 						TestCase.assertEquals(column1Value,
 								queryFeatureRow.getValue(column1.getName()));
 						if (column2 != null) {
@@ -277,7 +279,7 @@ public class FeatureUtils {
 						}
 					}
 					TestCase.assertTrue(found);
-					cursor.close();
+					featureResultSet.close();
 
 				}
 
@@ -306,21 +308,22 @@ public class FeatureUtils {
 					expectedResultSet.close();
 					TestCase.assertEquals(expectedDistinctManualResultSetCount,
 							expectedDistinctResultSetCount);
-					cursor = dao.query(true, new String[] { column });
-					TestCase.assertEquals(1, cursor.getColumnCount());
+					featureResultSet = dao.query(true, new String[] { column });
+					TestCase.assertEquals(1, featureResultSet.getColumnCount());
 					TestCase.assertEquals(expectedDistinctResultSetCount,
-							cursor.getCount());
-					TestCase.assertEquals(distinctCount, cursor.getCount());
-					cursor.close();
-					cursor = dao.query(new String[] { column });
-					TestCase.assertEquals(1, cursor.getColumnCount());
-					TestCase.assertEquals(count, cursor.getCount());
+							featureResultSet.getCount());
+					TestCase.assertEquals(distinctCount,
+							featureResultSet.getCount());
+					featureResultSet.close();
+					featureResultSet = dao.query(new String[] { column });
+					TestCase.assertEquals(1, featureResultSet.getColumnCount());
+					TestCase.assertEquals(count, featureResultSet.getCount());
 					Set<Object> distinctValues = new HashSet<>();
-					while (cursor.moveToNext()) {
-						Object value = cursor.getValue(column);
+					while (featureResultSet.moveToNext()) {
+						Object value = featureResultSet.getValue(column);
 						distinctValues.add(value);
 					}
-					cursor.close();
+					featureResultSet.close();
 					if (!column.equals(featureTable.getGeometryColumnName())) {
 						TestCase.assertEquals(distinctCount,
 								distinctValues.size());
@@ -328,26 +331,29 @@ public class FeatureUtils {
 
 					if (previousColumn != null) {
 
-						cursor = dao.query(true,
+						featureResultSet = dao.query(true,
 								new String[] { previousColumn, column });
-						TestCase.assertEquals(2, cursor.getColumnCount());
-						distinctCount = cursor.getCount();
+						TestCase.assertEquals(2,
+								featureResultSet.getColumnCount());
+						distinctCount = featureResultSet.getCount();
 						if (distinctCount < 0) {
 							distinctCount = 0;
-							while (cursor.moveToNext()) {
+							while (featureResultSet.moveToNext()) {
 								distinctCount++;
 							}
 						}
-						cursor.close();
-						cursor = dao
+						featureResultSet.close();
+						featureResultSet = dao
 								.query(new String[] { previousColumn, column });
-						TestCase.assertEquals(2, cursor.getColumnCount());
-						TestCase.assertEquals(count, cursor.getCount());
+						TestCase.assertEquals(2,
+								featureResultSet.getColumnCount());
+						TestCase.assertEquals(count,
+								featureResultSet.getCount());
 						Map<Object, Set<Object>> distinctPairs = new HashMap<>();
-						while (cursor.moveToNext()) {
-							Object previousValue = cursor
+						while (featureResultSet.moveToNext()) {
+							Object previousValue = featureResultSet
 									.getValue(previousColumn);
-							Object value = cursor.getValue(column);
+							Object value = featureResultSet.getValue(column);
 							distinctValues = distinctPairs.get(previousValue);
 							if (distinctValues == null) {
 								distinctValues = new HashSet<>();
@@ -356,7 +362,7 @@ public class FeatureUtils {
 							}
 							distinctValues.add(value);
 						}
-						cursor.close();
+						featureResultSet.close();
 						int distinctPairsCount = 0;
 						for (Set<Object> values : distinctPairs.values()) {
 							distinctPairsCount += values.size();
@@ -814,18 +820,18 @@ public class FeatureUtils {
 
 		TestCase.assertNotNull(dao);
 
-		FeatureResultSet cursor = dao.queryForAll();
-		int count = cursor.getCount();
+		FeatureResultSet resultSet = dao.queryForAll();
+		int count = resultSet.getCount();
 		if (count > 0) {
 
 			// // Choose random feature
 			// int random = (int) (Math.random() * count);
-			// cursor.moveToPosition(random);
-			cursor.moveToFirst();
+			// resultSet.moveToPosition(random);
+			resultSet.moveToFirst();
 
-			GeoPackageGeometryData geometryData = cursor.getGeometry();
-			while (geometryData == null && cursor.moveToNext()) {
-				geometryData = cursor.getGeometry();
+			GeoPackageGeometryData geometryData = resultSet.getGeometry();
+			while (geometryData == null && resultSet.moveToNext()) {
+				geometryData = resultSet.getGeometry();
 			}
 			if (geometryData != null) {
 				String updatedString = null;
@@ -842,8 +848,8 @@ public class FeatureUtils {
 				byte[] updatedLimitedBytes = null;
 
 				Geometry geometry = geometryData.getGeometry();
-				FeatureRow originalRow = cursor.getRow();
-				FeatureRow featureRow = cursor.getRow();
+				FeatureRow originalRow = resultSet.getRow();
+				FeatureRow featureRow = resultSet.getRow();
 
 				try {
 					featureRow.setValue(featureRow.getPkColumnIndex(), 9);
@@ -1081,7 +1087,7 @@ public class FeatureUtils {
 					}
 				}
 
-				cursor.close();
+				resultSet.close();
 
 				TestCase.assertEquals(1, dao.update(featureRow));
 
@@ -1241,7 +1247,7 @@ public class FeatureUtils {
 			}
 
 		}
-		cursor.close();
+		resultSet.close();
 
 	}
 
@@ -1321,16 +1327,16 @@ public class FeatureUtils {
 				FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 				TestCase.assertNotNull(dao);
 
-				FeatureResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				FeatureResultSet resultSet = dao.queryForAll();
+				int count = resultSet.getCount();
 				if (count > 0) {
 
 					// Choose random feature
 					int random = (int) (Math.random() * count);
-					cursor.moveToPosition(random);
+					resultSet.moveToPosition(random);
 
-					FeatureRow featureRow = cursor.getRow();
-					cursor.close();
+					FeatureRow featureRow = resultSet.getRow();
+					resultSet.close();
 
 					// Create new row from existing
 					long id = featureRow.getId();
@@ -1344,9 +1350,9 @@ public class FeatureUtils {
 					TestCase.assertNotNull(featureRow);
 					FeatureRow queryFeatureRow = dao.queryForIdRow(newRowId);
 					TestCase.assertNotNull(queryFeatureRow);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 1, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 1, resultSet.getCount());
+					resultSet.close();
 
 					// Create new row with copied values from another
 					FeatureRow newRow = dao.newRow();
@@ -1372,9 +1378,9 @@ public class FeatureUtils {
 					// Verify new was created
 					FeatureRow queryFeatureRow2 = dao.queryForIdRow(newRowId2);
 					TestCase.assertNotNull(queryFeatureRow2);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 2, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 2, resultSet.getCount());
+					resultSet.close();
 
 					// Test copied row
 					FeatureRow copyRow = queryFeatureRow2.copy();
@@ -1421,9 +1427,9 @@ public class FeatureUtils {
 					// Verify new was created
 					FeatureRow queryFeatureRow3 = dao.queryForIdRow(newRowId3);
 					TestCase.assertNotNull(queryFeatureRow3);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count + 3, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count + 3, resultSet.getCount());
+					resultSet.close();
 
 					for (FeatureColumn column : dao.getTable().getColumns()) {
 						if (column.isPrimaryKey()) {
@@ -1463,7 +1469,7 @@ public class FeatureUtils {
 						}
 					}
 				}
-				cursor.close();
+				resultSet.close();
 			}
 		}
 
@@ -1490,16 +1496,16 @@ public class FeatureUtils {
 				FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 				TestCase.assertNotNull(dao);
 
-				FeatureResultSet cursor = dao.queryForAll();
-				int count = cursor.getCount();
+				FeatureResultSet resultSet = dao.queryForAll();
+				int count = resultSet.getCount();
 				if (count > 0) {
 
 					// Choose random feature
 					int random = (int) (Math.random() * count);
-					cursor.moveToPosition(random);
+					resultSet.moveToPosition(random);
 
-					FeatureRow featureRow = cursor.getRow();
-					cursor.close();
+					FeatureRow featureRow = resultSet.getRow();
+					resultSet.close();
 
 					// Delete row
 					TestCase.assertEquals(1, dao.delete(featureRow));
@@ -1508,11 +1514,11 @@ public class FeatureUtils {
 					FeatureRow queryFeatureRow = dao
 							.queryForIdRow(featureRow.getId());
 					TestCase.assertNull(queryFeatureRow);
-					cursor = dao.queryForAll();
-					TestCase.assertEquals(count - 1, cursor.getCount());
-					cursor.close();
+					resultSet = dao.queryForAll();
+					TestCase.assertEquals(count - 1, resultSet.getCount());
+					resultSet.close();
 				}
-				cursor.close();
+				resultSet.close();
 			}
 		}
 	}

@@ -340,14 +340,14 @@ public class TileDao
 		fieldValues.put(TileTable.COLUMN_TILE_ROW, row);
 		fieldValues.put(TileTable.COLUMN_ZOOM_LEVEL, zoomLevel);
 
-		TileResultSet cursor = queryForFieldValues(fieldValues);
+		TileResultSet resultSet = queryForFieldValues(fieldValues);
 		TileRow tileRow = null;
 		try {
-			if (cursor.moveToNext()) {
-				tileRow = cursor.getRow();
+			if (resultSet.moveToNext()) {
+				tileRow = resultSet.getRow();
 			}
 		} finally {
-			cursor.close();
+			resultSet.close();
 		}
 
 		return tileRow;
@@ -358,7 +358,7 @@ public class TileDao
 	 * 
 	 * @param zoomLevel
 	 *            zoom level
-	 * @return tile cursor, should be closed
+	 * @return tile result set, should be closed
 	 */
 	public TileResultSet queryForTile(long zoomLevel) {
 		return queryForEq(TileTable.COLUMN_ZOOM_LEVEL, zoomLevel);
@@ -369,7 +369,7 @@ public class TileDao
 	 * 
 	 * @param zoomLevel
 	 *            zoom level
-	 * @return tile cursor, should be closed
+	 * @return tile result set, should be closed
 	 */
 	public TileResultSet queryForTileDescending(long zoomLevel) {
 		return queryForEq(TileTable.COLUMN_ZOOM_LEVEL, zoomLevel, null, null,
@@ -543,8 +543,8 @@ public class TileDao
 	 *            tile grid
 	 * @param zoomLevel
 	 *            zoom level
-	 * @return cursor from query or null if the zoom level tile ranges do not
-	 *         overlap the bounding box
+	 * @return result set from query or null if the zoom level tile ranges do
+	 *         not overlap the bounding box
 	 */
 	public TileResultSet queryByTileGrid(TileGrid tileGrid, long zoomLevel) {
 		return queryByTileGrid(tileGrid, zoomLevel, null);
@@ -559,14 +559,14 @@ public class TileDao
 	 *            zoom level
 	 * @param orderBy
 	 *            order by
-	 * @return cursor from query or null if the zoom level tile ranges do not
-	 *         overlap the bounding box
+	 * @return result set from query or null if the zoom level tile ranges do
+	 *         not overlap the bounding box
 	 * @since 1.2.1
 	 */
 	public TileResultSet queryByTileGrid(TileGrid tileGrid, long zoomLevel,
 			String orderBy) {
 
-		TileResultSet tileCursor = null;
+		TileResultSet tileResultSet = null;
 
 		if (tileGrid != null) {
 
@@ -594,11 +594,11 @@ public class TileDao
 					tileGrid.getMinX(), tileGrid.getMaxX(), tileGrid.getMinY(),
 					tileGrid.getMaxY() });
 
-			tileCursor = query(where.toString(), whereArgs, null, null,
+			tileResultSet = query(where.toString(), whereArgs, null, null,
 					orderBy);
 		}
 
-		return tileCursor;
+		return tileResultSet;
 	}
 
 	/**

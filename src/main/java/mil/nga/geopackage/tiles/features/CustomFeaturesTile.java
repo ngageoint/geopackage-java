@@ -43,7 +43,7 @@ public interface CustomFeaturesTile {
 	 * @param totalFeatureCount
 	 *            count of total features in the feature table
 	 * @param allFeatureResults
-	 *            results in a feature cursor
+	 *            results in a feature result set
 	 * @return custom image, or null
 	 */
 	public BufferedImage drawUnindexedTile(int tileWidth, int tileHeight,

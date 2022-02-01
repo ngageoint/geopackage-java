@@ -890,7 +890,7 @@ public class TileCreator {
 	 * @param projectedRequestBoundingBox
 	 *            bounding box projected to the tiles
 	 * @param tileMatrix
-	 * @return tile cursor results or null
+	 * @return tile result set or null
 	 */
 	private TileResultSet retrieveTileResults(
 			BoundingBox projectedRequestBoundingBox, TileMatrix tileMatrix) {
