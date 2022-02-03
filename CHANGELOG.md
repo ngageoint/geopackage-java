@@ -4,9 +4,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.1.3 (TBD)
+## 6.2.0 (TBD)
 
-* geopackage-core version 6.1.2
+* geopackage-core version 6.2.0
 * ormlite-jdbc version 6.1
 * tiff version 3.0.0
 * TileGenerator individual zoom level specifications

@@ -41,7 +41,7 @@ public class FeatureIndexFeatureResults implements FeatureIndexResults {
 	 * Get the result set
 	 * 
 	 * @return feature result set
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet getResultSet() {
 		return resultSet;

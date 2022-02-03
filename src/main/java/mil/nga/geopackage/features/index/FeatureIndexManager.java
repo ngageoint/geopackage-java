@@ -771,7 +771,7 @@ public class FeatureIndexManager {
 	 * Get the feature table id column name, the default column ordering
 	 * 
 	 * @return feature table id column name
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public String getIdColumn() {
 		return featureDao.getPkColumnName();
@@ -3112,7 +3112,7 @@ public class FeatureIndexManager {
 	 * @param results
 	 *            query results
 	 * @return true if paginated
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public static boolean isPaginated(FeatureIndexResults results) {
 		boolean paginated = false;
@@ -3128,7 +3128,7 @@ public class FeatureIndexManager {
 	 * @param results
 	 *            query results
 	 * @return true if paginated
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public static boolean isPaginated(FeatureIndexFeatureResults results) {
 		return FeaturePaginatedResults.isPaginated(results.getResultSet());
@@ -3140,7 +3140,7 @@ public class FeatureIndexManager {
 	 * @param results
 	 *            feature index results
 	 * @return feature paginated results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeaturePaginatedResults paginate(FeatureIndexResults results) {
 		return paginate(getFeatureDao(), results);
@@ -3154,7 +3154,7 @@ public class FeatureIndexManager {
 	 * @param results
 	 *            feature index results
 	 * @return feature paginated results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public static FeaturePaginatedResults paginate(FeatureDao featureDao,
 			FeatureIndexResults results) {
@@ -3177,7 +3177,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(int limit) {
 		return queryForChunk(getIdColumn(), limit);
@@ -3193,7 +3193,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(int limit, long offset) {
 		return queryForChunk(getIdColumn(), limit, offset);
@@ -3209,7 +3209,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String orderBy, int limit) {
 		return queryForChunk(false, orderBy, limit);
@@ -3227,7 +3227,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String orderBy, int limit,
 			long offset) {
@@ -3243,7 +3243,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, int limit) {
 		return queryForChunk(distinct, getIdColumn(), limit);
@@ -3260,7 +3260,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, int limit,
 			long offset) {
@@ -3278,7 +3278,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String orderBy,
 			int limit) {
@@ -3299,7 +3299,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String orderBy,
 			int limit, long offset) {
@@ -3317,7 +3317,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, int limit) {
 		return queryForChunk(columns, getIdColumn(), limit);
@@ -3335,7 +3335,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, int limit,
 			long offset) {
@@ -3354,7 +3354,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String orderBy,
 			int limit) {
@@ -3375,7 +3375,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String orderBy,
 			int limit, long offset) {
@@ -3394,7 +3394,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			int limit) {
@@ -3415,7 +3415,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			int limit, long offset) {
@@ -3436,7 +3436,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String orderBy, int limit) {
@@ -3459,7 +3459,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String orderBy, int limit, long offset) {
@@ -3512,7 +3512,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(Map<String, Object> fieldValues,
 			int limit) {
@@ -3531,7 +3531,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(Map<String, Object> fieldValues,
 			int limit, long offset) {
@@ -3550,7 +3550,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(Map<String, Object> fieldValues,
 			String orderBy, int limit) {
@@ -3571,7 +3571,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(Map<String, Object> fieldValues,
 			String orderBy, int limit, long offset) {
@@ -3590,7 +3590,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, int limit) {
@@ -3611,7 +3611,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -3633,7 +3633,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -3658,7 +3658,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -3681,7 +3681,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, int limit) {
@@ -3702,7 +3702,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -3724,7 +3724,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -3747,7 +3747,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -3770,7 +3770,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, int limit) {
@@ -3794,7 +3794,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -3818,7 +3818,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -3846,7 +3846,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -3867,7 +3867,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String where, int limit) {
 		return queryForChunk(where, getIdColumn(), limit);
@@ -3885,7 +3885,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String where, int limit,
 			long offset) {
@@ -3904,7 +3904,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String where, String orderBy,
 			int limit) {
@@ -3925,7 +3925,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String where, String orderBy,
 			int limit, long offset) {
@@ -3944,7 +3944,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String where, int limit) {
@@ -3965,7 +3965,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String where, int limit, long offset) {
@@ -3986,7 +3986,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String where,
 			String orderBy, int limit) {
@@ -4009,7 +4009,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String where,
 			String orderBy, int limit, long offset) {
@@ -4028,7 +4028,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			String where, int limit) {
@@ -4049,7 +4049,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			String where, int limit, long offset) {
@@ -4070,7 +4070,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String where,
 			String orderBy, int limit) {
@@ -4093,7 +4093,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String where,
 			String orderBy, int limit, long offset) {
@@ -4114,7 +4114,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, String where, int limit) {
@@ -4137,7 +4137,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, String where, int limit, long offset) {
@@ -4161,7 +4161,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String where, String orderBy, int limit) {
@@ -4186,7 +4186,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String where, String orderBy, int limit, long offset) {
@@ -4206,7 +4206,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String where, String[] whereArgs,
 			int limit) {
@@ -4227,7 +4227,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String where, String[] whereArgs,
 			int limit, long offset) {
@@ -4248,7 +4248,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String where, String[] whereArgs,
 			String orderBy, int limit) {
@@ -4271,7 +4271,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String where, String[] whereArgs,
 			String orderBy, int limit, long offset) {
@@ -4292,7 +4292,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String where,
 			String[] whereArgs, int limit) {
@@ -4315,7 +4315,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String where,
 			String[] whereArgs, int limit, long offset) {
@@ -4339,7 +4339,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String where,
 			String[] whereArgs, String orderBy, int limit) {
@@ -4365,7 +4365,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String where,
 			String[] whereArgs, String orderBy, int limit, long offset) {
@@ -4387,7 +4387,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String where,
 			String[] whereArgs, int limit) {
@@ -4410,7 +4410,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String where,
 			String[] whereArgs, int limit, long offset) {
@@ -4434,7 +4434,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String where,
 			String[] whereArgs, String orderBy, int limit) {
@@ -4459,7 +4459,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns, String where,
 			String[] whereArgs, String orderBy, int limit, long offset) {
@@ -4483,7 +4483,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String where, String[] whereArgs, int limit) {
@@ -4509,7 +4509,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String where, String[] whereArgs, int limit, long offset) {
@@ -4535,7 +4535,7 @@ public class FeatureIndexManager {
 	 *            chunk limit
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String where, String[] whereArgs, String orderBy, int limit) {
@@ -4563,7 +4563,7 @@ public class FeatureIndexManager {
 	 *            chunk query offset
 	 *
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			String where, String[] whereArgs, String orderBy, int limit,
@@ -4617,7 +4617,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			int limit) {
@@ -4636,7 +4636,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox, int limit,
 			long offset) {
@@ -4654,7 +4654,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String orderBy, int limit) {
@@ -4674,7 +4674,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String orderBy, int limit, long offset) {
@@ -4693,7 +4693,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, int limit) {
@@ -4714,7 +4714,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, int limit, long offset) {
@@ -4735,7 +4735,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String orderBy, int limit) {
@@ -4758,7 +4758,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String orderBy, int limit, long offset) {
@@ -4778,7 +4778,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, int limit) {
@@ -4799,7 +4799,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, int limit, long offset) {
@@ -4820,7 +4820,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String orderBy, int limit) {
@@ -4842,7 +4842,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String orderBy, int limit, long offset) {
@@ -4864,7 +4864,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, int limit) {
@@ -4888,7 +4888,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, int limit, long offset) {
@@ -4911,7 +4911,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String orderBy, int limit) {
@@ -4936,7 +4936,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String orderBy, int limit, long offset) {
@@ -4956,7 +4956,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Map<String, Object> fieldValues, int limit) {
@@ -4977,7 +4977,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -4998,7 +4998,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -5020,7 +5020,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -5043,7 +5043,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5068,7 +5068,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Map<String, Object> fieldValues, int limit,
@@ -5092,7 +5092,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5118,7 +5118,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5141,7 +5141,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5166,7 +5166,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues, int limit,
@@ -5190,7 +5190,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5216,7 +5216,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5241,7 +5241,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5268,7 +5268,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues, int limit,
@@ -5294,7 +5294,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5322,7 +5322,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Map<String, Object> fieldValues,
@@ -5343,7 +5343,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(BoundingBox boundingBox,
 			String where, int limit) {
@@ -5364,7 +5364,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(BoundingBox boundingBox,
 			String where, int limit, long offset) {
@@ -5384,7 +5384,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String where, String orderBy, int limit) {
@@ -5406,7 +5406,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String where, String orderBy, int limit, long offset) {
@@ -5427,7 +5427,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			BoundingBox boundingBox, String where, int limit) {
@@ -5451,7 +5451,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			BoundingBox boundingBox, String where, int limit, long offset) {
@@ -5474,7 +5474,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String where, String orderBy, int limit) {
@@ -5499,7 +5499,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String where, String orderBy, int limit,
@@ -5522,7 +5522,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			BoundingBox boundingBox, String where, int limit) {
@@ -5545,7 +5545,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			BoundingBox boundingBox, String where, int limit, long offset) {
@@ -5568,7 +5568,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String where, String orderBy, int limit) {
@@ -5593,7 +5593,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String where, String orderBy, int limit,
@@ -5618,7 +5618,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, BoundingBox boundingBox, String where,
@@ -5645,7 +5645,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, BoundingBox boundingBox, String where, int limit,
@@ -5671,7 +5671,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String orderBy, int limit) {
@@ -5698,7 +5698,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String orderBy, int limit,
@@ -5721,7 +5721,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String where, String[] whereArgs, int limit) {
@@ -5745,7 +5745,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String where, String[] whereArgs, int limit, long offset) {
@@ -5768,7 +5768,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String where, String[] whereArgs, String orderBy, int limit) {
@@ -5793,7 +5793,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			String where, String[] whereArgs, String orderBy, int limit,
@@ -5818,7 +5818,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -5845,7 +5845,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -5871,7 +5871,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -5899,7 +5899,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -5924,7 +5924,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -5951,7 +5951,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -5977,7 +5977,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -6005,7 +6005,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -6032,7 +6032,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -6061,7 +6061,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -6089,7 +6089,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -6119,7 +6119,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, String where, String[] whereArgs,
@@ -6137,7 +6137,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			int limit) {
@@ -6155,7 +6155,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			int limit, long offset) {
@@ -6173,7 +6173,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String orderBy, int limit) {
@@ -6193,7 +6193,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String orderBy, int limit, long offset) {
@@ -6211,7 +6211,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, int limit) {
@@ -6231,7 +6231,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, int limit, long offset) {
@@ -6251,7 +6251,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String orderBy, int limit) {
@@ -6273,7 +6273,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String orderBy, int limit, long offset) {
@@ -6292,7 +6292,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, int limit) {
@@ -6312,7 +6312,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, int limit, long offset) {
@@ -6332,7 +6332,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String orderBy, int limit) {
@@ -6354,7 +6354,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String orderBy, int limit, long offset) {
@@ -6374,7 +6374,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, int limit) {
@@ -6396,7 +6396,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, int limit, long offset) {
@@ -6419,7 +6419,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String orderBy, int limit) {
@@ -6444,7 +6444,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String orderBy, int limit, long offset) {
@@ -6463,7 +6463,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues, int limit) {
@@ -6483,7 +6483,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -6504,7 +6504,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -6526,7 +6526,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -6548,7 +6548,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6572,7 +6572,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6596,7 +6596,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6624,7 +6624,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6648,7 +6648,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6672,7 +6672,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6696,7 +6696,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6722,7 +6722,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6746,7 +6746,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6772,7 +6772,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6798,7 +6798,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6828,7 +6828,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, Map<String, Object> fieldValues,
@@ -6850,7 +6850,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(GeometryEnvelope envelope,
 			String where, int limit) {
@@ -6870,7 +6870,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(GeometryEnvelope envelope,
 			String where, int limit, long offset) {
@@ -6890,7 +6890,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String where, String orderBy, int limit) {
@@ -6912,7 +6912,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String where, String orderBy, int limit, long offset) {
@@ -6932,7 +6932,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			GeometryEnvelope envelope, String where, int limit) {
@@ -6954,7 +6954,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			GeometryEnvelope envelope, String where, int limit, long offset) {
@@ -6977,7 +6977,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String where, String orderBy,
@@ -7002,7 +7002,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String where, String orderBy, int limit,
@@ -7024,7 +7024,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			GeometryEnvelope envelope, String where, int limit) {
@@ -7046,7 +7046,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			GeometryEnvelope envelope, String where, int limit, long offset) {
@@ -7069,7 +7069,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String where, String orderBy,
@@ -7094,7 +7094,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String where, String orderBy, int limit,
@@ -7118,7 +7118,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, GeometryEnvelope envelope, String where,
@@ -7144,7 +7144,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, GeometryEnvelope envelope, String where,
@@ -7170,7 +7170,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String orderBy,
@@ -7198,7 +7198,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String orderBy, int limit,
@@ -7220,7 +7220,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String where, String[] whereArgs, int limit) {
@@ -7242,7 +7242,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String where, String[] whereArgs, int limit, long offset) {
@@ -7265,7 +7265,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String where, String[] whereArgs, String orderBy, int limit) {
@@ -7289,7 +7289,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(GeometryEnvelope envelope,
 			String where, String[] whereArgs, String orderBy, int limit,
@@ -7313,7 +7313,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7339,7 +7339,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7365,7 +7365,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7393,7 +7393,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7417,7 +7417,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7443,7 +7443,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7469,7 +7469,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7497,7 +7497,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7523,7 +7523,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7551,7 +7551,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7579,7 +7579,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7609,7 +7609,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			GeometryEnvelope envelope, String where, String[] whereArgs,
@@ -7664,7 +7664,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, int limit) {
@@ -7685,7 +7685,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, int limit, long offset) {
@@ -7706,7 +7706,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String orderBy, int limit) {
@@ -7728,7 +7728,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String orderBy, int limit, long offset) {
@@ -7750,7 +7750,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, int limit) {
@@ -7774,7 +7774,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, int limit,
@@ -7798,7 +7798,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String orderBy,
@@ -7825,7 +7825,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String orderBy,
@@ -7850,7 +7850,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, int limit) {
@@ -7874,7 +7874,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, int limit,
@@ -7898,7 +7898,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String orderBy,
@@ -7924,7 +7924,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String orderBy,
@@ -7949,7 +7949,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, int limit) {
@@ -7975,7 +7975,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, int limit,
@@ -8001,7 +8001,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String orderBy,
@@ -8031,7 +8031,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String orderBy,
@@ -8056,7 +8056,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues, int limit) {
@@ -8080,7 +8080,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues, int limit,
@@ -8104,7 +8104,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues,
@@ -8130,7 +8130,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, Map<String, Object> fieldValues,
@@ -8155,7 +8155,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection,
@@ -8182,7 +8182,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection,
@@ -8208,7 +8208,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection,
@@ -8238,7 +8238,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection,
@@ -8266,7 +8266,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8293,7 +8293,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8319,7 +8319,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8347,7 +8347,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8375,7 +8375,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8404,7 +8404,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8432,7 +8432,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8464,7 +8464,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection,
@@ -8490,7 +8490,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(BoundingBox boundingBox,
 			Projection projection, String where, int limit) {
@@ -8514,7 +8514,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(BoundingBox boundingBox,
 			Projection projection, String where, int limit, long offset) {
@@ -8537,7 +8537,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String where, String orderBy, int limit) {
@@ -8562,7 +8562,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String where, String orderBy, int limit,
@@ -8587,7 +8587,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8614,7 +8614,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8640,7 +8640,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8668,7 +8668,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8693,7 +8693,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8720,7 +8720,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8746,7 +8746,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8774,7 +8774,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8801,7 +8801,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, BoundingBox boundingBox, Projection projection,
@@ -8830,7 +8830,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunkIdOrder(boolean distinct,
 			String[] columns, BoundingBox boundingBox, Projection projection,
@@ -8858,7 +8858,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8888,7 +8888,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -8913,7 +8913,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs,
@@ -8940,7 +8940,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs, int limit,
@@ -8966,7 +8966,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs,
@@ -8994,7 +8994,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(BoundingBox boundingBox,
 			Projection projection, String where, String[] whereArgs,
@@ -9021,7 +9021,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9050,7 +9050,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9078,7 +9078,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9110,7 +9110,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9139,7 +9139,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9168,7 +9168,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9196,7 +9196,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9226,7 +9226,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9255,7 +9255,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9286,7 +9286,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9316,7 +9316,7 @@ public class FeatureIndexManager {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,
@@ -9350,7 +9350,7 @@ public class FeatureIndexManager {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature index results, close when done
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureIndexResults queryForChunk(boolean distinct, String[] columns,
 			BoundingBox boundingBox, Projection projection, String where,

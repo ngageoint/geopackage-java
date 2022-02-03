@@ -8,7 +8,7 @@ import mil.nga.geopackage.user.UserPaginatedResults;
  * chunks
  * 
  * @author osbornb
- * @since 6.1.3
+ * @since 6.2.0
  */
 public class FeaturePaginatedResults extends
 		UserPaginatedResults<FeatureColumn, FeatureTable, FeatureRow, FeatureResultSet> {

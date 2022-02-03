@@ -2198,7 +2198,7 @@ public class ManualFeatureQuery {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(int limit) {
 		return featureDao.queryForChunk(limit);
@@ -2213,7 +2213,7 @@ public class ManualFeatureQuery {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(int limit, long offset) {
 		return featureDao.queryForChunk(limit, offset);
@@ -2228,7 +2228,7 @@ public class ManualFeatureQuery {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String orderBy, int limit) {
 		return featureDao.queryForChunk(orderBy, limit);
@@ -2245,7 +2245,7 @@ public class ManualFeatureQuery {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String orderBy, int limit,
 			long offset) {
@@ -2261,7 +2261,7 @@ public class ManualFeatureQuery {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, int limit) {
 		return featureDao.queryForChunk(distinct, limit);
@@ -2278,7 +2278,7 @@ public class ManualFeatureQuery {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, int limit,
 			long offset) {
@@ -2296,7 +2296,7 @@ public class ManualFeatureQuery {
 	 * @param limit
 	 *            chunk limit
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String orderBy,
 			int limit) {
@@ -2316,7 +2316,7 @@ public class ManualFeatureQuery {
 	 * @param offset
 	 *            chunk query offset
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String orderBy,
 			int limit, long offset) {
@@ -2333,7 +2333,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, int limit) {
 		return featureDao.queryForChunk(columns, limit);
@@ -2351,7 +2351,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, int limit,
 			long offset) {
@@ -2370,7 +2370,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String orderBy,
 			int limit) {
@@ -2391,7 +2391,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String orderBy,
 			int limit, long offset) {
@@ -2410,7 +2410,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			int limit) {
@@ -2431,7 +2431,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			int limit, long offset) {
@@ -2452,7 +2452,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			String orderBy, int limit) {
@@ -2475,7 +2475,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			String orderBy, int limit, long offset) {
@@ -2493,7 +2493,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
 			int limit) {
@@ -2512,7 +2512,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
 			int limit, long offset) {
@@ -2531,7 +2531,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
 			String orderBy, int limit) {
@@ -2552,7 +2552,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(Map<String, Object> fieldValues,
 			String orderBy, int limit, long offset) {
@@ -2571,7 +2571,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, int limit) {
@@ -2594,7 +2594,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -2618,7 +2618,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -2644,7 +2644,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -2667,7 +2667,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, int limit) {
@@ -2688,7 +2688,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -2709,7 +2709,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -2732,7 +2732,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -2755,7 +2755,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, int limit) {
@@ -2781,7 +2781,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, int limit, long offset) {
@@ -2807,7 +2807,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit) {
@@ -2835,7 +2835,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			Map<String, Object> fieldValues, String orderBy, int limit,
@@ -2856,7 +2856,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(String where, int limit) {
 		return featureDao.queryForChunk(where, new String[] {}, limit);
@@ -2874,7 +2874,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(String where, int limit,
 			long offset) {
@@ -2893,7 +2893,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String where, String orderBy,
 			int limit) {
@@ -2914,7 +2914,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String where, String orderBy,
 			int limit, long offset) {
@@ -2934,7 +2934,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(boolean distinct, String where,
 			int limit) {
@@ -2956,7 +2956,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(boolean distinct, String where,
 			int limit, long offset) {
@@ -2978,7 +2978,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String where,
 			String orderBy, int limit) {
@@ -3002,7 +3002,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String where,
 			String orderBy, int limit, long offset) {
@@ -3022,7 +3022,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(String[] columns, String where,
 			int limit) {
@@ -3043,7 +3043,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(String[] columns, String where,
 			int limit, long offset) {
@@ -3065,7 +3065,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String where,
 			String orderBy, int limit) {
@@ -3089,7 +3089,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String where,
 			String orderBy, int limit, long offset) {
@@ -3111,7 +3111,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(boolean distinct,
 			String[] columns, String where, int limit) {
@@ -3135,7 +3135,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunkWhere(boolean distinct,
 			String[] columns, String where, int limit, long offset) {
@@ -3159,7 +3159,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			String where, String orderBy, int limit) {
@@ -3185,7 +3185,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			String where, String orderBy, int limit, long offset) {
@@ -3205,7 +3205,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
 			int limit) {
@@ -3226,7 +3226,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
 			int limit, long offset) {
@@ -3247,7 +3247,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
 			String orderBy, int limit) {
@@ -3270,7 +3270,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String where, String[] whereArgs,
 			String orderBy, int limit, long offset) {
@@ -3292,7 +3292,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String where,
 			String[] whereArgs, int limit) {
@@ -3315,7 +3315,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String where,
 			String[] whereArgs, int limit, long offset) {
@@ -3339,7 +3339,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String where,
 			String[] whereArgs, String orderBy, int limit) {
@@ -3365,7 +3365,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String where,
 			String[] whereArgs, String orderBy, int limit, long offset) {
@@ -3387,7 +3387,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String where,
 			String[] whereArgs, int limit) {
@@ -3410,7 +3410,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String where,
 			String[] whereArgs, int limit, long offset) {
@@ -3434,7 +3434,7 @@ public class ManualFeatureQuery {
 	 *            chunk limit
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String where,
 			String[] whereArgs, String orderBy, int limit) {
@@ -3460,7 +3460,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(String[] columns, String where,
 			String[] whereArgs, String orderBy, int limit, long offset) {
@@ -3488,7 +3488,7 @@ public class ManualFeatureQuery {
 	 *            chunk query offset
 	 * 
 	 * @return feature results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public FeatureResultSet queryForChunk(boolean distinct, String[] columns,
 			String where, String[] whereArgs, String orderBy, int limit,
@@ -3521,7 +3521,7 @@ public class ManualFeatureQuery {
 	 * @param offset
 	 *            chunk query offset
 	 * @return results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public ManualFeatureQueryResults queryForChunk(boolean distinct,
 			String[] columns, GeometryEnvelope envelope, String where,
@@ -3561,7 +3561,7 @@ public class ManualFeatureQuery {
 	 * @param offset
 	 *            chunk query offset
 	 * @return results
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public ManualFeatureQueryResults queryForChunk(boolean distinct,
 			String[] columns, double minX, double minY, double maxX,

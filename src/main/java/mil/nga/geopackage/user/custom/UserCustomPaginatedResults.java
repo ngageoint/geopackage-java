@@ -8,7 +8,7 @@ import mil.nga.geopackage.user.UserPaginatedResults;
  * in chunks
  * 
  * @author osbornb
- * @since 6.1.3
+ * @since 6.2.0
  */
 public class UserCustomPaginatedResults extends
 		UserPaginatedResults<UserCustomColumn, UserCustomTable, UserCustomRow, UserCustomResultSet> {

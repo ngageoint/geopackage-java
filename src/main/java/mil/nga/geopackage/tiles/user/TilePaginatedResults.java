@@ -7,7 +7,7 @@ import mil.nga.geopackage.user.UserPaginatedResults;
  * Tile Paginated Results for iterating and querying through tiles in chunks
  * 
  * @author osbornb
- * @since 6.1.3
+ * @since 6.2.0
  */
 public class TilePaginatedResults extends
 		UserPaginatedResults<TileColumn, TileTable, TileRow, TileResultSet> {

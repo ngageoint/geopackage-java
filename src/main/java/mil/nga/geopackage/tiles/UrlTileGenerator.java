@@ -142,7 +142,7 @@ public class UrlTileGenerator extends TileGenerator {
 	 *            tiles bounding box
 	 * @param projection
 	 *            tiles projection
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
 			String tileUrl, BoundingBox boundingBox, Projection projection) {
@@ -165,7 +165,7 @@ public class UrlTileGenerator extends TileGenerator {
 	 *            tiles bounding box
 	 * @param projection
 	 *            tiles projection
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
 			String tileUrl, int zoomLevel, BoundingBox boundingBox,
@@ -215,7 +215,7 @@ public class UrlTileGenerator extends TileGenerator {
 	 *            tiles bounding box
 	 * @param projection
 	 *            tiles projection
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
 			String tileUrl, Collection<Integer> zoomLevels,
@@ -239,7 +239,7 @@ public class UrlTileGenerator extends TileGenerator {
 	 *            tiles bounding box
 	 * @param projection
 	 *            tiles projection
-	 * @since 6.1.3
+	 * @since 6.2.0
 	 */
 	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
 			String tileUrl, int[] zoomLevels, BoundingBox boundingBox,

@@ -13,7 +13,7 @@ package mil.nga.geopackage.user;
  *            result type
  * 
  * @author osbornb
- * @since 6.1.3
+ * @since 6.2.0
  */
 public abstract class UserPaginatedResults<TColumn extends UserColumn, TTable extends UserTable<TColumn>, TRow extends UserRow<TColumn, TTable>, TResult extends UserResultSet<TColumn, TTable, TRow>>
 		extends UserCorePaginatedResults<TColumn, TTable, TRow, TResult> {
