@@ -63,11 +63,12 @@ public class GeoPackageGeometryDataUtils {
 				FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 				TestCase.assertNotNull(dao);
 
-				FeatureResultSet cursor = dao.queryForAll();
+				FeatureResultSet resultSet = dao.queryForAll();
 
-				while (cursor.moveToNext()) {
+				while (resultSet.moveToNext()) {
 
-					GeoPackageGeometryData geometryData = cursor.getGeometry();
+					GeoPackageGeometryData geometryData = resultSet
+							.getGeometry();
 					if (geometryData != null) {
 
 						byte[] geometryDataToBytes = geometryData.toBytes();
@@ -77,7 +78,7 @@ public class GeoPackageGeometryDataUtils {
 						GeoPackageGeometryData geometryDataAfterToBytes = geometryData;
 
 						// Re-retrieve the original geometry data
-						geometryData = cursor.getGeometry();
+						geometryData = resultSet.getGeometry();
 
 						// Compare the original with the toBytes geometry data
 						compareGeometryData(geometryData,
@@ -92,7 +93,7 @@ public class GeoPackageGeometryDataUtils {
 
 						// Set the geometry empty flag and verify the geometry
 						// was not written / read
-						geometryDataAfterToBytes = cursor.getGeometry();
+						geometryDataAfterToBytes = resultSet.getGeometry();
 						geometryDataAfterToBytes.setEmpty(true);
 						geometryDataToBytes = geometryDataAfterToBytes
 								.toBytes();
@@ -107,7 +108,7 @@ public class GeoPackageGeometryDataUtils {
 						// Flip the byte order and verify the header and bytes
 						// no longer matches the original, but the geometries
 						// still do
-						geometryDataAfterToBytes = cursor.getGeometry();
+						geometryDataAfterToBytes = resultSet.getGeometry();
 						geometryDataAfterToBytes
 								.setByteOrder(geometryDataAfterToBytes
 										.getByteOrder() == ByteOrder.BIG_ENDIAN
@@ -133,7 +134,7 @@ public class GeoPackageGeometryDataUtils {
 					}
 
 				}
-				cursor.close();
+				resultSet.close();
 			}
 		}
 
@@ -160,11 +161,12 @@ public class GeoPackageGeometryDataUtils {
 				FeatureDao dao = geoPackage.getFeatureDao(geometryColumns);
 				TestCase.assertNotNull(dao);
 
-				FeatureResultSet cursor = dao.queryForAll();
+				FeatureResultSet resultSet = dao.queryForAll();
 
-				while (cursor.moveToNext()) {
+				while (resultSet.moveToNext()) {
 
-					GeoPackageGeometryData geometryData = cursor.getGeometry();
+					GeoPackageGeometryData geometryData = resultSet
+							.getGeometry();
 					if (geometryData != null) {
 
 						Geometry geometry = geometryData.getGeometry();
@@ -211,7 +213,7 @@ public class GeoPackageGeometryDataUtils {
 					}
 
 				}
-				cursor.close();
+				resultSet.close();
 			}
 		}
 	}

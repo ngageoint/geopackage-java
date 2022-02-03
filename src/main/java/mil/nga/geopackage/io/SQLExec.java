@@ -55,7 +55,6 @@ import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.proj.GeometryTransform;
-import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 /**
  * Executes SQL on a SQLite database
@@ -2734,8 +2733,7 @@ public class SQLExec {
 			}
 
 			Geometry geometry = geometryData.getGeometry();
-			GeometryEnvelope builtEnvelope = GeometryEnvelopeBuilder
-					.buildEnvelope(geometry);
+			GeometryEnvelope builtEnvelope = geometry.getEnvelope();
 			if (builtEnvelope != null
 					&& (envelope == null || !envelope.equals(builtEnvelope))) {
 				System.out.print("Calculated ");

@@ -7,7 +7,7 @@ import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.user.UserRow;
 
 /**
- * Tile Row containing the values from a single cursor row
+ * Tile Row containing the values from a single result set row
  * 
  * @author osbornb
  */

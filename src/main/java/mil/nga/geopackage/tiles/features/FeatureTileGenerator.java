@@ -1,5 +1,7 @@
 package mil.nga.geopackage.tiles.features;
 
+import java.util.Collection;
+
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
@@ -37,6 +39,52 @@ public class FeatureTileGenerator extends TileGenerator {
 	 *            table name
 	 * @param featureTiles
 	 *            feature tiles
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, BoundingBox boundingBox,
+			Projection projection) {
+		this(geoPackage, tableName, featureTiles, geoPackage, boundingBox,
+				projection);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, int zoomLevel, BoundingBox boundingBox,
+			Projection projection) {
+		this(geoPackage, tableName, featureTiles, geoPackage, zoomLevel,
+				boundingBox, projection);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
 	 * @param minZoom
 	 *            min zoom
 	 * @param maxZoom
@@ -52,6 +100,108 @@ public class FeatureTileGenerator extends TileGenerator {
 			BoundingBox boundingBox, Projection projection) {
 		this(geoPackage, tableName, featureTiles, geoPackage, minZoom, maxZoom,
 				boundingBox, projection);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, Collection<Integer> zoomLevels,
+			BoundingBox boundingBox, Projection projection) {
+		this(geoPackage, tableName, featureTiles, geoPackage, zoomLevels,
+				boundingBox, projection);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, int[] zoomLevels,
+			BoundingBox boundingBox, Projection projection) {
+		this(geoPackage, tableName, featureTiles, geoPackage, zoomLevels,
+				boundingBox, projection);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			BoundingBox boundingBox, Projection projection) {
+		super(geoPackage, tableName, getBoundingBox(featureGeoPackage,
+				featureTiles, boundingBox, projection), projection);
+		this.featureTiles = featureTiles;
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			int zoomLevel, BoundingBox boundingBox, Projection projection) {
+		super(geoPackage, tableName, zoomLevel,
+				getBoundingBox(featureGeoPackage, featureTiles, boundingBox,
+						projection),
+				projection);
+		this.featureTiles = featureTiles;
 	}
 
 	/**
@@ -87,6 +237,104 @@ public class FeatureTileGenerator extends TileGenerator {
 	}
 
 	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			Collection<Integer> zoomLevels, BoundingBox boundingBox,
+			Projection projection) {
+		super(geoPackage, tableName, zoomLevels,
+				getBoundingBox(featureGeoPackage, featureTiles, boundingBox,
+						projection),
+				projection);
+		this.featureTiles = featureTiles;
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			int[] zoomLevels, BoundingBox boundingBox, Projection projection) {
+		super(geoPackage, tableName, zoomLevels,
+				getBoundingBox(featureGeoPackage, featureTiles, boundingBox,
+						projection),
+				projection);
+		this.featureTiles = featureTiles;
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, Projection projection) {
+		this(geoPackage, tableName, featureTiles, new int[] {}, null,
+				projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, int zoomLevel, Projection projection) {
+		this(geoPackage, tableName, featureTiles, zoomLevel, null, projection);
+	}
+
+	/**
 	 * Constructor, find the the bounding box from the feature table
 	 *
 	 * @param geoPackage
@@ -119,6 +367,94 @@ public class FeatureTileGenerator extends TileGenerator {
 	 *            table name
 	 * @param featureTiles
 	 *            feature tiles
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, Collection<Integer> zoomLevels,
+			Projection projection) {
+		this(geoPackage, tableName, featureTiles, zoomLevels, null, projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, int[] zoomLevels,
+			Projection projection) {
+		this(geoPackage, tableName, featureTiles, zoomLevels, null, projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			Projection projection) {
+		this(geoPackage, tableName, featureTiles, featureGeoPackage,
+				new int[] {}, null, projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			int zoomLevel, Projection projection) {
+		this(geoPackage, tableName, featureTiles, featureGeoPackage, zoomLevel,
+				null, projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
 	 * @param featureGeoPackage
 	 *            feature GeoPackage if different from the destination
 	 * @param minZoom
@@ -134,6 +470,54 @@ public class FeatureTileGenerator extends TileGenerator {
 			int minZoom, int maxZoom, Projection projection) {
 		this(geoPackage, tableName, featureTiles, featureGeoPackage, minZoom,
 				maxZoom, null, projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			Collection<Integer> zoomLevels, Projection projection) {
+		this(geoPackage, tableName, featureTiles, featureGeoPackage, zoomLevels,
+				null, projection);
+	}
+
+	/**
+	 * Constructor, find the the bounding box from the feature table
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param featureTiles
+	 *            feature tiles
+	 * @param featureGeoPackage
+	 *            feature GeoPackage if different from the destination
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public FeatureTileGenerator(GeoPackage geoPackage, String tableName,
+			FeatureTiles featureTiles, GeoPackage featureGeoPackage,
+			int[] zoomLevels, Projection projection) {
+		this(geoPackage, tableName, featureTiles, featureGeoPackage, zoomLevels,
+				null, projection);
 	}
 
 	/**

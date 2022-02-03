@@ -4,12 +4,19 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.1.3 (TBD)
+## 6.2.1 (TBD)
 
-* geopackage-core version 6.1.2
+* TBD
+
+## [6.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.2.0) (02-03-2022)
+
+* geopackage-core version 6.2.0
 * ormlite-jdbc version 6.1
 * tiff version 3.0.0
+* TileGenerator individual zoom level specifications
 * TileCreator dynamic separated tile width and height determination adjustment
+* Iterable row results
+* Improved pagination query support
 
 ## [6.1.2](https://github.com/ngageoint/geopackage-java/releases/tag/6.1.2) (12-17-2021)
 

@@ -34,6 +34,32 @@ public class FeatureIndexManagerImportTest extends ImportGeoPackageTestCase {
 	}
 
 	/**
+	 * Test index chunk
+	 *
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testIndexChunk() throws SQLException {
+
+		FeatureIndexManagerUtils.testIndexChunk(geoPackage);
+
+	}
+
+	/**
+	 * Test index pagination
+	 *
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testIndexPagination() throws SQLException {
+
+		FeatureIndexManagerUtils.testIndexPagination(geoPackage);
+
+	}
+
+	/**
 	 * Test large index
 	 *
 	 * @throws SQLException

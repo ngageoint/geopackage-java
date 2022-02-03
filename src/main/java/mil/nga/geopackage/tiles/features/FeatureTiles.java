@@ -1637,7 +1637,7 @@ public abstract class FeatureTiles {
 			BoundingBox webMercatorBoundingBox, FeatureIndexResults results);
 
 	/**
-	 * Draw a tile image from feature geometries in the provided cursor
+	 * Draw a tile image from feature geometries in the provided result set
 	 *
 	 * @param zoom
 	 *            zoom level

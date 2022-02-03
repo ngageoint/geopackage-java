@@ -3,7 +3,7 @@ package mil.nga.geopackage.attributes;
 import mil.nga.geopackage.user.UserRow;
 
 /**
- * Attributes Row containing the values from a single cursor row
+ * Attributes Row containing the values from a single result set row
  * 
  * @author osbornb
  * @since 1.2.1

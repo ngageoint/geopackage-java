@@ -128,7 +128,7 @@ public abstract class CreateCoverageDataGeoPackageTestCase
 			defaultPrecision = false;
 		}
 		griddedCoverage
-				.setDataNull(new Double(Short.MAX_VALUE - Short.MIN_VALUE));
+				.setDataNull(Double.valueOf(Short.MAX_VALUE - Short.MIN_VALUE));
 		GriddedCoverageEncodingType encoding;
 		double randomEncoding = Math.random();
 		if (randomEncoding < 1.0 / 3.0) {

@@ -9,6 +9,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,17 +95,17 @@ public class UrlTileGenerator extends TileGenerator {
 	/**
 	 * Tile URL
 	 */
-	private final String tileUrl;
+	private String tileUrl;
 
 	/**
 	 * True if the URL has x, y, or z variables
 	 */
-	private final boolean urlHasXYZ;
+	private boolean urlHasXYZ;
 
 	/**
 	 * True if the URL has bounding box variables
 	 */
-	private final boolean urlHasBoundingBox;
+	private boolean urlHasBoundingBox;
 
 	/**
 	 * Tile Format when downloading tiles with x, y, and z values
@@ -130,13 +131,58 @@ public class UrlTileGenerator extends TileGenerator {
 
 	/**
 	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param tileUrl
+	 *            tile URL
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
+			String tileUrl, BoundingBox boundingBox, Projection projection) {
+		super(geoPackage, tableName, boundingBox, projection);
+		initialize(tileUrl);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param tileUrl
+	 *            tile URL
+	 * @param zoomLevel
+	 *            zoom level
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
+			String tileUrl, int zoomLevel, BoundingBox boundingBox,
+			Projection projection) {
+		super(geoPackage, tableName, zoomLevel, boundingBox, projection);
+		initialize(tileUrl);
+	}
+
+	/**
+	 * Constructor
 	 * 
 	 * @param geoPackage
 	 *            GeoPackage
 	 * @param tableName
 	 *            table name
 	 * @param tileUrl
-	 *            tile url
+	 *            tile URL
 	 * @param minZoom
 	 *            min zoom
 	 * @param maxZoom
@@ -151,7 +197,64 @@ public class UrlTileGenerator extends TileGenerator {
 			String tileUrl, int minZoom, int maxZoom, BoundingBox boundingBox,
 			Projection projection) {
 		super(geoPackage, tableName, minZoom, maxZoom, boundingBox, projection);
+		initialize(tileUrl);
+	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param tileUrl
+	 *            tile URL
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
+			String tileUrl, Collection<Integer> zoomLevels,
+			BoundingBox boundingBox, Projection projection) {
+		super(geoPackage, tableName, zoomLevels, boundingBox, projection);
+		initialize(tileUrl);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param tableName
+	 *            table name
+	 * @param tileUrl
+	 *            tile URL
+	 * @param zoomLevels
+	 *            zoom levels
+	 * @param boundingBox
+	 *            tiles bounding box
+	 * @param projection
+	 *            tiles projection
+	 * @since 6.2.0
+	 */
+	public UrlTileGenerator(GeoPackage geoPackage, String tableName,
+			String tileUrl, int[] zoomLevels, BoundingBox boundingBox,
+			Projection projection) {
+		super(geoPackage, tableName, zoomLevels, boundingBox, projection);
+		initialize(tileUrl);
+	}
+
+	/**
+	 * Initialize the tile URL
+	 * 
+	 * @param tileUrl
+	 *            tile URL
+	 */
+	private void initialize(String tileUrl) {
 		try {
 			this.tileUrl = URLDecoder.decode(tileUrl, "UTF-8");
 		} catch (UnsupportedEncodingException e) {

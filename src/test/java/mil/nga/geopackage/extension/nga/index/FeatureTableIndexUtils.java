@@ -24,7 +24,6 @@ import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.Point;
 import mil.nga.sf.proj.GeometryTransform;
-import mil.nga.sf.util.GeometryEnvelopeBuilder;
 
 public class FeatureTableIndexUtils {
 
@@ -188,7 +187,7 @@ public class FeatureTableIndexUtils {
 			TestCase.assertTrue(lastIndexedAfter.after(lastIndexedBefore));
 
 			// Verify the index was updated for the feature row
-			envelope = GeometryEnvelopeBuilder.buildEnvelope(point);
+			envelope = point.getEnvelope();
 			resultCount = 0;
 			featureFound = false;
 			TestCase.assertTrue(featureTableIndex.count(envelope) >= 1);

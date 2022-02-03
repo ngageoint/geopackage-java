@@ -134,7 +134,6 @@ import mil.nga.sf.MultiPolygon;
 import mil.nga.sf.Point;
 import mil.nga.sf.Polygon;
 import mil.nga.sf.proj.GeometryTransform;
-import mil.nga.sf.util.GeometryEnvelopeBuilder;
 import mil.nga.sf.wkb.GeometryCodes;
 
 /**
@@ -770,9 +769,9 @@ public class GeoPackageExample {
 		GeometryEnvelope envelope = null;
 		for (Geometry geometry : geometries) {
 			if (envelope == null) {
-				envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
+				envelope = geometry.getEnvelope();
 			} else {
-				GeometryEnvelopeBuilder.buildEnvelope(geometry, envelope);
+				geometry.expandEnvelope(envelope);
 			}
 		}
 
@@ -1496,7 +1495,7 @@ public class GeoPackageExample {
 		griddedCoverage.setTileMatrixSet(tileMatrixSet);
 		griddedCoverage.setDataType(GriddedCoverageDataType.INTEGER);
 		griddedCoverage
-				.setDataNull(new Double(Short.MAX_VALUE - Short.MIN_VALUE));
+				.setDataNull(Double.valueOf(Short.MAX_VALUE - Short.MIN_VALUE));
 		griddedCoverage
 				.setGridCellEncodingType(GriddedCoverageEncodingType.CENTER);
 		griddedCoverageDao.create(griddedCoverage);
@@ -1748,8 +1747,7 @@ public class GeoPackageExample {
 
 		FeatureResultSet featureResultSet = featureDao.queryForLike(TEXT_COLUMN,
 				query);
-		while (featureResultSet.moveToNext()) {
-			FeatureRow featureRow = featureResultSet.getRow();
+		for (FeatureRow featureRow : featureResultSet) {
 			UserMappingRow userMappingRow = userMappingDao.newRow();
 			userMappingRow.setBaseId(featureRow.getId());
 			userMappingRow.setRelatedId(mediaRowId);
@@ -1849,16 +1847,13 @@ public class GeoPackageExample {
 				.getFeatureDao(relation.getRelatedTableName());
 
 		FeatureResultSet featureResultSet1 = featureDao1.queryForAll();
-		while (featureResultSet1.moveToNext()) {
+		for (FeatureRow featureRow1 : featureResultSet1) {
 
-			FeatureRow featureRow1 = featureResultSet1.getRow();
 			String featureName = featureRow1.getValue(TEXT_COLUMN).toString();
 
 			FeatureResultSet featureResultSet2 = featureDao2
 					.queryForEq(TEXT_COLUMN, featureName);
-			while (featureResultSet2.moveToNext()) {
-
-				FeatureRow featureRow2 = featureResultSet2.getRow();
+			for (FeatureRow featureRow2 : featureResultSet2) {
 
 				UserMappingRow userMappingRow = userMappingDao.newRow();
 				userMappingRow.setBaseId(featureRow1.getId());
@@ -1929,8 +1924,7 @@ public class GeoPackageExample {
 		AttributesDao attributesDao = geoPackage.getAttributesDao(tableName);
 
 		AttributesResultSet attributesResultSet = attributesDao.queryForAll();
-		while (attributesResultSet.moveToNext()) {
-			AttributesRow attributesRow = attributesResultSet.getRow();
+		for (AttributesRow attributesRow : attributesResultSet) {
 			long randomSimpleRowId = simpleAttributesIds
 					.get((int) (Math.random() * simpleAttributesIds.size()));
 			SimpleAttributesRow simpleAttributesRow = simpleAttributesDao
@@ -1986,16 +1980,13 @@ public class GeoPackageExample {
 		TileDao tileDao = geoPackage.getTileDao(relation.getRelatedTableName());
 
 		FeatureResultSet featureResultSet = featureDao.queryForAll();
-		while (featureResultSet.moveToNext()) {
+		for (FeatureRow featureRow : featureResultSet) {
 
-			FeatureRow featureRow = featureResultSet.getRow();
 			String featureName = featureRow.getValue(TEXT_COLUMN).toString();
 
 			TileResultSet tileResultSet = tileDao
 					.queryForTile(tileDao.getMinZoom());
-			while (tileResultSet.moveToNext()) {
-
-				TileRow tileRow = tileResultSet.getRow();
+			for (TileRow tileRow : tileResultSet) {
 
 				UserMappingRow userMappingRow = userMappingDao.newRow();
 				userMappingRow.setBaseId(featureRow.getId());
@@ -2169,8 +2160,7 @@ public class GeoPackageExample {
 		int polygonCount = 0;
 
 		FeatureResultSet features = featureDao.queryForAll();
-		while (features.moveToNext()) {
-			FeatureRow featureRow = features.getRow();
+		for (FeatureRow featureRow : features) {
 			switch (featureRow.getGeometryType()) {
 			case POINT:
 				pointCount++;
@@ -2231,8 +2221,7 @@ public class GeoPackageExample {
 		geometry2Styles.createIconRelationship();
 
 		FeatureResultSet features = featureDao.queryForAll();
-		while (features.moveToNext()) {
-			FeatureRow featureRow = features.getRow();
+		for (FeatureRow featureRow : features) {
 			switch (featureRow.getGeometryType()) {
 			case POINT:
 				geometry2Styles.setIcon(featureRow, icons.get(0));

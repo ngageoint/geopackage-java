@@ -504,7 +504,7 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	 * are "ok"
 	 *
 	 * @param resultSet
-	 * @return null if ok, else the open cursor
+	 * @return null if ok, else the open result set
 	 */
 	private ResultSet integrityCheck(ResultSet resultSet) {
 		try {

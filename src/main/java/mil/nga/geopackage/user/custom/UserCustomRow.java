@@ -3,7 +3,7 @@ package mil.nga.geopackage.user.custom;
 import mil.nga.geopackage.user.UserRow;
 
 /**
- * User Custom Row containing the values from a single cursor row
+ * User Custom Row containing the values from a single result set row
  * 
  * @author osbornb
  * @since 3.0.1
