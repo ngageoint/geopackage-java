@@ -239,6 +239,9 @@ public class UrlTileGeneratorUtils {
 
 		GeoPackage geoPackage = tileGenerator.getGeoPackage();
 		String tableName = tileGenerator.getTableName();
+
+		geoPackage.deleteTableQuietly(tableName);
+
 		int minZoom = tileGenerator.getMinZoom();
 		int maxZoom = tileGenerator.getMaxZoom();
 		BoundingBox webMercatorBoundingBox = tileGenerator.getBoundingBox();
