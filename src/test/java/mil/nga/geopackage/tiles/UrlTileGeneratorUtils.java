@@ -217,14 +217,16 @@ public class UrlTileGeneratorUtils {
 		boundingBox = TileBoundingBoxUtils
 				.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
 		boundingBox = boundingBox.transform(GeometryTransform.create(
-				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
-				ProjectionConstants.EPSG_WEB_MERCATOR));
+				ProjectionFactory.getCachelessProjection(
+						ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM),
+				ProjectionFactory.getCachelessProjection(
+						ProjectionConstants.EPSG_WEB_MERCATOR)));
 		return boundingBox;
 	}
 
 	private static Projection getProjection() {
 		return ProjectionFactory
-				.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
+				.getCachelessProjection(ProjectionConstants.EPSG_WEB_MERCATOR);
 	}
 
 	/**
