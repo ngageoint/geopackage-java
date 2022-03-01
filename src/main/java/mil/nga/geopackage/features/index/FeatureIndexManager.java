@@ -4601,7 +4601,8 @@ public class FeatureIndexManager {
 		}
 		if (results == null) {
 			FeatureResultSet featureResultSet = manualFeatureQuery
-					.query(distinct, columns, where, whereArgs);
+					.queryForChunk(distinct, columns, where, whereArgs, orderBy,
+							limit, offset);
 			results = new FeatureIndexFeatureResults(featureResultSet);
 		}
 		return results;
