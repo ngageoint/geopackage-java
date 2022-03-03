@@ -704,7 +704,9 @@ public class FeatureIndexManagerUtils {
 				lastCount = 0;
 				FeatureIndexResults featureIndexResults = featureIndexManager
 						.queryForChunk(envelope, chunkLimit, offset);
-				for (FeatureRow featureRow : featureIndexResults) {
+				for (long featureRowId : featureIndexResults.ids()) {
+					FeatureRow featureRow = featureDao
+							.queryForIdRow(featureRowId);
 					validateFeatureRow(featureIndexManager, featureRow,
 							envelope, includeEmpty);
 					if (featureRow.getId() == testFeatureRow.getId()) {
@@ -1252,7 +1254,8 @@ public class FeatureIndexManagerUtils {
 			TestCase.assertTrue(featureIndexManager.count(envelope) >= 1);
 			paginatedResults = featureIndexManager.paginate(
 					featureIndexManager.queryForChunk(envelope, chunkLimit));
-			for (FeatureRow featureRow : paginatedResults) {
+			for (long featureRowId : paginatedResults.ids()) {
+				FeatureRow featureRow = featureDao.queryForIdRow(featureRowId);
 				validateFeatureRow(featureIndexManager, featureRow, envelope,
 						includeEmpty);
 				if (featureRow.getId() == testFeatureRow.getId()) {
