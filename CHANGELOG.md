@@ -4,9 +4,16 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.2.1 (TBD)
+## 6.2.2 (TBD)
 
 * TBD
+
+## [6.2.1](https://github.com/ngageoint/geopackage-java/releases/tag/6.2.1) (03-11-2022)
+
+* geopackage-core version 6.2.1
+* Iterable User Result Set ids
+* Manual feature rows query for chunk fix
+* GeoPackage Geometry Index extension feature rows query for chunk fixes
 
 ## [6.2.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.2.0) (02-03-2022)
 

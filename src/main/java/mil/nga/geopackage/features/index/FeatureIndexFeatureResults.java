@@ -68,34 +68,7 @@ public class FeatureIndexFeatureResults implements FeatureIndexResults {
 	 */
 	@Override
 	public Iterable<Long> ids() {
-		return new Iterable<Long>() {
-
-			/**
-			 * {@inheritDoc}
-			 */
-			@Override
-			public Iterator<Long> iterator() {
-				return new Iterator<Long>() {
-
-					/**
-					 * {@inheritDoc}
-					 */
-					@Override
-					public boolean hasNext() {
-						return resultSet.moveToNext();
-					}
-
-					/**
-					 * {@inheritDoc}
-					 */
-					@Override
-					public Long next() {
-						return resultSet.getId();
-					}
-
-				};
-			}
-		};
+		return resultSet.ids();
 	}
 
 }
