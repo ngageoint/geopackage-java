@@ -41,9 +41,11 @@ public class FeatureImportTest extends ImportGeoPackageTestCase {
 	 * 
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testUpdate() throws SQLException {
+	public void testUpdate() throws SQLException, IOException {
 
 		FeatureUtils.testUpdate(geoPackage);
 
@@ -54,9 +56,11 @@ public class FeatureImportTest extends ImportGeoPackageTestCase {
 	 * 
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testUpdateAddColumns() throws SQLException {
+	public void testUpdateAddColumns() throws SQLException, IOException {
 
 		FeatureUtils.testUpdateAddColumns(geoPackage);
 
@@ -67,9 +71,11 @@ public class FeatureImportTest extends ImportGeoPackageTestCase {
 	 * 
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testCreate() throws SQLException {
+	public void testCreate() throws SQLException, IOException {
 
 		FeatureUtils.testCreate(geoPackage);
 

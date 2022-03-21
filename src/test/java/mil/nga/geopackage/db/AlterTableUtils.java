@@ -1,5 +1,6 @@
 package mil.nga.geopackage.db;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,8 +74,11 @@ public class AlterTableUtils {
 	 *            GeoPackage
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
-	public static void testColumns(GeoPackage geoPackage) throws SQLException {
+	public static void testColumns(GeoPackage geoPackage)
+			throws SQLException, IOException {
 
 		GeometryColumnsDao geometryColumnsDao = geoPackage
 				.getGeometryColumnsDao();
@@ -464,9 +468,11 @@ public class AlterTableUtils {
 	 *            GeoPackage
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	public static void testCopyFeatureTable(GeoPackage geoPackage)
-			throws SQLException {
+			throws SQLException, IOException {
 
 		GeometryColumnsDao geometryColumnsDao = geoPackage
 				.getGeometryColumnsDao();
