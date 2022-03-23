@@ -66,7 +66,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 * <p>
 	 * Handles geometry columns
 	 */
 	@Override
@@ -80,7 +80,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 * <p>
 	 * Handles geometry columns
 	 */
 	@Override
@@ -111,7 +111,7 @@ public class FeatureRow extends UserRow<FeatureColumn, FeatureTable> {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 * <p>
 	 * Handles geometry columns
 	 */
 	@Override
