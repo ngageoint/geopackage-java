@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.3.0 (TBD)
+## [6.3.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.3.0) (04-18-2022)
 
 * geopackage-core version 6.3.0
 * OGC Related Tables Extension additional mappings methods
