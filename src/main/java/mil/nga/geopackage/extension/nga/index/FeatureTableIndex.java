@@ -25,8 +25,9 @@ import mil.nga.sf.GeometryEnvelope;
  * bounding box queries. This extension is required to provide an index
  * implementation when a SQLite version is used before SpatialLite support
  * (Android).
- * 
- * http://ngageoint.github.io/GeoPackage/docs/extensions/geometry-index.html
+ * <p>
+ * <a href=
+ * "http://ngageoint.github.io/GeoPackage/docs/extensions/geometry-index.html">http://ngageoint.github.io/GeoPackage/docs/extensions/geometry-index.html</a>
  * 
  * @author osbornb
  * @since 1.1.0

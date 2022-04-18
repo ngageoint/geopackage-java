@@ -1,5 +1,6 @@
 package mil.nga.geopackage.db;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import org.junit.Test;
@@ -18,9 +19,11 @@ public class AlterTableImportTest extends ImportGeoPackageTestCase {
 	 * 
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testColumns() throws SQLException {
+	public void testColumns() throws SQLException, IOException {
 		AlterTableUtils.testColumns(geoPackage);
 	}
 
@@ -29,9 +32,11 @@ public class AlterTableImportTest extends ImportGeoPackageTestCase {
 	 * 
 	 * @throws SQLException
 	 *             upon error
+	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
-	public void testCopyFeatureTable() throws SQLException {
+	public void testCopyFeatureTable() throws SQLException, IOException {
 		AlterTableUtils.testCopyFeatureTable(geoPackage);
 	}
 

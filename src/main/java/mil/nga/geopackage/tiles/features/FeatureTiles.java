@@ -31,6 +31,7 @@ import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.property.GeoPackageJavaProperties;
 import mil.nga.geopackage.property.JavaPropertyConstants;
+import mil.nga.geopackage.style.PixelBounds;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileUtils;
@@ -1619,6 +1620,32 @@ public abstract class FeatureTiles {
 			image = null;
 		}
 		return image;
+	}
+
+	/**
+	 * Calculate style pixel bounds
+	 *
+	 * @return pixel bounds
+	 * @since 6.3.0
+	 */
+	public PixelBounds calculateStylePixelBounds() {
+		return calculateStylePixelBounds(scale);
+	}
+
+	/**
+	 * Calculate style pixel bounds
+	 *
+	 * @param scale
+	 *            scale factor
+	 * @return pixel bounds
+	 * @since 6.3.0
+	 */
+	public PixelBounds calculateStylePixelBounds(float scale) {
+		PixelBounds pixelBounds = null;
+		if (featureTableStyles != null) {
+			pixelBounds = featureTableStyles.calculatePixelBounds(scale);
+		}
+		return pixelBounds;
 	}
 
 	/**

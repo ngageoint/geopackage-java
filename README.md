@@ -13,7 +13,7 @@ Software source code previously released under an open source license and then m
 
 [GeoPackage](http://ngageoint.github.io/geopackage-java/) is a [GeoPackage Library](http://ngageoint.github.io/GeoPackage/) Java implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/).  It is listed as an [OGC GeoPackage Implementation](http://www.geopackage.org/#implementations_nga) by the National Geospatial-Intelligence Agency.
 
-<a href='http://www.opengeospatial.org/resource/products/details/?pid=1679'>
+<a href='https://www.ogc.org/resource/products/details/?pid=1731'>
     <img src="https://github.com/ngageoint/GeoPackage/raw/master/docs/images/ogc.gif" height=50>
 </a>
 
@@ -163,13 +163,13 @@ geoPackage.close();
 
 ### Installation ###
 
-Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|6.2.1|jar) (JAR, POM, Source, Javadoc)
+Pull from the [Maven Central Repository](http://search.maven.org/#artifactdetails|mil.nga.geopackage|geopackage|6.3.0|jar) (JAR, POM, Source, Javadoc)
 
 ```xml
 <dependency>
     <groupId>mil.nga.geopackage</groupId>
     <artifactId>geopackage</artifactId>
-    <version>6.2.1</version>
+    <version>6.3.0</version>
 </dependency>
 ```
 
