@@ -8,14 +8,14 @@ import mil.nga.geopackage.attributes.AttributesRow;
 /**
  * GeoPackage properties extension for defining GeoPackage specific properties,
  * attributes, and metadata
- * 
- * http://ngageoint.github.io/GeoPackage/docs/extensions/properties.html
+ * <p>
+ * <a href=
+ * "http://ngageoint.github.io/GeoPackage/docs/extensions/properties.html">http://ngageoint.github.io/GeoPackage/docs/extensions/properties.html</a>
  * 
  * @author osbornb
  * @since 3.0.2
  */
-public class PropertiesExtension
-		extends
+public class PropertiesExtension extends
 		PropertiesCoreExtension<GeoPackage, AttributesRow, AttributesResultSet, AttributesDao> {
 
 	/**

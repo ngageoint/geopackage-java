@@ -16,8 +16,9 @@ import mil.nga.sf.GeometryEnvelope;
 
 /**
  * RTree Index Extension
- * 
- * https://www.geopackage.org/spec/#extension_rtree
+ * <p>
+ * <a href=
+ * "https://www.geopackage.org/spec/#extension_rtree">https://www.geopackage.org/spec/#extension_rtree</a>
  * 
  * @author osbornb
  * @since 2.0.1

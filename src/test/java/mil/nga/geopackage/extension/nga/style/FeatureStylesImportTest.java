@@ -25,12 +25,29 @@ public class FeatureStylesImportTest extends ImportGeoPackageTestCase {
 	 * Test feature styles
 	 * 
 	 * @throws SQLException
+	 *             upon error
 	 * @throws IOException
+	 *             upon error
 	 */
 	@Test
 	public void testFeatureStyles() throws SQLException, IOException {
 
 		FeatureStylesUtils.testFeatureStyles(geoPackage);
+
+	}
+
+	/**
+	 * Test shared feature styles
+	 * 
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
+	@Test
+	public void testSharedFeatureStyles() throws SQLException, IOException {
+
+		FeatureStylesUtils.testSharedFeatureStyles(geoPackage);
 
 	}
 

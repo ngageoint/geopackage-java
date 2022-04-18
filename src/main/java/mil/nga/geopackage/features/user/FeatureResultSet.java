@@ -94,7 +94,7 @@ public class FeatureResultSet
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 * <p>
 	 * Handles geometries
 	 */
 	@Override
