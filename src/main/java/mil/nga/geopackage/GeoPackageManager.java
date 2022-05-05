@@ -1,6 +1,7 @@
 package mil.nga.geopackage;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -139,7 +140,21 @@ public class GeoPackageManager {
 	 * @return GeoPackage
 	 */
 	public static GeoPackage open(File file) {
-		return open(file, true);
+		return open(true, file);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param writable
+	 *            true if writable
+	 * @param file
+	 *            file
+	 * @return GeoPackage
+	 * @since 6.3.1
+	 */
+	public static GeoPackage open(boolean writable, File file) {
+		return open(writable, file, true);
 	}
 
 	/**
@@ -153,7 +168,24 @@ public class GeoPackageManager {
 	 * @since 3.3.0
 	 */
 	public static GeoPackage open(File file, boolean validate) {
-		return open(file.getName(), file, validate);
+		return open(true, file, validate);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param writable
+	 *            true if writable
+	 * @param file
+	 *            file
+	 * @param validate
+	 *            validate the GeoPackage
+	 * @return GeoPackage
+	 * @since 6.3.1
+	 */
+	public static GeoPackage open(boolean writable, File file,
+			boolean validate) {
+		return open(file.getName(), writable, file, validate);
 	}
 
 	/**
@@ -167,7 +199,23 @@ public class GeoPackageManager {
 	 * @since 3.0.2
 	 */
 	public static GeoPackage open(String name, File file) {
-		return open(name, file, true);
+		return open(name, true, file);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage name
+	 * @param writable
+	 *            true if writable
+	 * @param file
+	 *            GeoPackage file
+	 * @return GeoPackage
+	 * @since 6.3.1
+	 */
+	public static GeoPackage open(String name, boolean writable, File file) {
+		return open(name, writable, file, true);
 	}
 
 	/**
@@ -183,6 +231,25 @@ public class GeoPackageManager {
 	 * @since 3.3.0
 	 */
 	public static GeoPackage open(String name, File file, boolean validate) {
+		return open(name, true, file, validate);
+	}
+
+	/**
+	 * Open a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage name
+	 * @param writable
+	 *            true if writable
+	 * @param file
+	 *            GeoPackage file
+	 * @param validate
+	 *            validate the GeoPackage
+	 * @return GeoPackage
+	 * @since 6.3.1
+	 */
+	public static GeoPackage open(String name, boolean writable, File file,
+			boolean validate) {
 
 		// Check if the file exists
 		File existingFile = existingFile(file);
@@ -201,7 +268,8 @@ public class GeoPackageManager {
 		GeoPackageConnection connection = connect(file);
 
 		// Create a GeoPackage
-		GeoPackage geoPackage = new GeoPackageImpl(name, file, connection);
+		GeoPackage geoPackage = new GeoPackageImpl(name, file, connection,
+				writable);
 
 		// Validate the GeoPackage has the minimum required tables
 		if (validate) {
@@ -214,6 +282,18 @@ public class GeoPackageManager {
 		}
 
 		return geoPackage;
+	}
+
+	/**
+	 * Determine if the file is writable
+	 * 
+	 * @param file
+	 *            GeoPackage file
+	 * @return true if writable
+	 * @since 6.3.1
+	 */
+	public static boolean isWritable(File file) {
+		return Files.isWritable(file.toPath());
 	}
 
 	/**
