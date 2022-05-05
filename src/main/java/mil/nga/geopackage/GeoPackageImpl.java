@@ -55,7 +55,25 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	 */
 	protected GeoPackageImpl(String name, File file,
 			GeoPackageConnection database) {
-		this(name, file.getAbsolutePath(), database);
+		this(name, file, database, true);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param name
+	 *            GeoPackage name
+	 * @param file
+	 *            GeoPackage file
+	 * @param database
+	 *            connection
+	 * @param writable
+	 *            true if writable
+	 * @since 6.3.1
+	 */
+	protected GeoPackageImpl(String name, File file,
+			GeoPackageConnection database, boolean writable) {
+		this(name, file.getAbsolutePath(), database, writable);
 	}
 
 	/**
@@ -70,7 +88,25 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	 */
 	protected GeoPackageImpl(String name, String path,
 			GeoPackageConnection database) {
-		super(name, path, database, true);
+		this(name, path, database, true);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param name
+	 *            GeoPackage name
+	 * @param path
+	 *            GeoPackage path
+	 * @param database
+	 *            connection
+	 * @param writable
+	 *            true if writable
+	 * @since 6.3.1
+	 */
+	protected GeoPackageImpl(String name, String path,
+			GeoPackageConnection database, boolean writable) {
+		super(name, path, database, writable);
 		this.database = database;
 	}
 
