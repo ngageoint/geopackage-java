@@ -15,6 +15,8 @@ import javax.imageio.ImageIO;
 import org.junit.Test;
 
 import junit.framework.TestCase;
+import mil.nga.color.Color;
+import mil.nga.color.ColorConstants;
 import mil.nga.geopackage.attributes.AttributesColumn;
 import mil.nga.geopackage.attributes.AttributesDao;
 import mil.nga.geopackage.attributes.AttributesResultSet;
@@ -96,8 +98,6 @@ import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.style.Color;
-import mil.nga.geopackage.style.ColorConstants;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
