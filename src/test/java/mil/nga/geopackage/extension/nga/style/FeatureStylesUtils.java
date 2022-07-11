@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
+import mil.nga.color.Color;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.TestConstants;
 import mil.nga.geopackage.TestUtils;
@@ -26,7 +27,6 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
-import mil.nga.geopackage.style.Color;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.user.custom.UserCustomResultSet;
 import mil.nga.geopackage.user.custom.UserCustomRow;

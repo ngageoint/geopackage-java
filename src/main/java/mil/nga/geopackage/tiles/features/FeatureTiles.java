@@ -1540,7 +1540,7 @@ public abstract class FeatureTiles {
 
 		if (paint == null) {
 
-			mil.nga.geopackage.style.Color color = null;
+			mil.nga.color.Color color = null;
 			Float strokeWidth = null;
 
 			switch (drawType) {

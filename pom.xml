@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>mil.nga.geopackage</groupId>
 	<artifactId>geopackage</artifactId>
-	<version>6.3.2</version>
+	<version>6.4.1</version>
 	<packaging>jar</packaging>
 	<name>GeoPackage</name>
 	<url>https://github.com/ngageoint/geopackage-java</url>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>mil.nga.geopackage</groupId>
 			<artifactId>geopackage-core</artifactId>
-			<version>6.3.1</version>
+			<version>6.4.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.j256.ormlite</groupId>
@@ -168,6 +168,7 @@
 						<link>https://ngageoint.github.io/simple-features-proj-java/docs/api/</link>
 						<link>https://ngageoint.github.io/simple-features-geojson-java/docs/api/</link>
 						<link>https://ngageoint.github.io/ogc-api-features-json-java/docs/api/</link>
+						<link>https://ngageoint.github.io/color-java/docs/api/</link>
 						<link>https://ngageoint.github.io/tiff-java/docs/api/</link>
 						<link>https://ormlite.com/javadoc/ormlite-core/</link>
 						<link>https://ormlite.com/javadoc/ormlite-jdbc/</link>
