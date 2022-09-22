@@ -4,9 +4,11 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.5.0 (TBD)
+## [6.5.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.5.0) (09-22-2022)
 
-* TBD
+* geopackage-core version 6.5.0
+* sqlite-jdbc version 3.39.3.0
+* Allow user row integer value truncation to byte and short
 
 ## [6.4.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.4.0) (07-11-2022)
 
