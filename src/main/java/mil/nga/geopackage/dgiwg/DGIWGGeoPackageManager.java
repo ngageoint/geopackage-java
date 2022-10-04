@@ -10,7 +10,7 @@ import mil.nga.geopackage.GeoPackageManager;
  * to create and open GeoPackages
  * 
  * @author osbornb
- * @since 6.1.2
+ * @since 6.5.1
  */
 public class DGIWGGeoPackageManager {
 
