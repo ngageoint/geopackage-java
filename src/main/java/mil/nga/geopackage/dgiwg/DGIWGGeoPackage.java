@@ -8,6 +8,7 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageImpl;
 import mil.nga.geopackage.db.GeoPackageConnection;
+import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
@@ -705,8 +706,15 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 			String description, BoundingBox bounds, GeometryType geometryType,
 			DataType dataType, List<FeatureColumn> columns,
 			SpatialReferenceSystem srs) {
-		return DGIWGGeoPackageUtils.createFeatures(this, table, identifier,
-				description, bounds, geometryType, dataType, columns, srs);
+
+		GeometryColumns geometryColumns = DGIWGGeoPackageUtils.createFeatures(
+				this, table, identifier, description, bounds, geometryType,
+				dataType, columns, srs);
+
+		RTreeIndexExtension extension = new RTreeIndexExtension(this);
+		extension.create(getFeatureDao(geometryColumns).getTable());
+
+		return geometryColumns;
 	}
 
 }
