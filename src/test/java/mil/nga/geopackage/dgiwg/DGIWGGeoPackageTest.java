@@ -1,20 +1,27 @@
 package mil.nga.geopackage.dgiwg;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
 
-import junit.framework.TestCase;
 import mil.nga.geopackage.BaseTestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.TestUtils;
+import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.sf.GeometryType;
 
 /**
  * Test DGIWG GeoPackage methods
@@ -89,14 +96,68 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 		}
 
 		for (long zoom = minZoom; zoom <= maxZoom; zoom++) {
-			TestCase.assertEquals(tileBounds, tileDao.getBoundingBox(zoom));
+			assertEquals(tileBounds, tileDao.getBoundingBox(zoom));
 		}
 
 		DGIWGValidationErrors errors = geoPackage.validate();
 		if (errors.hasErrors()) {
 			System.out.println(errors);
 		}
-		TestCase.assertTrue(geoPackage.isValid());
+		assertTrue(geoPackage.isValid());
+
+		geoPackage.close();
+
+		// TODO
+		// GeoPackageIOUtils.copyFile(dbFile, new File("temp.gpkg"));
+
+	}
+
+	/**
+	 * Test creating features
+	 * 
+	 * @throws IOException
+	 *             upon error
+	 */
+	@Test
+	public void testCreateFeatures() throws IOException {
+
+		final String table = "dgiwg_features";
+
+		final CoordinateReferenceSystem crs = CoordinateReferenceSystem.EPSG_4326;
+
+		File dbFile = new File(folder.newFolder(), GeoPackageManager
+				.addExtension(DGIWGGeoPackageManagerTest.FILE_NAME));
+		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile);
+		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
+
+		GeometryColumns geometryColumns = geoPackage.createFeatures(table,
+				GeometryType.GEOMETRY, crs);
+		long srsId = geometryColumns.getSrsId();
+
+		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
+
+		FeatureRow featureRow = featureDao.newRow();
+		featureRow.setGeometry(GeoPackageGeometryData.create(srsId,
+				TestUtils.createPoint(false, false)));
+		featureDao.insert(featureRow);
+
+		featureRow = featureDao.newRow();
+		featureRow.setGeometry(GeoPackageGeometryData.create(srsId,
+				TestUtils.createLineString(false, false, false)));
+		featureDao.insert(featureRow);
+
+		featureRow = featureDao.newRow();
+		featureRow.setGeometry(GeoPackageGeometryData.create(srsId,
+				TestUtils.createPolygon(false, false)));
+		featureDao.insert(featureRow);
+
+		assertEquals(3, featureDao.count());
+
+		DGIWGValidationErrors errors = geoPackage.validate();
+		if (errors.hasErrors()) {
+			System.out.println(errors);
+		}
+		assertTrue(geoPackage.isValid());
 
 		geoPackage.close();
 

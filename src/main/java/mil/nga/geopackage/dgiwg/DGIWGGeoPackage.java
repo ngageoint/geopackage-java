@@ -2,13 +2,17 @@ package mil.nga.geopackage.dgiwg;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageImpl;
 import mil.nga.geopackage.db.GeoPackageConnection;
+import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.sf.GeometryType;
 
 /**
  * DGIWG (Defence Geospatial Information Working Group) GeoPackage
@@ -158,7 +162,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	public TileMatrixSet createTiles(String table, String identifier,
 			String description, BoundingBox informativeBounds,
 			CoordinateReferenceSystem crs) {
-		SpatialReferenceSystem srs = crs.createSpatialReferenceSystem();
+		SpatialReferenceSystem srs = crs.createTilesSpatialReferenceSystem();
 		return createTiles(table, identifier, description, informativeBounds,
 				srs, crs.getBounds(srs));
 	}
@@ -222,7 +226,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 			String description, BoundingBox informativeBounds,
 			CoordinateReferenceSystem crs, BoundingBox extentBounds) {
 		return createTiles(table, identifier, description, informativeBounds,
-				crs.createSpatialReferenceSystem(), extentBounds);
+				crs.createTilesSpatialReferenceSystem(), extentBounds);
 	}
 
 	/**
@@ -428,6 +432,281 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 			long matrixHeight, double pixelXSize, double pixelYSize) {
 		DGIWGGeoPackageUtils.createTileMatrix(this, table, zoom, matrixWidth,
 				matrixHeight, pixelXSize, pixelYSize);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param geometryType
+	 *            geometry type
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table,
+			GeometryType geometryType, CoordinateReferenceSystem crs) {
+		return createFeatures(table, geometryType, null, crs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param geometryType
+	 *            geometry type
+	 * @param columns
+	 *            feature columns
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table,
+			GeometryType geometryType, List<FeatureColumn> columns,
+			CoordinateReferenceSystem crs) {
+		return createFeatures(table, table, table, geometryType, columns, crs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param identifier
+	 *            contents identifier
+	 * @param description
+	 *            contents description
+	 * @param geometryType
+	 *            geometry type
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, String identifier,
+			String description, GeometryType geometryType,
+			CoordinateReferenceSystem crs) {
+		return createFeatures(table, identifier, description, geometryType,
+				null, crs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param identifier
+	 *            contents identifier
+	 * @param description
+	 *            contents description
+	 * @param geometryType
+	 *            geometry type
+	 * @param columns
+	 *            feature columns
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, String identifier,
+			String description, GeometryType geometryType,
+			List<FeatureColumn> columns, CoordinateReferenceSystem crs) {
+		SpatialReferenceSystem srs = crs.createFeaturesSpatialReferenceSystem();
+		DataType dataType = crs.getFeaturesDataTypes().iterator().next();
+		return createFeatures(table, identifier, description,
+				crs.getBounds(srs), geometryType, dataType, columns, srs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, BoundingBox bounds,
+			GeometryType geometryType, CoordinateReferenceSystem crs) {
+		return createFeatures(table, bounds, geometryType, null, crs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param columns
+	 *            feature columns
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, BoundingBox bounds,
+			GeometryType geometryType, List<FeatureColumn> columns,
+			CoordinateReferenceSystem crs) {
+		return createFeatures(table, table, table, bounds, geometryType,
+				columns, crs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param identifier
+	 *            contents identifier
+	 * @param description
+	 *            contents description
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, String identifier,
+			String description, BoundingBox bounds, GeometryType geometryType,
+			CoordinateReferenceSystem crs) {
+		return createFeatures(table, identifier, description, bounds,
+				geometryType, null, crs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param identifier
+	 *            contents identifier
+	 * @param description
+	 *            contents description
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param columns
+	 *            feature columns
+	 * @param crs
+	 *            coordinate reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, String identifier,
+			String description, BoundingBox bounds, GeometryType geometryType,
+			List<FeatureColumn> columns, CoordinateReferenceSystem crs) {
+		SpatialReferenceSystem srs = crs.createFeaturesSpatialReferenceSystem();
+		DataType dataType = crs.getFeaturesDataTypes().iterator().next();
+		return createFeatures(table, identifier, description, bounds,
+				geometryType, dataType, columns, srs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param dataType
+	 *            data type
+	 * @param srs
+	 *            spatial reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, BoundingBox bounds,
+			GeometryType geometryType, DataType dataType,
+			SpatialReferenceSystem srs) {
+		return createFeatures(table, bounds, geometryType, dataType, null, srs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param dataType
+	 *            data type
+	 * @param columns
+	 *            feature columns
+	 * @param srs
+	 *            spatial reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, BoundingBox bounds,
+			GeometryType geometryType, DataType dataType,
+			List<FeatureColumn> columns, SpatialReferenceSystem srs) {
+		return createFeatures(table, table, table, bounds, geometryType,
+				dataType, columns, srs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param identifier
+	 *            contents identifier
+	 * @param description
+	 *            contents description
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param dataType
+	 *            data type
+	 * @param srs
+	 *            spatial reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, String identifier,
+			String description, BoundingBox bounds, GeometryType geometryType,
+			DataType dataType, SpatialReferenceSystem srs) {
+		return createFeatures(table, identifier, description, bounds,
+				geometryType, dataType, null, srs);
+	}
+
+	/**
+	 * Create features table
+	 * 
+	 * @param table
+	 *            table name
+	 * @param identifier
+	 *            contents identifier
+	 * @param description
+	 *            contents description
+	 * @param bounds
+	 *            contents bounds
+	 * @param geometryType
+	 *            geometry type
+	 * @param dataType
+	 *            data type
+	 * @param columns
+	 *            feature columns
+	 * @param srs
+	 *            spatial reference system
+	 * @return created tile matrix set
+	 */
+	public GeometryColumns createFeatures(String table, String identifier,
+			String description, BoundingBox bounds, GeometryType geometryType,
+			DataType dataType, List<FeatureColumn> columns,
+			SpatialReferenceSystem srs) {
+		return DGIWGGeoPackageUtils.createFeatures(this, table, identifier,
+				description, bounds, geometryType, dataType, columns, srs);
 	}
 
 }
