@@ -78,8 +78,8 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 		assertEquals(extension.getExtensionName(), "gpkg_crs_wkt");
 		assertEquals(extension.getAuthor(), "gpkg");
 		assertEquals(extension.getExtensionNameNoAuthor(), "crs_wkt");
-		assertEquals(extension.getTableName(), null);
-		assertEquals(extension.getColumnName(), null);
+		assertEquals(extension.getTableName(), "gpkg_spatial_ref_sys");
+		assertEquals(extension.getColumnName(), "definition_12_063");
 		assertEquals(extension.getScope(), ExtensionScopeType.READ_WRITE);
 		assertEquals(extension.getDefinition(), CrsWktExtension.DEFINITION);
 
