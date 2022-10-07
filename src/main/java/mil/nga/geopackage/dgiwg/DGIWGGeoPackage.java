@@ -8,6 +8,9 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageImpl;
 import mil.nga.geopackage.db.GeoPackageConnection;
+import mil.nga.geopackage.extension.metadata.Metadata;
+import mil.nga.geopackage.extension.metadata.MetadataScopeType;
+import mil.nga.geopackage.extension.metadata.reference.MetadataReference;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
@@ -715,6 +718,118 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 		extension.create(getFeatureDao(geometryColumns).getTable());
 
 		return geometryColumns;
+	}
+
+	/**
+	 * Create metadata and metadata reference
+	 * 
+	 * @param metadata
+	 *            metadata
+	 * @param reference
+	 *            metadata reference
+	 */
+	public void createMetadata(Metadata metadata, MetadataReference reference) {
+		DGIWGGeoPackageUtils.createMetadata(this, metadata, reference);
+	}
+
+	/**
+	 * Create metadata
+	 * 
+	 * @param metadata
+	 *            metadata
+	 */
+	public void createMetadata(Metadata metadata) {
+		DGIWGGeoPackageUtils.createMetadata(this, metadata);
+	}
+
+	/**
+	 * Create metadata reference
+	 * 
+	 * @param metadata
+	 *            the reference metadata
+	 * @param reference
+	 *            metadata reference
+	 */
+	public void createMetadataReference(Metadata metadata,
+			MetadataReference reference) {
+		DGIWGGeoPackageUtils.createMetadata(this, metadata, reference);
+
+	}
+
+	/**
+	 * Create metadata reference
+	 * 
+	 * @param reference
+	 *            metadata reference
+	 */
+	public void createMetadataReference(MetadataReference reference) {
+		DGIWGGeoPackageUtils.createMetadataReference(this, reference);
+	}
+
+	/**
+	 * Create GeoPackage metadata with a series scope and metadata reference
+	 * 
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @return metadata reference
+	 */
+	public MetadataReference createGeoPackageSeriesMetadata(String uri,
+			String metadata) {
+		return DGIWGGeoPackageUtils.createGeoPackageSeriesMetadata(this, uri,
+				metadata);
+	}
+
+	/**
+	 * Create GeoPackage metadata with a dataset scope and metadata reference
+	 * 
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @return metadata reference
+	 */
+	public MetadataReference createGeoPackageDatasetMetadata(String uri,
+			String metadata) {
+		return DGIWGGeoPackageUtils.createGeoPackageDatasetMetadata(this, uri,
+				metadata);
+	}
+
+	/**
+	 * Create GeoPackage metadata and metadata reference
+	 * 
+	 * @param scope
+	 *            metadata scope type
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @return metadata reference
+	 */
+	public MetadataReference createGeoPackageMetadata(MetadataScopeType scope,
+			String uri, String metadata) {
+		return DGIWGGeoPackageUtils.createGeoPackageMetadata(this, scope, uri,
+				metadata);
+	}
+
+	/**
+	 * Create metadata and metadata reference
+	 * 
+	 * @param scope
+	 *            metadata scope type
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @param reference
+	 *            metadata reference
+	 * @return metadata reference
+	 */
+	public MetadataReference createMetadata(MetadataScopeType scope, String uri,
+			String metadata, MetadataReference reference) {
+		return DGIWGGeoPackageUtils.createMetadata(this, scope, uri, metadata,
+				reference);
 	}
 
 }

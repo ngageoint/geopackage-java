@@ -163,4 +163,15 @@ public class TestConstants {
 	public static final String ICON_POINT_IMAGE = "point."
 			+ ICON_POINT_IMAGE_EXTENSION;
 
+	/**
+	 * DGIWG example folder
+	 */
+	public static final String DGIWG_FOLDER = "dgiwg/";
+
+	/**
+	 * DGIWG Metadata example
+	 */
+	public static final String DGIWG_METADATA = DGIWG_FOLDER
+			+ "DMF2.0-sampleMetadata-DMFfull.xml.xml";
+
 }

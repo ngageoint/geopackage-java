@@ -11,11 +11,13 @@ import org.junit.Test;
 import mil.nga.geopackage.BaseTestCase;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackageManager;
+import mil.nga.geopackage.TestConstants;
 import mil.nga.geopackage.TestUtils;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGrid;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
@@ -55,6 +57,9 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 				.addExtension(DGIWGGeoPackageManagerTest.FILE_NAME));
 		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile);
 		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
+
+		geoPackage.createGeoPackageDatasetMetadata(DGIWGConstants.DMF_2_0_URI,
+				getMetadata());
 
 		TileMatrixSet tileMatrixSet = geoPackage.createTiles(table, identifier,
 				description, informativeBounds, crs);
@@ -130,6 +135,9 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile);
 		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
 
+		geoPackage.createGeoPackageDatasetMetadata(DGIWGConstants.DMF_2_0_URI,
+				getMetadata());
+
 		GeometryColumns geometryColumns = geoPackage.createFeatures(table,
 				GeometryType.GEOMETRY, crs);
 		long srsId = geometryColumns.getSrsId();
@@ -164,6 +172,19 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 		// TODO
 		// GeoPackageIOUtils.copyFile(dbFile, new File("temp.gpkg"));
 
+	}
+
+	/**
+	 * Get the example metadata
+	 * 
+	 * @return metadata
+	 * @throws IOException
+	 *             upon error
+	 */
+	public String getMetadata() throws IOException {
+		File metadataFile = TestUtils.getTestFile(TestConstants.DGIWG_METADATA);
+		String metadata = GeoPackageIOUtils.fileString(metadataFile);
+		return metadata;
 	}
 
 }
