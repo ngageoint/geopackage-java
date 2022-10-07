@@ -20,10 +20,12 @@ public class DGIWGGeoPackageManager {
 	 * 
 	 * @param file
 	 *            file
+	 * @param metadata
+	 *            metadata
 	 * @return created file
 	 */
-	public static GeoPackageFile create(File file) {
-		return create(file, true);
+	public static GeoPackageFile create(File file, String metadata) {
+		return create(file, DGIWGConstants.DMF_DEFAULT_URI, metadata);
 	}
 
 	/**
@@ -31,42 +33,124 @@ public class DGIWGGeoPackageManager {
 	 * 
 	 * @param file
 	 *            file
-	 * @param validate
-	 *            validate the file extension and name
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
 	 * @return created file
 	 */
-	public static GeoPackageFile create(File file, boolean validate) {
-		GeoPackageFileName fileName = new GeoPackageFileName(file);
-		return createFile(file, fileName, validate);
+	public static GeoPackageFile create(File file, String uri,
+			String metadata) {
+		return create(file, uri, metadata, true);
 	}
 
 	/**
 	 * Create a GeoPackage
 	 * 
-	 * @param directory
-	 *            base directory
-	 * @param name
-	 *            GeoPackage file name
-	 * @return created file
-	 */
-	public static GeoPackageFile create(File directory, String name) {
-		return create(directory, name, true);
-	}
-
-	/**
-	 * Create a GeoPackage
-	 * 
-	 * @param directory
-	 *            base directory
-	 * @param name
-	 *            GeoPackage file name
+	 * @param file
+	 *            file
+	 * @param metadata
+	 *            metadata
 	 * @param validate
 	 *            validate the file extension and name
 	 * @return created file
 	 */
-	public static GeoPackageFile create(File directory, String name,
+	public static GeoPackageFile create(File file, String metadata,
 			boolean validate) {
-		return create(new File(directory, name), validate);
+		return create(file, DGIWGConstants.DMF_DEFAULT_URI, metadata, validate);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param file
+	 *            file
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @param validate
+	 *            validate the file extension and name
+	 * @return created file
+	 */
+	public static GeoPackageFile create(File file, String uri, String metadata,
+			boolean validate) {
+		GeoPackageFileName fileName = new GeoPackageFileName(file);
+		return createFile(file, fileName, uri, metadata, validate);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage file name
+	 * @param directory
+	 *            base directory
+	 * @param metadata
+	 *            metadata
+	 * @return created file
+	 */
+	public static GeoPackageFile create(String name, File directory,
+			String metadata) {
+		return create(name, directory, DGIWGConstants.DMF_DEFAULT_URI,
+				metadata);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage file name
+	 * @param directory
+	 *            base directory
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @return created file
+	 */
+	public static GeoPackageFile create(String name, File directory, String uri,
+			String metadata) {
+		return create(name, directory, uri, metadata, true);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage file name
+	 * @param directory
+	 *            base directory
+	 * @param metadata
+	 *            metadata
+	 * @param validate
+	 *            validate the file extension and name
+	 * @return created file
+	 */
+	public static GeoPackageFile create(String name, File directory,
+			String metadata, boolean validate) {
+		return create(name, directory, DGIWGConstants.DMF_DEFAULT_URI, metadata,
+				validate);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param name
+	 *            GeoPackage file name
+	 * @param directory
+	 *            base directory
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @param validate
+	 *            validate the file extension and name
+	 * @return created file
+	 */
+	public static GeoPackageFile create(String name, File directory, String uri,
+			String metadata, boolean validate) {
+		return create(new File(directory, name), uri, metadata, validate);
 	}
 
 	/**
@@ -76,11 +160,14 @@ public class DGIWGGeoPackageManager {
 	 *            base directory
 	 * @param fileName
 	 *            DGIWG file name
+	 * @param metadata
+	 *            metadata
 	 * @return created file
 	 */
 	public static GeoPackageFile create(File directory,
-			GeoPackageFileName fileName) {
-		return create(directory, fileName, true);
+			GeoPackageFileName fileName, String metadata) {
+		return create(directory, fileName, DGIWGConstants.DMF_DEFAULT_URI,
+				metadata);
 	}
 
 	/**
@@ -90,14 +177,56 @@ public class DGIWGGeoPackageManager {
 	 *            base directory
 	 * @param fileName
 	 *            DGIWG file name
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @return created file
+	 */
+	public static GeoPackageFile create(File directory,
+			GeoPackageFileName fileName, String uri, String metadata) {
+		return create(directory, fileName, uri, metadata, true);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param directory
+	 *            base directory
+	 * @param fileName
+	 *            DGIWG file name
+	 * @param metadata
+	 *            metadata
 	 * @param validate
 	 *            validate the file extension and name
 	 * @return created file
 	 */
 	public static GeoPackageFile create(File directory,
-			GeoPackageFileName fileName, boolean validate) {
+			GeoPackageFileName fileName, String metadata, boolean validate) {
+		return create(directory, fileName, DGIWGConstants.DMF_DEFAULT_URI,
+				metadata, validate);
+	}
+
+	/**
+	 * Create a GeoPackage
+	 * 
+	 * @param directory
+	 *            base directory
+	 * @param fileName
+	 *            DGIWG file name
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
+	 * @param validate
+	 *            validate the file extension and name
+	 * @return created file
+	 */
+	public static GeoPackageFile create(File directory,
+			GeoPackageFileName fileName, String uri, String metadata,
+			boolean validate) {
 		File file = new File(directory, fileName.toString());
-		return createFile(file, fileName, validate);
+		return createFile(file, fileName, uri, metadata, validate);
 	}
 
 	/**
@@ -107,12 +236,17 @@ public class DGIWGGeoPackageManager {
 	 *            file
 	 * @param fileName
 	 *            file name
+	 * @param uri
+	 *            URI
+	 * @param metadata
+	 *            metadata
 	 * @param validate
 	 *            validate the file extension and name
 	 * @return
 	 */
 	private static GeoPackageFile createFile(File file,
-			GeoPackageFileName fileName, boolean validate) {
+			GeoPackageFileName fileName, String uri, String metadata,
+			boolean validate) {
 
 		if (validate && !fileName.isValid()) {
 			throw new GeoPackageException(
@@ -121,10 +255,14 @@ public class DGIWGGeoPackageManager {
 
 		file = GeoPackageManager.create(file, validate);
 
-		DGIWGGeoPackage geoPackage = open(file);
+		DGIWGGeoPackage geoPackage = open(file, false);
 		try {
+
 			CrsWktExtension wktExtension = new CrsWktExtension(geoPackage);
 			wktExtension.getOrCreate();
+
+			geoPackage.createGeoPackageDatasetMetadata(uri, metadata);
+
 		} finally {
 			geoPackage.close();
 		}

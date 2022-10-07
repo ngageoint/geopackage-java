@@ -832,4 +832,34 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 				reference);
 	}
 
+	/**
+	 * Query for GeoPackage DGIWG Metadata Foundation (DMF) metadata
+	 * 
+	 * @return metadata references
+	 */
+	public List<MetadataReference> queryGeoPackageDMFMetadata() {
+		return DGIWGMetadata.queryGeoPackageDMFMetadata(this);
+	}
+
+	/**
+	 * Query for GeoPackage NSG Metadata Foundation (NMF) NSG Application Schema
+	 * (NAS) metadata
+	 * 
+	 * @return metadata references
+	 */
+	public List<MetadataReference> queryGeoPackageNASMetadata() {
+		return DGIWGMetadata.queryGeoPackageNASMetadata(this);
+	}
+
+	/**
+	 * Query for GeoPackage metadata
+	 * 
+	 * @param baseURI
+	 *            base URI
+	 * @return metadata references
+	 */
+	public List<MetadataReference> queryGeoPackageMetadata(String baseURI) {
+		return DGIWGMetadata.queryGeoPackageMetadata(this, baseURI);
+	}
+
 }

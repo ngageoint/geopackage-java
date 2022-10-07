@@ -55,11 +55,9 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 
 		File dbFile = new File(folder.newFolder(), GeoPackageManager
 				.addExtension(DGIWGGeoPackageManagerTest.FILE_NAME));
-		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile);
-		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
-
-		geoPackage.createGeoPackageDatasetMetadata(DGIWGConstants.DMF_2_0_URI,
+		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile,
 				getMetadata());
+		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
 
 		TileMatrixSet tileMatrixSet = geoPackage.createTiles(table, identifier,
 				description, informativeBounds, crs);
@@ -132,11 +130,9 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 
 		File dbFile = new File(folder.newFolder(), GeoPackageManager
 				.addExtension(DGIWGGeoPackageManagerTest.FILE_NAME));
-		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile);
-		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
-
-		geoPackage.createGeoPackageDatasetMetadata(DGIWGConstants.DMF_2_0_URI,
+		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile,
 				getMetadata());
+		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
 
 		GeometryColumns geometryColumns = geoPackage.createFeatures(table,
 				GeometryType.GEOMETRY, crs);
@@ -181,7 +177,7 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 	 * @throws IOException
 	 *             upon error
 	 */
-	public String getMetadata() throws IOException {
+	public static String getMetadata() throws IOException {
 		File metadataFile = TestUtils.getTestFile(TestConstants.DGIWG_METADATA);
 		String metadata = GeoPackageIOUtils.fileString(metadataFile);
 		return metadata;
