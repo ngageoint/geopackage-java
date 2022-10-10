@@ -13,11 +13,11 @@ Executes SQL statements on a SQLite database, including GeoPackages.  Most SQLit
 
 ### Script
 
-    ./sqlite-exec.sh [-m max_rows] [-w max_column_width] [-l max_lines_per_row] sqlite_file [sql]
+    ./sqlite-exec.sh [-m max_rows] [-w max_column_width] [-l max_lines_per_row] [-dgiwg] sqlite_file [sql]
 
 ### Jar
 
-    java -jar sqlite-exec.jar [-m max_rows] [-w max_column_width] [-l max_lines_per_row] sqlite_file [sql]
+    java -jar sqlite-exec.jar [-m max_rows] [-w max_column_width] [-l max_lines_per_row] [-dgiwg] sqlite_file [sql]
 
 ### Alias
 
@@ -51,7 +51,7 @@ Run using the script, Jar, or alias.
 ```
 USAGE
 
-	[-m max_rows] [-w max_column_width] [-l max_lines_per_row] sqlite_file [sql]
+	[-m max_rows] [-w max_column_width] [-l max_lines_per_row] [-dgiwg] sqlite_file [sql]
 
 DESCRIPTION
 
