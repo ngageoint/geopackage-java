@@ -70,6 +70,9 @@ ARGUMENTS
 	-l max_lines_per_row
 		Max lines per row (Default is 0 = none)
 
+	-dgiwg
+		DGIWG GeoPackage Profile validation
+
 	sqlite_file
 		path to the SQLite database file
 
@@ -154,6 +157,7 @@ Commands:
 	                        pcw            - Platte Carre (WGS84) optimization, world bounded with XYZ tile coordinates
 	                     zoom_levels    - Zoom level(s) specified as 'z', 'zmin-zmax', or 'z1,z2,...', (default is all levels)
 	                     reproject_name - Reprojection table name (default is <name>)
+	dgiwg             - DGIWG GeoPackage Profile validation
 
 Special Supported Cases:
 

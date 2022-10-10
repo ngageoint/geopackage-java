@@ -37,6 +37,8 @@ import mil.nga.geopackage.db.master.SQLiteMasterQuery;
 import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.db.table.TableColumn;
 import mil.nga.geopackage.db.table.TableInfo;
+import mil.nga.geopackage.dgiwg.DGIWGValidate;
+import mil.nga.geopackage.dgiwg.DGIWGValidationErrors;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -101,6 +103,11 @@ public class SQLExec {
 	 * Max lines per row argument
 	 */
 	public static final String ARGUMENT_MAX_LINES_PER_ROW = "l";
+
+	/**
+	 * DGIWG GeoPackage Profile validation argument
+	 */
+	public static final String ARGUMENT_DGIWG = "dgiwg";
 
 	/**
 	 * Default max lines per row
@@ -243,6 +250,11 @@ public class SQLExec {
 	public static final String COMMAND_REPROJECT = "reproject";
 
 	/**
+	 * DGIWG GeoPackage Profile validation
+	 */
+	public static final String COMMAND_DGIWG = ARGUMENT_DGIWG;
+
+	/**
 	 * Blob display value
 	 */
 	public static final String BLOB_DISPLAY_VALUE = "BLOB";
@@ -344,6 +356,7 @@ public class SQLExec {
 		Integer maxColumnWidth = DEFAULT_MAX_COLUMN_WIDTH;
 		Integer maxLinesPerRow = DEFAULT_MAX_LINES_PER_ROW;
 		StringBuilder sql = null;
+		boolean dgiwg = false;
 
 		for (int i = 0; valid && i < args.length; i++) {
 
@@ -352,7 +365,8 @@ public class SQLExec {
 			// Handle optional arguments
 			if (arg.startsWith(ARGUMENT_PREFIX)) {
 
-				String argument = arg.substring(ARGUMENT_PREFIX.length());
+				String argument = arg.substring(ARGUMENT_PREFIX.length())
+						.toLowerCase();
 
 				switch (argument) {
 
@@ -418,6 +432,10 @@ public class SQLExec {
 					}
 					break;
 
+				case ARGUMENT_DGIWG:
+					dgiwg = true;
+					break;
+
 				default:
 					valid = false;
 					System.out.println("Error: Unsupported arg: '" + arg + "'");
@@ -450,6 +468,10 @@ public class SQLExec {
 
 				printInfo(database, maxRows, maxColumnWidth, maxLinesPerRow);
 
+				if (dgiwg) {
+					dgiwg(database);
+				}
+
 				if (sql != null) {
 
 					try {
@@ -461,7 +483,7 @@ public class SQLExec {
 						System.out.println(e);
 					}
 
-				} else {
+				} else if (!dgiwg) {
 
 					commandPrompt(database, maxRows, maxColumnWidth,
 							maxLinesPerRow);
@@ -852,6 +874,13 @@ public class SQLExec {
 												COMMAND_REPROJECT.length(),
 												sqlLine.length()));
 
+							} else if (sqlLineLower
+									.equalsIgnoreCase(COMMAND_DGIWG)) {
+
+								dgiwg(database);
+
+								resetCommandPrompt(sqlBuilder);
+
 							} else {
 
 								String[] parts = sqlLine.split("\\s+");
@@ -1213,6 +1242,8 @@ public class SQLExec {
 					"\t                     zoom_levels    - Zoom level(s) specified as 'z', 'zmin-zmax', or 'z1,z2,...', (default is all levels)");
 			System.out.println(
 					"\t                     reproject_name - Reprojection table name (default is <name>)");
+			System.out.println("\t" + COMMAND_DGIWG
+					+ "             - DGIWG GeoPackage Profile validation");
 		}
 		System.out.println();
 		System.out.println("Special Supported Cases:");
@@ -3001,6 +3032,25 @@ public class SQLExec {
 	}
 
 	/**
+	 * Perform DGIWG GeoPackage validation
+	 * 
+	 * @param database
+	 *            database
+	 */
+	private static void dgiwg(GeoPackage database) {
+
+		DGIWGValidationErrors errors = DGIWGValidate.validate(database);
+		System.out.println();
+		if (errors.hasErrors()) {
+			System.out.println("DGIWG Validation Errors:");
+			System.out.println(errors);
+		} else {
+			System.out.println("Passed DGIWG validation");
+		}
+
+	}
+
+	/**
 	 * Print usage for the main method
 	 */
 	private static void printUsage() {
@@ -3010,8 +3060,8 @@ public class SQLExec {
 		System.out.println("\t[" + ARGUMENT_PREFIX + ARGUMENT_MAX_ROWS
 				+ " max_rows] [" + ARGUMENT_PREFIX + ARGUMENT_MAX_COLUMN_WIDTH
 				+ " max_column_width] [" + ARGUMENT_PREFIX
-				+ ARGUMENT_MAX_LINES_PER_ROW
-				+ " max_lines_per_row] sqlite_file [sql]");
+				+ ARGUMENT_MAX_LINES_PER_ROW + " max_lines_per_row] ["
+				+ ARGUMENT_PREFIX + ARGUMENT_DGIWG + "] sqlite_file [sql]");
 		System.out.println();
 		System.out.println("DESCRIPTION");
 		System.out.println();
@@ -3037,6 +3087,9 @@ public class SQLExec {
 				+ " max_lines_per_row");
 		System.out.println("\t\tMax lines per row" + " (Default is "
 				+ printableValue(DEFAULT_MAX_LINES_PER_ROW) + ")");
+		System.out.println();
+		System.out.println("\t" + ARGUMENT_PREFIX + ARGUMENT_DGIWG);
+		System.out.println("\t\tDGIWG GeoPackage Profile validation");
 		System.out.println();
 		System.out.println("\tsqlite_file");
 		System.out.println("\t\tpath to the SQLite database file");
