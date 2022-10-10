@@ -8,6 +8,7 @@ Executes SQL statements on a SQLite database, including GeoPackages.  Most SQLit
  * For GeoPackages
    * Renaming a user table also updates dependencies throughout the GeoPackage
    * Dropping a table also removes dependencies throughout the GeoPackage
+   * Defence Geospatial Information Working Group (DGIWG) GeoPackage Profile validation
 
 ## Run
 
