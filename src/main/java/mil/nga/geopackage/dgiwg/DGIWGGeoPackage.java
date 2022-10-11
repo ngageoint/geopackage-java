@@ -117,6 +117,28 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	}
 
 	/**
+	 * Validate the GeoPackage table against the DGIWG GeoPackage Profile
+	 * 
+	 * @param table
+	 *            table
+	 * @return validation errors
+	 */
+	public DGIWGValidationErrors validate(String table) {
+		return DGIWGValidate.validate(this, table);
+	}
+
+	/**
+	 * Validate the GeoPackage tables against the DGIWG GeoPackage Profile
+	 * 
+	 * @param tables
+	 *            tables
+	 * @return validation errors
+	 */
+	public DGIWGValidationErrors validate(List<String> tables) {
+		return DGIWGValidate.validate(this, tables);
+	}
+
+	/**
 	 * Create tiles table
 	 * 
 	 * @param table
@@ -168,7 +190,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 			CoordinateReferenceSystem crs) {
 		SpatialReferenceSystem srs = crs.createTilesSpatialReferenceSystem();
 		return createTiles(table, identifier, description, informativeBounds,
-				srs, crs.getBounds(srs));
+				srs, crs.getBounds());
 	}
 
 	/**
@@ -517,8 +539,8 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 			List<FeatureColumn> columns, CoordinateReferenceSystem crs) {
 		SpatialReferenceSystem srs = crs.createFeaturesSpatialReferenceSystem();
 		DataType dataType = crs.getFeaturesDataTypes().iterator().next();
-		return createFeatures(table, identifier, description,
-				crs.getBounds(srs), geometryType, dataType, columns, srs);
+		return createFeatures(table, identifier, description, crs.getBounds(),
+				geometryType, dataType, columns, srs);
 	}
 
 	/**
