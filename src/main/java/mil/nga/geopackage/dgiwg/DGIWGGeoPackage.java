@@ -28,9 +28,9 @@ import mil.nga.sf.GeometryType;
 public class DGIWGGeoPackage extends GeoPackageImpl {
 
 	/**
-	 * DGIWG File Name
+	 * DGIWG File
 	 */
-	private GeoPackageFileName fileName;
+	private GeoPackageFile file;
 
 	/**
 	 * Validate errors when validated
@@ -46,7 +46,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	public DGIWGGeoPackage(GeoPackage geoPackage) {
 		super(geoPackage.getName(), geoPackage.getPath(),
 				geoPackage.getConnection());
-		this.fileName = new GeoPackageFileName(geoPackage.getPath());
+		this.file = new GeoPackageFile(geoPackage.getPath());
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	public DGIWGGeoPackage(GeoPackageFileName fileName, GeoPackage geoPackage) {
 		super(geoPackage.getName(), geoPackage.getPath(),
 				geoPackage.getConnection());
-		this.fileName = fileName;
+		this.file = new GeoPackageFile(getPath(), fileName);
 	}
 
 	/**
@@ -76,7 +76,16 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	protected DGIWGGeoPackage(String name, File file,
 			GeoPackageConnection database) {
 		super(name, file, database);
-		this.fileName = new GeoPackageFileName(file);
+		this.file = new GeoPackageFile(file);
+	}
+
+	/**
+	 * Get the DGIWG file
+	 * 
+	 * @return DGIWG file
+	 */
+	public GeoPackageFile getFile() {
+		return file;
 	}
 
 	/**
@@ -85,7 +94,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 * @return DGIWG file name
 	 */
 	public GeoPackageFileName getFileName() {
-		return fileName;
+		return file.getFileName();
 	}
 
 	/**

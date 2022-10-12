@@ -48,13 +48,13 @@ public class DGIWGGeoPackageManagerTest extends BaseTestCase {
 		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile,
 				DGIWGGeoPackageTest.getMetadata());
 		assertEquals(dbFile, file.getFile());
-		assertEquals(FILE_NAME, file.getFileName().toString());
+		assertEquals(FILE_NAME, file.getFileName().getName());
 		assertTrue("Database does not exist", dbFile.exists());
 
 		// Open
 		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(dbFile);
 		assertNotNull("Failed to open database", geoPackage);
-		assertEquals(FILE_NAME, geoPackage.getFileName().toString());
+		assertEquals(FILE_NAME, geoPackage.getFileName().getName());
 		geoPackage.close();
 
 	}
