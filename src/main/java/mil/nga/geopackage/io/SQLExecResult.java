@@ -74,7 +74,7 @@ public class SQLExecResult {
 	 *            table name
 	 */
 	public void addTable(String table) {
-		if (table != null && !table.trim().isEmpty()) {
+		if (table != null && !table.isBlank()) {
 			tables.add(table.trim());
 		}
 	}
