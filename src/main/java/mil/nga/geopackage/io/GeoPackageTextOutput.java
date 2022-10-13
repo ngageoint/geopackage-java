@@ -127,7 +127,7 @@ public class GeoPackageTextOutput {
 				+ SpatialReferenceSystem.COLUMN_ORGANIZATION_COORDSYS_ID + ": "
 				+ srs.getOrganizationCoordsysId());
 		output.append("\n\tSRS " + SpatialReferenceSystem.COLUMN_DEFINITION
-				+ ": " + srs.getDefinition());
+				+ ": " + srs.getProjectionDefinition());
 		return output.toString();
 	}
 
