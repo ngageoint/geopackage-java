@@ -874,11 +874,13 @@ public class GeoPackageExample {
 
 		BoundingBox bitsBoundingBox = new BoundingBox(-11667347.997449303,
 				4824705.2253603265, -11666125.00499674, 4825928.217812888);
-		createTiles(geoPackage, "bit_systems", bitsBoundingBox, 15, 17, "png");
+		createTiles(geoPackage, "bit_systems", bitsBoundingBox, 15, 17,
+				ImageUtils.IMAGE_FORMAT_PNG);
 
 		BoundingBox ngaBoundingBox = new BoundingBox(-8593967.964158937,
 				4685284.085768163, -8592744.971706374, 4687730.070673289);
-		createTiles(geoPackage, "nga", ngaBoundingBox, 15, 16, "png");
+		createTiles(geoPackage, "nga", ngaBoundingBox, 15, 16,
+				ImageUtils.IMAGE_FORMAT_PNG);
 
 		TileReprojection.reproject(geoPackage, "bit_systems",
 				"bit_systems_wgs84", ProjectionFactory.getProjection(
