@@ -1,16 +1,20 @@
 package mil.nga.geopackage.dgiwg;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import org.junit.Test;
 
 import mil.nga.crs.geo.GeoDatums;
 import mil.nga.geopackage.BaseTestCase;
 import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.TestConstants;
 import mil.nga.geopackage.TestUtils;
@@ -317,6 +321,62 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 		for (long zoom = minZoom; zoom <= maxZoom; zoom++) {
 			assertEquals(boundingBox, tileDao.getBoundingBox(zoom));
 		}
+
+		DGIWGValidationErrors errors = geoPackage.validate();
+		if (errors.hasErrors()) {
+			System.out.println(errors);
+		}
+		assertTrue(geoPackage.isValid());
+
+		geoPackage.close();
+
+	}
+
+	/**
+	 * Test creating features with compound wkt
+	 * 
+	 * @throws IOException
+	 *             upon error
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testCreateFeaturesCompound() throws IOException, SQLException {
+
+		final String table = "dgiwg_features";
+
+		final CoordinateReferenceSystem crs = CoordinateReferenceSystem.EPSG_9518;
+
+		File dbFile = new File(folder.newFolder(), GeoPackageManager
+				.addExtension(DGIWGGeoPackageManagerTest.FILE_NAME));
+		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile,
+				getMetadata());
+		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
+
+		GeometryColumns geometryColumns = geoPackage.createFeatures(table,
+				GeometryType.GEOMETRY, crs);
+		long srsId = geometryColumns.getSrsId();
+
+		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
+
+		FeatureRow featureRow = featureDao.newRow();
+		featureRow.setGeometry(GeoPackageGeometryData.create(srsId,
+				TestUtils.createPoint(false, false)));
+		featureDao.insert(featureRow);
+
+		assertEquals(1, featureDao.count());
+
+		SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
+				.queryForOrganizationCoordsysId(crs.getAuthority(),
+						crs.getCode());
+		assertNotNull(srs);
+		assertEquals(GeoPackageConstants.UNDEFINED_DEFINITION,
+				srs.getDefinition());
+		String definition_12_063 = srs.getDefinition_12_063();
+		assertNotNull(definition_12_063);
+		assertFalse(definition_12_063.isBlank());
+		assertFalse(definition_12_063.trim()
+				.equalsIgnoreCase(GeoPackageConstants.UNDEFINED_DEFINITION));
 
 		DGIWGValidationErrors errors = geoPackage.validate();
 		if (errors.hasErrors()) {
