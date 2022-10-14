@@ -433,9 +433,10 @@ public class GeoPackageExample {
 				createTileScalingExtension(geoPackage);
 			}
 
+			boolean relatedTablesTiles = RELATED_TABLES_TILES && FEATURES;
 			System.out.println(
-					"Related Tables Tiles Extension: " + RELATED_TABLES_TILES);
-			if (RELATED_TABLES_TILES) {
+					"Related Tables Tiles Extension: " + relatedTablesTiles);
+			if (relatedTablesTiles) {
 				createRelatedTablesTilesExtension(geoPackage);
 			}
 
