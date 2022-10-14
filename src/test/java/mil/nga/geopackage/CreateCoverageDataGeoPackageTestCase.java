@@ -245,11 +245,9 @@ public abstract class CreateCoverageDataGeoPackageTestCase
 			tileMatrix.setTileHeight(tileHeight);
 			tileMatrix.setTileWidth(tileWidth);
 			tileMatrix.setPixelXSize(
-					(bbox.getMaxLongitude() - bbox.getMinLongitude()) / width
-							/ tileWidth);
+					bbox.getLongitudeRange() / width / tileWidth);
 			tileMatrix.setPixelYSize(
-					(bbox.getMaxLatitude() - bbox.getMinLatitude()) / height
-							/ tileHeight);
+					bbox.getLatitudeRange() / height / tileHeight);
 			tileMatrix.setZoomLevel(zoomLevel);
 			TestCase.assertEquals(1, tileMatrixDao.create(tileMatrix));
 

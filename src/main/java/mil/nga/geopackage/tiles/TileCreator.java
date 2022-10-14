@@ -670,17 +670,13 @@ public class TileCreator {
 			ProjectionTransform transformRequestToTiles,
 			BoundingBox tilesBoundingBox) {
 
-		final double requestedWidthUnitsPerPixel = (requestBoundingBox
-				.getMaxLongitude() - requestBoundingBox.getMinLongitude())
-				/ requestedTileWidth;
-		final double requestedHeightUnitsPerPixel = (requestBoundingBox
-				.getMaxLatitude() - requestBoundingBox.getMinLatitude())
-				/ requestedTileHeight;
+		final double requestedWidthUnitsPerPixel = requestBoundingBox
+				.getLongitudeRange() / requestedTileWidth;
+		final double requestedHeightUnitsPerPixel = requestBoundingBox
+				.getLatitudeRange() / requestedTileHeight;
 
-		final double tilesDistanceWidth = tilesBoundingBox.getMaxLongitude()
-				- tilesBoundingBox.getMinLongitude();
-		final double tilesDistanceHeight = tilesBoundingBox.getMaxLatitude()
-				- tilesBoundingBox.getMinLatitude();
+		final double tilesDistanceWidth = tilesBoundingBox.getLongitudeRange();
+		final double tilesDistanceHeight = tilesBoundingBox.getLatitudeRange();
 
 		final int width = tile.getWidth();
 		final int height = tile.getHeight();

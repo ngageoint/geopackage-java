@@ -1531,11 +1531,8 @@ public class GeoPackageExample {
 		tileMatrix.setMatrixWidth(width);
 		tileMatrix.setTileHeight(tileHeight);
 		tileMatrix.setTileWidth(tileWidth);
-		tileMatrix
-				.setPixelXSize((bbox.getMaxLongitude() - bbox.getMinLongitude())
-						/ width / tileWidth);
-		tileMatrix.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
-				/ height / tileHeight);
+		tileMatrix.setPixelXSize(bbox.getLongitudeRange() / width / tileWidth);
+		tileMatrix.setPixelYSize(bbox.getLatitudeRange() / height / tileHeight);
 		tileMatrix.setZoomLevel(15);
 		tileMatrixDao.create(tileMatrix);
 
@@ -1636,11 +1633,8 @@ public class GeoPackageExample {
 		tileMatrix.setMatrixWidth(width);
 		tileMatrix.setTileHeight(tileHeight);
 		tileMatrix.setTileWidth(tileWidth);
-		tileMatrix
-				.setPixelXSize((bbox.getMaxLongitude() - bbox.getMinLongitude())
-						/ width / tileWidth);
-		tileMatrix.setPixelYSize((bbox.getMaxLatitude() - bbox.getMinLatitude())
-				/ height / tileHeight);
+		tileMatrix.setPixelXSize(bbox.getLongitudeRange() / width / tileWidth);
+		tileMatrix.setPixelYSize(bbox.getLatitudeRange() / height / tileHeight);
 		tileMatrix.setZoomLevel(15);
 		tileMatrixDao.create(tileMatrix);
 
