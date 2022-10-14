@@ -28,6 +28,16 @@ public class DGIWGExampleCreate {
 	public boolean coverage = false;
 
 	/**
+	 * Create related tables media
+	 */
+	public boolean relatedMedia = false;
+
+	/**
+	 * Create related tables tiles
+	 */
+	public boolean relatedTiles = false;
+
+	/**
 	 * Create the base
 	 * 
 	 * @return create
@@ -45,6 +55,8 @@ public class DGIWGExampleCreate {
 		DGIWGExampleCreate create = featuresAndTiles();
 		create.schema = true;
 		create.coverage = true;
+		create.relatedMedia = true;
+		create.relatedTiles = true;
 		return create;
 	}
 

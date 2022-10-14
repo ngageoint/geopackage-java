@@ -25,6 +25,17 @@ import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
 import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.extension.coverage.GriddedTileDao;
+import mil.nga.geopackage.extension.related.ExtendedRelation;
+import mil.nga.geopackage.extension.related.RelatedTablesExtension;
+import mil.nga.geopackage.extension.related.UserMappingDao;
+import mil.nga.geopackage.extension.related.UserMappingRow;
+import mil.nga.geopackage.extension.related.UserMappingTable;
+import mil.nga.geopackage.extension.related.dublin.DublinCoreMetadata;
+import mil.nga.geopackage.extension.related.dublin.DublinCoreType;
+import mil.nga.geopackage.extension.related.media.MediaDao;
+import mil.nga.geopackage.extension.related.media.MediaRow;
+import mil.nga.geopackage.extension.related.media.MediaTable;
+import mil.nga.geopackage.extension.related.media.MediaTableMetadata;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
@@ -34,6 +45,7 @@ import mil.nga.geopackage.extension.schema.constraints.DataColumnConstraintsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
@@ -44,12 +56,15 @@ import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
+import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
 import mil.nga.sf.Point;
 import mil.nga.sf.Polygon;
+import mil.nga.sf.proj.GeometryTransform;
 
 /**
  * Creates an example DGIWG GeoPackage file
@@ -62,6 +77,8 @@ public class DGIWGExample {
 	private static final boolean TILES = true;
 	private static final boolean SCHEMA = true;
 	private static final boolean COVERAGE_DATA = true;
+	private static final boolean RELATED_TABLES_MEDIA = true;
+	private static final boolean RELATED_TABLES_TILES = true;
 
 	private static final String PRODUCER = "NGA";
 	private static final String DATA_PRODUCT = "DGIWG-Example";
@@ -85,6 +102,13 @@ public class DGIWGExample {
 	private static final String COVERAGE_DATA_IDENTIFIER = "NGA Coverage Data";
 	private static final String COVERAGE_DATA_DESCRIPTION = "DGIWG Coverage Data example";
 
+	private static final String MEDIA_TABLE = "media";
+	private static final String MEDIA_MAPPING_TABLE = FEATURE_TABLE + "_"
+			+ MEDIA_TABLE;
+
+	private static final String TILE_MAPPING_TABLE = FEATURE_TABLE + "_"
+			+ "tiles";
+
 	/**
 	 * Main method to create the GeoPackage example file
 	 * 
@@ -102,6 +126,8 @@ public class DGIWGExample {
 		create.tiles = TILES;
 		create.schema = SCHEMA;
 		create.coverage = COVERAGE_DATA;
+		create.relatedMedia = RELATED_TABLES_MEDIA;
+		create.relatedTiles = RELATED_TABLES_TILES;
 
 		create(getFileName(), create);
 	}
@@ -243,6 +269,16 @@ public class DGIWGExample {
 				createSchemaExtension(geoPackage);
 			}
 
+			System.out.println(
+					"Related Tables Media Extension: " + create.relatedMedia);
+			if (create.relatedMedia) {
+				createRelatedTablesMediaExtension(geoPackage);
+			}
+
+		} else {
+			System.out.println("Schema Extension: " + create.features);
+			System.out.println(
+					"Related Tables Media Extension: " + create.features);
 		}
 
 		System.out.println("Tiles: " + create.tiles);
@@ -255,6 +291,17 @@ public class DGIWGExample {
 				createCoverageDataExtension(geoPackage);
 			}
 
+			boolean relatedTablesTiles = create.relatedTiles && create.features;
+			System.out.println(
+					"Related Tables Tiles Extension: " + relatedTablesTiles);
+			if (relatedTablesTiles) {
+				createRelatedTablesTilesExtension(geoPackage);
+			}
+
+		} else {
+			System.out.println("Coverage Data: " + create.tiles);
+			System.out
+					.println("Related Tables Tiles Extension: " + create.tiles);
 		}
 
 		DGIWGValidationErrors errors = geoPackage.validate();
@@ -302,7 +349,7 @@ public class DGIWGExample {
 	 * @throws IOException
 	 *             upon error
 	 */
-	public static String getMetadata() throws IOException {
+	private static String getMetadata() throws IOException {
 		File metadataFile = TestUtils.getTestFile(TestConstants.DGIWG_METADATA);
 		String metadata = GeoPackageIOUtils.fileString(metadataFile);
 		return metadata;
@@ -630,6 +677,200 @@ public class DGIWGExample {
 
 		griddedTileDao.create(griddedTile);
 
+	}
+
+	/**
+	 * Create related tables extension to media
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void createRelatedTablesMediaExtension(
+			DGIWGGeoPackage geoPackage) throws IOException {
+
+		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
+				geoPackage);
+
+		MediaTable mediaTable = MediaTable.create(
+				MediaTableMetadata.create(MEDIA_TABLE, getAdditionalColumns()));
+
+		UserMappingTable userMappingTable = UserMappingTable
+				.create(MEDIA_MAPPING_TABLE, getAdditionalColumns());
+		ExtendedRelation relation = relatedTables.addMediaRelationship(
+				FEATURE_TABLE, mediaTable, userMappingTable);
+
+		insertRelatedTablesMediaExtensionRows(geoPackage, relation, "NGA%",
+				"NGA", "NGA_Logo.png", "image/png", "NGA Logo",
+				"http://www.nga.mil");
+		insertRelatedTablesMediaExtensionRows(geoPackage, relation, "NGA",
+				"NGA", "NGA.jpg", "image/jpeg", "Aerial View of NGA East",
+				"http://www.nga.mil");
+
+	}
+
+	/**
+	 * Insert related tables media extension rows
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param relation
+	 *            extended relation
+	 * @param query
+	 *            feature name column query
+	 * @param name
+	 *            relation name
+	 * @param file
+	 *            media file name
+	 * @param contentType
+	 *            media content type
+	 * @param description
+	 *            relation description
+	 * @param source
+	 *            relation source
+	 */
+	private static void insertRelatedTablesMediaExtensionRows(
+			DGIWGGeoPackage geoPackage, ExtendedRelation relation, String query,
+			String name, String file, String contentType, String description,
+			String source) {
+
+		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
+				geoPackage);
+
+		FeatureDao featureDao = geoPackage
+				.getFeatureDao(relation.getBaseTableName());
+		MediaDao mediaDao = relatedTables.getMediaDao(relation);
+		UserMappingDao userMappingDao = relatedTables.getMappingDao(relation);
+
+		MediaRow mediaRow = mediaDao.newRow();
+		mediaRow.setData(TestUtils.getTestFileBytes(file));
+		mediaRow.setContentType(contentType);
+		DublinCoreMetadata.setValue(mediaRow, DublinCoreType.DATE, new Date());
+		DublinCoreMetadata.setValue(mediaRow, DublinCoreType.DESCRIPTION,
+				description);
+		DublinCoreMetadata.setValue(mediaRow, DublinCoreType.SOURCE, source);
+		DublinCoreMetadata.setValue(mediaRow, DublinCoreType.TITLE, name);
+		long mediaRowId = mediaDao.create(mediaRow);
+
+		FeatureResultSet featureResultSet = featureDao
+				.queryForLike(FEATURE_NAME_COLUMN, query);
+		for (FeatureRow featureRow : featureResultSet) {
+			UserMappingRow userMappingRow = userMappingDao.newRow();
+			userMappingRow.setBaseId(featureRow.getId());
+			userMappingRow.setRelatedId(mediaRowId);
+			String featureName = featureRow.getValue(FEATURE_NAME_COLUMN)
+					.toString();
+			DublinCoreMetadata.setValue(userMappingRow, DublinCoreType.DATE,
+					new Date());
+			DublinCoreMetadata.setValue(userMappingRow,
+					DublinCoreType.DESCRIPTION,
+					featureName + " - " + description);
+			DublinCoreMetadata.setValue(userMappingRow, DublinCoreType.SOURCE,
+					source);
+			DublinCoreMetadata.setValue(userMappingRow, DublinCoreType.TITLE,
+					featureName + " - " + name);
+			userMappingDao.create(userMappingRow);
+		}
+		featureResultSet.close();
+	}
+
+	/**
+	 * Create related tables extension to tiles
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 */
+	private static void createRelatedTablesTilesExtension(
+			DGIWGGeoPackage geoPackage) {
+
+		RelatedTablesExtension relatedTables = new RelatedTablesExtension(
+				geoPackage);
+
+		UserMappingTable userMappingTable = UserMappingTable
+				.create(TILE_MAPPING_TABLE, getAdditionalColumns());
+		ExtendedRelation relation = relatedTables.addTilesRelationship(
+				FEATURE_TABLE, TILE_TABLE, userMappingTable);
+
+		UserMappingDao userMappingDao = relatedTables.getMappingDao(relation);
+
+		FeatureDao featureDao = geoPackage
+				.getFeatureDao(relation.getBaseTableName());
+		TileDao tileDao = geoPackage.getTileDao(relation.getRelatedTableName());
+
+		BoundingBox boundingBox = tileDao.getBoundingBox();
+
+		GeometryTransform transform = GeometryTransform
+				.create(featureDao.getProjection(), tileDao.getProjection());
+
+		FeatureResultSet featureResultSet = featureDao.queryForAll();
+		for (FeatureRow featureRow : featureResultSet) {
+
+			String featureName = featureRow.getValue(FEATURE_NAME_COLUMN)
+					.toString();
+
+			BoundingBox geometryBoundingBox = featureRow.getGeometry()
+					.getOrBuildBoundingBox();
+			BoundingBox geometryTransform = geometryBoundingBox
+					.transform(transform);
+
+			for (long zoom = tileDao.getMinZoom(); zoom <= tileDao
+					.getMaxZoom(); zoom++) {
+
+				TileMatrix tileMatrix = tileDao.getTileMatrix(zoom);
+				long width = tileMatrix.getMatrixWidth();
+				long height = tileMatrix.getMatrixHeight();
+
+				TileGrid tileGrid = TileBoundingBoxUtils.getTileGrid(
+						boundingBox, width, height, geometryTransform);
+
+				TileResultSet tileResultSet = tileDao.queryByTileGrid(tileGrid,
+						zoom);
+
+				for (TileRow tileRow : tileResultSet) {
+
+					UserMappingRow userMappingRow = userMappingDao.newRow();
+					userMappingRow.setBaseId(featureRow.getId());
+					userMappingRow.setRelatedId(tileRow.getId());
+					DublinCoreMetadata.setValue(userMappingRow,
+							DublinCoreType.DATE, new Date());
+					DublinCoreMetadata.setValue(userMappingRow,
+							DublinCoreType.DESCRIPTION,
+							"Zoom level " + zoom + " tile");
+					DublinCoreMetadata.setValue(userMappingRow,
+							DublinCoreType.SOURCE, "http://www.nga.mil");
+					DublinCoreMetadata.setValue(userMappingRow,
+							DublinCoreType.TITLE, featureName);
+					userMappingDao.create(userMappingRow);
+				}
+				tileResultSet.close();
+
+			}
+
+		}
+		featureResultSet.close();
+
+	}
+
+	/**
+	 * Get additional related tables columns
+	 * 
+	 * @return additional columns
+	 */
+	private static List<UserCustomColumn> getAdditionalColumns() {
+
+		List<UserCustomColumn> additionalColumns = new ArrayList<>();
+
+		additionalColumns.add(UserCustomColumn.createColumn(
+				DublinCoreType.DATE.getName(), GeoPackageDataType.DATETIME));
+		additionalColumns.add(UserCustomColumn.createColumn(
+				DublinCoreType.DESCRIPTION.getName(), GeoPackageDataType.TEXT));
+		additionalColumns.add(UserCustomColumn.createColumn(
+				DublinCoreType.SOURCE.getName(), GeoPackageDataType.TEXT));
+		additionalColumns.add(UserCustomColumn.createColumn(
+				DublinCoreType.TITLE.getName(), GeoPackageDataType.TEXT));
+
+		return additionalColumns;
 	}
 
 }
