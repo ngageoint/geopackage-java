@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +18,19 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.TestConstants;
 import mil.nga.geopackage.TestUtils;
 import mil.nga.geopackage.db.GeoPackageDataType;
+import mil.nga.geopackage.extension.coverage.CoverageDataTiff;
+import mil.nga.geopackage.extension.coverage.GriddedCoverage;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageDao;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
+import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
+import mil.nga.geopackage.extension.coverage.GriddedTile;
+import mil.nga.geopackage.extension.coverage.GriddedTileDao;
+import mil.nga.geopackage.extension.schema.SchemaExtension;
+import mil.nga.geopackage.extension.schema.columns.DataColumns;
+import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
+import mil.nga.geopackage.extension.schema.constraints.DataColumnConstraintType;
+import mil.nga.geopackage.extension.schema.constraints.DataColumnConstraints;
+import mil.nga.geopackage.extension.schema.constraints.DataColumnConstraintsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
@@ -25,9 +40,12 @@ import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGrid;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileRow;
+import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
 import mil.nga.sf.Point;
@@ -42,6 +60,8 @@ public class DGIWGExample {
 
 	private static final boolean FEATURES = true;
 	private static final boolean TILES = true;
+	private static final boolean SCHEMA = true;
+	private static final boolean COVERAGE_DATA = true;
 
 	private static final String PRODUCER = "NGA";
 	private static final String DATA_PRODUCT = "DGIWG-Example";
@@ -51,6 +71,20 @@ public class DGIWGExample {
 	private static final int MAJOR_VERSION = 1;
 	private static final int MINOR_VERSION = 0;
 
+	private static final String FEATURE_TABLE = "nga_features";
+	private static final String FEATURE_IDENTIFIER = "NGA Features";
+	private static final String FEATURE_DESCRIPTION = "DGIWG Features example";
+	private static final String FEATURE_NAME_COLUMN = "name";
+	private static final String FEATURE_NUMBER_COLUMN = "number";
+
+	private static final String TILE_TABLE = "nga_tiles";
+	private static final String TILE_IDENTIFIER = "NGA Tiles";
+	private static final String TILE_DESCRIPTION = "DGIWG Tiles example";
+
+	private static final String COVERAGE_DATA_TABLE = "nga_coverage_data";
+	private static final String COVERAGE_DATA_IDENTIFIER = "NGA Coverage Data";
+	private static final String COVERAGE_DATA_DESCRIPTION = "DGIWG Coverage Data example";
+
 	/**
 	 * Main method to create the GeoPackage example file
 	 * 
@@ -58,12 +92,16 @@ public class DGIWGExample {
 	 *            arguments
 	 * @throws IOException
 	 *             upon error
+	 * @throws SQLException
+	 *             upon error
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, SQLException {
 
 		DGIWGExampleCreate create = DGIWGExampleCreate.base();
 		create.features = FEATURES;
 		create.tiles = TILES;
+		create.schema = SCHEMA;
+		create.coverage = COVERAGE_DATA;
 
 		create(getFileName(), create);
 	}
@@ -92,9 +130,11 @@ public class DGIWGExample {
 	 * 
 	 * @throws IOException
 	 *             upon error
+	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
-	public void testExampleBase() throws IOException {
+	public void testExampleBase() throws IOException, SQLException {
 		testExample(DGIWGExampleCreate.base());
 	}
 
@@ -103,10 +143,25 @@ public class DGIWGExample {
 	 * 
 	 * @throws IOException
 	 *             upon error
+	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
-	public void testExample() throws IOException {
+	public void testExample() throws IOException, SQLException {
 		testExample(DGIWGExampleCreate.all());
+	}
+
+	/**
+	 * Test making the GeoPackage example with features and tiles
+	 * 
+	 * @throws IOException
+	 *             upon error
+	 * @throws SQLException
+	 *             upon error
+	 */
+	@Test
+	public void testExampleFeaturesAndTiles() throws IOException, SQLException {
+		testExample(DGIWGExampleCreate.featuresAndTiles());
 	}
 
 	/**
@@ -114,9 +169,11 @@ public class DGIWGExample {
 	 * 
 	 * @throws IOException
 	 *             upon error
+	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
-	public void testExampleFeatures() throws IOException {
+	public void testExampleFeatures() throws IOException, SQLException {
 		testExample(DGIWGExampleCreate.features());
 	}
 
@@ -125,9 +182,11 @@ public class DGIWGExample {
 	 * 
 	 * @throws IOException
 	 *             upon error
+	 * @throws SQLException
+	 *             upon error
 	 */
 	@Test
-	public void testExampleTiles() throws IOException {
+	public void testExampleTiles() throws IOException, SQLException {
 		testExample(DGIWGExampleCreate.tiles());
 	}
 
@@ -138,8 +197,11 @@ public class DGIWGExample {
 	 *            create parts
 	 * @throws IOException
 	 *             upon error
+	 * @throws SQLException
+	 *             upon error
 	 */
-	private void testExample(DGIWGExampleCreate create) throws IOException {
+	private void testExample(DGIWGExampleCreate create)
+			throws IOException, SQLException {
 
 		GeoPackageFileName fileName = getFileName();
 
@@ -162,9 +224,11 @@ public class DGIWGExample {
 	 * @return GeoPackage file
 	 * @throws IOException
 	 *             upon error
+	 * @throws SQLException
+	 *             upon error
 	 */
 	private static GeoPackageFile create(GeoPackageFileName fileName,
-			DGIWGExampleCreate create) throws IOException {
+			DGIWGExampleCreate create) throws IOException, SQLException {
 
 		System.out.println("Creating: " + fileName.getName());
 		DGIWGGeoPackage geoPackage = createGeoPackage(fileName);
@@ -174,12 +238,22 @@ public class DGIWGExample {
 
 			createFeatures(geoPackage);
 
+			System.out.println("Schema Extension: " + create.schema);
+			if (create.schema) {
+				createSchemaExtension(geoPackage);
+			}
+
 		}
 
 		System.out.println("Tiles: " + create.tiles);
 		if (create.tiles) {
 
 			createTiles(geoPackage);
+
+			System.out.println("Coverage Data: " + create.coverage);
+			if (create.coverage) {
+				createCoverageDataExtension(geoPackage);
+			}
 
 		}
 
@@ -242,18 +316,16 @@ public class DGIWGExample {
 	 */
 	private static void createFeatures(DGIWGGeoPackage geoPackage) {
 
-		String table = "nga_features";
-		String identifier = "NGA Features";
-		String description = "DGIWG Features example";
-		String nameColumn = "name";
-
 		CoordinateReferenceSystem crs = CoordinateReferenceSystem.EPSG_4326;
 
 		List<FeatureColumn> columns = new ArrayList<>();
-		columns.add(FeatureColumn.createColumn(nameColumn,
+		columns.add(FeatureColumn.createColumn(FEATURE_NAME_COLUMN,
 				GeoPackageDataType.TEXT));
-		GeometryColumns geometryColumns = geoPackage.createFeatures(table,
-				identifier, description, GeometryType.GEOMETRY, columns, crs);
+		columns.add(FeatureColumn.createColumn(FEATURE_NUMBER_COLUMN,
+				GeoPackageDataType.INTEGER));
+		GeometryColumns geometryColumns = geoPackage.createFeatures(
+				FEATURE_TABLE, FEATURE_IDENTIFIER, FEATURE_DESCRIPTION,
+				GeometryType.GEOMETRY, columns, crs);
 		long srsId = geometryColumns.getSrsId();
 
 		FeatureDao featureDao = geoPackage.getFeatureDao(geometryColumns);
@@ -261,7 +333,8 @@ public class DGIWGExample {
 		Point point = new Point(-77.196736, 38.753370);
 		FeatureRow pointRow = featureDao.newRow();
 		pointRow.setGeometry(GeoPackageGeometryData.create(srsId, point));
-		pointRow.setValue(nameColumn, "NGA");
+		pointRow.setValue(FEATURE_NAME_COLUMN, "NGA");
+		pointRow.setValue(FEATURE_NUMBER_COLUMN, 1);
 		featureDao.insert(pointRow);
 
 		LineString line = new LineString();
@@ -275,7 +348,8 @@ public class DGIWGExample {
 		line.addPoint(new Point(-77.196568, 38.756526));
 		FeatureRow lineRow = featureDao.newRow();
 		lineRow.setGeometry(GeoPackageGeometryData.create(srsId, line));
-		lineRow.setValue(nameColumn, "NGA Visitor Center Road");
+		lineRow.setValue(FEATURE_NAME_COLUMN, "NGA Visitor Center Road");
+		lineRow.setValue(FEATURE_NUMBER_COLUMN, 2);
 		featureDao.insert(lineRow);
 
 		Polygon polygon = new Polygon();
@@ -302,7 +376,8 @@ public class DGIWGExample {
 		polygon.addRing(ring);
 		FeatureRow polygonRow = featureDao.newRow();
 		polygonRow.setGeometry(GeoPackageGeometryData.create(srsId, polygon));
-		polygonRow.setValue(nameColumn, "NGA Visitor Center");
+		polygonRow.setValue(FEATURE_NAME_COLUMN, "NGA Visitor Center");
+		polygonRow.setValue(FEATURE_NUMBER_COLUMN, 3);
 		featureDao.insert(polygonRow);
 
 	}
@@ -318,10 +393,6 @@ public class DGIWGExample {
 	private static void createTiles(DGIWGGeoPackage geoPackage)
 			throws IOException {
 
-		String table = "nga_tiles";
-		String identifier = "NGA Tiles";
-		String description = "DGIWG Tiles example";
-
 		CoordinateReferenceSystem crs = CoordinateReferenceSystem.EPSG_3857;
 
 		BoundingBox informativeBounds = new BoundingBox(-8593967, 4685285,
@@ -332,8 +403,9 @@ public class DGIWGExample {
 		BoundingBox extentBounds = TileBoundingBoxUtils
 				.getWebMercatorBoundingBox(totalTileGrid, MIN_ZOOM);
 
-		TileMatrixSet tileMatrixSet = geoPackage.createTiles(table, identifier,
-				description, informativeBounds, crs, extentBounds);
+		TileMatrixSet tileMatrixSet = geoPackage.createTiles(TILE_TABLE,
+				TILE_IDENTIFIER, TILE_DESCRIPTION, informativeBounds, crs,
+				extentBounds);
 
 		long matrixWidth = totalTileGrid.getWidth();
 		long matrixHeight = totalTileGrid.getHeight();
@@ -383,6 +455,180 @@ public class DGIWGExample {
 
 			tileGrid = TileBoundingBoxUtils.tileGridZoomIncrease(tileGrid, 1);
 		}
+
+	}
+
+	/**
+	 * Create schema extension
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void createSchemaExtension(DGIWGGeoPackage geoPackage)
+			throws SQLException {
+
+		SchemaExtension schemaExtension = new SchemaExtension(geoPackage);
+
+		schemaExtension.createDataColumnConstraintsTable();
+
+		DataColumnConstraintsDao dao = schemaExtension
+				.getDataColumnConstraintsDao();
+
+		DataColumnConstraints sampleRange = new DataColumnConstraints();
+		sampleRange.setConstraintName("sampleRange");
+		sampleRange.setConstraintType(DataColumnConstraintType.RANGE);
+		sampleRange.setMin(BigDecimal.ONE);
+		sampleRange.setMinIsInclusive(true);
+		sampleRange.setMax(BigDecimal.TEN);
+		sampleRange.setMaxIsInclusive(true);
+		sampleRange.setDescription("sampleRange description");
+		dao.create(sampleRange);
+
+		schemaExtension.createDataColumnsTable();
+
+		DataColumnsDao dataColumnsDao = schemaExtension.getDataColumnsDao();
+
+		DataColumns dataColumns = new DataColumns();
+		dataColumns.setContents(geoPackage.getTableContents(FEATURE_TABLE));
+		dataColumns.setColumnName(FEATURE_NAME_COLUMN);
+		dataColumns.setName(FEATURE_TABLE);
+		dataColumns.setTitle("Test Title");
+		dataColumns.setDescription("Test Description");
+		dataColumns.setMimeType("Test MIME Type");
+		dataColumns.setConstraintName(sampleRange.getConstraintName());
+
+		dataColumnsDao.create(dataColumns);
+
+	}
+
+	/**
+	 * Create coverage data extension
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 */
+	private static void createCoverageDataExtension(DGIWGGeoPackage geoPackage)
+			throws SQLException {
+
+		TileDao tileTableDao = geoPackage.getTileDao(TILE_TABLE);
+
+		BoundingBox bbox = tileTableDao.getBoundingBox();
+
+		TileTableMetadata metadata = TileTableMetadata.create(
+				COVERAGE_DATA_TABLE,
+				tileTableDao.getContents().getBoundingBox(), bbox,
+				tileTableDao.getSrsId());
+		metadata.setIdentifier(COVERAGE_DATA_IDENTIFIER);
+		metadata.setDescription(COVERAGE_DATA_DESCRIPTION);
+		CoverageDataTiff coverageData = CoverageDataTiff
+				.createTileTable(geoPackage, metadata);
+		TileDao tileDao = coverageData.getTileDao();
+		TileMatrixSet tileMatrixSet = coverageData.getTileMatrixSet();
+
+		GriddedCoverageDao griddedCoverageDao = coverageData
+				.getGriddedCoverageDao();
+
+		GriddedCoverage griddedCoverage = new GriddedCoverage();
+		griddedCoverage.setTileMatrixSet(tileMatrixSet);
+		griddedCoverage.setDataType(GriddedCoverageDataType.FLOAT);
+		griddedCoverage.setDataNull((double) Float.MAX_VALUE);
+		griddedCoverage
+				.setGridCellEncodingType(GriddedCoverageEncodingType.CENTER);
+		griddedCoverageDao.create(griddedCoverage);
+
+		GriddedTileDao griddedTileDao = coverageData.getGriddedTileDao();
+
+		long width = 1;
+		long height = 2;
+		int tileWidth = 4;
+		int tileHeight = 4;
+
+		TileMatrixDao tileMatrixDao = geoPackage.getTileMatrixDao();
+
+		TileMatrix tileMatrix = new TileMatrix();
+		tileMatrix.setContents(tileMatrixSet.getContents());
+		tileMatrix.setMatrixHeight(height);
+		tileMatrix.setMatrixWidth(width);
+		tileMatrix.setTileHeight(tileHeight);
+		tileMatrix.setTileWidth(tileWidth);
+		tileMatrix.setPixelXSize(bbox.getLongitudeRange() / width / tileWidth);
+		tileMatrix.setPixelYSize(bbox.getLatitudeRange() / height / tileHeight);
+		tileMatrix.setZoomLevel(tileTableDao.getMinZoom());
+		tileMatrixDao.create(tileMatrix);
+
+		float[][] tilePixels = new float[tileHeight][tileWidth];
+
+		tilePixels[0][0] = 76.0f;
+		tilePixels[0][1] = 74.0f;
+		tilePixels[0][2] = 70.0f;
+		tilePixels[0][3] = 70.0f;
+		tilePixels[1][0] = 63.0f;
+		tilePixels[1][1] = 71.0f;
+		tilePixels[1][2] = 65.0f;
+		tilePixels[1][3] = 69.0f;
+		tilePixels[2][0] = 56.0f;
+		tilePixels[2][1] = 59.0f;
+		tilePixels[2][2] = 65.0f;
+		tilePixels[2][3] = 70.0f;
+		tilePixels[3][0] = 70.0f;
+		tilePixels[3][1] = 71.0f;
+		tilePixels[3][2] = 70.0f;
+		tilePixels[3][3] = 71.0f;
+
+		byte[] imageBytes = coverageData.drawTileData(tilePixels);
+
+		TileRow tileRow = tileDao.newRow();
+		tileRow.setTileColumn(0);
+		tileRow.setTileRow(0);
+		tileRow.setZoomLevel(tileMatrix.getZoomLevel());
+		tileRow.setTileData(imageBytes);
+
+		long tileId = tileDao.create(tileRow);
+
+		GriddedTile griddedTile = new GriddedTile();
+		griddedTile.setContents(tileMatrixSet.getContents());
+		griddedTile.setTableId(tileId);
+
+		griddedTileDao.create(griddedTile);
+
+		tilePixels = new float[tileHeight][tileWidth];
+
+		tilePixels[0][0] = 51.0f;
+		tilePixels[0][1] = 71.0f;
+		tilePixels[0][2] = 66.0f;
+		tilePixels[0][3] = 70.0f;
+		tilePixels[1][0] = 50.0f;
+		tilePixels[1][1] = 62.0f;
+		tilePixels[1][2] = 58.0f;
+		tilePixels[1][3] = 67.0f;
+		tilePixels[2][0] = 44.0f;
+		tilePixels[2][1] = 64.0f;
+		tilePixels[2][2] = 61.0f;
+		tilePixels[2][3] = 53.0f;
+		tilePixels[3][0] = 55.0f;
+		tilePixels[3][1] = 43.0f;
+		tilePixels[3][2] = 59.0f;
+		tilePixels[3][3] = 46.0f;
+
+		imageBytes = coverageData.drawTileData(tilePixels);
+
+		tileRow = tileDao.newRow();
+		tileRow.setTileColumn(0);
+		tileRow.setTileRow(1);
+		tileRow.setZoomLevel(tileMatrix.getZoomLevel());
+		tileRow.setTileData(imageBytes);
+
+		tileId = tileDao.create(tileRow);
+
+		griddedTile = new GriddedTile();
+		griddedTile.setContents(tileMatrixSet.getContents());
+		griddedTile.setTableId(tileId);
+
+		griddedTileDao.create(griddedTile);
 
 	}
 

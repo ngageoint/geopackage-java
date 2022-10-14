@@ -18,6 +18,16 @@ public class DGIWGExampleCreate {
 	public boolean tiles = false;
 
 	/**
+	 * Create schema
+	 */
+	public boolean schema = false;
+
+	/**
+	 * Create coverage data
+	 */
+	public boolean coverage = false;
+
+	/**
 	 * Create the base
 	 * 
 	 * @return create
@@ -32,6 +42,18 @@ public class DGIWGExampleCreate {
 	 * @return create
 	 */
 	public static DGIWGExampleCreate all() {
+		DGIWGExampleCreate create = featuresAndTiles();
+		create.schema = true;
+		create.coverage = true;
+		return create;
+	}
+
+	/**
+	 * Create the base
+	 * 
+	 * @return create
+	 */
+	public static DGIWGExampleCreate featuresAndTiles() {
 		DGIWGExampleCreate create = base();
 		create.features = true;
 		create.tiles = true;
