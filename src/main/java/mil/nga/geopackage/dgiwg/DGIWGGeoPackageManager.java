@@ -2,7 +2,6 @@ package mil.nga.geopackage.dgiwg;
 
 import java.io.File;
 
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.extension.CrsWktExtension;
 
@@ -314,11 +313,6 @@ public class DGIWGGeoPackageManager {
 			GeoPackageFileName fileName, String uri, String metadata,
 			boolean validate) {
 
-		if (validate && !fileName.isValid()) {
-			throw new GeoPackageException(
-					"Not a valid DGIWG file name: " + fileName);
-		}
-
 		file = GeoPackageManager.create(file, validate);
 
 		DGIWGGeoPackage geoPackage = open(file, false);
@@ -441,11 +435,6 @@ public class DGIWGGeoPackageManager {
 			boolean validate) {
 
 		GeoPackageFileName fileName = new GeoPackageFileName(file);
-
-		if (validate && !fileName.isValid()) {
-			throw new GeoPackageException(
-					"Not a valid DGIWG file name: " + fileName);
-		}
 
 		DGIWGGeoPackage geoPackage = new DGIWGGeoPackage(fileName,
 				GeoPackageManager.open(name, file, validate));

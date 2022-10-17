@@ -142,8 +142,9 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 		BoundingBox tileBounds = TileBoundingBoxUtils
 				.getBoundingBox(crs.getBounds(), tiles, tiles, tileGrid);
 
-		File dbFile = new File(folder.newFolder(), GeoPackageManager
-				.addExtension(DGIWGGeoPackageManagerTest.FILE_NAME));
+		File dbFile = new File(folder.newFolder(),
+				GeoPackageManager.addExtension(
+						DGIWGGeoPackageManagerTest.FILE_NAME_NON_INFORMATIVE));
 		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile,
 				getMetadata());
 		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
@@ -280,8 +281,9 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 		long matrixWidth = TileBoundingBoxUtils.tilesPerSide(minZoom);
 		long matrixHeight = matrixWidth;
 
-		File dbFile = new File(folder.newFolder(), GeoPackageManager
-				.addExtension(DGIWGGeoPackageManagerTest.FILE_NAME));
+		File dbFile = new File(folder.newFolder(),
+				GeoPackageManager.addExtension(
+						DGIWGGeoPackageManagerTest.FILE_NAME_NON_INFORMATIVE2));
 		GeoPackageFile file = DGIWGGeoPackageManager.create(dbFile,
 				getMetadata());
 		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager.open(file);
