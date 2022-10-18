@@ -25,6 +25,13 @@ import mil.nga.geopackage.extension.coverage.GriddedCoverageDataType;
 import mil.nga.geopackage.extension.coverage.GriddedCoverageEncodingType;
 import mil.nga.geopackage.extension.coverage.GriddedTile;
 import mil.nga.geopackage.extension.coverage.GriddedTileDao;
+import mil.nga.geopackage.extension.metadata.Metadata;
+import mil.nga.geopackage.extension.metadata.MetadataDao;
+import mil.nga.geopackage.extension.metadata.MetadataExtension;
+import mil.nga.geopackage.extension.metadata.MetadataScopeType;
+import mil.nga.geopackage.extension.metadata.reference.MetadataReference;
+import mil.nga.geopackage.extension.metadata.reference.MetadataReferenceDao;
+import mil.nga.geopackage.extension.metadata.reference.ReferenceScopeType;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
 import mil.nga.geopackage.extension.related.RelatedTablesExtension;
 import mil.nga.geopackage.extension.related.UserMappingDao;
@@ -75,6 +82,9 @@ public class DGIWGExample {
 
 	private static final boolean FEATURES = true;
 	private static final boolean TILES = true;
+	private static final boolean NATIONAL_METADATA = true;
+	private static final boolean FEATURES_METADATA = true;
+	private static final boolean TILES_METADATA = true;
 	private static final boolean SCHEMA = true;
 	private static final boolean COVERAGE_DATA = true;
 	private static final boolean RELATED_TABLES_MEDIA = true;
@@ -124,6 +134,9 @@ public class DGIWGExample {
 		DGIWGExampleCreate create = DGIWGExampleCreate.base();
 		create.features = FEATURES;
 		create.tiles = TILES;
+		create.nationalMetadata = NATIONAL_METADATA;
+		create.featuresMetadata = FEATURES_METADATA;
+		create.tilesMetadata = TILES_METADATA;
 		create.schema = SCHEMA;
 		create.coverage = COVERAGE_DATA;
 		create.relatedMedia = RELATED_TABLES_MEDIA;
@@ -259,10 +272,22 @@ public class DGIWGExample {
 		System.out.println("Creating: " + fileName.getName());
 		DGIWGGeoPackage geoPackage = createGeoPackage(fileName);
 
+		System.out.println(
+				"National Metadata Extension: " + create.nationalMetadata);
+		if (create.nationalMetadata) {
+			createNationalMetadataExtension(geoPackage);
+		}
+
 		System.out.println("Features: " + create.features);
 		if (create.features) {
 
 			createFeatures(geoPackage);
+
+			System.out.println(
+					"Features Metadata Extension: " + create.featuresMetadata);
+			if (create.featuresMetadata) {
+				createFeaturesMetadataExtension(geoPackage);
+			}
 
 			System.out.println("Schema Extension: " + create.schema);
 			if (create.schema) {
@@ -276,6 +301,8 @@ public class DGIWGExample {
 			}
 
 		} else {
+			System.out
+					.println("Features Metadata Extension: " + create.features);
 			System.out.println("Schema Extension: " + create.features);
 			System.out.println(
 					"Related Tables Media Extension: " + create.features);
@@ -285,6 +312,12 @@ public class DGIWGExample {
 		if (create.tiles) {
 
 			createTiles(geoPackage);
+
+			System.out.println(
+					"Tiles Metadata Extension: " + create.tilesMetadata);
+			if (create.tilesMetadata) {
+				createTilesMetadataExtension(geoPackage);
+			}
 
 			System.out.println("Coverage Data: " + create.coverage);
 			if (create.coverage) {
@@ -299,6 +332,7 @@ public class DGIWGExample {
 			}
 
 		} else {
+			System.out.println("Tiles Metadata Extension: " + create.tiles);
 			System.out.println("Coverage Data: " + create.tiles);
 			System.out
 					.println("Related Tables Tiles Extension: " + create.tiles);
@@ -334,7 +368,7 @@ public class DGIWGExample {
 		}
 
 		GeoPackageFile geoPackageFile = DGIWGGeoPackageManager.create(fileName,
-				getMetadata());
+				getMetadata(TestConstants.DGIWG_METADATA_1));
 
 		DGIWGGeoPackage geoPackage = DGIWGGeoPackageManager
 				.open(geoPackageFile);
@@ -345,12 +379,14 @@ public class DGIWGExample {
 	/**
 	 * Get the example metadata
 	 * 
+	 * @param name
+	 *            metadata name
 	 * @return metadata
 	 * @throws IOException
 	 *             upon error
 	 */
-	private static String getMetadata() throws IOException {
-		File metadataFile = TestUtils.getTestFile(TestConstants.DGIWG_METADATA);
+	private static String getMetadata(String name) throws IOException {
+		File metadataFile = TestUtils.getTestFile(name);
 		String metadata = GeoPackageIOUtils.fileString(metadataFile);
 		return metadata;
 	}
@@ -502,6 +538,98 @@ public class DGIWGExample {
 
 			tileGrid = TileBoundingBoxUtils.tileGridZoomIncrease(tileGrid, 1);
 		}
+
+	}
+
+	/**
+	 * Create national metadata extension
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void createNationalMetadataExtension(
+			DGIWGGeoPackage geoPackage) throws IOException {
+
+		geoPackage.createGeoPackageDatasetMetadata(
+				DGIWGConstants.NMIS_DEFAULT_URI,
+				getMetadata(TestConstants.NMIS_METADATA_1));
+
+	}
+
+	/**
+	 * Create features metadata extension
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void createFeaturesMetadataExtension(
+			DGIWGGeoPackage geoPackage) throws SQLException, IOException {
+
+		MetadataExtension metadataExtension = new MetadataExtension(geoPackage);
+
+		metadataExtension.createMetadataTable();
+		MetadataDao metadataDao = metadataExtension.getMetadataDao();
+
+		metadataExtension.createMetadataReferenceTable();
+		MetadataReferenceDao metadataReferenceDao = metadataExtension
+				.getMetadataReferenceDao();
+
+		Metadata metadata = new Metadata();
+		metadata.setMetadataScope(MetadataScopeType.FEATURE);
+		metadata.setStandardUri(DGIWGConstants.DMF_DEFAULT_URI);
+		metadata.setMimeType(DGIWGConstants.METADATA_MIME_TYPE);
+		metadata.setMetadata(getMetadata(TestConstants.DGIWG_METADATA_2));
+		metadataDao.create(metadata);
+
+		MetadataReference reference = new MetadataReference();
+		reference.setReferenceScope(ReferenceScopeType.ROW);
+		reference.setTableName(FEATURE_TABLE);
+		reference.setRowIdValue(1L);
+		reference.setMetadata(metadata);
+		metadataReferenceDao.create(reference);
+
+	}
+
+	/**
+	 * Create tiles metadata extension
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void createTilesMetadataExtension(DGIWGGeoPackage geoPackage)
+			throws SQLException, IOException {
+
+		MetadataExtension metadataExtension = new MetadataExtension(geoPackage);
+
+		metadataExtension.createMetadataTable();
+		MetadataDao metadataDao = metadataExtension.getMetadataDao();
+
+		metadataExtension.createMetadataReferenceTable();
+		MetadataReferenceDao metadataReferenceDao = metadataExtension
+				.getMetadataReferenceDao();
+
+		Metadata metadata = new Metadata();
+		metadata.setMetadataScope(MetadataScopeType.MODEL);
+		metadata.setStandardUri(DGIWGConstants.DMF_DEFAULT_URI);
+		metadata.setMimeType(DGIWGConstants.METADATA_MIME_TYPE);
+		metadata.setMetadata(getMetadata(TestConstants.DGIWG_METADATA_2));
+		metadataDao.create(metadata);
+
+		MetadataReference reference = new MetadataReference();
+		reference.setReferenceScope(ReferenceScopeType.TABLE);
+		reference.setTableName(TILE_TABLE);
+		reference.setMetadata(metadata);
+		metadataReferenceDao.create(reference);
 
 	}
 

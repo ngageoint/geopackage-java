@@ -18,6 +18,21 @@ public class DGIWGExampleCreate {
 	public boolean tiles = false;
 
 	/**
+	 * Create optional national metadata
+	 */
+	public boolean nationalMetadata = false;
+
+	/**
+	 * Create optional features metadata
+	 */
+	public boolean featuresMetadata = false;
+
+	/**
+	 * Create optional tiles metadata
+	 */
+	public boolean tilesMetadata = false;
+
+	/**
 	 * Create schema
 	 */
 	public boolean schema = false;
@@ -53,6 +68,9 @@ public class DGIWGExampleCreate {
 	 */
 	public static DGIWGExampleCreate all() {
 		DGIWGExampleCreate create = featuresAndTiles();
+		create.nationalMetadata = true;
+		create.featuresMetadata = true;
+		create.tilesMetadata = true;
 		create.schema = true;
 		create.coverage = true;
 		create.relatedMedia = true;

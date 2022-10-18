@@ -169,9 +169,27 @@ public class TestConstants {
 	public static final String DGIWG_FOLDER = "dgiwg/";
 
 	/**
-	 * DGIWG Metadata example
+	 * DGIWG DMF Metadata example 1
 	 */
-	public static final String DGIWG_METADATA = DGIWG_FOLDER
-			+ "DMF2.0-sampleMetadata-DMFfull.xml.xml";
+	public static final String DGIWG_METADATA_1 = DGIWG_FOLDER
+			+ "DMF_v2_0_Example_1.xml";
+
+	/**
+	 * DGIWG DMF Metadata example 2
+	 */
+	public static final String DGIWG_METADATA_2 = DGIWG_FOLDER
+			+ "DMF_v2_0_Example_2.xml";
+
+	/**
+	 * NMIS Metadata example 1
+	 */
+	public static final String NMIS_METADATA_1 = DGIWG_FOLDER
+			+ "NMIS_v3_0_Example_1.xml";
+
+	/**
+	 * NMIS Metadata example 2
+	 */
+	public static final String NMIS_METADATA_2 = DGIWG_FOLDER
+			+ "NMIS_v3_0_Example_2.xml";
 
 }

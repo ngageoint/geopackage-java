@@ -398,7 +398,8 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 	 *             upon error
 	 */
 	public static String getMetadata() throws IOException {
-		File metadataFile = TestUtils.getTestFile(TestConstants.DGIWG_METADATA);
+		File metadataFile = TestUtils
+				.getTestFile(TestConstants.DGIWG_METADATA_2);
 		String metadata = GeoPackageIOUtils.fileString(metadataFile);
 		return metadata;
 	}
