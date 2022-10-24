@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import mil.nga.geopackage.CreateGeoPackageTestCase;
@@ -24,6 +26,9 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 
 	/**
 	 * Test the Extension creation
+	 * 
+	 * @throws Exception
+	 *             upon failure
 	 */
 	@Test
 	public void testExtension() throws Exception {
@@ -39,21 +44,21 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 				(long) ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 		assertNotNull(wgs84Srs);
 		assertNull(wgs84Srs.getDefinition_12_063());
-		srsDao.setDefinition_12_063(wgs84Srs);
+		srsDao.setExtension(wgs84Srs);
 		assertNull(wgs84Srs.getDefinition_12_063());
 
 		SpatialReferenceSystem undefinedCartesianSrs = srsDao
 				.queryForId((long) ProjectionConstants.UNDEFINED_CARTESIAN);
 		assertNotNull(undefinedCartesianSrs);
 		assertNull(undefinedCartesianSrs.getDefinition_12_063());
-		srsDao.setDefinition_12_063(undefinedCartesianSrs);
+		srsDao.setExtension(undefinedCartesianSrs);
 		assertNull(undefinedCartesianSrs.getDefinition_12_063());
 
 		SpatialReferenceSystem undefinedGeographicSrs = srsDao
 				.queryForId((long) ProjectionConstants.UNDEFINED_GEOGRAPHIC);
 		assertNotNull(undefinedGeographicSrs);
 		assertNull(undefinedGeographicSrs.getDefinition_12_063());
-		srsDao.setDefinition_12_063(undefinedGeographicSrs);
+		srsDao.setExtension(undefinedGeographicSrs);
 		assertNull(undefinedGeographicSrs.getDefinition_12_063());
 
 		// Create a new SRS
@@ -68,11 +73,12 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 		newSrs = srsDao.queryForId(newSrs.getSrsId());
 		assertNotNull(newSrs);
 		assertNull(newSrs.getDefinition_12_063());
-		srsDao.setDefinition_12_063(newSrs);
+		srsDao.setExtension(newSrs);
 		assertNull(newSrs.getDefinition_12_063());
 
 		// Create the extension
-		Extensions extension = wktExtension.getOrCreate();
+		List<Extensions> extensions = wktExtension.getOrCreate(); // TODO
+		Extensions extension = extensions.get(0);
 		assertNotNull(extension);
 		assertTrue(wktExtension.has());
 		assertEquals(extension.getExtensionName(), "gpkg_crs_wkt");
@@ -186,5 +192,7 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 		assertEquals(newSrs3.getDefinition_12_063(), "");
 
 	}
+
+	// TODO test both versions
 
 }

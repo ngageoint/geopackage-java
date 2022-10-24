@@ -1374,6 +1374,7 @@ public class GeoPackageExample {
 		testSrs.setDefinition(srs.getDefinition());
 		testSrs.setDescription(srs.getDescription());
 		testSrs.setDefinition_12_063(srs.getDefinition_12_063());
+		testSrs.setEpoch(srs.getEpoch());
 		srsDao.create(testSrs);
 
 		SpatialReferenceSystem testSrs2 = new SpatialReferenceSystem();
