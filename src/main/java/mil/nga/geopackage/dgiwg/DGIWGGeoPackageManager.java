@@ -4,6 +4,7 @@ import java.io.File;
 
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.extension.CrsWktExtension;
+import mil.nga.geopackage.extension.CrsWktExtensionVersion;
 
 /**
  * DGIWG (Defence Geospatial Information Working Group) GeoPackage Manager used
@@ -319,7 +320,7 @@ public class DGIWGGeoPackageManager {
 		try {
 
 			CrsWktExtension wktExtension = new CrsWktExtension(geoPackage);
-			wktExtension.getOrCreate();
+			wktExtension.getOrCreate(CrsWktExtensionVersion.V_1);
 
 			geoPackage.createGeoPackageDatasetMetadata(uri, metadata);
 

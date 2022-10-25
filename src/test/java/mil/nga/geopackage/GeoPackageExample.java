@@ -29,6 +29,7 @@ import mil.nga.geopackage.contents.ContentsDataType;
 import mil.nga.geopackage.db.DateConverter;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.CrsWktExtension;
+import mil.nga.geopackage.extension.CrsWktExtensionVersion;
 import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.GeometryExtensions;
 import mil.nga.geopackage.extension.WebPExtension;
@@ -303,8 +304,13 @@ public class GeoPackageExample {
 				extensionsDao.isTableExists() && !extensionsDao
 						.queryByExtension(WebPExtension.EXTENSION_NAME)
 						.isEmpty());
+		CrsWktExtension crsWktExtension = new CrsWktExtension(geoPackage);
 		TestCase.assertEquals(has && CRS_WKT,
-				new CrsWktExtension(geoPackage).has());
+				crsWktExtension.has(CrsWktExtensionVersion.V_1)
+						&& crsWktExtension.has(CrsWktExtensionVersion.V_1_1)
+						&& crsWktExtension.has(CrsWktExtensionVersion.LATEST)
+						&& crsWktExtension
+								.hasMinimum(CrsWktExtensionVersion.LATEST));
 
 	}
 
