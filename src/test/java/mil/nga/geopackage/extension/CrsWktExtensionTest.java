@@ -307,7 +307,8 @@ public class CrsWktExtensionTest extends CreateGeoPackageTestCase {
 		assertNotNull(newSrs4);
 		assertNotNull(newSrs4.getDefinition_12_063());
 		assertEquals(newSrs4.getDefinition_12_063(), "definition_12_063");
-		if (version == null || version != CrsWktExtensionVersion.V_1) {
+		if (version == null
+				|| version.isMinimum(CrsWktExtensionVersion.V_1_1)) {
 			assertNotNull(newSrs4.getEpoch());
 			assertEquals(newSrs4.getEpoch(), 12.345, 0.0);
 			newSrs4.setEpoch(null);
