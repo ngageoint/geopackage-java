@@ -92,7 +92,7 @@ public class DGIWGExample {
 
 	private static final String PRODUCER = "NGA";
 	private static final String DATA_PRODUCT = "DGIWG-Example";
-	private static final String GEOGRAPHIC_COVERAGE_AREA = "USA";
+	private static final String GEOGRAPHIC_COVERAGE_AREA = "Ft-Belvoir";
 	private static final int MIN_ZOOM = 15;
 	private static final int MAX_ZOOM = 16;
 	private static final int MAJOR_VERSION = 1;
