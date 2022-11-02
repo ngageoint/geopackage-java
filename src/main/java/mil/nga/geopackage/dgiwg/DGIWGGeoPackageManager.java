@@ -308,7 +308,7 @@ public class DGIWGGeoPackageManager {
 	 *            metadata
 	 * @param validate
 	 *            validate the file extension and name
-	 * @return
+	 * @return created file
 	 */
 	private static GeoPackageFile createFile(File file,
 			GeoPackageFileName fileName, String uri, String metadata,
