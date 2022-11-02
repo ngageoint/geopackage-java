@@ -30,7 +30,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	/**
 	 * DGIWG File
 	 */
-	private GeoPackageFile file;
+	private final GeoPackageFile file;
 
 	/**
 	 * Validate errors when validated
