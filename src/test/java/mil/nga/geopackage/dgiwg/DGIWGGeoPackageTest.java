@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 import org.junit.Test;
 
+import mil.nga.crs.CRSType;
 import mil.nga.crs.geo.GeoDatums;
 import mil.nga.geopackage.BaseTestCase;
 import mil.nga.geopackage.BoundingBox;
@@ -260,6 +261,7 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 
 		long epsg = 3978;
 		String name = "NAD83 / Canada Atlas Lambert";
+		CRSType crsType = CRSType.GEOGRAPHIC;
 		GeoDatums datum = GeoDatums.NAD83;
 		double standardParallel1 = 49;
 		double standardParallel2 = 77;
@@ -272,7 +274,7 @@ public class DGIWGGeoPackageTest extends BaseTestCase {
 				-5153821.09213678, 7148753.233541353, 7928343.534071138);
 
 		SpatialReferenceSystem srs = CoordinateReferenceSystem
-				.createLambertConicConformal2SP(epsg, name, datum,
+				.createLambertConicConformal2SP(epsg, name, crsType, datum,
 						standardParallel1, standardParallel2, latitudeOfOrigin,
 						centralMeridian, falseEasting, falseNorthing);
 
