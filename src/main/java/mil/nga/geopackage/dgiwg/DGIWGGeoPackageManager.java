@@ -2,6 +2,7 @@ package mil.nga.geopackage.dgiwg;
 
 import java.io.File;
 
+import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.extension.CrsWktExtension;
 import mil.nga.geopackage.extension.CrsWktExtensionVersion;
@@ -314,21 +315,24 @@ public class DGIWGGeoPackageManager {
 			GeoPackageFileName fileName, String uri, String metadata,
 			boolean validate) {
 
+		GeoPackageFile geoPackageFile = null;
+
 		file = GeoPackageManager.create(file, validate);
 
-		DGIWGGeoPackage geoPackage = open(file, false);
-		try {
+		try (DGIWGGeoPackage geoPackage = open(file, false)) {
 
-			CrsWktExtension wktExtension = new CrsWktExtension(geoPackage);
-			wktExtension.getOrCreate(CrsWktExtensionVersion.V_1);
+			if (geoPackage != null) {
 
-			geoPackage.createGeoPackageDatasetMetadata(uri, metadata);
+				CrsWktExtension wktExtension = new CrsWktExtension(geoPackage);
+				wktExtension.getOrCreate(CrsWktExtensionVersion.V_1);
 
-		} finally {
-			geoPackage.close();
+				geoPackage.createGeoPackageDatasetMetadata(uri, metadata);
+
+				geoPackageFile = new GeoPackageFile(file, fileName);
+			}
 		}
 
-		return new GeoPackageFile(file, fileName);
+		return geoPackageFile;
 	}
 
 	/**
@@ -435,13 +439,18 @@ public class DGIWGGeoPackageManager {
 	public static DGIWGGeoPackage open(String name, File file,
 			boolean validate) {
 
+		DGIWGGeoPackage geoPackage = null;
+
 		GeoPackageFileName fileName = new GeoPackageFileName(file);
 
-		DGIWGGeoPackage geoPackage = new DGIWGGeoPackage(fileName,
-				GeoPackageManager.open(name, file, validate));
+		GeoPackage gp = GeoPackageManager.open(name, file, validate);
+		if (gp != null) {
 
-		if (validate) {
-			validate(geoPackage);
+			geoPackage = new DGIWGGeoPackage(fileName, gp);
+
+			if (validate) {
+				validate(geoPackage);
+			}
 		}
 
 		return geoPackage;
