@@ -4,9 +4,11 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.5.1 (TBD)
+## 6.6.0 (TBD)
 
-* TBD
+* geopackage-core version 6.6.0
+* DGIWG (Defence Geospatial Information Working Group) GeoPackage Profile support
+* SQLite Exec DGIWG support
 
 ## [6.5.0](https://github.com/ngageoint/geopackage-java/releases/tag/6.5.0) (09-22-2022)
 
