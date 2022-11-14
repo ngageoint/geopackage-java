@@ -327,7 +327,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	}
 
 	/**
-	 * Create a tile matrix for a zoom level
+	 * Create tile matrices for zoom levels
 	 * 
 	 * @param tileMatrixSet
 	 *            tile matrix set
@@ -348,7 +348,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	}
 
 	/**
-	 * Create a tile matrix for a zoom level
+	 * Create tile matrices for zoom levels
 	 * 
 	 * @param table
 	 *            table name
@@ -370,7 +370,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	}
 
 	/**
-	 * Create a tile matrix for a zoom level
+	 * Create tile matrices for zoom levels
 	 * 
 	 * @param tileMatrixSet
 	 *            tile matrix set
@@ -389,7 +389,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	}
 
 	/**
-	 * Create a tile matrix for a zoom level
+	 * Create tile matrices for zoom levels
 	 * 
 	 * @param table
 	 *            table name
@@ -420,9 +420,9 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 * @param matrixHeight
 	 *            matrix height
 	 */
-	public void createTileMatrices(TileMatrixSet tileMatrixSet, long zoom,
+	public void createTileMatrix(TileMatrixSet tileMatrixSet, long zoom,
 			long matrixWidth, long matrixHeight) {
-		createTileMatrices(tileMatrixSet.getTableName(),
+		createTileMatrix(tileMatrixSet.getTableName(),
 				tileMatrixSet.getBoundingBox(), zoom, matrixWidth,
 				matrixHeight);
 	}
@@ -441,9 +441,9 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 * @param matrixHeight
 	 *            matrix height
 	 */
-	public void createTileMatrices(String table, BoundingBox boundingBox,
+	public void createTileMatrix(String table, BoundingBox boundingBox,
 			long zoom, long matrixWidth, long matrixHeight) {
-		DGIWGGeoPackageUtils.createTileMatrices(this, table, boundingBox, zoom,
+		DGIWGGeoPackageUtils.createTileMatrix(this, table, boundingBox, zoom,
 				matrixWidth, matrixHeight);
 	}
 
