@@ -783,7 +783,7 @@ public class DGIWGGeoPackage extends GeoPackageImpl {
 	 */
 	public void createMetadataReference(Metadata metadata,
 			MetadataReference reference) {
-		DGIWGGeoPackageUtils.createMetadata(this, metadata, reference);
+		DGIWGGeoPackageUtils.createMetadataReference(this, metadata, reference);
 
 	}
 
