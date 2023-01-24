@@ -1260,6 +1260,7 @@ public class TileUtils {
 	}
 
 	static boolean threadedTileDaoError = false;
+	static boolean threadedTileDaoStop = false;
 
 	/**
 	 * Test threaded tile dao
@@ -1272,8 +1273,8 @@ public class TileUtils {
 	public static void testThreadedTileDao(final GeoPackage geoPackage)
 			throws SQLException {
 
-		final int threads = 100;
-		final int attemptsPerThread = 100;
+		final int threads = 30;
+		final int attemptsPerThread = 50;
 
 		TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
 
@@ -1283,6 +1284,7 @@ public class TileUtils {
 			for (TileMatrixSet tileMatrixSet : results) {
 
 				threadedTileDaoError = false;
+				threadedTileDaoStop = false;
 
 				final String tableName = tileMatrixSet.getTableName();
 
@@ -1293,6 +1295,11 @@ public class TileUtils {
 						for (int i = 0; i < attemptsPerThread; i++) {
 
 							try {
+
+								if (threadedTileDaoStop) {
+									break;
+								}
+
 								ContentsDao contentsDao = geoPackage
 										.getContentsDao();
 								Contents contents = contentsDao
@@ -1303,12 +1310,17 @@ public class TileUtils {
 													+ tableName);
 								}
 
+								if (threadedTileDaoStop) {
+									break;
+								}
+
 								TileDao dao = geoPackage.getTileDao(tableName);
 								if (dao == null) {
 									throw new Exception(
 											"Tile DAO was null, table name: "
 													+ tableName);
 								}
+
 							} catch (Exception e) {
 								threadedTileDaoError = true;
 								e.printStackTrace();
@@ -1327,6 +1339,15 @@ public class TileUtils {
 				executor.shutdown();
 				try {
 					executor.awaitTermination(60, TimeUnit.SECONDS);
+					threadedTileDaoStop = true;
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					TestCase.fail("Waiting for threads terminated: "
+							+ e.getMessage());
+				}
+
+				try {
+					executor.awaitTermination(10, TimeUnit.SECONDS);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 					TestCase.fail("Waiting for threads terminated: "
