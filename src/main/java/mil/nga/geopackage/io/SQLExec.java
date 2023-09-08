@@ -39,6 +39,7 @@ import mil.nga.geopackage.db.table.TableColumn;
 import mil.nga.geopackage.db.table.TableInfo;
 import mil.nga.geopackage.dgiwg.DGIWGValidate;
 import mil.nga.geopackage.dgiwg.DGIWGValidationErrors;
+import mil.nga.geopackage.dgiwg.GeoPackageFileName;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -3038,6 +3039,12 @@ public class SQLExec {
 	 *            database
 	 */
 	private static void dgiwg(GeoPackage database) {
+
+		GeoPackageFileName fileName = new GeoPackageFileName(
+				database.getPath());
+		System.out.println();
+		System.out.println("DGIWG GeoPackage");
+		System.out.println(fileName.info());
 
 		DGIWGValidationErrors errors = DGIWGValidate.validate(database);
 		System.out.println();
