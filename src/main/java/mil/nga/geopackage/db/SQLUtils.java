@@ -418,13 +418,7 @@ public class SQLUtils {
 	 */
 	public static long insert(Connection connection, String table,
 			ContentValues values) {
-		try {
-			return insertOrThrow(connection, table, values);
-		} catch (Exception e) {
-			log.log(Level.WARNING, "Error inserting into table: " + table
-					+ ", Values: " + values, e);
-			return -1;
-		}
+		return insert(connection, table, null, values);
 	}
 
 	/**
@@ -440,6 +434,50 @@ public class SQLUtils {
 	 */
 	public static long insertOrThrow(Connection connection, String table,
 			ContentValues values) {
+		return insertOrThrow(connection, table, null, values);
+	}
+
+	/**
+	 * Insert a new row
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param table
+	 *            table name
+	 * @param pkColumn
+	 *            primary key id column
+	 * @param values
+	 *            content values
+	 * @return row id or -1 on an exception
+	 * @since 6.6.2
+	 */
+	public static long insert(Connection connection, String table,
+			String pkColumn, ContentValues values) {
+		try {
+			return insertOrThrow(connection, table, pkColumn, values);
+		} catch (Exception e) {
+			log.log(Level.WARNING, "Error inserting into table: " + table
+					+ ", Values: " + values, e);
+			return -1;
+		}
+	}
+
+	/**
+	 * Insert a new row
+	 * 
+	 * @param connection
+	 *            connection
+	 * @param table
+	 *            table name
+	 * @param pkColumn
+	 *            primary key id column
+	 * @param values
+	 *            content values
+	 * @return row id
+	 * @since 6.6.2
+	 */
+	public static long insertOrThrow(Connection connection, String table,
+			String pkColumn, ContentValues values) {
 
 		StringBuilder insert = new StringBuilder();
 		insert.append("insert into ").append(CoreSQLUtils.quoteWrap(table))
@@ -462,6 +500,12 @@ public class SQLUtils {
 		}
 		insert.append(')');
 
+		if (pkColumn == null) {
+			pkColumn = CoreSQLUtils.ROWID_COLUMN;
+		}
+		insert.append(" returning ");
+		insert.append(CoreSQLUtils.quoteWrap(pkColumn));
+
 		String sql = insert.toString();
 
 		PreparedStatement statement = null;
@@ -470,23 +514,21 @@ public class SQLUtils {
 		try {
 			statement = connection.prepareStatement(sql);
 			setArguments(statement, args);
-			int count = statement.executeUpdate();
+			boolean result = statement.execute();
 
+			while (result) {
+				ResultSet resultSet = statement.getResultSet();
+				id = resultSet.getLong(pkColumn);
+				result = statement.getMoreResults();
+			}
+
+			int count = statement.getUpdateCount();
 			if (count == 0) {
 				throw new GeoPackageException(
 						"Failed to execute SQL insert statement: " + sql
 								+ ". No rows added from execution.");
 			}
 
-			try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-				if (generatedKeys.next()) {
-					id = generatedKeys.getLong(1);
-				} else {
-					throw new GeoPackageException(
-							"Failed to execute SQL insert statement: " + sql
-									+ ". No row id was found.");
-				}
-			}
 		} catch (SQLException e) {
 			throw new GeoPackageException(
 					"Failed to execute SQL insert statement: " + sql, e);

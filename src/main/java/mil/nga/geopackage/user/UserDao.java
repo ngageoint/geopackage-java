@@ -157,7 +157,7 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	@Override
 	public long insert(TRow row) {
 		long id = SQLUtils.insertOrThrow(connection, getTableName(),
-				row.toContentValues(false));
+				getPkColumnName(), row.toContentValues(false));
 		if (row.hasIdColumn()) {
 			row.setId(id, true);
 		}
@@ -172,7 +172,8 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * @return row id, -1 on error
 	 */
 	public long insert(ContentValues values) {
-		return SQLUtils.insert(connection, getTableName(), values);
+		return SQLUtils.insert(connection, getTableName(), getPkColumnName(),
+				values);
 	}
 
 	/**
@@ -183,7 +184,8 @@ public abstract class UserDao<TColumn extends UserColumn, TTable extends UserTab
 	 * @return row id
 	 */
 	public long insertOrThrow(ContentValues values) {
-		return SQLUtils.insertOrThrow(connection, getTableName(), values);
+		return SQLUtils.insertOrThrow(connection, getTableName(),
+				getPkColumnName(), values);
 	}
 
 }
