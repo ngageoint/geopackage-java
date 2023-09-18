@@ -4,9 +4,12 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 6.6.2 (TBD)
+## [6.6.2](https://github.com/ngageoint/geopackage-java/releases/tag/6.6.2) (09-18-2023)
 
-* TBD
+* geopackage-core version 6.6.3
+* sqlite-jdbc version 3.42.0.1
+* SQL Utils replacement of Statement#getGeneratedKeys usage with RETURNING clause
+* SQLite Exec DGIWG File Name info
 
 ## [6.6.1](https://github.com/ngageoint/geopackage-java/releases/tag/6.6.1) (01-24-2023)
 
