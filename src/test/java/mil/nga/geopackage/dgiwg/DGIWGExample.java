@@ -56,6 +56,7 @@ import mil.nga.geopackage.features.user.FeatureResultSet;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
+import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.ImageUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGrid;
@@ -67,6 +68,7 @@ import mil.nga.geopackage.tiles.user.TileResultSet;
 import mil.nga.geopackage.tiles.user.TileRow;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.geopackage.user.custom.UserCustomColumn;
+import mil.nga.proj.ProjectionConstants;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
 import mil.nga.sf.Point;
@@ -692,6 +694,11 @@ public class DGIWGExample {
 		TileDao tileTableDao = geoPackage.getTileDao(TILE_TABLE);
 
 		BoundingBox bbox = tileTableDao.getBoundingBox();
+
+		SpatialReferenceSystemDao srsDao = geoPackage
+				.getSpatialReferenceSystemDao();
+		srsDao.getOrCreateFromEpsg(
+				ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM_GEOGRAPHICAL_3D);
 
 		TileTableMetadata metadata = TileTableMetadata.create(
 				COVERAGE_DATA_TABLE,
