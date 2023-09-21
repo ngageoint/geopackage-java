@@ -2238,13 +2238,20 @@ public class SQLExec {
 						String prettyDefinition = WKTUtils.pretty(definition);
 						System.out.println();
 						System.out.println(prettyDefinition);
-					} catch (IOException e) {
+					} catch (Exception e) {
+						System.out.println("Failed to pretty print definition: "
+								+ definition);
+						e.printStackTrace();
 					}
 					try {
 						System.out.println();
 						System.out.println(
 								"PROJ: " + ProjParser.paramsText(definition));
-					} catch (IOException e) {
+					} catch (Exception e) {
+						System.out.println(
+								"Failed to parse PROJ params from definition: "
+										+ definition);
+						e.printStackTrace();
 					}
 				}
 
@@ -3049,11 +3056,14 @@ public class SQLExec {
 		DGIWGValidationErrors errors = DGIWGValidate.validate(database);
 		System.out.println();
 		if (errors.hasErrors()) {
-			System.out.println("DGIWG Validation Errors:");
+			System.out.println(
+					"DGIWG Validation Errors (" + errors.numErrors() + "):");
+			System.out.println();
 			System.out.println(errors);
 		} else {
 			System.out.println("Passed DGIWG validation");
 		}
+		System.out.println();
 
 	}
 
