@@ -37,7 +37,7 @@ import mil.nga.geopackage.db.master.SQLiteMasterQuery;
 import mil.nga.geopackage.db.master.SQLiteMasterType;
 import mil.nga.geopackage.db.table.TableColumn;
 import mil.nga.geopackage.db.table.TableInfo;
-import mil.nga.geopackage.dgiwg.DGIWGValidate;
+import mil.nga.geopackage.dgiwg.DGIWGGeoPackage;
 import mil.nga.geopackage.dgiwg.DGIWGValidationErrors;
 import mil.nga.geopackage.dgiwg.GeoPackageFileName;
 import mil.nga.geopackage.extension.coverage.CoverageData;
@@ -3053,7 +3053,9 @@ public class SQLExec {
 		System.out.println("DGIWG GeoPackage");
 		System.out.println(fileName.info());
 
-		DGIWGValidationErrors errors = DGIWGValidate.validate(database);
+		@SuppressWarnings("resource")
+		DGIWGGeoPackage dgiwg = new DGIWGGeoPackage(database);
+		DGIWGValidationErrors errors = dgiwg.validate();
 		System.out.println();
 		if (errors.hasErrors()) {
 			System.out.println(
