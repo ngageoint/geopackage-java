@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 6.6.3 (TBD)
 
-* TBD
+* geopackage-core version 6.6.4
+* DGIWG example update for coverage data
+* DGIWG validation of first tile size
+* SQLite Exec DGIWG: CRS parsing error handling, error output count and formatting
 
 ## [6.6.2](https://github.com/ngageoint/geopackage-java/releases/tag/6.6.2) (09-18-2023)
 
