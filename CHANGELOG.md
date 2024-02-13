@@ -8,6 +8,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * geopackage-core version 6.6.7
 * sqlite-jdbc version 3.45.1.0
+* Get abstract User DAO by table name
+* Set User Custom DAO contents
 
 ## [6.6.4](https://github.com/ngageoint/geopackage-java/releases/tag/6.6.4) (11-29-2023)
 

@@ -26,6 +26,7 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTable;
 import mil.nga.geopackage.tiles.user.TileTableReader;
+import mil.nga.geopackage.user.UserDao;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomTable;
 import mil.nga.geopackage.user.custom.UserCustomTableReader;
@@ -417,7 +418,56 @@ public class GeoPackageImpl extends GeoPackageCoreImpl implements GeoPackage {
 	 */
 	@Override
 	public UserCustomDao getUserCustomDao(UserCustomTable table) {
+
+		if (table.getContents() == null) {
+			ContentsDao contentsDao = getContentsDao();
+			Contents contents = null;
+			try {
+				contents = contentsDao.queryForId(table.getTableName());
+			} catch (SQLException e) {
+				throw new GeoPackageException(
+						"Failed to retrieve " + Contents.class.getSimpleName()
+								+ " for table name: " + table.getTableName(),
+						e);
+			}
+			table.setContents(contents);
+		}
 		return new UserCustomDao(getName(), database, table);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public UserDao<?, ?, ?, ?> getUserDao(String tableName) {
+
+		UserDao<?, ?, ?, ?> dao = null;
+
+		if (!isContentsTable(tableName)) {
+			throw new GeoPackageException(
+					"No contents for user table: " + tableName);
+		}
+		ContentsDataType dataType = getTableCoreDataType(tableName);
+		if (dataType != null) {
+			switch (dataType) {
+			case ATTRIBUTES:
+				dao = getAttributesDao(tableName);
+				break;
+			case FEATURES:
+				dao = getFeatureDao(tableName);
+				break;
+			case TILES:
+				dao = getTileDao(tableName);
+				break;
+			default:
+				throw new GeoPackageException("Unsupported data type: "
+						+ dataType + ", table: " + tableName);
+			}
+		} else {
+			dao = getUserCustomDao(tableName);
+		}
+
+		return dao;
 	}
 
 	/**

@@ -12,6 +12,7 @@ import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTable;
+import mil.nga.geopackage.user.UserDao;
 import mil.nga.geopackage.user.custom.UserCustomDao;
 import mil.nga.geopackage.user.custom.UserCustomTable;
 
@@ -145,6 +146,16 @@ public interface GeoPackage extends GeoPackageCore {
 	 * @since 3.4.0
 	 */
 	public UserCustomDao getUserCustomDao(UserCustomTable table);
+
+	/**
+	 * Get a User DAO from a table
+	 * 
+	 * @param tableName
+	 *            table name
+	 * @return user dao
+	 * @since 6.6.5
+	 */
+	public UserDao<?, ?, ?, ?> getUserDao(String tableName);
 
 	/**
 	 * Perform a query on the database
