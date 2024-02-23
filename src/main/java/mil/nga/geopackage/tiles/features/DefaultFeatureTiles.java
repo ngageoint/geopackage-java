@@ -100,12 +100,41 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *
 	 * @param featureDao
 	 *            feature dao
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public DefaultFeatureTiles(FeatureDao featureDao, boolean geodesic) {
+		super(featureDao, geodesic);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
 	 * @param scale
 	 *            scale factor
 	 * @since 3.2.0
 	 */
 	public DefaultFeatureTiles(FeatureDao featureDao, float scale) {
 		super(featureDao, scale);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public DefaultFeatureTiles(FeatureDao featureDao, float scale,
+			boolean geodesic) {
+		super(featureDao, scale, geodesic);
 	}
 
 	/**
@@ -121,6 +150,24 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 */
 	public DefaultFeatureTiles(FeatureDao featureDao, int width, int height) {
 		super(featureDao, width, height);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public DefaultFeatureTiles(FeatureDao featureDao, int width, int height,
+			boolean geodesic) {
+		super(featureDao, width, height, geodesic);
 	}
 
 	/**
@@ -145,6 +192,23 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            GeoPackage
 	 * @param featureDao
 	 *            feature dao
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			boolean geodesic) {
+		super(geoPackage, featureDao, geodesic);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
 	 * @param scale
 	 *            scale factor
 	 * @since 3.2.0
@@ -152,6 +216,25 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale) {
 		super(geoPackage, featureDao, scale);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale, boolean geodesic) {
+		super(geoPackage, featureDao, scale, geodesic);
 	}
 
 	/**
@@ -181,6 +264,27 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	 *            GeoPackage
 	 * @param featureDao
 	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			int width, int height, boolean geodesic) {
+		super(geoPackage, featureDao, width, height, geodesic);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
 	 * @param scale
 	 *            scale factor
 	 * @param width
@@ -192,6 +296,29 @@ public class DefaultFeatureTiles extends FeatureTiles {
 	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale, int width, int height) {
 		super(geoPackage, featureDao, scale, width, height);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public DefaultFeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale, int width, int height, boolean geodesic) {
+		super(geoPackage, featureDao, scale, width, height, geodesic);
 	}
 
 	/**
@@ -620,6 +747,9 @@ public class DefaultFeatureTiles extends FeatureTiles {
 		// Try to simplify the number of points in the LineString
 		List<Point> lineStringPoints = simplifyPoints(simplifyTolerance,
 				lineString.getPoints());
+
+		// Create a geodesic path of points if needed
+		lineStringPoints = geodesicPath(simplifyTolerance, lineStringPoints);
 
 		for (Point point : lineStringPoints) {
 

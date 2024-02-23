@@ -41,6 +41,7 @@ import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.Point;
 import mil.nga.sf.proj.GeometryTransform;
+import mil.nga.sf.proj.ProjectionGeometryUtils;
 import mil.nga.sf.util.GeometryUtils;
 
 /**
@@ -56,12 +57,6 @@ public abstract class FeatureTiles {
 	 */
 	private static final Logger LOGGER = Logger
 			.getLogger(FeatureTiles.class.getName());
-
-	/**
-	 * WGS84 Projection
-	 */
-	protected static final Projection WGS_84_PROJECTION = ProjectionFactory
-			.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
 	/**
 	 * Web Mercator Projection
@@ -192,6 +187,11 @@ public abstract class FeatureTiles {
 	protected boolean simplifyGeometries = true;
 
 	/**
+	 * Draw geometries using geodesic lines
+	 */
+	protected boolean geodesic = false;
+
+	/**
 	 * Scale factor
 	 */
 	protected float scale = 1.0f;
@@ -203,7 +203,20 @@ public abstract class FeatureTiles {
 	 *            feature dao
 	 */
 	public FeatureTiles(FeatureDao featureDao) {
-		this(null, featureDao);
+		this(featureDao, false);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public FeatureTiles(FeatureDao featureDao, boolean geodesic) {
+		this(null, featureDao, geodesic);
 	}
 
 	/**
@@ -216,7 +229,22 @@ public abstract class FeatureTiles {
 	 * @since 3.2.0
 	 */
 	public FeatureTiles(FeatureDao featureDao, float scale) {
-		this(null, featureDao, scale);
+		this(featureDao, scale, false);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public FeatureTiles(FeatureDao featureDao, float scale, boolean geodesic) {
+		this(null, featureDao, scale, geodesic);
 	}
 
 	/**
@@ -231,7 +259,25 @@ public abstract class FeatureTiles {
 	 * @since 3.2.0
 	 */
 	public FeatureTiles(FeatureDao featureDao, int width, int height) {
-		this(null, featureDao, width, height);
+		this(featureDao, width, height, false);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param featureDao
+	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public FeatureTiles(FeatureDao featureDao, int width, int height,
+			boolean geodesic) {
+		this(null, featureDao, width, height, geodesic);
 	}
 
 	/**
@@ -245,8 +291,25 @@ public abstract class FeatureTiles {
 	 * @since 3.2.0
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao) {
+		this(geoPackage, featureDao, false);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			boolean geodesic) {
 		this(geoPackage, featureDao, TileUtils.TILE_PIXELS_HIGH,
-				TileUtils.TILE_PIXELS_HIGH);
+				TileUtils.TILE_PIXELS_HIGH, geodesic);
 	}
 
 	/**
@@ -263,8 +326,27 @@ public abstract class FeatureTiles {
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale) {
+		this(geoPackage, featureDao, scale, false);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale, boolean geodesic) {
 		this(geoPackage, featureDao, scale, TileUtils.tileLength(scale),
-				TileUtils.tileLength(scale));
+				TileUtils.tileLength(scale), geodesic);
 	}
 
 	/**
@@ -283,8 +365,29 @@ public abstract class FeatureTiles {
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao, int width,
 			int height) {
+		this(geoPackage, featureDao, width, height, false);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao, int width,
+			int height, boolean geodesic) {
 		this(geoPackage, featureDao, TileUtils.tileScale(width, height), width,
-				height);
+				height, geodesic);
 	}
 
 	/**
@@ -305,6 +408,29 @@ public abstract class FeatureTiles {
 	 */
 	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
 			float scale, int width, int height) {
+		this(geoPackage, featureDao, scale, width, height, false);
+	}
+
+	/**
+	 * Constructor, auto creates the index manager for indexed tables and
+	 * feature styles for styled tables
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature dao
+	 * @param scale
+	 *            scale factor
+	 * @param width
+	 *            drawn tile width
+	 * @param height
+	 *            drawn tile height
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
+	 * @since 6.6.5
+	 */
+	public FeatureTiles(GeoPackage geoPackage, FeatureDao featureDao,
+			float scale, int width, int height, boolean geodesic) {
 
 		this.featureDao = featureDao;
 		if (featureDao != null) {
@@ -315,6 +441,8 @@ public abstract class FeatureTiles {
 
 		tileWidth = width;
 		tileHeight = height;
+
+		this.geodesic = geodesic;
 
 		compressFormat = GeoPackageJavaProperties.getProperty(
 				JavaPropertyConstants.FEATURE_TILES,
@@ -351,7 +479,8 @@ public abstract class FeatureTiles {
 
 		if (geoPackage != null) {
 
-			indexManager = new FeatureIndexManager(geoPackage, featureDao);
+			indexManager = new FeatureIndexManager(geoPackage, featureDao,
+					geodesic);
 			if (!indexManager.isIndexed()) {
 				indexManager.close();
 				indexManager = null;
@@ -944,6 +1073,27 @@ public abstract class FeatureTiles {
 	}
 
 	/**
+	 * Are geometries drawn using geodesic lines? Default is false
+	 * 
+	 * @return geodesic flag
+	 * @since 6.6.5
+	 */
+	public boolean isGeodesic() {
+		return geodesic;
+	}
+
+	/**
+	 * Set the geodestic flag, true to draw geodesic geometries
+	 * 
+	 * @param geodesic
+	 *            draw geodesic geometries flag
+	 * @since 6.6.5
+	 */
+	public void setGeodesic(boolean geodesic) {
+		this.geodesic = geodesic;
+	}
+
+	/**
 	 * Draw the tile and get the bytes from the x, y, and zoom level
 	 *
 	 * @param x
@@ -1356,6 +1506,27 @@ public abstract class FeatureTiles {
 		}
 
 		return simplifiedPoints;
+	}
+
+	/**
+	 * When geodesic is enabled, create a geodesic path of points
+	 * 
+	 * @param maxDistance
+	 *            max distance allowed between path points
+	 * @param points
+	 *            ordered points
+	 * @return geodesic path points
+	 * @since 6.6.5
+	 */
+	protected List<Point> geodesicPath(double maxDistance, List<Point> points) {
+
+		List<Point> geodesicPath = points;
+		if (geodesic) {
+			geodesicPath = ProjectionGeometryUtils.geodesicPath(points,
+					maxDistance, projection);
+		}
+
+		return geodesicPath;
 	}
 
 	/**

@@ -82,6 +82,11 @@ public class FeatureIndexManager {
 	private boolean continueOnError = true;
 
 	/**
+	 * Index geometries using geodesic lines
+	 */
+	private boolean geodesic = false;
+
+	/**
 	 * Constructor
 	 *
 	 * @param geoPackage
@@ -102,12 +107,46 @@ public class FeatureIndexManager {
 	 *            feature DAO
 	 */
 	public FeatureIndexManager(GeoPackage geoPackage, FeatureDao featureDao) {
+		this(geoPackage, featureDao, false);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureTable
+	 *            feature table
+	 * @param geodesic
+	 *            index using geodesic bounds
+	 * @since 6.6.5
+	 */
+	public FeatureIndexManager(GeoPackage geoPackage, String featureTable,
+			boolean geodesic) {
+		this(geoPackage, geoPackage.getFeatureDao(featureTable), geodesic);
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param featureDao
+	 *            feature DAO
+	 * @param geodesic
+	 *            index using geodesic bounds
+	 * @since 6.6.5
+	 */
+	public FeatureIndexManager(GeoPackage geoPackage, FeatureDao featureDao,
+			boolean geodesic) {
 		this.featureDao = featureDao;
-		featureTableIndex = new FeatureTableIndex(geoPackage, featureDao);
-		RTreeIndexExtension rTreeExtension = new RTreeIndexExtension(
-				geoPackage);
+		this.geodesic = geodesic;
+		featureTableIndex = new FeatureTableIndex(geoPackage, featureDao,
+				geodesic);
+		RTreeIndexExtension rTreeExtension = new RTreeIndexExtension(geoPackage,
+				geodesic);
 		rTreeIndexTableDao = rTreeExtension.getTableDao(featureDao);
-		manualFeatureQuery = new ManualFeatureQuery(featureDao);
+		manualFeatureQuery = new ManualFeatureQuery(featureDao, geodesic);
 
 		// Set the default indexed check and query order
 		indexLocationQueryOrder.add(FeatureIndexType.RTREE);
@@ -187,6 +226,30 @@ public class FeatureIndexManager {
 	 */
 	public void setContinueOnError(boolean continueOnError) {
 		this.continueOnError = continueOnError;
+	}
+
+	/**
+	 * Geometries indexed using geodesic lines
+	 * 
+	 * @return geodesic flag
+	 * @since 6.6.5
+	 */
+	public boolean isGeodesic() {
+		return geodesic;
+	}
+
+	/**
+	 * Set the geodestic flag, true to index geodesic geometries
+	 * 
+	 * @param geodesic
+	 *            index geodesic geometries flag
+	 * @since 6.6.5
+	 */
+	public void setGeodesic(boolean geodesic) {
+		this.geodesic = geodesic;
+		featureTableIndex.setGeodesic(geodesic);
+		rTreeIndexTableDao.getRTreeIndexExtension().setGeodesic(geodesic);
+		manualFeatureQuery.setGeodesic(geodesic);
 	}
 
 	/**

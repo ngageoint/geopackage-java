@@ -24,6 +24,7 @@ import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.Point;
 import mil.nga.sf.proj.GeometryTransform;
+import mil.nga.sf.proj.ProjectionGeometryUtils;
 
 public class FeatureTableIndexUtils {
 
@@ -31,9 +32,13 @@ public class FeatureTableIndexUtils {
 	 * Test index
 	 * 
 	 * @param geoPackage
+	 *            GeoPackage
+	 * @param geodesic
+	 *            index using geodesic bounds
 	 * @throws Exception
 	 */
-	public static void testIndex(GeoPackage geoPackage) throws Exception {
+	public static void testIndex(GeoPackage geoPackage, boolean geodesic)
+			throws Exception {
 
 		// Test indexing each feature table
 		List<String> featureTables = geoPackage.getFeatureTables();
@@ -41,7 +46,7 @@ public class FeatureTableIndexUtils {
 
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureTableIndex featureTableIndex = new FeatureTableIndex(
-					geoPackage, featureDao);
+					geoPackage, featureDao, geodesic);
 
 			// Determine how many features have geometry envelopes or geometries
 			int expectedCount = 0;
@@ -100,7 +105,8 @@ public class FeatureTableIndexUtils {
 					.query();
 			while (featureTableResults.hasNext()) {
 				GeometryIndex geometryIndex = featureTableResults.next();
-				validateGeometryIndex(featureTableIndex, geometryIndex);
+				validateGeometryIndex(featureTableIndex, geometryIndex,
+						geodesic);
 				resultCount++;
 			}
 			featureTableResults.close();
@@ -126,7 +132,8 @@ public class FeatureTableIndexUtils {
 			featureTableResults = featureTableIndex.query(envelope);
 			while (featureTableResults.hasNext()) {
 				GeometryIndex geometryIndex = featureTableResults.next();
-				validateGeometryIndex(featureTableIndex, geometryIndex);
+				validateGeometryIndex(featureTableIndex, geometryIndex,
+						geodesic);
 				if (geometryIndex.getGeomId() == testFeatureRow.getId()) {
 					featureFound = true;
 				}
@@ -165,7 +172,8 @@ public class FeatureTableIndexUtils {
 					.query(transformedBoundingBox, projection);
 			while (featureTableResults.hasNext()) {
 				GeometryIndex geometryIndex = featureTableResults.next();
-				validateGeometryIndex(featureTableIndex, geometryIndex);
+				validateGeometryIndex(featureTableIndex, geometryIndex,
+						geodesic);
 				if (geometryIndex.getGeomId() == testFeatureRow.getId()) {
 					featureFound = true;
 				}
@@ -194,7 +202,8 @@ public class FeatureTableIndexUtils {
 			featureTableResults = featureTableIndex.query(envelope);
 			while (featureTableResults.hasNext()) {
 				GeometryIndex geometryIndex = featureTableResults.next();
-				validateGeometryIndex(featureTableIndex, geometryIndex);
+				validateGeometryIndex(featureTableIndex, geometryIndex,
+						geodesic);
 				if (geometryIndex.getGeomId() == testFeatureRow.getId()) {
 					featureFound = true;
 				}
@@ -353,13 +362,18 @@ public class FeatureTableIndexUtils {
 	 * @param geometryIndex
 	 */
 	private static void validateGeometryIndex(
-			FeatureTableIndex featureTableIndex, GeometryIndex geometryIndex) {
+			FeatureTableIndex featureTableIndex, GeometryIndex geometryIndex,
+			boolean geodesic) {
 		FeatureRow featureRow = featureTableIndex.getFeatureRow(geometryIndex);
 		TestCase.assertNotNull(featureRow);
 		TestCase.assertEquals(featureTableIndex.getTableName(),
 				geometryIndex.getTableName());
 		TestCase.assertEquals(geometryIndex.getGeomId(), featureRow.getId());
 		GeometryEnvelope envelope = featureRow.getGeometryEnvelope();
+		if (geodesic) {
+			envelope = ProjectionGeometryUtils.geodesicEnvelope(envelope,
+					featureTableIndex.getProjection());
+		}
 
 		TestCase.assertNotNull(envelope);
 

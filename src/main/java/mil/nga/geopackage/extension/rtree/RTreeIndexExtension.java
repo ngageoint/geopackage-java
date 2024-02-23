@@ -42,6 +42,19 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * @param geoPackage
+	 *            GeoPackage
+	 * @param geodesic
+	 *            index using geodesic bounds
+	 * @since 6.6.5
+	 */
+	public RTreeIndexExtension(GeoPackage geoPackage, boolean geodesic) {
+		super(geoPackage, geodesic);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -126,6 +139,10 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 				Object value = null;
 				GeometryEnvelope envelope = getEnvelope(data);
 				if (envelope != null) {
+					int srsId = data.getSrsId();
+					if (srsId > 0) {
+						envelope = geodesicEnvelope(envelope, srsId);
+					}
 					value = envelope.getMinY();
 				}
 				return value;
@@ -144,6 +161,10 @@ public class RTreeIndexExtension extends RTreeIndexCoreExtension {
 				Object value = null;
 				GeometryEnvelope envelope = getEnvelope(data);
 				if (envelope != null) {
+					int srsId = data.getSrsId();
+					if (srsId > 0) {
+						envelope = geodesicEnvelope(envelope, srsId);
+					}
 					value = envelope.getMaxY();
 				}
 				return value;

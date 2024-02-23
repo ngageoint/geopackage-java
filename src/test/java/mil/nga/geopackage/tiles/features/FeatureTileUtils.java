@@ -104,15 +104,20 @@ public class FeatureTileUtils {
 	 * Create a new feature tiles
 	 *
 	 * @param geoPackage
+	 *            GeoPackage
 	 * @param featureDao
+	 *            feature DAO
 	 * @param useIcon
 	 *            true to use an icon instead of the default point
+	 * @param geodesic
+	 *            draw geometries using geodesic lines
 	 * @return feature tiles
 	 */
 	public static FeatureTiles createFeatureTiles(GeoPackage geoPackage,
-			FeatureDao featureDao, boolean useIcon) {
+			FeatureDao featureDao, boolean useIcon, boolean geodesic) {
 
-		FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
+		FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao,
+				geodesic);
 
 		if (useIcon) {
 			BufferedImage icon = new BufferedImage(5, 5,
