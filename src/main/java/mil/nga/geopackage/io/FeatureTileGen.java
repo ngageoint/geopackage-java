@@ -195,6 +195,11 @@ public class FeatureTileGen {
 	public static final String ARGUMENT_SIMPLIFY_GEOMETRIES = "simplifyGeometries";
 
 	/**
+	 * Geodesic argument
+	 */
+	public static final String ARGUMENT_GEODESIC = "geodesic";
+
+	/**
 	 * Ignore GeoPackage styles argument
 	 */
 	public static final String ARGUMENT_IGNORE_GEOPACKAGE_STYLES = "ignoreGeoPackageStyles";
@@ -374,6 +379,11 @@ public class FeatureTileGen {
 	 * Simplify geometries
 	 */
 	private static boolean simplifyGeometries = true;
+
+	/**
+	 * Draw geometries using geodesic lines
+	 */
+	private static boolean geodesic = false;
 
 	/**
 	 * Ignore styles saved within the GeoPackage
@@ -654,6 +664,16 @@ public class FeatureTileGen {
 					}
 					break;
 
+				case ARGUMENT_GEODESIC:
+					if (i + 1 < args.length) {
+						geodesic = Boolean.valueOf(args[++i]);
+					} else {
+						valid = false;
+						System.out.println("Error: Geodesic argument '" + arg
+								+ "' must be followed by a boolean value");
+					}
+					break;
+
 				case ARGUMENT_IGNORE_GEOPACKAGE_STYLES:
 					if (i + 1 < args.length) {
 						ignoreGeoPackageStyles = Boolean.valueOf(args[++i]);
@@ -863,7 +883,7 @@ public class FeatureTileGen {
 
 		// Index the feature table if needed
 		FeatureIndexManager indexManager = new FeatureIndexManager(
-				featureGeoPackage, featureDao);
+				featureGeoPackage, featureDao, geodesic);
 		if (!indexManager.isIndexed()) {
 			int numFeatures = featureDao.count();
 			LOGGER.log(Level.INFO,
@@ -885,7 +905,7 @@ public class FeatureTileGen {
 
 		// Create the feature tiles
 		FeatureTiles featureTiles = new DefaultFeatureTiles(featureGeoPackage,
-				featureDao);
+				featureDao, geodesic);
 		if (ignoreGeoPackageStyles) {
 			featureTiles.ignoreFeatureTableStyles();
 		}
@@ -1068,6 +1088,9 @@ public class FeatureTileGen {
 		if (simplifyGeometries) {
 			tileStyle.append(", Simplify Geometries");
 		}
+		if (geodesic) {
+			tileStyle.append(", Geodesic");
+		}
 		if (tileStyle.length() == 0) {
 			tileStyle.append(", Default Settings");
 		}
@@ -1152,6 +1175,7 @@ public class FeatureTileGen {
 				+ " color] [" + ARGUMENT_PREFIX + ARGUMENT_FILL_POLYGON + "] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_POLYGON_FILL_COLOR + " color] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_SIMPLIFY_GEOMETRIES
+				+ " true|false] [" + ARGUMENT_PREFIX + ARGUMENT_GEODESIC
 				+ " true|false] [" + ARGUMENT_PREFIX
 				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES + " true|false] ["
 				+ ARGUMENT_PREFIX + ARGUMENT_LOG_COUNT + " count] ["
@@ -1282,6 +1306,11 @@ public class FeatureTileGen {
 				+ " true|false");
 		System.out.println(
 				"\t\tFlag indicating whether geometries should be simplified with a similar curve with fewer points before drawn (default is true)");
+		System.out.println();
+		System.out.println(
+				"\t" + ARGUMENT_PREFIX + ARGUMENT_GEODESIC + " true|false");
+		System.out.println(
+				"\t\tFlag indicating whether geometries should be drawn as geodesic lines (default is false)");
 		System.out.println();
 		System.out.println("\t" + ARGUMENT_PREFIX
 				+ ARGUMENT_IGNORE_GEOPACKAGE_STYLES + " true|false");
