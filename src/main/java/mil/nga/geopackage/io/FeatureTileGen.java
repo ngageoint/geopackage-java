@@ -18,7 +18,7 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
-import mil.nga.geopackage.extension.nga.index.FeatureTableIndex;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
@@ -862,9 +862,9 @@ public class FeatureTileGen {
 		FeatureDao featureDao = featureGeoPackage.getFeatureDao(featureTable);
 
 		// Index the feature table if needed
-		FeatureTableIndex featureIndex = new FeatureTableIndex(
+		FeatureIndexManager indexManager = new FeatureIndexManager(
 				featureGeoPackage, featureDao);
-		if (!featureIndex.isIndexed()) {
+		if (!indexManager.isIndexed()) {
 			int numFeatures = featureDao.count();
 			LOGGER.log(Level.INFO,
 					"Indexing GeoPackage '" + featureGeoPackage.getName()
@@ -874,14 +874,14 @@ public class FeatureTileGen {
 					"Feature Indexer", "features", LOG_INDEX_FREQUENCY,
 					LOG_INDEX_TIME_FREQUENCY);
 			indexProgress.setMax(numFeatures);
-			featureIndex.setProgress(indexProgress);
-			int indexed = featureIndex.index();
+			indexManager.setProgress(indexProgress);
+			int indexed = indexManager.index();
 			LOGGER.log(Level.INFO,
 					"Indexed GeoPackage '" + featureGeoPackage.getName()
 							+ "' feature table '" + featureTable + "', "
 							+ indexed + " features");
 		}
-		featureIndex.close();
+		indexManager.close();
 
 		// Create the feature tiles
 		FeatureTiles featureTiles = new DefaultFeatureTiles(featureGeoPackage,
