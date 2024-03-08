@@ -139,6 +139,9 @@ Commands:
 	                     projection     - desired projection as 'authority:code' or 'epsg_code'
 	                     m              - manually query unindexed tables
 	extensions [name] - List GeoPackage extensions (all or LIKE table name)
+	rtree [-d] <name>
+	                  - Create, recreate, or drop a feature table R-tree
+	                     d              - drop the R-tree if it exists
 	geometry <name> [-p projection] [ids]
 	                  - Display feature table geometries as Well-Known Text
 	                     projection     - desired display projection as 'authority:code' or 'epsg_code'

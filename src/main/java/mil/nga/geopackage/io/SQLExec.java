@@ -42,6 +42,7 @@ import mil.nga.geopackage.dgiwg.DGIWGValidationErrors;
 import mil.nga.geopackage.dgiwg.GeoPackageFileName;
 import mil.nga.geopackage.extension.coverage.CoverageData;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
+import mil.nga.geopackage.extension.rtree.RTreeIndexTableDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -241,6 +242,11 @@ public class SQLExec {
 	public static final String COMMAND_EXTENSIONS = "extensions";
 
 	/**
+	 * GeoPackage R-tree command
+	 */
+	public static final String COMMAND_RTREE = "rtree";
+
+	/**
 	 * GeoPackage geometry command
 	 */
 	public static final String COMMAND_GEOMETRY = "geometry";
@@ -318,7 +324,12 @@ public class SQLExec {
 	/**
 	 * Bounds manual argument
 	 */
-	public static final String BOUNDS_ARGUMENT_MANUAL = "m";
+	public static final String ARGUMENT_BOUNDS_MANUAL = "m";
+
+	/**
+	 * R-tree drop argument
+	 */
+	public static final String ARGUMENT_RTREE_DROP = "d";
 
 	/**
 	 * Blobs column pattern
@@ -858,6 +869,13 @@ public class SQLExec {
 										COMMAND_ALL_ROWS, maxColumnWidth,
 										maxLinesPerRow, history);
 
+							} else if (sqlLineLower.startsWith(COMMAND_RTREE)) {
+
+								rtree(database, sqlBuilder, history,
+										sqlLine.substring(
+												COMMAND_RTREE.length(),
+												sqlLine.length()));
+
 							} else if (sqlLineLower
 									.startsWith(COMMAND_GEOMETRY)) {
 
@@ -1185,26 +1203,32 @@ public class SQLExec {
 					"\t                     projection     - desired projection as 'authority:code' or 'epsg_code'");
 			System.out.println("\t" + COMMAND_BOUNDS + " [" + ARGUMENT_PREFIX
 					+ ARGUMENT_PROJECTION + " projection] [" + ARGUMENT_PREFIX
-					+ BOUNDS_ARGUMENT_MANUAL + "] [name]");
+					+ ARGUMENT_BOUNDS_MANUAL + "] [name]");
 			System.out.println(
 					"\t                  - Determine the bounds of the entire GeoPackage or single table name");
 			System.out.println(
 					"\t                     projection     - desired projection as 'authority:code' or 'epsg_code'");
 			System.out.println("\t                     "
-					+ BOUNDS_ARGUMENT_MANUAL
+					+ ARGUMENT_BOUNDS_MANUAL
 					+ "              - manually query unindexed tables");
 			System.out.println("\t" + COMMAND_TABLE_BOUNDS + " ["
 					+ ARGUMENT_PREFIX + ARGUMENT_PROJECTION + " projection] ["
-					+ ARGUMENT_PREFIX + BOUNDS_ARGUMENT_MANUAL + "] [name]");
+					+ ARGUMENT_PREFIX + ARGUMENT_BOUNDS_MANUAL + "] [name]");
 			System.out.println(
 					"\t                  - Determine the bounds (using only table metadata) of the entire GeoPackage or single table name");
 			System.out.println(
 					"\t                     projection     - desired projection as 'authority:code' or 'epsg_code'");
 			System.out.println("\t                     "
-					+ BOUNDS_ARGUMENT_MANUAL
+					+ ARGUMENT_BOUNDS_MANUAL
 					+ "              - manually query unindexed tables");
 			System.out.println("\t" + COMMAND_EXTENSIONS
 					+ " [name] - List GeoPackage extensions (all or LIKE table name)");
+			System.out.println("\t" + COMMAND_RTREE + " [" + ARGUMENT_PREFIX
+					+ ARGUMENT_RTREE_DROP + "] <name>");
+			System.out.println(
+					"\t                  - Create, recreate, or drop a feature table R-tree");
+			System.out.println("\t                     " + ARGUMENT_RTREE_DROP
+					+ "              - drop the R-tree if it exists");
 			System.out.println(
 					"\t" + COMMAND_GEOMETRY + " <name> [-p projection] [ids]");
 			System.out.println(
@@ -2195,6 +2219,7 @@ public class SQLExec {
 								+ tableName + "';",
 						COMMAND_ALL_ROWS, maxColumnWidth, maxLinesPerRow,
 						history, false);
+				rtreeInfo(database, tableName);
 				break;
 			case TILES:
 				executeSQL(database, sqlBuilder,
@@ -2301,6 +2326,20 @@ public class SQLExec {
 	}
 
 	/**
+	 * Print feature R-tree info for a single table
+	 * 
+	 * @param database
+	 *            database
+	 * @param tableName
+	 *            table name
+	 */
+	private static void rtreeInfo(GeoPackage database, String tableName) {
+		RTreeIndexExtension extension = new RTreeIndexExtension(database);
+		System.out.println();
+		System.out.println("R-tree indexed: " + extension.has(tableName));
+	}
+
+	/**
 	 * Print tile matrix info for a single table
 	 * 
 	 * @param database
@@ -2346,6 +2385,94 @@ public class SQLExec {
 
 		printResult(result, sqlBuilder, sql, maxColumnWidth, maxLinesPerRow,
 				history, false, true);
+	}
+
+	/**
+	 * R-tree create and drop
+	 * 
+	 * @param database
+	 *            database
+	 * @param sqlBuilder
+	 *            SQL builder
+	 * @param history
+	 *            history
+	 * @param args
+	 *            write blob arguments
+	 * @throws SQLException
+	 *             upon error
+	 * @throws IOException
+	 *             upon error
+	 */
+	private static void rtree(GeoPackage database, StringBuilder sqlBuilder,
+			List<String> history, String args)
+			throws SQLException, IOException {
+
+		String[] parts = args.trim().split("\\s+");
+
+		boolean valid = true;
+		String tableName = null;
+		boolean drop = false;
+
+		for (int i = 0; valid && i < parts.length; i++) {
+
+			String arg = parts[i];
+
+			if (arg.startsWith(ARGUMENT_PREFIX)) {
+
+				String argument = arg.substring(ARGUMENT_PREFIX.length());
+
+				switch (argument) {
+
+				case ARGUMENT_RTREE_DROP:
+					drop = true;
+					break;
+
+				default:
+					valid = false;
+					System.out.println("Error: Unsupported arg: '" + arg + "'");
+				}
+
+			} else {
+				if (tableName == null) {
+					tableName = arg;
+					if (!database.isFeatureTable(tableName)) {
+						valid = false;
+						if (tableName.isEmpty()) {
+							System.out.println("Error: Feature table required");
+						} else {
+							System.out.println("Error: '" + tableName
+									+ "' is not a feature table");
+						}
+					}
+				} else {
+					valid = false;
+					System.out.println("Error: Unexpected additional argument '"
+							+ arg + "' for R-tree");
+				}
+			}
+		}
+
+		if (valid) {
+			RTreeIndexExtension extension = new RTreeIndexExtension(database);
+			RTreeIndexTableDao dao = extension.getTableDao(tableName);
+			boolean exists = dao.has();
+			System.out.println();
+			if (exists) {
+				dao.delete();
+				System.out.println(
+						"R-tree dropped for table '" + tableName + "'");
+			}
+			if (!drop) {
+				dao.create();
+				System.out.println(
+						"R-tree created for table '" + tableName + "'");
+			} else if (!exists) {
+				System.out.println("No R-tree exists to drop for table '"
+						+ tableName + "'");
+			}
+		}
+
+		resetCommandPrompt(sqlBuilder);
 	}
 
 	/**
@@ -2669,7 +2796,7 @@ public class SQLExec {
 				} else {
 					valid = false;
 					System.out.println("Error: Unexpected additional argument '"
-							+ arg + "' for multiple id query");
+							+ arg + "' for reprojection");
 				}
 			}
 		}
@@ -2867,7 +2994,7 @@ public class SQLExec {
 						}
 						break;
 
-					case BOUNDS_ARGUMENT_MANUAL:
+					case ARGUMENT_BOUNDS_MANUAL:
 						if (type == BoundsType.CONTENTS) {
 							valid = false;
 							System.out.println(

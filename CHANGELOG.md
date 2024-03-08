@@ -12,6 +12,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Set User Custom DAO contents
 * Feature Tiles geodesic draw support
 * Feature Index Manager, RTree Index, Feature Table Index, and Manual query geodesic support
+* SQLite Exec R-tree support
 
 ## [6.6.4](https://github.com/ngageoint/geopackage-java/releases/tag/6.6.4) (11-29-2023)
 
