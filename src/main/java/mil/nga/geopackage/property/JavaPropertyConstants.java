@@ -20,6 +20,9 @@ public class JavaPropertyConstants {
 
 	public static final String GEO_PACKAGE = "geopackage";
 
+	public static final String VERSION = GEO_PACKAGE + PROPERTY_DIVIDER
+			+ "version";
+
 	public static final String TILE_GENERATOR = GEO_PACKAGE + PROPERTY_DIVIDER
 			+ "tile_generator";
 

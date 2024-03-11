@@ -47,6 +47,8 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.property.GeoPackageJavaProperties;
+import mil.nga.geopackage.property.JavaPropertyConstants;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.reproject.TileReprojection;
@@ -130,6 +132,11 @@ public class SQLExec {
 	 * Help command
 	 */
 	public static final String COMMAND_HELP = "help";
+
+	/**
+	 * Version command
+	 */
+	public static final String COMMAND_VERSION = "version";
 
 	/**
 	 * Tables command
@@ -568,6 +575,12 @@ public class SQLExec {
 						} else if (sqlLine.equalsIgnoreCase(COMMAND_HELP)) {
 
 							printHelp(database);
+
+							resetCommandPrompt(sqlBuilder);
+
+						} else if (sqlLine.equalsIgnoreCase(COMMAND_VERSION)) {
+
+							printVersion();
 
 							resetCommandPrompt(sqlBuilder);
 
@@ -1123,6 +1136,8 @@ public class SQLExec {
 				+ (isGeoPackage ? "GeoPackage" : "Database") + " information");
 		System.out.println("\t" + COMMAND_HELP
 				+ "              - print this help information");
+		System.out.println("\t" + COMMAND_VERSION
+				+ "           - Show the SQLite Exec version");
 		System.out.println(
 				"\t" + COMMAND_COUNT + "             - count database tables");
 		System.out.println("\t" + COMMAND_TABLES
@@ -1291,6 +1306,15 @@ public class SQLExec {
 			System.out.println("\t                  * DROP TABLE table_name");
 		}
 
+	}
+
+	/**
+	 * Print the current software version
+	 */
+	private static void printVersion() {
+		System.out.println();
+		System.out.println(GeoPackageJavaProperties
+				.getProperty(JavaPropertyConstants.VERSION));
 	}
 
 	/**
