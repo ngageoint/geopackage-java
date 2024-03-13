@@ -480,6 +480,8 @@ public class SQLExec {
 			// Create the file if it does not exist
 			if (!GeoPackageManager.exists(sqliteFile)) {
 				sqliteFile = GeoPackageManager.create(sqliteFile, false);
+				System.out.println();
+				System.out.println("Created new file: " + sqliteFile.getPath());
 			}
 
 			GeoPackage database = GeoPackageManager.open(sqliteFile, false);
@@ -1842,9 +1844,11 @@ public class SQLExec {
 											"\\s*[\\r\\n]+\\s*", " ");
 								}
 
-								int valueLength = stringValue.length();
-								if (valueLength > columnWidths[col - 1]) {
-									columnWidths[col - 1] = valueLength;
+								if (stringValue != null) {
+									int valueLength = stringValue.length();
+									if (valueLength > columnWidths[col - 1]) {
+										columnWidths[col - 1] = valueLength;
+									}
 								}
 
 							}
