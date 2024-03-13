@@ -46,7 +46,7 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	}
 
 	/**
-	 * Test flurstueck
+	 * Test lakes
 	 * 
 	 * @throws SQLException
 	 *             upon failure
@@ -92,7 +92,7 @@ public class OAPIFeatureGeneratorTest extends CreateGeoPackageTestCase {
 	}
 
 	/**
-	 * Test mage
+	 * Test MAGE
 	 * 
 	 * @throws SQLException
 	 *             upon failure
