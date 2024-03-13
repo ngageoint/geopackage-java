@@ -11,6 +11,7 @@ import java.sql.Types;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -488,6 +489,9 @@ public class SQLExec {
 			try {
 
 				printInfo(database, maxRows, maxColumnWidth, maxLinesPerRow);
+
+				System.out.println("Last Modified: "
+						+ new Date(sqliteFile.lastModified()));
 
 				if (dgiwg) {
 					dgiwg(database);
