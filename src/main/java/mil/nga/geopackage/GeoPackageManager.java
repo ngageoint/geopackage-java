@@ -8,8 +8,8 @@ import java.sql.SQLException;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.logger.Level;
-import com.j256.ormlite.logger.LocalLogBackend;
 import com.j256.ormlite.logger.LogBackendType;
+import com.j256.ormlite.logger.Logger;
 import com.j256.ormlite.logger.LoggerFactory;
 import com.j256.ormlite.support.ConnectionSource;
 
@@ -27,8 +27,7 @@ public class GeoPackageManager {
 
 	static {
 		// Change the ORMLite log backend
-		System.setProperty(LocalLogBackend.LOCAL_LOG_LEVEL_PROPERTY,
-				Level.ERROR.name());
+		Logger.setGlobalLogLevel(Level.ERROR);
 		if (LogBackendType.JAVA_UTIL.isAvailable()) {
 			LoggerFactory.setLogBackendType(LogBackendType.JAVA_UTIL);
 		}
