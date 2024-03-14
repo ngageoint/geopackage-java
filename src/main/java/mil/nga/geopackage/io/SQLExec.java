@@ -480,9 +480,19 @@ public class SQLExec {
 
 			// Create the file if it does not exist
 			if (!GeoPackageManager.exists(sqliteFile)) {
+
 				sqliteFile = GeoPackageManager.create(sqliteFile, false);
+
+				boolean isGeoPackage = GeoPackageValidate
+						.hasGeoPackageExtension(sqliteFile);
 				System.out.println();
-				System.out.println("Created new file: " + sqliteFile.getPath());
+				System.out.print("Created new ");
+				if (isGeoPackage) {
+					System.out.print("GeoPackage");
+				} else {
+					System.out.print("database");
+				}
+				System.out.println(": " + sqliteFile.getPath());
 			}
 
 			GeoPackage database = GeoPackageManager.open(sqliteFile, false);
@@ -490,8 +500,9 @@ public class SQLExec {
 
 				printInfo(database, maxRows, maxColumnWidth, maxLinesPerRow);
 
+				File databaseFile = new File(database.getPath());
 				System.out.println("Last Modified: "
-						+ new Date(sqliteFile.lastModified()));
+						+ new Date(databaseFile.lastModified()));
 
 				if (dgiwg) {
 					dgiwg(database);
