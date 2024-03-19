@@ -335,6 +335,11 @@ public class SQLExec {
 	public static final String ARGUMENT_BOUNDS_MANUAL = "m";
 
 	/**
+	 * R-tree geodesic argument
+	 */
+	public static final String ARGUMENT_RTREE_GEODESIC = "g";
+
+	/**
 	 * R-tree drop argument
 	 */
 	public static final String ARGUMENT_RTREE_DROP = "d";
@@ -1256,9 +1261,13 @@ public class SQLExec {
 			System.out.println("\t" + COMMAND_EXTENSIONS
 					+ " [name] - List GeoPackage extensions (all or LIKE table name)");
 			System.out.println("\t" + COMMAND_RTREE + " [" + ARGUMENT_PREFIX
+					+ ARGUMENT_RTREE_GEODESIC + "|" + ARGUMENT_PREFIX
 					+ ARGUMENT_RTREE_DROP + "] <name>");
 			System.out.println(
 					"\t                  - Create, recreate, or drop a feature table R-tree");
+			System.out
+					.println("\t                     " + ARGUMENT_RTREE_GEODESIC
+							+ "              - index using geodesic bounds");
 			System.out.println("\t                     " + ARGUMENT_RTREE_DROP
 					+ "              - drop the R-tree if it exists");
 			System.out.println(
@@ -2455,6 +2464,7 @@ public class SQLExec {
 		boolean valid = true;
 		String tableName = null;
 		boolean drop = false;
+		boolean geodesic = false;
 
 		for (int i = 0; valid && i < parts.length; i++) {
 
@@ -2465,6 +2475,10 @@ public class SQLExec {
 				String argument = arg.substring(ARGUMENT_PREFIX.length());
 
 				switch (argument) {
+
+				case ARGUMENT_RTREE_GEODESIC:
+					geodesic = true;
+					break;
 
 				case ARGUMENT_RTREE_DROP:
 					drop = true;
@@ -2495,8 +2509,14 @@ public class SQLExec {
 			}
 		}
 
+		if (geodesic && drop) {
+			valid = false;
+			System.out.println("Error: Unsupported combination of arguments");
+		}
+
 		if (valid) {
-			RTreeIndexExtension extension = new RTreeIndexExtension(database);
+			RTreeIndexExtension extension = new RTreeIndexExtension(database,
+					geodesic);
 			RTreeIndexTableDao dao = extension.getTableDao(tableName);
 			boolean exists = dao.has();
 			System.out.println();
@@ -2508,7 +2528,8 @@ public class SQLExec {
 			if (!drop) {
 				dao.create();
 				System.out.println(
-						"R-tree created for table '" + tableName + "'");
+						"R-tree created" + (geodesic ? " (geodesic)" : "")
+								+ " for table '" + tableName + "'");
 			} else if (!exists) {
 				System.out.println("No R-tree exists to drop for table '"
 						+ tableName + "'");
