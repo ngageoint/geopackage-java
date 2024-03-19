@@ -7,7 +7,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 6.6.5 (TBD)
 
 * geopackage-core version 6.6.7
-* sqlite-jdbc version 3.45.1.0
+* sqlite-jdbc version 3.45.2.0
 * Get abstract User DAO by table name
 * Set User Custom DAO contents
 * Feature Tiles geodesic draw support
