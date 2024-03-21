@@ -167,6 +167,8 @@ public class GeoPackageExample {
 	private static final boolean CONTENTS_ID = true;
 	private static final boolean FEATURE_STYLE = true;
 
+	private static final boolean GEODESIC = false;
+
 	private static final String ID_COLUMN = "id";
 	private static final String GEOMETRY_COLUMN = "geometry";
 	private static final String TEXT_COLUMN = "text";
@@ -1087,7 +1089,7 @@ public class GeoPackageExample {
 
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureIndexManager indexer = new FeatureIndexManager(geoPackage,
-					featureDao);
+					featureDao, GEODESIC);
 			indexer.setIndexLocation(FeatureIndexType.GEOPACKAGE);
 			indexer.index();
 			indexer.close();
@@ -1103,7 +1105,7 @@ public class GeoPackageExample {
 
 			FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 			FeatureTiles featureTiles = new DefaultFeatureTiles(geoPackage,
-					featureDao);
+					featureDao, GEODESIC);
 
 			BoundingBox boundingBox = featureDao.getBoundingBox();
 			Projection projection = featureDao.getProjection();
@@ -1665,7 +1667,8 @@ public class GeoPackageExample {
 	private static void createRTreeSpatialIndexExtension(
 			GeoPackage geoPackage) {
 
-		RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
+		RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage,
+				GEODESIC);
 
 		List<String> featureTables = geoPackage.getFeatureTables();
 		for (String tableName : featureTables) {
