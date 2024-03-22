@@ -113,7 +113,7 @@ Projection projection = ProjectionFactory
 
 // Index Features
 FeatureIndexManager indexer = new FeatureIndexManager(geoPackage,
-    featureDao);
+    featureDao, false);
 indexer.setIndexLocation(FeatureIndexType.RTREE);
 int indexedCount = indexer.index();
 
@@ -131,7 +131,7 @@ for (FeatureRow featureRow : paginatedResults) {
 }
 
 // Draw tiles from features
-FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
+FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao, false);
 // Set max features to draw per tile
 featureTiles.setMaxFeaturesPerTile(1000);
 // Custom feature tile implementation

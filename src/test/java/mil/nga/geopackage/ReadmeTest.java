@@ -182,7 +182,7 @@ public class ReadmeTest extends CreateGeoPackageTestCase {
 
 		// Index Features
 		FeatureIndexManager indexer = new FeatureIndexManager(geoPackage,
-				featureDao);
+				featureDao, false);
 		indexer.setIndexLocation(FeatureIndexType.RTREE);
 		int indexedCount = indexer.index();
 
@@ -200,7 +200,7 @@ public class ReadmeTest extends CreateGeoPackageTestCase {
 		}
 
 		// Draw tiles from features
-		FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao);
+		FeatureTiles featureTiles = new DefaultFeatureTiles(featureDao, false);
 		// Set max features to draw per tile
 		featureTiles.setMaxFeaturesPerTile(1000);
 		// Custom feature tile implementation
