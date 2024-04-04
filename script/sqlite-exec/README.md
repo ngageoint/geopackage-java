@@ -93,6 +93,7 @@ Commands:
 
 	info              - GeoPackage information
 	help              - print this help information
+	version           - Show the SQLite Exec version
 	count             - count database tables
 	tables [name]     - list database tables (all or LIKE table name)
 	indexes [name]    - list database indexes (all or LIKE index name)
@@ -139,8 +140,9 @@ Commands:
 	                     projection     - desired projection as 'authority:code' or 'epsg_code'
 	                     m              - manually query unindexed tables
 	extensions [name] - List GeoPackage extensions (all or LIKE table name)
-	rtree [-d] <name>
+	rtree [-g|-d] <name>
 	                  - Create, recreate, or drop a feature table R-tree
+	                     g              - index using geodesic bounds
 	                     d              - drop the R-tree if it exists
 	geometry <name> [-p projection] [ids]
 	                  - Display feature table geometries as Well-Known Text
